@@ -7,7 +7,7 @@ It focuses on object-oriented programming, basic combat simulation, unit roles, 
 
 At this stage, the project is a single-file prototype designed for learning and system experimentation.
 
---- 67
+---
 
 ## Current Status
 
