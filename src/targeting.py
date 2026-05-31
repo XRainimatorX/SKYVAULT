@@ -1,4 +1,6 @@
-def threatscore(attacker, eneimes):
+import random
+
+def threatscore(attacker, enemies):
     # 存放每個敵人的 threat score
     threat_list = []
 
@@ -10,12 +12,12 @@ def threatscore(attacker, eneimes):
         "COMMAND": [0.2, 0.1, 0.2, 0.5],
     }
 
-    # 不同敵方 role 的價值分數
-    role_score = {
-        "ASSAULT": 20,
-        "SUPPORT": 30,
-        "COMMAND": 50
-    }
+    # # 不同敵方 role 的價值分數
+    # role_score = {
+    #     "ASSAULT": 20,
+    #     "SUPPORT": 30,
+    #     "COMMAND": 50
+    # }
 
     # # 對每一個敵人計算威脅分數
     # for u in eneimes:
@@ -39,14 +41,14 @@ def threatscore(attacker, eneimes):
 
     #     threat_list.append(threat_score)
 
-    threat_list = target_score(enemies, weight_matrix)
+    threat_list = target_score(attacker, enemies, weight_matrix)
 
     # 找出最高分
     max_score = max(threat_list)
 
     # 如果有多個最高分目標，隨機選一個
     target = random.choice([
-        enemy for enemy, score in zip(eneimes, threat_list)
+        enemy for enemy, score in zip(enemies, threat_list)
         if score == max_score
     ])
 
@@ -55,13 +57,20 @@ def threatscore(attacker, eneimes):
 
     return target, selection, max_score
 
-def target_score(enemies, weight_matrix):
+def target_score(attacker, enemies, weight_matrix):
 
     # Set up empty list to add in threat scores
     threat_list = []
 
+    # 不同敵方 role 的價值分數
+    role_score = {
+        "ASSAULT": 20,
+        "SUPPORT": 30,
+        "COMMAND": 50
+    }
+
     # 對每一個敵人計算威脅分數
-    for u in eneimes:
+    for u in enemies:
         # feature vector：
         # 1. HP 脆弱度：HP 越低分越高
         # 2. AP
