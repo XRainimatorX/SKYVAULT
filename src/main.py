@@ -1,5 +1,7 @@
+import army_factory as af 
+
 def main():
-    print("SKYVAULT Stage 1 structure OK")
+    print(af.red_team, af.blue_team)
 
 if __name__ == "__main__":
     main()
