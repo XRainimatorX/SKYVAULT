@@ -1,0 +1,167 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "tactical_reference_world_001",
+    "world_scope": "tactical_reference_environment",
+    "purpose": [
+      "state_change_test",
+      "action_consequence_test",
+      "event_memory_test",
+      "evaluation_result_test"
+    ],
+    "space_model": {
+      "type": "grid",
+      "width": 10,
+      "height": 10,
+      "distance_model": "chebyshev"
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 10
+    },
+    "assumption_registry": {
+      "movement_model": "one_step_grid",
+      "combat_resolution": "accuracy_damage",
+      "actor_policy": "temporary_tactical_reference_policy",
+      "distance_model": "chebyshev"
+    },
+    "evaluation_targets": [
+      "world_state_changed",
+      "event_memory_created",
+      "result_package_created"
+    ]
+  },
+  "entities": [
+    {
+      "entity_id": "red_001",
+      "name": "Red Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "RED",
+      "position": [0, 0],
+      "state": {
+        "hp": 35,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 10,
+        "attack_range": 1,
+        "accuracy": 0.8
+      },
+      "tags": ["ASSAULT"]
+    },
+    {
+      "entity_id": "red_002",
+      "name": "Red Support",
+      "entity_type": "tactical_actor",
+      "faction": "RED",
+      "position": [1, 0],
+      "state": {
+        "hp": 32,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 16,
+        "attack_range": 2,
+        "accuracy": 0.55
+      },
+      "tags": ["SUPPORT"]
+    },
+    {
+      "entity_id": "red_003",
+      "name": "Red Commander",
+      "entity_type": "tactical_actor",
+      "faction": "RED",
+      "position": [2, 0],
+      "state": {
+        "hp": 30,
+        "ap": 60,
+        "hunger": 60,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 7,
+        "attack_range": 1,
+        "accuracy": 0.7
+      },
+      "tags": ["COMMAND"]
+    },
+    {
+      "entity_id": "blue_001",
+      "name": "Blue Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [9, 9],
+      "state": {
+        "hp": 35,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 10,
+        "attack_range": 1,
+        "accuracy": 0.8
+      },
+      "tags": ["ASSAULT"]
+    },
+    {
+      "entity_id": "blue_002",
+      "name": "Blue Support",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [8, 9],
+      "state": {
+        "hp": 32,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 16,
+        "attack_range": 2,
+        "accuracy": 0.55
+      },
+      "tags": ["SUPPORT"]
+    },
+    {
+      "entity_id": "blue_003",
+      "name": "Blue Commander",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [7, 9],
+      "state": {
+        "hp": 30,
+        "ap": 60,
+        "hunger": 60,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 7,
+        "attack_range": 1,
+        "accuracy": 0.7
+      },
+      "tags": ["COMMAND"]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 10,
+    "random_seed": 42,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count",
+      "active_entities",
+      "destroyed_entities",
+      "winner_or_result"
+    ],
+    "failure_thresholds": [
+      "all_entities_destroyed"
+    ]
+  }
+}
