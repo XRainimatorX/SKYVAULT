@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from typing import Any
 
-from skyvault.entity import Entity, Position
-from skyvault.event_memory import Event, new_event_id
+from .entity import Entity, Position
+from .event_memory import Event, new_event_id
 
 
 @dataclass

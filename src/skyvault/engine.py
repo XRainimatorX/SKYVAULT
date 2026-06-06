@@ -1,11 +1,11 @@
 import random
 from typing import Any
 
-from skyvault.action import Action
-from skyvault.consequence import Consequence
-from skyvault.entity import Entity
-from skyvault.tactical_reference_policy import TacticalReferencePolicy
-from skyvault.world_state import SpaceModel, WorldState
+from .action import Action
+from .consequence import Consequence
+from .entity import Entity
+from .tactical_reference_policy import TacticalReferencePolicy
+from .world_state import SpaceModel, WorldState
 
 
 class SkyVaultTacticalReferenceEngine:

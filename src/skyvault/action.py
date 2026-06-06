@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
 
-from skyvault.entity import Position
+from .entity import Position
 
 
 def new_action_id() -> str:

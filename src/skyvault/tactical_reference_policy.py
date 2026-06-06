@@ -1,8 +1,8 @@
 import random
 
-from skyvault.action import Action, new_action_id
-from skyvault.entity import Entity, Position
-from skyvault.world_state import WorldState
+from .action import Action, new_action_id
+from .entity import Entity, Position
+from .world_state import WorldState
 
 
 class TacticalReferencePolicy:
