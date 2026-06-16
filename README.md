@@ -624,6 +624,34 @@ failure_points
 
 ---
 
+### `timeline.py`
+
+This file is dedicated for human reading.
+
+It has converted the json file "event_memory.json" into human readable sentences for tracing purposes.
+
+Example sentences include:
+
+```text
+Tick 1
+
+- Red Rifleman selected MOVE
+- Red Rifleman moved from (0, 0) to (0, 1).
+
+Tick 5
+
+- Red Rifleman selected ATTACK against Blue Commander
+- Red Rifleman attacked Blue Commander but missed.
+
+Tick 6
+
+- Red Rifleman selected ATTACK against Blue Commander
+- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 7)
+- Blue Commander in the BLUE faction was destroyed by Red Rifleman
+```
+
+---
+
 ### `scripts/run_tactical_reference.py`
 
 開發用 runner。
