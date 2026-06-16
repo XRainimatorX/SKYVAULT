@@ -181,7 +181,7 @@ def write_event(time, actor_dict, events_in_same_tick):
     return sentence_list
 
 # Finds the absolute folder directory where this current script resides
-REPO_ROOT = Path(__file__).resolve().parents[1] # Now parallel with src: so .. brings out to skyvault
+REPO_ROOT = Path(__file__).resolve().parents[1] # Now parallel with src: so .. brings out to SKYVAULT
 
 # Safely joins paths independent of the terminal's current working directory
 event_path = REPO_ROOT / ".." / "output" / "event_memory.json"
