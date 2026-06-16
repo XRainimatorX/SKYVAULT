@@ -180,8 +180,14 @@ def write_event(time, actor_dict, events_in_same_tick):
 
     return sentence_list
 
-# Open the event_memory file to read data
-event_path = Path("output/event_memory.json")
+# Finds the absolute folder directory where this current script resides
+REPO_ROOT = Path(__file__).resolve().parents[1] # Now parallel with src: so .. brings out to the whole file
+
+# Safely joins paths independent of the terminal's current working directory
+event_path = REPO_ROOT / ".." / "output" / "event_memory.json"
+
+# # Open the event_memory file to read data
+# event_path = Path("output/event_memory.json")
 
 with open(event_path, "r") as f:
 
@@ -252,8 +258,12 @@ for event in timeline_list[1]:
 # print(actor_dict)
 
 # Writing section starts here
+
 # Set up path to write data in
-timeline_path = Path("output/timeline.txt")
+# Safely joins paths independent of the terminal's current working directory
+timeline_path = REPO_ROOT / ".." / "output" / "timeline.txt"
+
+# timeline_path = Path("output/timeline.txt")
 
 # Open the textfile to write sentences into
 with open(timeline_path, "w") as g:
