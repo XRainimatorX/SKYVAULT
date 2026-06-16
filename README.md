@@ -720,6 +720,21 @@ policy separation
 
 ---
 
+### `tests/test_timeline.py`
+
+Testing the "timeline.py" file.
+
+The following tests had been included:
+
+```text
+String output
+Title and Scenario ID inclusion
+Tick inclusion
+Human-readable events output
+Textfile existence
+```
+---
+
 ## 9. Scenario JSON 格式
 
 最小合法結構：
