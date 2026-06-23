@@ -652,6 +652,161 @@ Tick 6
 
 ---
 
+### `entity_history.py`
+
+The purpose for this file is to record actions from each entity.
+
+This is done by extracting data from the event_memory.json and separating into events for each entities.
+
+It includes events where an entity is an actor, the target, or affected.
+
+Example data includes:
+
+```text
+{
+        "time": 4,
+        "event_type": "MISS",
+        "role_in_event": "actor",
+        "event_id": "event_76dc7b39b0",
+        "source_action_id": "action_b5dd8940b5",
+        "before_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "accuracy": 0.55,
+          "distance": 2
+        },
+        "tags": [
+          "attack",
+          "miss"
+        ]
+      }
+```
+
+and
+
+```text
+{
+        "time": 4,
+        "event_type": "MISS",
+        "role_in_event": "target",
+        "event_id": "event_76dc7b39b0",
+        "source_action_id": "action_b5dd8940b5",
+        "before_state": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "data": {
+          "accuracy": 0.55,
+          "distance": 2
+        },
+        "tags": [
+          "attack",
+          "miss"
+        ]
+      }
+```
+These two sets of data perfectly demonstrates how the same event (with the same event_id) could be recorded twice.
+
+This is due to one of the entity being actor while the other being target.
+
+Therefore, every perspective of the events has been recorded into separate entities as their historical records.
+
+---
+
 ### `scripts/run_tactical_reference.py`
 
 開發用 runner。
