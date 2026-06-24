@@ -6,7 +6,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 35,
@@ -1456,7 +1456,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 32,
@@ -3108,7 +3108,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 30,
@@ -4446,7 +4446,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 35,
@@ -6184,7 +6184,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 32,
@@ -7301,7 +7301,7 @@
     "history": [
       {
         "time": 0,
-        "event": "INITIAL_STATE",
+        "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
         "initial_state": {
           "hp": 30,

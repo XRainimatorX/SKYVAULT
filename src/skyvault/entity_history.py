@@ -64,7 +64,7 @@ def write_history(entity_list: list, event_list: list):
 
         temp_dict = {
             "time": time,
-            "event": event_type,
+            "event_type": event_type,
             "role_in_event": role_in_event,
             "initial_state": initial_state
         }
