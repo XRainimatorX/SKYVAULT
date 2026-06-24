@@ -877,7 +877,7 @@ policy separation
 
 ### `tests/test_timeline.py`
 
-Testing the "timeline.py" file.
+Testing the `timeline.py` file.
 
 The following tests had been included:
 
@@ -888,6 +888,24 @@ Tick inclusion
 Human-readable events output
 Textfile existence
 ```
+
+---
+
+### `tests/test_entity_history.py`
+
+Testing the `entity_history.py` file/
+
+The following tests had been included:
+
+```text
+Basic structure for output
+Non-emptiness of output
+Existence of records for factions
+Basic structure of entities
+Existence of records for INITIAL_STATE
+Existence of records for all states (initial, before, after, final)
+```
+
 ---
 
 ## 9. Scenario JSON 格式
