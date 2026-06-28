@@ -2,11 +2,11 @@ import copy
 import json
 
 #reading from these to get scenario id and entities at each tick
-with open("../../data/scenarios/tactical_reference_001.json", "r") as tr:
+with open("data/scenarios/tactical_reference_001.json", "r") as tr:
     tactical_reference = json.load(tr)
-with open("../../output/event_memory.json", "r") as em:
+with open("output/event_memory.json", "r") as em:
     event_memory = json.load(em)
-with open("../../output/final_state.json", "r") as fs:
+with open("output/final_state.json", "r") as fs:
     final_state = json.load(fs)
 
 #scenario id from tr
@@ -66,5 +66,5 @@ replay_state_at_tick["states"]["final"] = {
 }
 
 #write json
-with open("../../output/replay_state_at_tick.json", "w") as f:
+with open("output/replay_state_at_tick.json", "w") as f:
     json.dump(replay_state_at_tick, f, indent=4)

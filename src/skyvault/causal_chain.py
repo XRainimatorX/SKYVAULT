@@ -1,9 +1,9 @@
 import json
 
-with open("../../data/scenarios/tactical_reference_001.json", "r") as tr:
+with open("data/scenarios/tactical_reference_001.json", "r") as tr:
     tactical_reference = json.load(tr)
 
-with open("../../output/event_memory.json", "r") as em:
+with open("output/event_memory.json", "r") as em:
     event_memory = json.load(em)
 
 scenario_id = tactical_reference["scenario_id"]
@@ -70,5 +70,5 @@ if scenario_end is not None:
     }
 
 #write json file
-with open("../../output/causal_chain.json", "w") as f:
+with open("output/causal_chain.json", "w") as f:
     json.dump(causal_chain, f, indent=4)
