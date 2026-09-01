@@ -82,7 +82,17 @@ class WorldState:
         after_state: dict[str, Any],
         data: dict[str, Any] | None = None,
         tags: list[str] | None = None,
+        affected_entities: list[str] | None = None,
+        affected_locations: list[list[int]] | None = None,
+        affected_resources: list[str] | None = None,
+        causal_links: dict[str, list[str]] | None = None,
+        evaluation_relevance: dict[str, bool] | None = None,
     ) -> Event:
+        if causal_links is None:
+            causal_links = {"caused_by": [], "caused_events": []}
+        if evaluation_relevance is None:
+            evaluation_relevance = {"affects_success": False, "affects_cost": False, "affects_risk": False}
+
         event = Event(
             event_id=new_event_id(),
             time=self.tick,
@@ -92,6 +102,11 @@ class WorldState:
             source_action_id=source_action_id,
             before_state=before_state,
             after_state=after_state,
+            affected_entities=affected_entities or [],
+            affected_locations=affected_locations or [],
+            affected_resources=affected_resources or [],
+            causal_links=causal_links,
+            evaluation_relevance=evaluation_relevance,
             data=data or {},
             tags=tags or [],
         )
