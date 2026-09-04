@@ -45,6 +45,16 @@ def main() -> None:
         result_package["final_world_state"],
     )
 
+    write_json(
+        output_dir / "causal_chain.json",
+        result_package,
+    )
+
+    write_json(
+        output_dir / "replay_state_at_tick.json",
+        result_package,
+    )
+
     print("SKYVAULT Tactical Reference Slice v0.1 completed.")
     print(f"Scenario: {result_package['scenario_id']}")
     print(f"Result: {result_package['evaluation']['winner_or_result']}")
