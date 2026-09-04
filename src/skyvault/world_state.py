@@ -2,7 +2,12 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .entity import Entity, Position
-from .event_memory import Event, new_event_id
+from .event_memory import (
+    Event,
+    build_causal_links,
+    build_evaluation_relevance,
+    new_event_id,
+)
 
 
 @dataclass
@@ -80,9 +85,23 @@ class WorldState:
         source_action_id: str | None,
         before_state: dict[str, Any],
         after_state: dict[str, Any],
+        affected_entities: list[str] | None = None,
+        affected_locations: list[Any] | None = None,
+        affected_resources: list[str] | None = None,
+        causal_links: dict[str, list[str]] | None = None,
+        evaluation_relevance: dict[str, bool] | None = None,
         data: dict[str, Any] | None = None,
         tags: list[str] | None = None,
     ) -> Event:
+        """
+        record_event = append one finished fact to event memory.
+
+        Important:
+        Callers only pass what they actually know.
+
+        Everything they leave out is filled with its empty structure here, so
+        event memory never holds a half-shaped event.
+        """
         event = Event(
             event_id=new_event_id(),
             time=self.tick,
@@ -92,12 +111,39 @@ class WorldState:
             source_action_id=source_action_id,
             before_state=before_state,
             after_state=after_state,
+            affected_entities=list(affected_entities or []),
+            affected_locations=list(affected_locations or []),
+            affected_resources=list(affected_resources or []),
+            causal_links=build_causal_links(causal_links),
+            evaluation_relevance=build_evaluation_relevance(evaluation_relevance),
             data=data or {},
             tags=tags or [],
         )
 
+        self.link_causal_predecessor(event)
         self.event_memory.append(event)
+
         return event
+
+    def link_causal_predecessor(self, event: Event) -> None:
+        """
+        Important:
+        This is bookkeeping, not causal inference.
+
+        Two events are linked only when the engine already resolved both of them
+        from the same action, so nothing is guessed here.
+        """
+        if event.source_action_id is None:
+            return
+
+        for earlier in reversed(self.event_memory):
+            if earlier.source_action_id != event.source_action_id:
+                continue
+
+            event.causal_links["caused_by"].append(earlier.event_id)
+            earlier.causal_links["caused_events"].append(event.event_id)
+
+            return
 
     def snapshot(self) -> dict[str, Any]:
         return {
