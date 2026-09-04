@@ -1125,9 +1125,9 @@ deterministic_mode   是否要求可重跑
 
 ### `output/event_memory.json`
 
-完整 event list。
+完整 event list，Phase 4 的 truth source。其餘四個 Phase 4 輸出全部由它推導。
 
-每個 item 應接近：
+每個 event 都有同樣的 17 個欄位，即使某個欄位當下沒有資料也保留空結構：
 
 ```json
 {
@@ -1135,10 +1135,24 @@ deterministic_mode   是否要求可重跑
   "time": 1,
   "event_type": "MOVE",
   "actor_id": "red_001",
+  "system_id": "temporary_tactical_reference_policy",
   "target_entity_id": null,
   "source_action_id": "action_xxxxx",
+  "affected_entities": ["red_001"],
+  "affected_locations": [[0, 0], [1, 1]],
+  "affected_resources": [],
+  "affected_risks": [],
   "before_state": {},
   "after_state": {},
+  "causal_links": {
+    "caused_by": ["event_yyyyy"],
+    "caused_events": []
+  },
+  "evaluation_relevance": {
+    "affects_success": false,
+    "affects_cost": true,
+    "affects_risk": false
+  },
   "data": {
     "from": [0, 0],
     "to": [1, 1]
@@ -1147,10 +1161,25 @@ deterministic_mode   是否要求可重跑
 }
 ```
 
+幾個欄位的意義：
+
+```text
+system_id             這個行動是哪個系統下的。目前是 scenario 宣告的 actor_policy；
+                      SCENARIO_END 帶引擎自己的識別。
+affected_*            這個 event 影響到誰、哪裡、哪些資源與風險。
+causal_links          同一個 action 解算出來的 event 互相串起來。
+evaluation_relevance  這件事是否影響成敗、成本、風險。
+```
+
+`affected_resources` 與 `affected_risks` 目前恆為空 —— 引擎沒有任何 action 會改動
+`ap` / `hunger`，風險也還不是系統裡存在的概念。欄位保留但不填值，理由見
+`docs/decisions/001_event_shape.md`。
+
 用途：
 
 ```text
-用來逐步 debug simulation 行為。
+用來逐步 debug simulation 行為，也是 timeline / replay / entity_history /
+causal_chain 四個輸出的唯一資料來源。
 ```
 
 ---
