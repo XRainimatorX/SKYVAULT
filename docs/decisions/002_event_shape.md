@@ -1,4 +1,4 @@
-# 001 — Phase 4 的 event shape
+# 002 — Phase 4 的 event shape
 
 狀態：已採納
 日期：2026-09-04
