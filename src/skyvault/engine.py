@@ -90,6 +90,8 @@ class SkyVaultTacticalReferenceEngine:
         max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
         termination_reason = "duration_limit_reached"
 
+        initial_world_state = self.world.snapshot()
+
         for tick in range(1, max_ticks + 1):
             self.world.tick = tick
 
@@ -170,7 +172,9 @@ class SkyVaultTacticalReferenceEngine:
             if termination_reason == "termination_condition_met":
                 break
 
-        evaluation = self.evaluate(termination_reason)
+        total_events = len(self.world.event_memory) + 1
+
+        evaluation = self.evaluate(termination_reason, total_events)
 
         self.world.record_event(
             event_type="SCENARIO_END",
@@ -189,6 +193,7 @@ class SkyVaultTacticalReferenceEngine:
         return {
             "scenario_id": self.scenario["scenario_id"],
             "scenario_version": self.scenario["scenario_version"],
+            "initial_world_state": initial_world_state,
             "final_world_state": self.world.snapshot(),
             "event_memory": [
                 event.to_dict()
@@ -431,5 +436,5 @@ class SkyVaultTacticalReferenceEngine:
             evaluation_impact={"damage_done": damage},
         )
 
-    def evaluate(self, termination_reason: str) -> dict[str, Any]:
-        return build_evaluation_summary(self.world, termination_reason)
+    def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:
+        return build_evaluation_summary(self.world, termination_reason, event_count)
