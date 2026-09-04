@@ -63,7 +63,11 @@ SKYVAULT/
 │       ├── scenario_loader.py
 │       ├── tactical_reference_policy.py
 │       ├── evaluator.py
-│       └── engine.py
+│       ├── engine.py
+│       ├── timeline.py
+│       ├── replay.py
+│       ├── entity_history.py
+│       └── causal_chain.py
 │
 ├── data/
 │   └── scenarios/
@@ -75,10 +79,19 @@ SKYVAULT/
 ├── output/
 │   ├── event_memory.json
 │   ├── final_state.json
-│   └── result_package.json
+│   ├── result_package.json
+│   ├── timeline.txt
+│   ├── replay_state_at_tick.json
+│   ├── entity_history.json
+│   └── causal_chain.json
 │
 └── tests/
-    └── test_tactical_reference_slice.py
+    ├── test_tactical_reference_slice.py
+    ├── test_event_memory.py
+    ├── test_timeline.py
+    ├── test_replay.py
+    ├── test_entity_history.py
+    └── test_causal_chain.py
 ```
 
 ---
@@ -91,13 +104,21 @@ SKYVAULT/
 python scripts/run_tactical_reference.py
 ```
 
-預期會產生：
+一次執行會產生全部七個 Phase 4 輸出：
 
 ```text
-output/event_memory.json
-output/final_state.json
-output/result_package.json
+output/event_memory.json            engine 記錄的完整事件歷史（truth source）
+output/final_state.json             scenario 結束時的世界狀態
+output/result_package.json          上面兩者加上 evaluation 的整包結果
+output/timeline.txt                 人類可直接閱讀的時間線
+output/replay_state_at_tick.json    每個 tick 結束時的世界快照
+output/entity_history.json          每個 entity 的完整生命歷史
+output/causal_chain.json            action 到 event 的因果鏈
 ```
+
+前三個是 Step 1 既有輸出，後四個是 Phase 4 新增。四個 Phase 4 輸出全部由
+`event_memory.json` 推導而來，runner 只負責呼叫各自的 exporter 並寫檔，不含任何
+轉換邏輯。
 
 ---
 
@@ -807,6 +828,49 @@ Therefore, every perspective of the events has been recorded into separate entit
 
 ---
 
+### `replay.py`
+
+負責從 event_memory 重建每個 tick 結束時的世界狀態。
+
+作法是拿 scenario 的初始 entity 清單當起點，依序讀過每個 event 的
+`after_state`，更新該 entity 的最新已知狀態；每當 tick 改變，就把當下所有
+entity 的狀態拍一張快照存進 `states`。
+
+對外只暴露一個函式：
+
+```python
+build_replay_state_at_tick(scenario, event_memory, final_world_state) -> dict
+```
+
+它不開檔、不寫檔，資料由呼叫端傳入、結果由呼叫端決定怎麼存。所以 import 這個
+模組不會產生任何副作用。
+
+不做 timeline 排版、不做 causal chain 分組、不修改 world state。
+
+---
+
+### `causal_chain.py`
+
+負責回答「哪一個 action 造成了哪些後果」。
+
+作法是把 event_memory 依 `source_action_id` 分組，同一組內依 `time` 排序，
+串成一條鏈。`ACTION_SELECTED` 的 event_id 會保留在 `events` 裡，但不列進
+`event_types`，因為它是決定本身而不是後果。
+
+對外只暴露一個函式：
+
+```python
+build_causal_chain(scenario_id, event_memory) -> dict
+```
+
+同樣不開檔、不寫檔、import 無副作用。
+
+沒有 action 來源的 event（`NO_ACTION` 的 `source_action_id` 是 `None`、
+`SCENARIO_END` 也沒有）不會被歸進任何一條鏈；`SCENARIO_END` 另外放在
+`scenario_end` 欄位。
+
+---
+
 ### `scripts/run_tactical_reference.py`
 
 開發用 runner。
@@ -1140,6 +1204,105 @@ winner_or_result
 key_findings
 failure_points
 ```
+
+---
+
+### `output/timeline.txt`
+
+把 event_memory 翻成一份從頭讀到尾就看得懂的戰況記錄，不需要打開任何 JSON。
+
+格式：
+
+```text
+SKYVAULT Tactical Reference Timeline
+Scenario: tactical_reference_001
+
+Tick 1
+
+- Red Rifleman selected MOVE
+- Red Rifleman moved from (0, 0) to (0, 1).
+
+Tick 7
+
+- Red Support selected ATTACK against Blue Rifleman
+- Red Support successfully attacked Blue Rifleman: HP 5 -> 0 (damage = 5)
+- Blue Rifleman in the BLUE faction was destroyed by Red Support
+
+Scenario Ended: termination_condition_met
+- Result: RED_survived
+```
+
+八種 event type 全部支援：`ACTION_SELECTED` / `ACTION_REJECTED` / `MOVE` /
+`ATTACK` / `MISS` / `ENTITY_DESTROYED` / `NO_ACTION` / `SCENARIO_END`。
+
+---
+
+### `output/replay_state_at_tick.json`
+
+每個 tick 結束時，世界長什麼樣。用來回答「第 5 回合的時候戰場是什麼狀態」。
+
+```text
+scenario_id
+states
+  "0"       初始狀態
+  "1".."N"  每個 tick 結束後的世界
+  "final"   scenario 結束時的世界
+```
+
+每個 state 底下有 `description` 與 `world_state`，`world_state` 是 entity_id
+對應到該 entity 當下的完整快照。
+
+---
+
+### `output/entity_history.json`
+
+以 entity 為主軸重新整理事件，回答「這個單位一路上發生過什麼」。
+
+每個 entity 包含：
+
+```text
+entity_id
+name
+faction
+history
+```
+
+`history` 裡每一筆 record 形狀一致，都含九個欄位：
+
+```text
+time
+event_type
+role_in_event
+event_id
+source_action_id
+before_state
+after_state
+data
+tags
+```
+
+`role_in_event` 可能是 `initial_state` / `actor` / `target` / `affected` /
+`final_state`。一個 entity 會被記錄三種情況：它是 actor、它是 target、以及它
+出現在該 event 的 `affected_entities` 裡。
+
+---
+
+### `output/causal_chain.json`
+
+把同一個 action 產生的事件串成一條鏈，回答「哪個決定造成了哪些後果」。
+
+```text
+scenario_id
+chains
+  source_action_id
+  events         該 action 產生的 event_id，依 time 排序
+  event_types    去掉 ACTION_SELECTED 後的後果類型
+  summary        一句話描述這條鏈
+scenario_end
+```
+
+分組只依據 `source_action_id`。沒有 action 來源的事件（`NO_ACTION`、
+`SCENARIO_END`）不會被硬塞進任何一條鏈。
 
 ---
 

@@ -8,19 +8,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 35,
           "ap": 50,
           "hunger": 50,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_ae2b421ac8",
-        "source_action_id": "action_61aa0dce39",
+        "event_id": "event_97e9f405c3",
+        "source_action_id": "action_8fd98853e8",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -85,8 +90,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_2dec1dfab0",
-        "source_action_id": "action_61aa0dce39",
+        "event_id": "event_fd5188ed04",
+        "source_action_id": "action_8fd98853e8",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -155,8 +160,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_a2d93b5ff4",
-        "source_action_id": "action_66d5615840",
+        "event_id": "event_2ce2b996f8",
+        "source_action_id": "action_20576c586b",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -223,8 +228,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_3934f10dc1",
-        "source_action_id": "action_66d5615840",
+        "event_id": "event_9244ceca75",
+        "source_action_id": "action_20576c586b",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -294,8 +299,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_83d530f60d",
-        "source_action_id": "action_d7d3e35ffb",
+        "event_id": "event_aee9f95ec7",
+        "source_action_id": "action_bd3b3dfb1d",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -362,8 +367,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_3071e1759a",
-        "source_action_id": "action_d7d3e35ffb",
+        "event_id": "event_1c09400fe3",
+        "source_action_id": "action_bd3b3dfb1d",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -433,8 +438,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_9bf570443a",
-        "source_action_id": "action_4a8d175522",
+        "event_id": "event_13a1e986ba",
+        "source_action_id": "action_e2e424d0e5",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -501,8 +506,8 @@
         "time": 4,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_f4f7d332ad",
-        "source_action_id": "action_4a8d175522",
+        "event_id": "event_13c2214ed8",
+        "source_action_id": "action_e2e424d0e5",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -572,8 +577,8 @@
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_e5011498d0",
-        "source_action_id": "action_1a8dd096d2",
+        "event_id": "event_697800c47e",
+        "source_action_id": "action_f99099b2ee",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -637,8 +642,8 @@
         "time": 5,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_1b35e81521",
-        "source_action_id": "action_1a8dd096d2",
+        "event_id": "event_33a25ab5f8",
+        "source_action_id": "action_f99099b2ee",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -702,8 +707,8 @@
         "time": 6,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_09f1f225d5",
-        "source_action_id": "action_a68de415a4",
+        "event_id": "event_3099073ce9",
+        "source_action_id": "action_a771171ace",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -767,8 +772,8 @@
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_35fcd216ec",
-        "source_action_id": "action_a68de415a4",
+        "event_id": "event_e0a75f92a3",
+        "source_action_id": "action_a771171ace",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -827,15 +832,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "actor",
-        "event_id": "event_7e9db59e18",
-        "source_action_id": "action_a68de415a4",
+        "event_id": "event_cdfa182f6a",
+        "source_action_id": "action_a771171ace",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -892,15 +898,16 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 7,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_ae505b37ac",
-        "source_action_id": "action_25c4ac6445",
+        "event_id": "event_618b58421e",
+        "source_action_id": "action_d4e1f2f032",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -967,8 +974,8 @@
         "time": 7,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_96d5eeee77",
-        "source_action_id": "action_25c4ac6445",
+        "event_id": "event_013c8fc74f",
+        "source_action_id": "action_d4e1f2f032",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1038,8 +1045,8 @@
         "time": 8,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_3e1fcced4f",
-        "source_action_id": "action_efb0e6c813",
+        "event_id": "event_76d3258b64",
+        "source_action_id": "action_bf1255ff92",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1103,8 +1110,8 @@
         "time": 8,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_cc305685cd",
-        "source_action_id": "action_efb0e6c813",
+        "event_id": "event_727d94e71d",
+        "source_action_id": "action_bf1255ff92",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1163,15 +1170,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 9,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_c5588181de",
-        "source_action_id": "action_f76e42f9b3",
+        "event_id": "event_5326ba4437",
+        "source_action_id": "action_a06b1ced6b",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1235,8 +1243,8 @@
         "time": 9,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_9daf44f6f5",
-        "source_action_id": "action_f76e42f9b3",
+        "event_id": "event_e7ef91b48d",
+        "source_action_id": "action_a06b1ced6b",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1295,15 +1303,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_dbeb6bf937",
-        "source_action_id": "action_00e6569b3b",
+        "event_id": "event_460f48d867",
+        "source_action_id": "action_c48ce95f4c",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1367,8 +1376,8 @@
         "time": 10,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_ca09b10ee2",
-        "source_action_id": "action_00e6569b3b",
+        "event_id": "event_e172559163",
+        "source_action_id": "action_c48ce95f4c",
         "before_state": {
           "entity_id": "red_001",
           "name": "Red Rifleman",
@@ -1427,25 +1436,35 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": 35,
           "ap": 50,
           "hunger": 50,
           "status": "active",
           "last_action": "move"
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": 35,
+          "ap": 50,
+          "hunger": 50,
+          "status": "active",
+          "last_action": "move"
+        }
       }
     ]
   },
@@ -1458,19 +1477,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 32,
           "ap": 50,
           "hunger": 50,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_9fbca17bb2",
-        "source_action_id": "action_460a21e454",
+        "event_id": "event_a2a91bdcb6",
+        "source_action_id": "action_91cd523070",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1535,8 +1559,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_c4eee22d25",
-        "source_action_id": "action_460a21e454",
+        "event_id": "event_2a3e59cb7c",
+        "source_action_id": "action_91cd523070",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1605,8 +1629,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_0cec21236c",
-        "source_action_id": "action_384bdf489c",
+        "event_id": "event_f39979dfd0",
+        "source_action_id": "action_9bd30fa8c0",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1673,8 +1697,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_99e141905c",
-        "source_action_id": "action_384bdf489c",
+        "event_id": "event_9da0d812fc",
+        "source_action_id": "action_9bd30fa8c0",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1744,8 +1768,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_73b08a21c2",
-        "source_action_id": "action_72593bd499",
+        "event_id": "event_7d6ca6c72b",
+        "source_action_id": "action_8053fed5eb",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1812,8 +1836,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_703973b584",
-        "source_action_id": "action_72593bd499",
+        "event_id": "event_2ecceed2bc",
+        "source_action_id": "action_8053fed5eb",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1883,8 +1907,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_d12e7f740d",
-        "source_action_id": "action_9a4660f867",
+        "event_id": "event_56abe03c92",
+        "source_action_id": "action_2a21ae1880",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -1951,8 +1975,8 @@
         "time": 4,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_1f31552c7d",
-        "source_action_id": "action_9a4660f867",
+        "event_id": "event_25b4078487",
+        "source_action_id": "action_2a21ae1880",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2022,8 +2046,8 @@
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_12c1bb6091",
-        "source_action_id": "action_7907f033ab",
+        "event_id": "event_b3af0dce90",
+        "source_action_id": "action_d281760695",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2087,8 +2111,8 @@
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_a22710ee0a",
-        "source_action_id": "action_7907f033ab",
+        "event_id": "event_4659fd7341",
+        "source_action_id": "action_d281760695",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2147,15 +2171,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_fcc2132d6e",
-        "source_action_id": "action_aad1472753",
+        "event_id": "event_b111973bb9",
+        "source_action_id": "action_9d45f28fbe",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2219,8 +2244,8 @@
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_343893027b",
-        "source_action_id": "action_aad1472753",
+        "event_id": "event_5fb84d5bc7",
+        "source_action_id": "action_9d45f28fbe",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2279,15 +2304,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 7,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_b9340d47b5",
-        "source_action_id": "action_d461ec25d8",
+        "event_id": "event_5f9d165178",
+        "source_action_id": "action_07959f5212",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2351,8 +2377,8 @@
         "time": 7,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_f9c2d5d018",
-        "source_action_id": "action_d461ec25d8",
+        "event_id": "event_aa876b9d9c",
+        "source_action_id": "action_07959f5212",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2411,15 +2437,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 7,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "actor",
-        "event_id": "event_f50760b713",
-        "source_action_id": "action_d461ec25d8",
+        "event_id": "event_11a0536d60",
+        "source_action_id": "action_07959f5212",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2476,15 +2503,16 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 8,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_01a868c406",
-        "source_action_id": "action_ad0b9f0c14",
+        "event_id": "event_d8182ab885",
+        "source_action_id": "action_0d561d48af",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2548,8 +2576,8 @@
         "time": 8,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_63ef7706da",
-        "source_action_id": "action_ad0b9f0c14",
+        "event_id": "event_0b86adb663",
+        "source_action_id": "action_0d561d48af",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2611,10 +2639,77 @@
       },
       {
         "time": 8,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_b47fe0ac54",
+        "source_action_id": "action_670a23f2cb",
+        "before_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 25,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 25,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 8,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_9c72516cbd",
-        "source_action_id": "action_87580ca6ef",
+        "event_id": "event_4b09b085a6",
+        "source_action_id": "action_670a23f2cb",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2674,15 +2769,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 9,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_8d8107973e",
-        "source_action_id": "action_821f3a9310",
+        "event_id": "event_5d34fe56dd",
+        "source_action_id": "action_757b7c4f5d",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2748,8 +2844,8 @@
         "time": 9,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_8b5dd8ec38",
-        "source_action_id": "action_821f3a9310",
+        "event_id": "event_889c5e1eaa",
+        "source_action_id": "action_757b7c4f5d",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2813,10 +2909,77 @@
       },
       {
         "time": 9,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_2e20083d28",
+        "source_action_id": "action_484ea134fc",
+        "before_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 15,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 15,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 9,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_3a69f03e3a",
-        "source_action_id": "action_7965a901e2",
+        "event_id": "event_1d8ce2db3c",
+        "source_action_id": "action_484ea134fc",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2882,8 +3045,8 @@
         "time": 10,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_0bb9b62f1d",
-        "source_action_id": "action_0718f419d2",
+        "event_id": "event_28b09e165a",
+        "source_action_id": "action_298705e51d",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -2949,8 +3112,8 @@
         "time": 10,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_382047daf7",
-        "source_action_id": "action_0718f419d2",
+        "event_id": "event_c343539532",
+        "source_action_id": "action_298705e51d",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -3011,15 +3174,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "actor",
-        "event_id": "event_7a51b478bc",
-        "source_action_id": "action_0718f419d2",
+        "event_id": "event_51a7053f94",
+        "source_action_id": "action_298705e51d",
         "before_state": {
           "entity_id": "red_002",
           "name": "Red Support",
@@ -3078,16 +3242,18 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": 22,
           "ap": 50,
           "hunger": 50,
@@ -3095,9 +3261,18 @@
           "last_action": "move",
           "last_damage_taken": 10
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": 22,
+          "ap": 50,
+          "hunger": 50,
+          "status": "active",
+          "last_action": "move",
+          "last_damage_taken": 10
+        }
       }
     ]
   },
@@ -3110,19 +3285,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 30,
           "ap": 60,
           "hunger": 60,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_a8fec2039f",
-        "source_action_id": "action_66ecd562af",
+        "event_id": "event_06ac6a5dd3",
+        "source_action_id": "action_2c0b27520c",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3187,8 +3367,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_98fca43eee",
-        "source_action_id": "action_66ecd562af",
+        "event_id": "event_a6eb780cea",
+        "source_action_id": "action_2c0b27520c",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3257,8 +3437,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_e41a7cc365",
-        "source_action_id": "action_4d5ce3abd5",
+        "event_id": "event_2d6be35d98",
+        "source_action_id": "action_9b8d7ac5c3",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3325,8 +3505,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_7831ba977c",
-        "source_action_id": "action_4d5ce3abd5",
+        "event_id": "event_922ad7a6cc",
+        "source_action_id": "action_9b8d7ac5c3",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3396,8 +3576,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_8aa0c92579",
-        "source_action_id": "action_8cb6eae22a",
+        "event_id": "event_3850147186",
+        "source_action_id": "action_640b108331",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3464,8 +3644,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_c429003a13",
-        "source_action_id": "action_8cb6eae22a",
+        "event_id": "event_261f7c059e",
+        "source_action_id": "action_640b108331",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3535,8 +3715,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_7c9cc33b0a",
-        "source_action_id": "action_8f3deaf92a",
+        "event_id": "event_8b1d3b287b",
+        "source_action_id": "action_929708b2ec",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3603,8 +3783,8 @@
         "time": 4,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_d1be17de4d",
-        "source_action_id": "action_8f3deaf92a",
+        "event_id": "event_27b8c03263",
+        "source_action_id": "action_929708b2ec",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3668,14 +3848,79 @@
         "tags": [
           "movement",
           "world_state_mutation"
+        ]
+      },
+      {
+        "time": 4,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_935c4a5545",
+        "source_action_id": "action_dc1329fb23",
+        "before_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 4,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_76dc7b39b0",
-        "source_action_id": "action_b5dd8940b5",
+        "event_id": "event_75d354e3f0",
+        "source_action_id": "action_dc1329fb23",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3739,8 +3984,8 @@
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_8cf23cfbc0",
-        "source_action_id": "action_2ded7a2af5",
+        "event_id": "event_51ce5c7a2e",
+        "source_action_id": "action_5795b15b90",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3804,8 +4049,8 @@
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_df007e5bb6",
-        "source_action_id": "action_2ded7a2af5",
+        "event_id": "event_8d0d078fb8",
+        "source_action_id": "action_5795b15b90",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3864,15 +4109,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_085464eef8",
+        "source_action_id": "action_d4758e2745",
+        "before_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_1c936273bc",
-        "source_action_id": "action_6a196f0814",
+        "event_id": "event_b97327a80c",
+        "source_action_id": "action_d4758e2745",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -3932,15 +4243,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_95a7625913",
+        "source_action_id": "action_5f8fc7b4af",
+        "before_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 5,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_40df898308",
-        "source_action_id": "action_381a7d918d",
+        "event_id": "event_96ff55d8ec",
+        "source_action_id": "action_5f8fc7b4af",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4004,10 +4381,77 @@
       },
       {
         "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_a6fdc73a03",
+        "source_action_id": "action_8839edb00f",
+        "before_state": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 7,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 7
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 7,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 7
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_13858d92f2",
-        "source_action_id": "action_a72576b99d",
+        "event_id": "event_94bdef136e",
+        "source_action_id": "action_8839edb00f",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4068,15 +4512,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_484bda81ce",
-        "source_action_id": "action_1c3fc7229a",
+        "event_id": "event_484e9462e3",
+        "source_action_id": "action_b5d1996ed4",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4145,8 +4590,8 @@
         "time": 6,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_f54701e5eb",
-        "source_action_id": "action_1c3fc7229a",
+        "event_id": "event_1fcd407367",
+        "source_action_id": "action_b5d1996ed4",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4216,10 +4661,75 @@
       },
       {
         "time": 6,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_12088175df",
+        "source_action_id": "action_9b8d7f5251",
+        "before_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_8e0fbaeb1b",
-        "source_action_id": "action_0d502f8da8",
+        "event_id": "event_e1a43240af",
+        "source_action_id": "action_9b8d7f5251",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4280,15 +4790,83 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 6,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_426b00cbdb",
+        "source_action_id": "action_d5c1a64d9b",
+        "before_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 16,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 16,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_54315aa5ef",
-        "source_action_id": "action_6b37fd5ac2",
+        "event_id": "event_7914554a63",
+        "source_action_id": "action_d5c1a64d9b",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4349,15 +4927,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "final_state",
-        "event_id": "event_ee46c38032",
-        "source_action_id": "action_6b37fd5ac2",
+        "event_id": "event_0586892a0d",
+        "source_action_id": "action_d5c1a64d9b",
         "before_state": {
           "entity_id": "red_003",
           "name": "Red Commander",
@@ -4416,16 +4995,18 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": -13,
           "ap": 60,
           "hunger": 60,
@@ -4433,9 +5014,18 @@
           "last_action": "move",
           "last_damage_taken": 16
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": -13,
+          "ap": 60,
+          "hunger": 60,
+          "status": "destroyed",
+          "last_action": "move",
+          "last_damage_taken": 16
+        }
       }
     ]
   },
@@ -4448,19 +5038,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 35,
           "ap": 50,
           "hunger": 50,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_dec81a5a31",
-        "source_action_id": "action_68b1d29dc6",
+        "event_id": "event_8a996302c5",
+        "source_action_id": "action_73499997f6",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4525,8 +5120,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_60f9480c74",
-        "source_action_id": "action_68b1d29dc6",
+        "event_id": "event_76edb62240",
+        "source_action_id": "action_73499997f6",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4595,8 +5190,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_60d9a9d499",
-        "source_action_id": "action_b585cb7dc4",
+        "event_id": "event_a484a865d8",
+        "source_action_id": "action_3e764a97c0",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4663,8 +5258,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_11a18335f0",
-        "source_action_id": "action_b585cb7dc4",
+        "event_id": "event_d79439e649",
+        "source_action_id": "action_3e764a97c0",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4734,8 +5329,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_f545d3e383",
-        "source_action_id": "action_2699521943",
+        "event_id": "event_61e7338b1e",
+        "source_action_id": "action_937e3bb103",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4802,8 +5397,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_d504e391bd",
-        "source_action_id": "action_2699521943",
+        "event_id": "event_c7c073fdb8",
+        "source_action_id": "action_937e3bb103",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4873,8 +5468,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_d6a247849b",
-        "source_action_id": "action_614a29985a",
+        "event_id": "event_35d5643cb7",
+        "source_action_id": "action_cc312cd01a",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -4941,8 +5536,8 @@
         "time": 4,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_4f8ec7fdec",
-        "source_action_id": "action_614a29985a",
+        "event_id": "event_e40e890cbb",
+        "source_action_id": "action_cc312cd01a",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5012,8 +5607,8 @@
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_70be32a2d9",
-        "source_action_id": "action_6a196f0814",
+        "event_id": "event_085464eef8",
+        "source_action_id": "action_d4758e2745",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5077,8 +5672,8 @@
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_1c936273bc",
-        "source_action_id": "action_6a196f0814",
+        "event_id": "event_b97327a80c",
+        "source_action_id": "action_d4758e2745",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5137,15 +5732,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_074ad62de5",
-        "source_action_id": "action_0d502f8da8",
+        "event_id": "event_12088175df",
+        "source_action_id": "action_9b8d7f5251",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5209,8 +5805,8 @@
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_8e0fbaeb1b",
-        "source_action_id": "action_0d502f8da8",
+        "event_id": "event_e1a43240af",
+        "source_action_id": "action_9b8d7f5251",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5269,15 +5865,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 7,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_e25faa5e79",
-        "source_action_id": "action_94be607b33",
+        "event_id": "event_414e06679b",
+        "source_action_id": "action_550c653c86",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5344,8 +5941,8 @@
         "time": 7,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_9688b0fc9f",
-        "source_action_id": "action_94be607b33",
+        "event_id": "event_8f714439a6",
+        "source_action_id": "action_550c653c86",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5413,10 +6010,75 @@
       },
       {
         "time": 8,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_76d3258b64",
+        "source_action_id": "action_bf1255ff92",
+        "before_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 8,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_cc305685cd",
-        "source_action_id": "action_efb0e6c813",
+        "event_id": "event_727d94e71d",
+        "source_action_id": "action_bf1255ff92",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5476,15 +6138,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 8,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_d8182ab885",
+        "source_action_id": "action_0d561d48af",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 8,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_63ef7706da",
-        "source_action_id": "action_ad0b9f0c14",
+        "event_id": "event_0b86adb663",
+        "source_action_id": "action_0d561d48af",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5550,8 +6278,8 @@
         "time": 8,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_be585251e1",
-        "source_action_id": "action_87580ca6ef",
+        "event_id": "event_b47fe0ac54",
+        "source_action_id": "action_670a23f2cb",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5617,8 +6345,8 @@
         "time": 8,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_9c72516cbd",
-        "source_action_id": "action_87580ca6ef",
+        "event_id": "event_4b09b085a6",
+        "source_action_id": "action_670a23f2cb",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5679,15 +6407,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 9,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_5326ba4437",
+        "source_action_id": "action_a06b1ced6b",
+        "before_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 9,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_9daf44f6f5",
-        "source_action_id": "action_f76e42f9b3",
+        "event_id": "event_e7ef91b48d",
+        "source_action_id": "action_a06b1ced6b",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5748,15 +6542,83 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 9,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_5d34fe56dd",
+        "source_action_id": "action_757b7c4f5d",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 9,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_8b5dd8ec38",
-        "source_action_id": "action_821f3a9310",
+        "event_id": "event_889c5e1eaa",
+        "source_action_id": "action_757b7c4f5d",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5822,8 +6684,8 @@
         "time": 9,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_96e174b82a",
-        "source_action_id": "action_7965a901e2",
+        "event_id": "event_2e20083d28",
+        "source_action_id": "action_484ea134fc",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5889,8 +6751,8 @@
         "time": 9,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_3a69f03e3a",
-        "source_action_id": "action_7965a901e2",
+        "event_id": "event_1d8ce2db3c",
+        "source_action_id": "action_484ea134fc",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -5954,10 +6816,75 @@
       },
       {
         "time": 10,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_460f48d867",
+        "source_action_id": "action_c48ce95f4c",
+        "before_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 10,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_ca09b10ee2",
-        "source_action_id": "action_00e6569b3b",
+        "event_id": "event_e172559163",
+        "source_action_id": "action_c48ce95f4c",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -6018,15 +6945,83 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 10,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_28b09e165a",
+        "source_action_id": "action_298705e51d",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 10,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_382047daf7",
-        "source_action_id": "action_0718f419d2",
+        "event_id": "event_c343539532",
+        "source_action_id": "action_298705e51d",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -6087,15 +7082,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "final_state",
-        "event_id": "event_7a51b478bc",
-        "source_action_id": "action_0718f419d2",
+        "event_id": "event_51a7053f94",
+        "source_action_id": "action_298705e51d",
         "before_state": {
           "entity_id": "blue_001",
           "name": "Blue Rifleman",
@@ -6154,16 +7150,18 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": -11,
           "ap": 50,
           "hunger": 50,
@@ -6171,9 +7169,18 @@
           "last_action": "move",
           "last_damage_taken": 16
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": -11,
+          "ap": 50,
+          "hunger": 50,
+          "status": "destroyed",
+          "last_action": "move",
+          "last_damage_taken": 16
+        }
       }
     ]
   },
@@ -6186,19 +7193,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 32,
           "ap": 50,
           "hunger": 50,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_a87cd93a9e",
-        "source_action_id": "action_c489229a74",
+        "event_id": "event_effb368ef8",
+        "source_action_id": "action_f1142dd4cd",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6263,8 +7275,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_8768804230",
-        "source_action_id": "action_c489229a74",
+        "event_id": "event_87c811c1ba",
+        "source_action_id": "action_f1142dd4cd",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6333,8 +7345,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_31ec141e7d",
-        "source_action_id": "action_9f7f01c447",
+        "event_id": "event_9d11658691",
+        "source_action_id": "action_3022bc53bd",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6401,8 +7413,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_1047a7973c",
-        "source_action_id": "action_9f7f01c447",
+        "event_id": "event_ef29e833e8",
+        "source_action_id": "action_3022bc53bd",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6472,8 +7484,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_0d1a953b2e",
-        "source_action_id": "action_07adf43d68",
+        "event_id": "event_73f2f58f5f",
+        "source_action_id": "action_47e8f7933b",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6540,8 +7552,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_87e45ec060",
-        "source_action_id": "action_07adf43d68",
+        "event_id": "event_6e4070c36b",
+        "source_action_id": "action_47e8f7933b",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6611,8 +7623,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_907453b502",
-        "source_action_id": "action_b5dd8940b5",
+        "event_id": "event_935c4a5545",
+        "source_action_id": "action_dc1329fb23",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6676,8 +7688,8 @@
         "time": 4,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_76dc7b39b0",
-        "source_action_id": "action_b5dd8940b5",
+        "event_id": "event_75d354e3f0",
+        "source_action_id": "action_dc1329fb23",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6741,8 +7753,8 @@
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_ef22fd9275",
-        "source_action_id": "action_381a7d918d",
+        "event_id": "event_95a7625913",
+        "source_action_id": "action_5f8fc7b4af",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6806,8 +7818,8 @@
         "time": 5,
         "event_type": "MISS",
         "role_in_event": "actor",
-        "event_id": "event_40df898308",
-        "source_action_id": "action_381a7d918d",
+        "event_id": "event_96ff55d8ec",
+        "source_action_id": "action_5f8fc7b4af",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6869,10 +7881,75 @@
       },
       {
         "time": 6,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_b111973bb9",
+        "source_action_id": "action_9d45f28fbe",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_343893027b",
-        "source_action_id": "action_aad1472753",
+        "event_id": "event_5fb84d5bc7",
+        "source_action_id": "action_9d45f28fbe",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -6932,15 +8009,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_3cf3dbcd14",
-        "source_action_id": "action_6b37fd5ac2",
+        "event_id": "event_426b00cbdb",
+        "source_action_id": "action_d5c1a64d9b",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -7006,8 +8084,8 @@
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_54315aa5ef",
-        "source_action_id": "action_6b37fd5ac2",
+        "event_id": "event_7914554a63",
+        "source_action_id": "action_d5c1a64d9b",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -7068,15 +8146,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "actor",
-        "event_id": "event_ee46c38032",
-        "source_action_id": "action_6b37fd5ac2",
+        "event_id": "event_0586892a0d",
+        "source_action_id": "action_d5c1a64d9b",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -7135,15 +8214,81 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
+        ]
+      },
+      {
+        "time": 7,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_5f9d165178",
+        "source_action_id": "action_07959f5212",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 7,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_f9c2d5d018",
-        "source_action_id": "action_d461ec25d8",
+        "event_id": "event_aa876b9d9c",
+        "source_action_id": "action_07959f5212",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -7204,15 +8349,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 7,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "final_state",
-        "event_id": "event_f50760b713",
-        "source_action_id": "action_d461ec25d8",
+        "event_id": "event_11a0536d60",
+        "source_action_id": "action_07959f5212",
         "before_state": {
           "entity_id": "blue_002",
           "name": "Blue Support",
@@ -7271,16 +8417,18 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": 0,
           "ap": 50,
           "hunger": 50,
@@ -7288,9 +8436,18 @@
           "last_action": "move",
           "last_damage_taken": 16
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": 0,
+          "ap": 50,
+          "hunger": 50,
+          "status": "destroyed",
+          "last_action": "move",
+          "last_damage_taken": 16
+        }
       }
     ]
   },
@@ -7303,19 +8460,24 @@
         "time": 0,
         "event_type": "INITIAL_STATE",
         "role_in_event": "initial_state",
-        "initial_state": {
+        "event_id": null,
+        "source_action_id": null,
+        "before_state": {},
+        "after_state": {
           "hp": 30,
           "ap": 60,
           "hunger": 60,
           "status": "active"
-        }
+        },
+        "data": {},
+        "tags": []
       },
       {
         "time": 1,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_e1bfa86d60",
-        "source_action_id": "action_ec29bcb8e2",
+        "event_id": "event_e3160f9aa8",
+        "source_action_id": "action_cb58054d37",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7380,8 +8542,8 @@
         "time": 1,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_8f467240f8",
-        "source_action_id": "action_ec29bcb8e2",
+        "event_id": "event_5c5d332641",
+        "source_action_id": "action_cb58054d37",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7450,8 +8612,8 @@
         "time": 2,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_d4db6add50",
-        "source_action_id": "action_741c9f58ec",
+        "event_id": "event_8f9a2e35d1",
+        "source_action_id": "action_fd28213bd4",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7518,8 +8680,8 @@
         "time": 2,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_a37910f272",
-        "source_action_id": "action_741c9f58ec",
+        "event_id": "event_d6bf3c6a85",
+        "source_action_id": "action_fd28213bd4",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7589,8 +8751,8 @@
         "time": 3,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_7391e09c02",
-        "source_action_id": "action_094b218802",
+        "event_id": "event_3acb3efc45",
+        "source_action_id": "action_61823483d2",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7657,8 +8819,8 @@
         "time": 3,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_0cc593e99f",
-        "source_action_id": "action_094b218802",
+        "event_id": "event_fc90988094",
+        "source_action_id": "action_61823483d2",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7728,8 +8890,8 @@
         "time": 4,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_7a171ceb02",
-        "source_action_id": "action_ec0cb0737d",
+        "event_id": "event_cbd5bcefcf",
+        "source_action_id": "action_a8394f605a",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7796,8 +8958,8 @@
         "time": 4,
         "event_type": "MOVE",
         "role_in_event": "actor",
-        "event_id": "event_be5dd9867d",
-        "source_action_id": "action_ec0cb0737d",
+        "event_id": "event_6e5de9805f",
+        "source_action_id": "action_a8394f605a",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7865,10 +9027,75 @@
       },
       {
         "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_697800c47e",
+        "source_action_id": "action_f99099b2ee",
+        "before_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 5,
         "event_type": "MISS",
         "role_in_event": "target",
-        "event_id": "event_1b35e81521",
-        "source_action_id": "action_1a8dd096d2",
+        "event_id": "event_33a25ab5f8",
+        "source_action_id": "action_f99099b2ee",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7930,10 +9157,75 @@
       },
       {
         "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_b3af0dce90",
+        "source_action_id": "action_d281760695",
+        "before_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
+        ]
+      },
+      {
+        "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_a22710ee0a",
-        "source_action_id": "action_7907f033ab",
+        "event_id": "event_4659fd7341",
+        "source_action_id": "action_d281760695",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -7993,15 +9285,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 5,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_51ce5c7a2e",
+        "source_action_id": "action_5795b15b90",
+        "before_state": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_df007e5bb6",
-        "source_action_id": "action_2ded7a2af5",
+        "event_id": "event_8d0d078fb8",
+        "source_action_id": "action_5795b15b90",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -8062,15 +9420,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 5,
         "event_type": "ACTION_SELECTED",
         "role_in_event": "actor",
-        "event_id": "event_46a8c9899c",
-        "source_action_id": "action_a72576b99d",
+        "event_id": "event_a6fdc73a03",
+        "source_action_id": "action_8839edb00f",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -8136,8 +9495,8 @@
         "time": 5,
         "event_type": "ATTACK",
         "role_in_event": "actor",
-        "event_id": "event_13858d92f2",
-        "source_action_id": "action_a72576b99d",
+        "event_id": "event_94bdef136e",
+        "source_action_id": "action_8839edb00f",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -8198,15 +9557,81 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
+        ]
+      },
+      {
+        "time": 6,
+        "event_type": "ACTION_SELECTED",
+        "role_in_event": "affected",
+        "event_id": "event_3099073ce9",
+        "source_action_id": "action_a771171ace",
+        "before_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "after_state": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "data": {
+          "action_type": "attack",
+          "intent": "tactical_reference_attack_selected_target",
+          "target_position": null
+        },
+        "tags": [
+          "action_selection"
         ]
       },
       {
         "time": 6,
         "event_type": "ATTACK",
         "role_in_event": "affected",
-        "event_id": "event_35fcd216ec",
-        "source_action_id": "action_a68de415a4",
+        "event_id": "event_e0a75f92a3",
+        "source_action_id": "action_a771171ace",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -8267,15 +9692,16 @@
         },
         "tags": [
           "attack",
-          "world_state_mutation"
+          "world_state_mutation",
+          "state_change"
         ]
       },
       {
         "time": 6,
         "event_type": "ENTITY_DESTROYED",
         "role_in_event": "final_state",
-        "event_id": "event_7e9db59e18",
-        "source_action_id": "action_a68de415a4",
+        "event_id": "event_cdfa182f6a",
+        "source_action_id": "action_a771171ace",
         "before_state": {
           "entity_id": "blue_003",
           "name": "Blue Commander",
@@ -8334,16 +9760,18 @@
         },
         "tags": [
           "entity_lifecycle",
-          "failure"
+          "failure",
+          "state_change"
         ]
       },
       {
         "time": 10,
         "event_type": "SCENARIO_END",
         "role_in_event": "final_state",
-        "event_id": "event_615fd78a92",
+        "event_id": "event_c8e6bd545d",
         "source_action_id": null,
-        "final_state": {
+        "before_state": {},
+        "after_state": {
           "hp": -3,
           "ap": 60,
           "hunger": 60,
@@ -8351,9 +9779,18 @@
           "last_action": "move",
           "last_damage_taken": 10
         },
+        "data": {},
         "tags": [
           "scenario_end"
-        ]
+        ],
+        "final_state": {
+          "hp": -3,
+          "ap": 60,
+          "hunger": 60,
+          "status": "destroyed",
+          "last_action": "move",
+          "last_damage_taken": 10
+        }
       }
     ]
   }

@@ -1,13 +1,53 @@
-# # Output a text file listing the timeline of events for reading purposes
-from pathlib import Path
-import json
+from typing import Any
+
+
+def build_entity_names(event_memory: list[dict[str, Any]]) -> dict[str, str]:
+    """
+    Entity names = entity_id to the human name that reads well in a timeline.
+
+    Important:
+    A name is only ever taken from the snapshot that entity_id belongs to.
+
+    SCENARIO_END carries every entity at once, so it is read first; any entity
+    missing from it is filled in from the snapshots events carry.
+    """
+    entity_names: dict[str, str] = {}
+
+    for event in event_memory:
+
+        if event["event_type"] != "SCENARIO_END":
+            continue
+
+        entities = event["after_state"].get("entities", {})
+
+        for entity_id, entity in entities.items():
+            entity_names[entity_id] = entity.get("name", entity_id)
+
+    for event in event_memory:
+
+        for state in (event["before_state"], event["after_state"]):
+
+            entity_id = state.get("entity_id")
+
+            if entity_id is None or entity_id in entity_names:
+                continue
+
+            entity_names[entity_id] = state.get("name", entity_id)
+
+    return entity_names
+
 
 # Define a function which writes a single event into sentence
 # Parameter 1 takes in the current time
-# Parameter 2 takes in the dictionary which stores the names of actors corresponding to their id
+# Parameter 2 takes in the dictionary which stores the names of entities
+# corresponding to their id
 # Parameter 3 takes the whole list of events carried out in the same tick
 # Returns a whole list of sentences to be written in the text file
-def write_event(time, actor_dict, events_in_same_tick):
+def write_event(
+    time: int,
+    entity_names: dict[str, str],
+    events_in_same_tick: list[dict[str, Any]],
+) -> list[str]:
 
     # A list to collect sentences generated
     sentence_list = []
@@ -26,52 +66,21 @@ def write_event(time, actor_dict, events_in_same_tick):
     # 7. NO_ACTION
     # 8. SCENARIO_END
 
-    # # Declare the required variables for writing sentences (Optional)
-
-    # For ACTION_SELECTED section
-    actor_id = ""
-    actor_name = ""
-    event_type = "" # Store the uppercase version of the action selected by the actor
-
-    # For ACTION_REJECTED section
-    reject_reason = ""
-
-    # For MOVE section
-    pos_before = () # The position of the actor before
-    pos_after = () # The position of the actor after
-
-    # For ACTION_SELECTED section when the actor selected ATTACK
-    target_id = "" # Record id of target for ATTACK and MISS
-    target_name = ""
-
-    # For ATTACK section
-    hp_before = 0
-    hp_after = 0
-    damage = 0
-
-    # For ENTITY_DESTROYED section
-    faction = ""
-
-    # For NO_ACTION section
-    no_action_reason = ""
-
-    # For SCENARIO_END section
-    termination_reason = ""
-    winner_or_result = ""
-    event_count = 0
-    destroyed_entities = 0
-
     # Loop through the events in the same tick
     for event in events_in_same_tick:
 
         sentence = ""
-        
+
+        # Every branch resolves its own actor and target from the event itself,
+        # so no sentence can inherit a name left over from an earlier event
+        actor_name = entity_names.get(event["actor_id"], event["actor_id"])
+        target_name = entity_names.get(
+            event["target_entity_id"],
+            event["target_entity_id"],
+        )
+
         # Action 1: ACTION_SELECTED
         if event["event_type"] == "ACTION_SELECTED":
-
-            # Record the name of actor to write sentences
-            actor_id = event["actor_id"]
-            actor_name = actor_dict[actor_id]
 
             # Extract the action_type selected by the actor and write into sentences
             event_type = event["data"]["action_type"].upper()
@@ -79,11 +88,10 @@ def write_event(time, actor_dict, events_in_same_tick):
             # Specified sentence formatting for ATTACK at current stage
             if event_type == "ATTACK":
 
-                # Record the name of target that the actor chose
-                target_id = event["target_entity_id"]
-                target_name = actor_dict[target_id]
-
-                sentence = f"\n- {actor_name} selected {event_type} against {target_name}"
+                sentence = (
+                    f"\n- {actor_name} selected {event_type} "
+                    f"against {target_name}"
+                )
 
             else :
 
@@ -91,14 +99,18 @@ def write_event(time, actor_dict, events_in_same_tick):
 
             sentence_list.append(sentence)
 
-        # Action 2: ACTION_REJECTED (Currently unavailable)
+        # Action 2: ACTION_REJECTED
         elif event["event_type"] == "ACTION_REJECTED":
 
-            # Currently unavailable so left blank
-            reject_reason = ""
+            # Both the attempted action and why it was refused are on the event
+            attempted = event["data"].get("action_type", "action").upper()
+            reject_reason = event["data"].get("reason", "no reason recorded")
 
             # Write sentence for ACTION_REJECTED
-            sentence = f"{actor_name} attempted {event_type} but was rejected: {reject_reason}"
+            sentence = (
+                f"- {actor_name} attempted {attempted} "
+                f"but was rejected: {reject_reason}"
+            )
             sentence_list.append(sentence)
 
         # Action 3: MOVE
@@ -121,12 +133,15 @@ def write_event(time, actor_dict, events_in_same_tick):
 
             # Eliminate any negative hp
             if hp_after <= 0:
-                
+
                 hp_after = 0
                 damage = hp_before - hp_after
 
             # Write sentence for ATTACK
-            sentence = f"- {actor_name} successfully attacked {target_name}: HP {hp_before} -> {hp_after} (damage = {damage})"
+            sentence = (
+                f"- {actor_name} successfully attacked {target_name}: "
+                f"HP {hp_before} -> {hp_after} (damage = {damage})"
+            )
             sentence_list.append(sentence)
 
         # Action 5: MISS
@@ -140,20 +155,23 @@ def write_event(time, actor_dict, events_in_same_tick):
         elif event["event_type"] == "ENTITY_DESTROYED":
 
             # Extract the value for faction from the destroyed entity
-            faction = event["after_state"]["faction"] 
+            faction = event["after_state"].get("faction", "unknown")
 
             # Write sentence for ENTITY_DESTROYED
-            sentence = f"- {target_name} in the {faction} faction was destroyed by {actor_name}"
+            sentence = (
+                f"- {target_name} in the {faction} faction "
+                f"was destroyed by {actor_name}"
+            )
             sentence_list.append(sentence)
 
-        # Action 7: NO_ACTION (Currently unavailable)
+        # Action 7: NO_ACTION
         elif event["event_type"] == "NO_ACTION":
 
-            # Currently unavailable so left blank
-            no_action_reason = ""
+            # The policy records why it declined to act
+            no_action_reason = event["data"].get("reason", "no reason recorded")
 
             # Write sentence for NO_ACTION
-            sentence = f"{actor_name} took no action: {no_action_reason}"
+            sentence = f"- {actor_name} took no action: {no_action_reason}"
             sentence_list.append(sentence)
 
         # Action 8: SCENARIO_END
@@ -180,109 +198,56 @@ def write_event(time, actor_dict, events_in_same_tick):
 
     return sentence_list
 
-# Finds the absolute folder directory where this current script resides
-REPO_ROOT = Path(__file__).resolve().parents[2] # Root is SKYVAULT
 
-# Safely joins paths independent of the terminal's current working directory
-event_path = REPO_ROOT / "output" / "event_memory.json"
+def render_timeline(
+    scenario_id: str,
+    event_memory: list[dict[str, Any]],
+) -> str:
+    """
+    Timeline = event memory retold as something a person can read start to end.
 
-# # Open the event_memory file to read data
-# event_path = Path("output/event_memory.json")
+    Important:
+    This is a derived output. It reads event memory and never mutates it.
 
-with open(event_path, "r") as f:
+    It returns the finished text rather than writing it, so importing this
+    module has no side effects and the caller decides where the text goes.
+    """
+    # The header to be written in first
+    header = f"SKYVAULT Tactical Reference Timeline\nScenario: {scenario_id}\n"
 
-    # Extract event_memory as a list
-    event_memory_list = json.loads(f.read()) 
+    entity_names = build_entity_names(event_memory)
 
-# # Check length of list
-# print(len(event_memory_list))
+    # Extract all the data, separating them by each tick
+    # Each item in the timeline_list is a list of dictionaries containing events
+    # that happened in the very same tick
+    # E.g., timeline_list[1] contains the events for every actors at "time" = 1
+    timeline_list: list[list[dict[str, Any]]] = [[]] # Empty list so it starts at 1
 
-# Extract the scenario id when the scenario ends
-scenario_id = ""
+    # Figure out the number of ticks in the whole run
+    # Done in a general way so it is flexible to any changes in the output
+    time_list = [event["time"] for event in event_memory]
 
-for event in event_memory_list:
+    no_of_ticks = max(time_list) if time_list else 0
 
-    if event["event_type"] == "SCENARIO_END":
+    # Loop through the whole event_memory, extracting lists of events for each tick
+    for count in range(no_of_ticks):
 
-        scenario_id = event["after_state"]["scenario_id"]
+        current_time = count + 1 # count starts from 0 so add 1 to match to time
 
-# The header to be written in first
-header = f"SKYVAULT Tactical Reference Timeline\nScenario: {scenario_id}\n"
+        timeline_list.append(
+            [event for event in event_memory if event["time"] == current_time]
+        )
 
-# Extract all the data, separating them by each tick
-# Each item in the timeline_list is a list of dictionaries containing events that happened in the very same tick
-# E.g., timeline_list[1] contains the events for every actors at "time" = 1
-timeline_list = [{}] # Add in an empty dict so it starts at 1
+    lines = [header]
 
-# Figure out the number of ticks in the whole run
-# Done in a general way so it is flexible to any changes in the output
-time_list = []
-
-# Extract all the times in the whole list and look for the greatest number
-for event in event_memory_list:
-    time = event["time"]
-    time_list.append(time)
-
-no_of_ticks = max(time_list)
-# print(time_list)
-
-# Loop through the whole event_memory_list, extracting lists of events for each tick
-for count in range(no_of_ticks):
-
-    current_time = count + 1 # count starts from 0 so add 1 to match to time
-    event_list = [] # Create a temporary list which can be written into the main list
-
-    for event in event_memory_list:
-
-        if event["time"] == current_time:
-
-            event_list.append(event)
-
-    timeline_list.append(event_list)
-
-# print(timeline_list[1])
-
-# Extract all the actor_id and its corresponding name and write it into a dictionary
-actor_dict = {}
-
-# Use the events in first tick since no one has started interact and slained yet
-for event in timeline_list[1]:
-
-    actor_id = event["actor_id"]
-    actor_name = event["before_state"]["name"]
-
-    if actor_id not in actor_dict:
-
-        actor_dict[actor_id] = actor_name
-
-# print(actor_dict)
-
-# Writing section starts here
-
-# Set up path to write data in
-# Safely joins paths independent of the terminal's current working directory
-timeline_path = REPO_ROOT / "output" / "timeline.txt"
-
-# timeline_path = Path("output/timeline.txt")
-
-# Open the textfile to write sentences into
-with open(timeline_path, "w") as g:
-
-    # First write in the header
-    g.write(header)
-
-    # Loop through the timeline_list and return lists of sentence to write into textfile
+    # Loop through the timeline_list and collect the sentences for every tick
     for time, events_in_same_tick in enumerate(timeline_list):
 
-        # Resets the list every time the sentences have been written into the textfile
-        sentence_list = []
-
         # For time = 0 the sentence list is empty so skip
-        if time != 0:
+        if time == 0:
+            continue
 
-            sentence_list = write_event(time, actor_dict, events_in_same_tick)
+        for sentence in write_event(time, entity_names, events_in_same_tick):
+            lines.append(sentence + "\n")
 
-        # Loop through the list that contains sentences for the same tick
-        for sentence in sentence_list:
-
-            g.write(sentence+"\n")
+    return "".join(lines)
