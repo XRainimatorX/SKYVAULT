@@ -1,12 +1,12 @@
 [
   {
-    "event_id": "event_9a055dcc9f",
+    "event_id": "event_2b58c37d2c",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_a9cf173e0c",
+    "source_action_id": "action_aff06247aa",
     "affected_entities": [
       "red_001"
     ],
@@ -64,7 +64,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_8fc5a80a14"
+        "event_4af2986de6"
       ]
     },
     "evaluation_relevance": {
@@ -85,13 +85,13 @@
     ]
   },
   {
-    "event_id": "event_8fc5a80a14",
+    "event_id": "event_4af2986de6",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_a9cf173e0c",
+    "source_action_id": "action_aff06247aa",
     "affected_entities": [
       "red_001"
     ],
@@ -158,7 +158,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_9a055dcc9f"
+        "event_2b58c37d2c"
       ],
       "caused_events": []
     },
@@ -183,13 +183,13 @@
     ]
   },
   {
-    "event_id": "event_4447715f49",
+    "event_id": "event_a31e052b1b",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_f7cfbb84b5",
+    "source_action_id": "action_f1e6b14bed",
     "affected_entities": [
       "red_002"
     ],
@@ -247,7 +247,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_63479618f2"
+        "event_5677381465"
       ]
     },
     "evaluation_relevance": {
@@ -268,13 +268,13 @@
     ]
   },
   {
-    "event_id": "event_63479618f2",
+    "event_id": "event_5677381465",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_f7cfbb84b5",
+    "source_action_id": "action_f1e6b14bed",
     "affected_entities": [
       "red_002"
     ],
@@ -341,7 +341,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_4447715f49"
+        "event_a31e052b1b"
       ],
       "caused_events": []
     },
@@ -366,13 +366,13 @@
     ]
   },
   {
-    "event_id": "event_9edead72d9",
+    "event_id": "event_ea64403834",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_e108b31a1c",
+    "source_action_id": "action_47d03fd8a5",
     "affected_entities": [
       "red_003"
     ],
@@ -430,7 +430,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_945b996f9c"
+        "event_b6327cbe13"
       ]
     },
     "evaluation_relevance": {
@@ -451,13 +451,13 @@
     ]
   },
   {
-    "event_id": "event_945b996f9c",
+    "event_id": "event_b6327cbe13",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_e108b31a1c",
+    "source_action_id": "action_47d03fd8a5",
     "affected_entities": [
       "red_003"
     ],
@@ -524,7 +524,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_9edead72d9"
+        "event_ea64403834"
       ],
       "caused_events": []
     },
@@ -549,13 +549,13 @@
     ]
   },
   {
-    "event_id": "event_a36d139ef3",
+    "event_id": "event_c7242a863a",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_d5ecbfa246",
+    "source_action_id": "action_71923cda62",
     "affected_entities": [
       "blue_001"
     ],
@@ -613,7 +613,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a75edde557"
+        "event_dc8662da0a"
       ]
     },
     "evaluation_relevance": {
@@ -634,13 +634,13 @@
     ]
   },
   {
-    "event_id": "event_a75edde557",
+    "event_id": "event_dc8662da0a",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_d5ecbfa246",
+    "source_action_id": "action_71923cda62",
     "affected_entities": [
       "blue_001"
     ],
@@ -707,7 +707,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a36d139ef3"
+        "event_c7242a863a"
       ],
       "caused_events": []
     },
@@ -732,13 +732,13 @@
     ]
   },
   {
-    "event_id": "event_3cdb4dee3f",
+    "event_id": "event_1d4f516de2",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_4456fd81c9",
+    "source_action_id": "action_581033459b",
     "affected_entities": [
       "blue_002"
     ],
@@ -796,7 +796,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_2718a0fd1e"
+        "event_d78b642859"
       ]
     },
     "evaluation_relevance": {
@@ -817,13 +817,13 @@
     ]
   },
   {
-    "event_id": "event_2718a0fd1e",
+    "event_id": "event_d78b642859",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_4456fd81c9",
+    "source_action_id": "action_581033459b",
     "affected_entities": [
       "blue_002"
     ],
@@ -890,7 +890,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_3cdb4dee3f"
+        "event_1d4f516de2"
       ],
       "caused_events": []
     },
@@ -915,13 +915,13 @@
     ]
   },
   {
-    "event_id": "event_3f03a4d159",
+    "event_id": "event_08a0e67aca",
     "time": 1,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_2ec5e0bbc9",
+    "source_action_id": "action_5c491ebdd2",
     "affected_entities": [
       "blue_003"
     ],
@@ -979,7 +979,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_099ca14d49"
+        "event_dae8f291e2"
       ]
     },
     "evaluation_relevance": {
@@ -1000,13 +1000,13 @@
     ]
   },
   {
-    "event_id": "event_099ca14d49",
+    "event_id": "event_dae8f291e2",
     "time": 1,
     "event_type": "MOVE",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_2ec5e0bbc9",
+    "source_action_id": "action_5c491ebdd2",
     "affected_entities": [
       "blue_003"
     ],
@@ -1073,7 +1073,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_3f03a4d159"
+        "event_08a0e67aca"
       ],
       "caused_events": []
     },
@@ -1098,13 +1098,13 @@
     ]
   },
   {
-    "event_id": "event_963bb0c0d2",
+    "event_id": "event_0e7e77b15b",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_0072822f21",
+    "source_action_id": "action_bd0b84f23d",
     "affected_entities": [
       "red_001"
     ],
@@ -1164,7 +1164,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_488a3273b2"
+        "event_53a4c81e97"
       ]
     },
     "evaluation_relevance": {
@@ -1185,13 +1185,13 @@
     ]
   },
   {
-    "event_id": "event_488a3273b2",
+    "event_id": "event_53a4c81e97",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_0072822f21",
+    "source_action_id": "action_bd0b84f23d",
     "affected_entities": [
       "red_001"
     ],
@@ -1259,7 +1259,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_963bb0c0d2"
+        "event_0e7e77b15b"
       ],
       "caused_events": []
     },
@@ -1284,13 +1284,13 @@
     ]
   },
   {
-    "event_id": "event_c104e1c9ae",
+    "event_id": "event_6744bb2d99",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_b31b3a2ba9",
+    "source_action_id": "action_9002e7bfc3",
     "affected_entities": [
       "red_002"
     ],
@@ -1350,7 +1350,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_e0efeac402"
+        "event_b18b0084fe"
       ]
     },
     "evaluation_relevance": {
@@ -1371,13 +1371,13 @@
     ]
   },
   {
-    "event_id": "event_e0efeac402",
+    "event_id": "event_b18b0084fe",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_b31b3a2ba9",
+    "source_action_id": "action_9002e7bfc3",
     "affected_entities": [
       "red_002"
     ],
@@ -1445,7 +1445,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_c104e1c9ae"
+        "event_6744bb2d99"
       ],
       "caused_events": []
     },
@@ -1470,13 +1470,13 @@
     ]
   },
   {
-    "event_id": "event_8b26ffca38",
+    "event_id": "event_3095e8984c",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_4359d233e9",
+    "source_action_id": "action_e721c3f8ca",
     "affected_entities": [
       "red_003"
     ],
@@ -1536,7 +1536,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_e636167469"
+        "event_3d24511309"
       ]
     },
     "evaluation_relevance": {
@@ -1557,13 +1557,13 @@
     ]
   },
   {
-    "event_id": "event_e636167469",
+    "event_id": "event_3d24511309",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_4359d233e9",
+    "source_action_id": "action_e721c3f8ca",
     "affected_entities": [
       "red_003"
     ],
@@ -1631,7 +1631,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_8b26ffca38"
+        "event_3095e8984c"
       ],
       "caused_events": []
     },
@@ -1656,13 +1656,13 @@
     ]
   },
   {
-    "event_id": "event_c3cd6d741f",
+    "event_id": "event_fd6d3b6e1c",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_9b9b0bb175",
+    "source_action_id": "action_c69e7c6530",
     "affected_entities": [
       "blue_001"
     ],
@@ -1722,7 +1722,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_f8813243c4"
+        "event_258ef70104"
       ]
     },
     "evaluation_relevance": {
@@ -1743,13 +1743,13 @@
     ]
   },
   {
-    "event_id": "event_f8813243c4",
+    "event_id": "event_258ef70104",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_9b9b0bb175",
+    "source_action_id": "action_c69e7c6530",
     "affected_entities": [
       "blue_001"
     ],
@@ -1817,7 +1817,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_c3cd6d741f"
+        "event_fd6d3b6e1c"
       ],
       "caused_events": []
     },
@@ -1842,13 +1842,13 @@
     ]
   },
   {
-    "event_id": "event_d5010fe57c",
+    "event_id": "event_850de7ce6e",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_af2614f80c",
+    "source_action_id": "action_7685f1dbe2",
     "affected_entities": [
       "blue_002"
     ],
@@ -1908,7 +1908,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_1068f96483"
+        "event_1713e6dc06"
       ]
     },
     "evaluation_relevance": {
@@ -1929,13 +1929,13 @@
     ]
   },
   {
-    "event_id": "event_1068f96483",
+    "event_id": "event_1713e6dc06",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_af2614f80c",
+    "source_action_id": "action_7685f1dbe2",
     "affected_entities": [
       "blue_002"
     ],
@@ -2003,7 +2003,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d5010fe57c"
+        "event_850de7ce6e"
       ],
       "caused_events": []
     },
@@ -2028,13 +2028,13 @@
     ]
   },
   {
-    "event_id": "event_ceea086af3",
+    "event_id": "event_2b0b53b192",
     "time": 2,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_2de641b603",
+    "source_action_id": "action_4516cb08b5",
     "affected_entities": [
       "blue_003"
     ],
@@ -2094,7 +2094,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d7b43ff312"
+        "event_9024eab753"
       ]
     },
     "evaluation_relevance": {
@@ -2115,13 +2115,13 @@
     ]
   },
   {
-    "event_id": "event_d7b43ff312",
+    "event_id": "event_9024eab753",
     "time": 2,
     "event_type": "MOVE",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_2de641b603",
+    "source_action_id": "action_4516cb08b5",
     "affected_entities": [
       "blue_003"
     ],
@@ -2189,7 +2189,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_ceea086af3"
+        "event_2b0b53b192"
       ],
       "caused_events": []
     },
@@ -2214,13 +2214,13 @@
     ]
   },
   {
-    "event_id": "event_8d2b0a5151",
+    "event_id": "event_45657aa08a",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_7ddfda6ee3",
+    "source_action_id": "action_f12e953147",
     "affected_entities": [
       "red_001"
     ],
@@ -2280,7 +2280,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_cd2b11b8dc"
+        "event_b66a974d81"
       ]
     },
     "evaluation_relevance": {
@@ -2301,13 +2301,13 @@
     ]
   },
   {
-    "event_id": "event_cd2b11b8dc",
+    "event_id": "event_b66a974d81",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_7ddfda6ee3",
+    "source_action_id": "action_f12e953147",
     "affected_entities": [
       "red_001"
     ],
@@ -2375,7 +2375,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_8d2b0a5151"
+        "event_45657aa08a"
       ],
       "caused_events": []
     },
@@ -2400,13 +2400,13 @@
     ]
   },
   {
-    "event_id": "event_9c642e8ab9",
+    "event_id": "event_2618830d26",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_5dec52a420",
+    "source_action_id": "action_6c878239bc",
     "affected_entities": [
       "red_002"
     ],
@@ -2466,7 +2466,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_c1eac9b33d"
+        "event_7be85a7050"
       ]
     },
     "evaluation_relevance": {
@@ -2487,13 +2487,13 @@
     ]
   },
   {
-    "event_id": "event_c1eac9b33d",
+    "event_id": "event_7be85a7050",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_5dec52a420",
+    "source_action_id": "action_6c878239bc",
     "affected_entities": [
       "red_002"
     ],
@@ -2561,7 +2561,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_9c642e8ab9"
+        "event_2618830d26"
       ],
       "caused_events": []
     },
@@ -2586,13 +2586,13 @@
     ]
   },
   {
-    "event_id": "event_f96a765da8",
+    "event_id": "event_d60a841810",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_9825fff60e",
+    "source_action_id": "action_b026139e0a",
     "affected_entities": [
       "red_003"
     ],
@@ -2652,7 +2652,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_78c5d09448"
+        "event_e1b9504577"
       ]
     },
     "evaluation_relevance": {
@@ -2673,13 +2673,13 @@
     ]
   },
   {
-    "event_id": "event_78c5d09448",
+    "event_id": "event_e1b9504577",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_9825fff60e",
+    "source_action_id": "action_b026139e0a",
     "affected_entities": [
       "red_003"
     ],
@@ -2747,7 +2747,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_f96a765da8"
+        "event_d60a841810"
       ],
       "caused_events": []
     },
@@ -2772,13 +2772,13 @@
     ]
   },
   {
-    "event_id": "event_7c577795ee",
+    "event_id": "event_7859538c9b",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_ca06b4e829",
+    "source_action_id": "action_ed2af6c2e4",
     "affected_entities": [
       "blue_001"
     ],
@@ -2838,7 +2838,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d8a5fd4d3b"
+        "event_4432ee9728"
       ]
     },
     "evaluation_relevance": {
@@ -2859,13 +2859,13 @@
     ]
   },
   {
-    "event_id": "event_d8a5fd4d3b",
+    "event_id": "event_4432ee9728",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_ca06b4e829",
+    "source_action_id": "action_ed2af6c2e4",
     "affected_entities": [
       "blue_001"
     ],
@@ -2933,7 +2933,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_7c577795ee"
+        "event_7859538c9b"
       ],
       "caused_events": []
     },
@@ -2958,13 +2958,13 @@
     ]
   },
   {
-    "event_id": "event_d352fc1c48",
+    "event_id": "event_a91ecf6891",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_75370074b5",
+    "source_action_id": "action_1b27cd5719",
     "affected_entities": [
       "blue_002"
     ],
@@ -3024,7 +3024,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_c48a10adce"
+        "event_3a2bca0a09"
       ]
     },
     "evaluation_relevance": {
@@ -3045,13 +3045,13 @@
     ]
   },
   {
-    "event_id": "event_c48a10adce",
+    "event_id": "event_3a2bca0a09",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_75370074b5",
+    "source_action_id": "action_1b27cd5719",
     "affected_entities": [
       "blue_002"
     ],
@@ -3119,7 +3119,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d352fc1c48"
+        "event_a91ecf6891"
       ],
       "caused_events": []
     },
@@ -3144,13 +3144,13 @@
     ]
   },
   {
-    "event_id": "event_1fed4ad0f5",
+    "event_id": "event_bf3d5f17ce",
     "time": 3,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_0372992652",
+    "source_action_id": "action_9a6e226dfa",
     "affected_entities": [
       "blue_003"
     ],
@@ -3210,7 +3210,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_31374837b0"
+        "event_7e41507a5e"
       ]
     },
     "evaluation_relevance": {
@@ -3231,13 +3231,13 @@
     ]
   },
   {
-    "event_id": "event_31374837b0",
+    "event_id": "event_7e41507a5e",
     "time": 3,
     "event_type": "MOVE",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_0372992652",
+    "source_action_id": "action_9a6e226dfa",
     "affected_entities": [
       "blue_003"
     ],
@@ -3305,7 +3305,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1fed4ad0f5"
+        "event_bf3d5f17ce"
       ],
       "caused_events": []
     },
@@ -3330,13 +3330,13 @@
     ]
   },
   {
-    "event_id": "event_514f51f875",
+    "event_id": "event_64fe72078c",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_d85ea9c8ef",
+    "source_action_id": "action_8b8f353840",
     "affected_entities": [
       "red_001"
     ],
@@ -3396,7 +3396,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_7567b83418"
+        "event_4d10cf8903"
       ]
     },
     "evaluation_relevance": {
@@ -3417,13 +3417,13 @@
     ]
   },
   {
-    "event_id": "event_7567b83418",
+    "event_id": "event_4d10cf8903",
     "time": 4,
     "event_type": "MOVE",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_d85ea9c8ef",
+    "source_action_id": "action_8b8f353840",
     "affected_entities": [
       "red_001"
     ],
@@ -3491,7 +3491,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_514f51f875"
+        "event_64fe72078c"
       ],
       "caused_events": []
     },
@@ -3516,13 +3516,13 @@
     ]
   },
   {
-    "event_id": "event_7bdd23c430",
+    "event_id": "event_7934b5ba96",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_c8ac4f0a79",
+    "source_action_id": "action_33bf389052",
     "affected_entities": [
       "red_002"
     ],
@@ -3582,7 +3582,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d1a331b51b"
+        "event_1569372d6f"
       ]
     },
     "evaluation_relevance": {
@@ -3603,13 +3603,13 @@
     ]
   },
   {
-    "event_id": "event_d1a331b51b",
+    "event_id": "event_1569372d6f",
     "time": 4,
     "event_type": "MOVE",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_c8ac4f0a79",
+    "source_action_id": "action_33bf389052",
     "affected_entities": [
       "red_002"
     ],
@@ -3677,7 +3677,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_7bdd23c430"
+        "event_7934b5ba96"
       ],
       "caused_events": []
     },
@@ -3702,13 +3702,13 @@
     ]
   },
   {
-    "event_id": "event_c2d8e2bc17",
+    "event_id": "event_a2e85b4781",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_fa9226d784",
+    "source_action_id": "action_7d1ee1f8b7",
     "affected_entities": [
       "red_003"
     ],
@@ -3768,7 +3768,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_6c2dacad56"
+        "event_618dcb7440"
       ]
     },
     "evaluation_relevance": {
@@ -3789,13 +3789,13 @@
     ]
   },
   {
-    "event_id": "event_6c2dacad56",
+    "event_id": "event_618dcb7440",
     "time": 4,
     "event_type": "MOVE",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_fa9226d784",
+    "source_action_id": "action_7d1ee1f8b7",
     "affected_entities": [
       "red_003"
     ],
@@ -3863,7 +3863,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_c2d8e2bc17"
+        "event_a2e85b4781"
       ],
       "caused_events": []
     },
@@ -3888,13 +3888,13 @@
     ]
   },
   {
-    "event_id": "event_1b906522a0",
+    "event_id": "event_af4d87d047",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_57c61623ee",
+    "source_action_id": "action_72da90ad3e",
     "affected_entities": [
       "blue_001"
     ],
@@ -3954,7 +3954,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_05648d8eba"
+        "event_666234eb9a"
       ]
     },
     "evaluation_relevance": {
@@ -3975,13 +3975,13 @@
     ]
   },
   {
-    "event_id": "event_05648d8eba",
+    "event_id": "event_666234eb9a",
     "time": 4,
     "event_type": "MOVE",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_57c61623ee",
+    "source_action_id": "action_72da90ad3e",
     "affected_entities": [
       "blue_001"
     ],
@@ -4049,7 +4049,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1b906522a0"
+        "event_af4d87d047"
       ],
       "caused_events": []
     },
@@ -4074,13 +4074,13 @@
     ]
   },
   {
-    "event_id": "event_070770f306",
+    "event_id": "event_0a17dec27e",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_355cab86c3",
+    "source_action_id": "action_911dc22c6a",
     "affected_entities": [
       "blue_002",
       "red_003"
@@ -4141,7 +4141,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_e6662fa28b"
+        "event_be58b6b653"
       ]
     },
     "evaluation_relevance": {
@@ -4159,13 +4159,13 @@
     ]
   },
   {
-    "event_id": "event_e6662fa28b",
+    "event_id": "event_be58b6b653",
     "time": 4,
     "event_type": "MISS",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_355cab86c3",
+    "source_action_id": "action_911dc22c6a",
     "affected_entities": [
       "blue_002",
       "red_003"
@@ -4230,7 +4230,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_070770f306"
+        "event_0a17dec27e"
       ],
       "caused_events": []
     },
@@ -4249,13 +4249,13 @@
     ]
   },
   {
-    "event_id": "event_9cacd548cb",
+    "event_id": "event_6ae463db6c",
     "time": 4,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_6b80bceb75",
+    "source_action_id": "action_96cf5a9cc2",
     "affected_entities": [
       "blue_003"
     ],
@@ -4315,7 +4315,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_8997a9091a"
+        "event_3bbd5a2235"
       ]
     },
     "evaluation_relevance": {
@@ -4336,13 +4336,13 @@
     ]
   },
   {
-    "event_id": "event_8997a9091a",
+    "event_id": "event_3bbd5a2235",
     "time": 4,
     "event_type": "MOVE",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_6b80bceb75",
+    "source_action_id": "action_96cf5a9cc2",
     "affected_entities": [
       "blue_003"
     ],
@@ -4410,7 +4410,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_9cacd548cb"
+        "event_6ae463db6c"
       ],
       "caused_events": []
     },
@@ -4435,13 +4435,13 @@
     ]
   },
   {
-    "event_id": "event_6f5c1e9b9e",
+    "event_id": "event_4ea0cab7a7",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_06bfd4ca34",
+    "source_action_id": "action_0d07d5afdc",
     "affected_entities": [
       "red_001",
       "blue_003"
@@ -4502,7 +4502,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_e527111a3e"
+        "event_659915c6c0"
       ]
     },
     "evaluation_relevance": {
@@ -4520,13 +4520,13 @@
     ]
   },
   {
-    "event_id": "event_e527111a3e",
+    "event_id": "event_659915c6c0",
     "time": 5,
     "event_type": "MISS",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_06bfd4ca34",
+    "source_action_id": "action_0d07d5afdc",
     "affected_entities": [
       "red_001",
       "blue_003"
@@ -4591,7 +4591,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_6f5c1e9b9e"
+        "event_4ea0cab7a7"
       ],
       "caused_events": []
     },
@@ -4610,13 +4610,13 @@
     ]
   },
   {
-    "event_id": "event_0d03301ab0",
+    "event_id": "event_bd81986263",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_74685c8868",
+    "source_action_id": "action_f5a9182c2b",
     "affected_entities": [
       "red_002",
       "blue_003"
@@ -4677,7 +4677,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_6f4e6e87e1"
+        "event_98f5df28a4"
       ]
     },
     "evaluation_relevance": {
@@ -4695,13 +4695,13 @@
     ]
   },
   {
-    "event_id": "event_6f4e6e87e1",
+    "event_id": "event_98f5df28a4",
     "time": 5,
     "event_type": "ATTACK",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_74685c8868",
+    "source_action_id": "action_f5a9182c2b",
     "affected_entities": [
       "blue_003"
     ],
@@ -4766,7 +4766,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_0d03301ab0"
+        "event_bd81986263"
       ],
       "caused_events": []
     },
@@ -4788,13 +4788,13 @@
     ]
   },
   {
-    "event_id": "event_1d5be23ac3",
+    "event_id": "event_ead7eb4842",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_1e2ee7a085",
+    "source_action_id": "action_fcc53fa751",
     "affected_entities": [
       "red_003",
       "blue_003"
@@ -4855,7 +4855,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_610071293e"
+        "event_8f54acd405"
       ]
     },
     "evaluation_relevance": {
@@ -4873,13 +4873,13 @@
     ]
   },
   {
-    "event_id": "event_610071293e",
+    "event_id": "event_8f54acd405",
     "time": 5,
     "event_type": "ATTACK",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_1e2ee7a085",
+    "source_action_id": "action_fcc53fa751",
     "affected_entities": [
       "blue_003"
     ],
@@ -4945,7 +4945,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1d5be23ac3"
+        "event_ead7eb4842"
       ],
       "caused_events": []
     },
@@ -4967,13 +4967,13 @@
     ]
   },
   {
-    "event_id": "event_3f093f7e17",
+    "event_id": "event_d092b780c4",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_151481f8e8",
+    "source_action_id": "action_0c21f7fb37",
     "affected_entities": [
       "blue_001",
       "red_003"
@@ -5034,7 +5034,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_ab6e9b8568"
+        "event_a8eec283b3"
       ]
     },
     "evaluation_relevance": {
@@ -5052,13 +5052,13 @@
     ]
   },
   {
-    "event_id": "event_ab6e9b8568",
+    "event_id": "event_a8eec283b3",
     "time": 5,
     "event_type": "ATTACK",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_151481f8e8",
+    "source_action_id": "action_0c21f7fb37",
     "affected_entities": [
       "red_003"
     ],
@@ -5123,7 +5123,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_3f093f7e17"
+        "event_d092b780c4"
       ],
       "caused_events": []
     },
@@ -5145,13 +5145,13 @@
     ]
   },
   {
-    "event_id": "event_37353ea77d",
+    "event_id": "event_b471a01ce4",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_d2aa46898d",
+    "source_action_id": "action_d6600d60f1",
     "affected_entities": [
       "blue_002",
       "red_003"
@@ -5212,7 +5212,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_2080d18b9f"
+        "event_bf6845fac7"
       ]
     },
     "evaluation_relevance": {
@@ -5230,13 +5230,13 @@
     ]
   },
   {
-    "event_id": "event_2080d18b9f",
+    "event_id": "event_bf6845fac7",
     "time": 5,
     "event_type": "MISS",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_d2aa46898d",
+    "source_action_id": "action_d6600d60f1",
     "affected_entities": [
       "blue_002",
       "red_003"
@@ -5303,7 +5303,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_37353ea77d"
+        "event_b471a01ce4"
       ],
       "caused_events": []
     },
@@ -5322,13 +5322,13 @@
     ]
   },
   {
-    "event_id": "event_e3568aad60",
+    "event_id": "event_1265479f22",
     "time": 5,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_869185a269",
+    "source_action_id": "action_a5eaa578a2",
     "affected_entities": [
       "blue_003",
       "red_003"
@@ -5391,7 +5391,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_9face771de"
+        "event_a70f0ec40b"
       ]
     },
     "evaluation_relevance": {
@@ -5409,13 +5409,13 @@
     ]
   },
   {
-    "event_id": "event_9face771de",
+    "event_id": "event_a70f0ec40b",
     "time": 5,
     "event_type": "ATTACK",
     "actor_id": "blue_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_869185a269",
+    "source_action_id": "action_a5eaa578a2",
     "affected_entities": [
       "red_003"
     ],
@@ -5481,7 +5481,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_e3568aad60"
+        "event_1265479f22"
       ],
       "caused_events": []
     },
@@ -5503,13 +5503,13 @@
     ]
   },
   {
-    "event_id": "event_7d75a40918",
+    "event_id": "event_20fc9e1b61",
     "time": 6,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_a47aff9483",
+    "source_action_id": "action_8a85bb69f3",
     "affected_entities": [
       "red_001",
       "blue_003"
@@ -5570,7 +5570,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_f0b7f22d30"
+        "event_d9ef4bb297"
       ]
     },
     "evaluation_relevance": {
@@ -5588,13 +5588,13 @@
     ]
   },
   {
-    "event_id": "event_f0b7f22d30",
+    "event_id": "event_d9ef4bb297",
     "time": 6,
     "event_type": "ATTACK",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_a47aff9483",
+    "source_action_id": "action_8a85bb69f3",
     "affected_entities": [
       "blue_003"
     ],
@@ -5660,10 +5660,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_7d75a40918"
+        "event_20fc9e1b61"
       ],
       "caused_events": [
-        "event_2b5a1c79ee"
+        "event_b0364c55d1"
       ]
     },
     "evaluation_relevance": {
@@ -5684,13 +5684,13 @@
     ]
   },
   {
-    "event_id": "event_2b5a1c79ee",
+    "event_id": "event_b0364c55d1",
     "time": 6,
     "event_type": "ENTITY_DESTROYED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_003",
-    "source_action_id": "action_a47aff9483",
+    "source_action_id": "action_8a85bb69f3",
     "affected_entities": [
       "blue_003"
     ],
@@ -5756,7 +5756,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_f0b7f22d30"
+        "event_d9ef4bb297"
       ],
       "caused_events": []
     },
@@ -5776,13 +5776,13 @@
     ]
   },
   {
-    "event_id": "event_81719c25d5",
+    "event_id": "event_1e94190a9e",
     "time": 6,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_002",
-    "source_action_id": "action_d3aa47e7df",
+    "source_action_id": "action_2d7459d5b7",
     "affected_entities": [
       "red_002",
       "blue_002"
@@ -5843,7 +5843,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_c58e576fcd"
+        "event_f027650f28"
       ]
     },
     "evaluation_relevance": {
@@ -5861,13 +5861,13 @@
     ]
   },
   {
-    "event_id": "event_c58e576fcd",
+    "event_id": "event_f027650f28",
     "time": 6,
     "event_type": "ATTACK",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_002",
-    "source_action_id": "action_d3aa47e7df",
+    "source_action_id": "action_2d7459d5b7",
     "affected_entities": [
       "blue_002"
     ],
@@ -5932,7 +5932,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_81719c25d5"
+        "event_1e94190a9e"
       ],
       "caused_events": []
     },
@@ -5954,13 +5954,13 @@
     ]
   },
   {
-    "event_id": "event_2806287ac9",
+    "event_id": "event_ce1cadb758",
     "time": 6,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_a813e9a987",
+    "source_action_id": "action_0a88cf125f",
     "affected_entities": [
       "red_003"
     ],
@@ -6022,7 +6022,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_8de96bb623"
+        "event_b8df35b7af"
       ]
     },
     "evaluation_relevance": {
@@ -6043,13 +6043,13 @@
     ]
   },
   {
-    "event_id": "event_8de96bb623",
+    "event_id": "event_b8df35b7af",
     "time": 6,
     "event_type": "MOVE",
     "actor_id": "red_003",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_a813e9a987",
+    "source_action_id": "action_0a88cf125f",
     "affected_entities": [
       "red_003"
     ],
@@ -6119,7 +6119,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_2806287ac9"
+        "event_ce1cadb758"
       ],
       "caused_events": []
     },
@@ -6144,13 +6144,13 @@
     ]
   },
   {
-    "event_id": "event_114152c6c8",
+    "event_id": "event_c6bd4dadfd",
     "time": 6,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_89d769e7d9",
+    "source_action_id": "action_7856853896",
     "affected_entities": [
       "blue_001",
       "red_003"
@@ -6211,7 +6211,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_59534118d4"
+        "event_c0d961c2b5"
       ]
     },
     "evaluation_relevance": {
@@ -6229,13 +6229,13 @@
     ]
   },
   {
-    "event_id": "event_59534118d4",
+    "event_id": "event_c0d961c2b5",
     "time": 6,
     "event_type": "ATTACK",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_89d769e7d9",
+    "source_action_id": "action_7856853896",
     "affected_entities": [
       "red_003"
     ],
@@ -6301,7 +6301,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_114152c6c8"
+        "event_c6bd4dadfd"
       ],
       "caused_events": []
     },
@@ -6323,13 +6323,13 @@
     ]
   },
   {
-    "event_id": "event_5fd56e483e",
+    "event_id": "event_b89b4ae01d",
     "time": 6,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_b6051d3965",
+    "source_action_id": "action_1ef74f99cb",
     "affected_entities": [
       "blue_002",
       "red_003"
@@ -6392,7 +6392,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_fc4da8e09f"
+        "event_37545803b7"
       ]
     },
     "evaluation_relevance": {
@@ -6410,13 +6410,13 @@
     ]
   },
   {
-    "event_id": "event_fc4da8e09f",
+    "event_id": "event_37545803b7",
     "time": 6,
     "event_type": "ATTACK",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_b6051d3965",
+    "source_action_id": "action_1ef74f99cb",
     "affected_entities": [
       "red_003"
     ],
@@ -6482,10 +6482,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_5fd56e483e"
+        "event_b89b4ae01d"
       ],
       "caused_events": [
-        "event_ae9fc8782a"
+        "event_dc487af9dd"
       ]
     },
     "evaluation_relevance": {
@@ -6506,13 +6506,13 @@
     ]
   },
   {
-    "event_id": "event_ae9fc8782a",
+    "event_id": "event_dc487af9dd",
     "time": 6,
     "event_type": "ENTITY_DESTROYED",
     "actor_id": "blue_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_003",
-    "source_action_id": "action_b6051d3965",
+    "source_action_id": "action_1ef74f99cb",
     "affected_entities": [
       "red_003"
     ],
@@ -6578,7 +6578,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fc4da8e09f"
+        "event_37545803b7"
       ],
       "caused_events": []
     },
@@ -6598,13 +6598,13 @@
     ]
   },
   {
-    "event_id": "event_d7cb130ed9",
+    "event_id": "event_db1fc755d6",
     "time": 7,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_c3e6150d8a",
+    "source_action_id": "action_fdf24c9b92",
     "affected_entities": [
       "red_001"
     ],
@@ -6664,7 +6664,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4d5f317bd0"
+        "event_55c5474335"
       ]
     },
     "evaluation_relevance": {
@@ -6685,13 +6685,13 @@
     ]
   },
   {
-    "event_id": "event_4d5f317bd0",
+    "event_id": "event_55c5474335",
     "time": 7,
     "event_type": "MOVE",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_c3e6150d8a",
+    "source_action_id": "action_fdf24c9b92",
     "affected_entities": [
       "red_001"
     ],
@@ -6759,7 +6759,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d7cb130ed9"
+        "event_db1fc755d6"
       ],
       "caused_events": []
     },
@@ -6784,13 +6784,13 @@
     ]
   },
   {
-    "event_id": "event_fec3e3ba42",
+    "event_id": "event_a2bd6c8957",
     "time": 7,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_002",
-    "source_action_id": "action_ec6f600ee6",
+    "source_action_id": "action_7208fb15cf",
     "affected_entities": [
       "red_002",
       "blue_002"
@@ -6851,7 +6851,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_f26661ca93"
+        "event_fb8184e83b"
       ]
     },
     "evaluation_relevance": {
@@ -6869,13 +6869,13 @@
     ]
   },
   {
-    "event_id": "event_f26661ca93",
+    "event_id": "event_fb8184e83b",
     "time": 7,
     "event_type": "ATTACK",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_002",
-    "source_action_id": "action_ec6f600ee6",
+    "source_action_id": "action_7208fb15cf",
     "affected_entities": [
       "blue_002"
     ],
@@ -6941,10 +6941,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fec3e3ba42"
+        "event_a2bd6c8957"
       ],
       "caused_events": [
-        "event_572e0d161e"
+        "event_a6483593c1"
       ]
     },
     "evaluation_relevance": {
@@ -6965,13 +6965,13 @@
     ]
   },
   {
-    "event_id": "event_572e0d161e",
+    "event_id": "event_a6483593c1",
     "time": 7,
     "event_type": "ENTITY_DESTROYED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_002",
-    "source_action_id": "action_ec6f600ee6",
+    "source_action_id": "action_7208fb15cf",
     "affected_entities": [
       "blue_002"
     ],
@@ -7037,7 +7037,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_f26661ca93"
+        "event_fb8184e83b"
       ],
       "caused_events": []
     },
@@ -7057,13 +7057,13 @@
     ]
   },
   {
-    "event_id": "event_10b62d215a",
+    "event_id": "event_d2a95ee1a3",
     "time": 7,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_019b9a2e1a",
+    "source_action_id": "action_fc83a1b607",
     "affected_entities": [
       "blue_001"
     ],
@@ -7123,7 +7123,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a7c09984dd"
+        "event_09e9441111"
       ]
     },
     "evaluation_relevance": {
@@ -7144,13 +7144,13 @@
     ]
   },
   {
-    "event_id": "event_a7c09984dd",
+    "event_id": "event_09e9441111",
     "time": 7,
     "event_type": "MOVE",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": null,
-    "source_action_id": "action_019b9a2e1a",
+    "source_action_id": "action_fc83a1b607",
     "affected_entities": [
       "blue_001"
     ],
@@ -7218,7 +7218,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_10b62d215a"
+        "event_d2a95ee1a3"
       ],
       "caused_events": []
     },
@@ -7243,13 +7243,13 @@
     ]
   },
   {
-    "event_id": "event_984082c96d",
+    "event_id": "event_2a81907be5",
     "time": 8,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_9027a853d8",
+    "source_action_id": "action_1fc559d0ba",
     "affected_entities": [
       "red_001",
       "blue_001"
@@ -7310,7 +7310,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4368df2cc2"
+        "event_5c132d904f"
       ]
     },
     "evaluation_relevance": {
@@ -7328,13 +7328,13 @@
     ]
   },
   {
-    "event_id": "event_4368df2cc2",
+    "event_id": "event_5c132d904f",
     "time": 8,
     "event_type": "ATTACK",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_9027a853d8",
+    "source_action_id": "action_1fc559d0ba",
     "affected_entities": [
       "blue_001"
     ],
@@ -7399,7 +7399,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_984082c96d"
+        "event_2a81907be5"
       ],
       "caused_events": []
     },
@@ -7421,13 +7421,13 @@
     ]
   },
   {
-    "event_id": "event_b4765f5a8f",
+    "event_id": "event_e57cbcf258",
     "time": 8,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_f022a40f58",
+    "source_action_id": "action_54a0b3c6d0",
     "affected_entities": [
       "red_002",
       "blue_001"
@@ -7488,7 +7488,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_cde751c3fc"
+        "event_bf31f015ff"
       ]
     },
     "evaluation_relevance": {
@@ -7506,13 +7506,13 @@
     ]
   },
   {
-    "event_id": "event_cde751c3fc",
+    "event_id": "event_bf31f015ff",
     "time": 8,
     "event_type": "MISS",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_f022a40f58",
+    "source_action_id": "action_54a0b3c6d0",
     "affected_entities": [
       "red_002",
       "blue_001"
@@ -7579,7 +7579,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_b4765f5a8f"
+        "event_e57cbcf258"
       ],
       "caused_events": []
     },
@@ -7598,13 +7598,13 @@
     ]
   },
   {
-    "event_id": "event_80f81a09e6",
+    "event_id": "event_57f8a86b59",
     "time": 8,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_002",
-    "source_action_id": "action_3317e4c2ba",
+    "source_action_id": "action_83f968ae46",
     "affected_entities": [
       "blue_001",
       "red_002"
@@ -7667,7 +7667,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4d55b5b77e"
+        "event_57ac28ecea"
       ]
     },
     "evaluation_relevance": {
@@ -7685,13 +7685,13 @@
     ]
   },
   {
-    "event_id": "event_4d55b5b77e",
+    "event_id": "event_57ac28ecea",
     "time": 8,
     "event_type": "ATTACK",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_002",
-    "source_action_id": "action_3317e4c2ba",
+    "source_action_id": "action_83f968ae46",
     "affected_entities": [
       "red_002"
     ],
@@ -7756,7 +7756,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_80f81a09e6"
+        "event_57f8a86b59"
       ],
       "caused_events": []
     },
@@ -7778,13 +7778,13 @@
     ]
   },
   {
-    "event_id": "event_513f6efc83",
+    "event_id": "event_fb79f2b8a7",
     "time": 9,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_e664edafde",
+    "source_action_id": "action_d9b79ea3cb",
     "affected_entities": [
       "red_001",
       "blue_001"
@@ -7845,7 +7845,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_0621ef166c"
+        "event_23a5454b81"
       ]
     },
     "evaluation_relevance": {
@@ -7863,13 +7863,13 @@
     ]
   },
   {
-    "event_id": "event_0621ef166c",
+    "event_id": "event_23a5454b81",
     "time": 9,
     "event_type": "ATTACK",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_e664edafde",
+    "source_action_id": "action_d9b79ea3cb",
     "affected_entities": [
       "blue_001"
     ],
@@ -7935,7 +7935,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_513f6efc83"
+        "event_fb79f2b8a7"
       ],
       "caused_events": []
     },
@@ -7957,13 +7957,13 @@
     ]
   },
   {
-    "event_id": "event_b4ee9a803d",
+    "event_id": "event_23696966a5",
     "time": 9,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_7d5eaf44c0",
+    "source_action_id": "action_5849be5b21",
     "affected_entities": [
       "red_002",
       "blue_001"
@@ -8026,7 +8026,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_7eedaa73b3"
+        "event_a3274c06d6"
       ]
     },
     "evaluation_relevance": {
@@ -8044,13 +8044,13 @@
     ]
   },
   {
-    "event_id": "event_7eedaa73b3",
+    "event_id": "event_a3274c06d6",
     "time": 9,
     "event_type": "MISS",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_7d5eaf44c0",
+    "source_action_id": "action_5849be5b21",
     "affected_entities": [
       "red_002",
       "blue_001"
@@ -8117,7 +8117,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_b4ee9a803d"
+        "event_23696966a5"
       ],
       "caused_events": []
     },
@@ -8136,13 +8136,13 @@
     ]
   },
   {
-    "event_id": "event_6f810bf596",
+    "event_id": "event_6f4582a7b3",
     "time": 9,
     "event_type": "ACTION_SELECTED",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_002",
-    "source_action_id": "action_34d08bbdd6",
+    "source_action_id": "action_dedff1b72c",
     "affected_entities": [
       "blue_001",
       "red_002"
@@ -8205,7 +8205,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_32749f70dc"
+        "event_a5cec60395"
       ]
     },
     "evaluation_relevance": {
@@ -8223,13 +8223,13 @@
     ]
   },
   {
-    "event_id": "event_32749f70dc",
+    "event_id": "event_a5cec60395",
     "time": 9,
     "event_type": "MISS",
     "actor_id": "blue_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "red_002",
-    "source_action_id": "action_34d08bbdd6",
+    "source_action_id": "action_dedff1b72c",
     "affected_entities": [
       "blue_001",
       "red_002"
@@ -8296,7 +8296,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_6f810bf596"
+        "event_6f4582a7b3"
       ],
       "caused_events": []
     },
@@ -8315,13 +8315,13 @@
     ]
   },
   {
-    "event_id": "event_5fab0e0b65",
+    "event_id": "event_8f841a37a4",
     "time": 10,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_234282923c",
+    "source_action_id": "action_72ecd98db2",
     "affected_entities": [
       "red_001",
       "blue_001"
@@ -8382,7 +8382,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_16a9981516"
+        "event_d968716540"
       ]
     },
     "evaluation_relevance": {
@@ -8400,13 +8400,13 @@
     ]
   },
   {
-    "event_id": "event_16a9981516",
+    "event_id": "event_d968716540",
     "time": 10,
     "event_type": "ATTACK",
     "actor_id": "red_001",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_234282923c",
+    "source_action_id": "action_72ecd98db2",
     "affected_entities": [
       "blue_001"
     ],
@@ -8472,7 +8472,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_5fab0e0b65"
+        "event_8f841a37a4"
       ],
       "caused_events": []
     },
@@ -8494,13 +8494,13 @@
     ]
   },
   {
-    "event_id": "event_a0a4ea4d11",
+    "event_id": "event_a2f74cb2aa",
     "time": 10,
     "event_type": "ACTION_SELECTED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_95c2f032f5",
+    "source_action_id": "action_5927d1be36",
     "affected_entities": [
       "red_002",
       "blue_001"
@@ -8563,7 +8563,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_fbe9dead15"
+        "event_3554652c2c"
       ]
     },
     "evaluation_relevance": {
@@ -8581,13 +8581,13 @@
     ]
   },
   {
-    "event_id": "event_fbe9dead15",
+    "event_id": "event_3554652c2c",
     "time": 10,
     "event_type": "ATTACK",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_95c2f032f5",
+    "source_action_id": "action_5927d1be36",
     "affected_entities": [
       "blue_001"
     ],
@@ -8653,10 +8653,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a0a4ea4d11"
+        "event_a2f74cb2aa"
       ],
       "caused_events": [
-        "event_bb9ec2212d"
+        "event_1fe94e3617"
       ]
     },
     "evaluation_relevance": {
@@ -8677,13 +8677,13 @@
     ]
   },
   {
-    "event_id": "event_bb9ec2212d",
+    "event_id": "event_1fe94e3617",
     "time": 10,
     "event_type": "ENTITY_DESTROYED",
     "actor_id": "red_002",
     "system_id": "temporary_tactical_reference_policy",
     "target_entity_id": "blue_001",
-    "source_action_id": "action_95c2f032f5",
+    "source_action_id": "action_5927d1be36",
     "affected_entities": [
       "blue_001"
     ],
@@ -8749,7 +8749,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fbe9dead15"
+        "event_3554652c2c"
       ],
       "caused_events": []
     },
@@ -8769,7 +8769,7 @@
     ]
   },
   {
-    "event_id": "event_ff09399fce",
+    "event_id": "event_3f49d30093",
     "time": 10,
     "event_type": "SCENARIO_END",
     "actor_id": null,
@@ -8972,7 +8972,7 @@
     },
     "data": {
       "termination_reason": "termination_condition_met",
-      "event_count": 96,
+      "event_count": 97,
       "active_entities": 2,
       "destroyed_entities": 4,
       "active_factions": [
@@ -8981,7 +8981,7 @@
       "winner_or_result": "RED_survived",
       "key_findings": [
         "Scenario ended because: termination_condition_met",
-        "Events recorded: 96",
+        "Events recorded: 97",
         "Destroyed entities: 4"
       ],
       "failure_points": [

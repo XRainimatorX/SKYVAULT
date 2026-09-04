@@ -165,5 +165,5 @@ Tick 10
 
 Scenario Ended: termination_condition_met
 - Result: RED_survived
-- Number of events recorded: 96
+- Number of events recorded: 97
 - Number of destroyed entities: 4
