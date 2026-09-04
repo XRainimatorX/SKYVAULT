@@ -42,6 +42,7 @@ def main() -> None:
     result_package = engine.run()
 
     event_memory = result_package["event_memory"]
+    initial_world_state = result_package["initial_world_state"]
     final_world_state = result_package["final_world_state"]
     scenario_id = result_package["scenario_id"]
 
@@ -62,7 +63,11 @@ def main() -> None:
 
     write_json(
         output_dir / "replay_state_at_tick.json",
-        build_replay_state_at_tick(scenario, event_memory, final_world_state),
+        build_replay_state_at_tick(
+            initial_world_state,
+            event_memory,
+            final_world_state,
+        ),
     )
 
     write_json(
@@ -72,7 +77,7 @@ def main() -> None:
 
     write_json(
         output_dir / "entity_history.json",
-        build_entity_history(scenario["entities"], event_memory),
+        build_entity_history(initial_world_state, event_memory),
     )
 
     write_text(

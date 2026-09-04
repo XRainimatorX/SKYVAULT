@@ -24,7 +24,7 @@ def build_reference_replay() -> dict:
     result_package = engine.run()
 
     return build_replay_state_at_tick(
-        scenario,
+        result_package["initial_world_state"],
         result_package["event_memory"],
         result_package["final_world_state"],
     )

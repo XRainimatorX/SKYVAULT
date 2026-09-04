@@ -36,7 +36,7 @@ def build_reference_entity_history() -> dict:
     result_package = engine.run()
 
     return build_entity_history(
-        scenario["entities"],
+        result_package["initial_world_state"],
         result_package["event_memory"],
     )
 

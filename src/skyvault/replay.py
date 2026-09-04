@@ -3,7 +3,7 @@ from typing import Any
 
 
 def build_replay_state_at_tick(
-    scenario: dict[str, Any],
+    initial_world_state: dict[str, Any],
     event_memory: list[dict[str, Any]],
     final_world_state: dict[str, Any],
 ) -> dict[str, Any]:
@@ -13,16 +13,14 @@ def build_replay_state_at_tick(
     Important:
     This is a derived output. It reads event memory and never mutates it.
 
-    Everything it needs is passed in, so importing this module has no side
-    effects and the caller decides where the result is written.
+    Everything comes from the result package, never from the scenario file, so
+    the replay can only ever show what the run actually recorded. Importing this
+    module has no side effects and the caller decides where the result is written.
     """
-    scenario_id = scenario["scenario_id"]
+    scenario_id = initial_world_state["scenario_id"]
 
     #stores the latest known state of every entity
-    current_entities = {
-        entity["entity_id"]: copy.deepcopy(entity)
-        for entity in scenario["entities"]
-    }
+    current_entities = copy.deepcopy(initial_world_state["entities"])
 
     #initial tick
     replay_state_at_tick = {

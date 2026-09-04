@@ -36,10 +36,10 @@ def build_record(
 
 
 # Define a function to collect the history of every entity
-# Parameter 1 takes in the list of entities
+# Parameter 1 takes in the world state the run started from
 # Parameter 2 takes in the list of events from event memory
 def build_entity_history(
-    entity_list: list[dict[str, Any]],
+    initial_world_state: dict[str, Any],
     event_list: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """
@@ -50,6 +50,9 @@ def build_entity_history(
 
     An entity is recorded when it is the actor, when it is the target, and when
     it appears in affected_entities, so nothing that touched it is missing.
+
+    Everything comes from the result package, never from the scenario file, so
+    the history can only ever show what the run actually recorded.
     """
     # Write all data into this master dictionary
     master_dict: dict[str, Any] = {}
@@ -58,7 +61,7 @@ def build_entity_history(
     actor_state_dict: dict[str, dict[str, Any]] = {}
 
     # Initiate the master dictionary by setting up a format
-    for entity in entity_list:
+    for entity in initial_world_state["entities"].values():
 
         # Initial data: 1. entity_id 2. name 3. faction 4. history
         entity_id = entity["entity_id"]
