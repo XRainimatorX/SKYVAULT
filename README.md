@@ -1173,7 +1173,7 @@ evaluation_relevance  這件事是否影響成敗、成本、風險。
 
 `affected_resources` 與 `affected_risks` 目前恆為空 —— 引擎沒有任何 action 會改動
 `ap` / `hunger`，風險也還不是系統裡存在的概念。欄位保留但不填值，理由見
-`docs/decisions/001_event_shape.md`。
+`docs/decisions/002_event_shape.md`。
 
 用途：
 
@@ -1332,6 +1332,20 @@ scenario_end
 
 分組只依據 `source_action_id`。沒有 action 來源的事件（`NO_ACTION`、
 `SCENARIO_END`）不會被硬塞進任何一條鏈。
+
+---
+
+## 10.1 Phase 4 已知限制
+
+以下項目在 Phase 4 刻意不做，留給後續階段。記在這裡是為了讓接手的人不用重新考古。
+
+| 項目 | 延到哪一階段 | 為什麼 |
+|---|---|---|
+| `event_id` / `action_id` 不受 `random_seed` 控制 | Phase 8 Reproducibility | 兩者都用 `uuid4()`。scenario 宣告 `deterministic_mode: true`，模擬**行為**確實每次相同（同樣 97 個 event、同樣型別、同樣 `RED_survived`），但 id 每次不同，所以 `output/*.json` 無法跨 run 逐位元比對 |
+| event 是攤平的 17 欄，而非 Formal Spec §7.2 的巢狀 `source:` / `affected:` | Phase 1 Contract Pack | 該階段的交付物明確包含「Event Schema」。詳見 `docs/decisions/002_event_shape.md` |
+| `affected_resources` 每個 event 都是 `[]` | Phase 2 World Runtime Core | 引擎沒有任何 action 會改動 `ap` / `hunger`，資源模型還不存在 |
+| `affected_risks` 每個 event 都是 `[]` | Phase 7 / Phase 9 | 風險還不是系統裡存在的概念 |
+| evaluation 只有勝負與計數，不是多軸評估 | Phase 7 Evaluation Engine | Phase 4 只需要 `SCENARIO_END` 與 result_package 有足夠欄位可用 |
 
 ---
 
