@@ -4,6 +4,7 @@ from typing import Any
 from .action import Action
 from .consequence import Consequence
 from .entity import Entity
+from .evaluator import build_evaluation_summary
 from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import SpaceModel, WorldState
 
@@ -102,10 +103,16 @@ class SkyVaultTacticalReferenceEngine:
                         source_action_id=None,
                         before_state=actor.snapshot(),
                         after_state=actor.snapshot(),
+                        affected_entities=[actor.entity_id],
                         data={"reason": "policy_returned_no_action"},
                         tags=["no_action"],
                     )
                     continue
+
+                action_entities = [actor.entity_id]
+
+                if action.target_entity_id is not None:
+                    action_entities.append(action.target_entity_id)
 
                 self.world.record_event(
                     event_type="ACTION_SELECTED",
@@ -114,6 +121,7 @@ class SkyVaultTacticalReferenceEngine:
                     source_action_id=action.action_id,
                     before_state=actor.snapshot(),
                     after_state=actor.snapshot(),
+                    affected_entities=action_entities,
                     data={
                         "action_type": action.action_type,
                         "intent": action.intent,
@@ -134,6 +142,7 @@ class SkyVaultTacticalReferenceEngine:
                         source_action_id=action.action_id,
                         before_state={},
                         after_state={},
+                        affected_entities=action_entities,
                         data={
                             "reason": consequence.reason,
                             "action_type": action.action_type,
@@ -157,6 +166,8 @@ class SkyVaultTacticalReferenceEngine:
             source_action_id=None,
             before_state={},
             after_state=self.world.snapshot(),
+            affected_entities=sorted(self.world.entities),
+            evaluation_relevance={"affects_success": True},
             data=evaluation,
             tags=["scenario_end"],
         )
@@ -217,6 +228,13 @@ class SkyVaultTacticalReferenceEngine:
 
         after = actor.snapshot()
 
+        move_locations = []
+
+        if old_position is not None:
+            move_locations.append(list(old_position))
+
+        move_locations.append(list(action.target_position))
+
         self.world.record_event(
             event_type="MOVE",
             actor_id=actor.entity_id,
@@ -224,6 +242,9 @@ class SkyVaultTacticalReferenceEngine:
             source_action_id=action.action_id,
             before_state=before,
             after_state=after,
+            affected_entities=[actor.entity_id],
+            affected_locations=move_locations,
+            evaluation_relevance={"affects_cost": True},
             data={
                 "from": list(old_position) if old_position else None,
                 "to": list(action.target_position),
@@ -279,6 +300,7 @@ class SkyVaultTacticalReferenceEngine:
         damage = int(actor.capabilities.get("attack_damage", 0))
 
         before = target.snapshot()
+        target_locations = [list(target.position)]
 
         if self.rng.random() > accuracy:
             self.world.record_event(
@@ -288,6 +310,9 @@ class SkyVaultTacticalReferenceEngine:
                 source_action_id=action.action_id,
                 before_state=before,
                 after_state=target.snapshot(),
+                affected_entities=[actor.entity_id, target.entity_id],
+                affected_locations=target_locations,
+                evaluation_relevance={"affects_cost": True},
                 data={
                     "accuracy": accuracy,
                     "distance": distance,
@@ -326,13 +351,19 @@ class SkyVaultTacticalReferenceEngine:
             source_action_id=action.action_id,
             before_state=before,
             after_state=after,
+            affected_entities=[target.entity_id],
+            affected_locations=target_locations,
+            evaluation_relevance={
+                "affects_success": True,
+                "affects_cost": True,
+            },
             data={
                 "damage": damage,
                 "hp_before": hp_before,
                 "hp_after": hp_after,
                 "distance": distance,
             },
-            tags=["attack", "world_state_mutation"],
+            tags=["attack", "world_state_mutation", "state_change"],
         )
 
         direct_effects = [
@@ -352,11 +383,18 @@ class SkyVaultTacticalReferenceEngine:
                 source_action_id=action.action_id,
                 before_state=before,
                 after_state=after,
+                affected_entities=[target.entity_id],
+                affected_locations=target_locations,
+                evaluation_relevance={
+                    "affects_success": True,
+                    "affects_cost": True,
+                    "affects_risk": True,
+                },
                 data={
                     "destroyed_entity": target.entity_id,
                     "faction": target.faction,
                 },
-                tags=["entity_lifecycle", "failure"],
+                tags=["entity_lifecycle", "failure", "state_change"],
             )
 
             direct_effects.append(
@@ -376,36 +414,4 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def evaluate(self, termination_reason: str) -> dict[str, Any]:
-        active_entities = self.world.active_entities()
-        destroyed_entities = [
-            entity
-            for entity in self.world.entities.values()
-            if entity.state.get("status") == "destroyed"
-        ]
-
-        active_factions = self.world.active_factions()
-
-        if len(active_factions) == 0:
-            winner_or_result = "draw_all_destroyed"
-        elif len(active_factions) == 1:
-            winner_or_result = f"{next(iter(active_factions))}_survived"
-        else:
-            winner_or_result = "no_winner_duration_limit"
-
-        return {
-            "termination_reason": termination_reason,
-            "event_count": len(self.world.event_memory),
-            "active_entities": len(active_entities),
-            "destroyed_entities": len(destroyed_entities),
-            "active_factions": sorted(active_factions),
-            "winner_or_result": winner_or_result,
-            "key_findings": [
-                f"Scenario ended because: {termination_reason}",
-                f"Events recorded: {len(self.world.event_memory)}",
-                f"Destroyed entities: {len(destroyed_entities)}",
-            ],
-            "failure_points": [
-                "Entity destroyed"
-                for _ in destroyed_entities
-            ],
-        }
+        return build_evaluation_summary(self.world, termination_reason)
