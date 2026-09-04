@@ -18,11 +18,13 @@ REQUIRED_FIELDS = [
     "time",
     "event_type",
     "actor_id",
+    "system_id",
     "target_entity_id",
     "source_action_id",
     "affected_entities",
     "affected_locations",
     "affected_resources",
+    "affected_risks",
     "before_state",
     "after_state",
     "causal_links",
@@ -59,6 +61,7 @@ def test_every_event_has_phase_4_required_fields():
         assert isinstance(event["affected_entities"], list)
         assert isinstance(event["affected_locations"], list)
         assert isinstance(event["affected_resources"], list)
+        assert isinstance(event["affected_risks"], list)
         assert isinstance(event["before_state"], dict)
         assert isinstance(event["after_state"], dict)
         assert isinstance(event["data"], dict)
@@ -140,6 +143,28 @@ def test_scenario_end_event_exists_with_evaluation_summary():
     assert event["after_state"] != {}
     assert "entities" in event["after_state"]
     assert event["data"] == result_package["evaluation"]
+
+
+def test_events_record_the_system_that_produced_the_action():
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+
+    scenario = load_scenario(scenario_path)
+    engine = SkyVaultTacticalReferenceEngine(scenario)
+
+    result_package = engine.run()
+
+    assumptions = scenario["world_contract"]["assumption_registry"]
+    actor_system_id = assumptions["actor_policy"]
+
+    events = result_package["event_memory"]
+
+    for event in events:
+        assert event["system_id"] is not None
+
+        if event["event_type"] == "SCENARIO_END":
+            assert event["system_id"] != actor_system_id
+        else:
+            assert event["system_id"] == actor_system_id
 
 
 def test_world_state_does_not_import_policy():
