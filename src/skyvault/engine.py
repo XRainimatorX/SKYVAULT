@@ -9,6 +9,9 @@ from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import SpaceModel, WorldState
 
 
+ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
+
+
 class SkyVaultTacticalReferenceEngine:
     """
     First executable SKYVAULT-style tactical reference slice.
@@ -37,6 +40,13 @@ class SkyVaultTacticalReferenceEngine:
         self.rng = random.Random(random_seed)
         self.world = self.build_world(scenario)
         self.policy = TacticalReferencePolicy(self.rng)
+
+        assumptions = scenario["world_contract"].get("assumption_registry", {})
+
+        self.actor_system_id = assumptions.get(
+            "actor_policy",
+            type(self.policy).__name__,
+        )
 
     def build_world(self, scenario: dict[str, Any]) -> WorldState:
         world_contract = scenario["world_contract"]
@@ -99,6 +109,7 @@ class SkyVaultTacticalReferenceEngine:
                     self.world.record_event(
                         event_type="NO_ACTION",
                         actor_id=actor.entity_id,
+                        system_id=self.actor_system_id,
                         target_entity_id=None,
                         source_action_id=None,
                         before_state=actor.snapshot(),
@@ -117,6 +128,7 @@ class SkyVaultTacticalReferenceEngine:
                 self.world.record_event(
                     event_type="ACTION_SELECTED",
                     actor_id=actor.entity_id,
+                    system_id=self.actor_system_id,
                     target_entity_id=action.target_entity_id,
                     source_action_id=action.action_id,
                     before_state=actor.snapshot(),
@@ -138,6 +150,7 @@ class SkyVaultTacticalReferenceEngine:
                     self.world.record_event(
                         event_type="ACTION_REJECTED",
                         actor_id=action.actor_id,
+                        system_id=self.actor_system_id,
                         target_entity_id=action.target_entity_id,
                         source_action_id=action.action_id,
                         before_state={},
@@ -162,6 +175,7 @@ class SkyVaultTacticalReferenceEngine:
         self.world.record_event(
             event_type="SCENARIO_END",
             actor_id=None,
+            system_id=ENGINE_SYSTEM_ID,
             target_entity_id=None,
             source_action_id=None,
             before_state={},
@@ -238,6 +252,7 @@ class SkyVaultTacticalReferenceEngine:
         self.world.record_event(
             event_type="MOVE",
             actor_id=actor.entity_id,
+            system_id=self.actor_system_id,
             target_entity_id=None,
             source_action_id=action.action_id,
             before_state=before,
@@ -306,6 +321,7 @@ class SkyVaultTacticalReferenceEngine:
             self.world.record_event(
                 event_type="MISS",
                 actor_id=actor.entity_id,
+                system_id=self.actor_system_id,
                 target_entity_id=target.entity_id,
                 source_action_id=action.action_id,
                 before_state=before,
@@ -347,6 +363,7 @@ class SkyVaultTacticalReferenceEngine:
         self.world.record_event(
             event_type="ATTACK",
             actor_id=actor.entity_id,
+            system_id=self.actor_system_id,
             target_entity_id=target.entity_id,
             source_action_id=action.action_id,
             before_state=before,
@@ -379,6 +396,7 @@ class SkyVaultTacticalReferenceEngine:
             self.world.record_event(
                 event_type="ENTITY_DESTROYED",
                 actor_id=actor.entity_id,
+                system_id=self.actor_system_id,
                 target_entity_id=target.entity_id,
                 source_action_id=action.action_id,
                 before_state=before,

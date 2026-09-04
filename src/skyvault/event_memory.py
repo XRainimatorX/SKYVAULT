@@ -52,7 +52,8 @@ class Event:
     Event is a recorded fact.
 
     Important:
-    Every event carries the full Phase 4 shape.
+    Every event carries the full Phase 4 shape, matching the event format in
+    section 7.2 of the formal spec.
     A field with nothing to report keeps its empty structure instead of
     disappearing, so timeline, replay, entity history and causal chain can read
     every event the same way.
@@ -62,6 +63,7 @@ class Event:
     time: int
     event_type: str
     actor_id: str | None
+    system_id: str | None
     target_entity_id: str | None
     source_action_id: str | None
     before_state: dict[str, Any]
@@ -69,6 +71,7 @@ class Event:
     affected_entities: list[str] = field(default_factory=list)
     affected_locations: list[Any] = field(default_factory=list)
     affected_resources: list[str] = field(default_factory=list)
+    affected_risks: list[str] = field(default_factory=list)
     causal_links: dict[str, list[str]] = field(default_factory=build_causal_links)
     evaluation_relevance: dict[str, bool] = field(
         default_factory=build_evaluation_relevance,
@@ -88,11 +91,13 @@ class Event:
             "time": self.time,
             "event_type": self.event_type,
             "actor_id": self.actor_id,
+            "system_id": self.system_id,
             "target_entity_id": self.target_entity_id,
             "source_action_id": self.source_action_id,
             "affected_entities": list(self.affected_entities),
             "affected_locations": list(self.affected_locations),
             "affected_resources": list(self.affected_resources),
+            "affected_risks": list(self.affected_risks),
             "before_state": dict(self.before_state),
             "after_state": dict(self.after_state),
             "causal_links": build_causal_links(self.causal_links),
