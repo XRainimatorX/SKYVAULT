@@ -1,4 +1,4 @@
-# Phase 4 — Event Memory + Replay System v0.4
+# Phase 4 — Event Memory + Replay System 
 
 完成報告。這份文件是 Phase 4 結束時的凍結紀錄，寫完不再更新 —— 系統目前的樣子請看 [`../architecture.md`](../architecture.md)。
 
