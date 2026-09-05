@@ -1,3 +1,5 @@
+"""Engine = the tick loop that turns a scenario into a result package."""
+
 import random
 from typing import Any
 
@@ -7,7 +9,6 @@ from .entity import Entity
 from .evaluator import build_evaluation_summary
 from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import SpaceModel, WorldState
-
 
 ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
 
@@ -49,6 +50,13 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def build_world(self, scenario: dict[str, Any]) -> WorldState:
+        """
+        Build the tick-0 world the scenario describes.
+
+        Important:
+        An entity may omit position, in which case it is built with None.
+        Anything that measures distance has to handle that.
+        """
         world_contract = scenario["world_contract"]
         space_model = world_contract["space_model"]
 
@@ -87,6 +95,14 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def run(self) -> dict[str, Any]:
+        """
+        Run the scenario to completion and return the result package.
+
+        Important:
+        The initial world state is captured before the first tick, so the
+        package carries both where the run started and where it ended. Every
+        derived output is built from the package, never from the scenario file.
+        """
         max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
         termination_reason = "duration_limit_reached"
 
@@ -139,9 +155,11 @@ class SkyVaultTacticalReferenceEngine:
                     data={
                         "action_type": action.action_type,
                         "intent": action.intent,
-                        "target_position": list(action.target_position)
-                        if action.target_position
-                        else None,
+                        "target_position": (
+                            list(action.target_position)
+                            if action.target_position
+                            else None
+                        ),
                     },
                     tags=["action_selection"],
                 )
@@ -195,14 +213,18 @@ class SkyVaultTacticalReferenceEngine:
             "scenario_version": self.scenario["scenario_version"],
             "initial_world_state": initial_world_state,
             "final_world_state": self.world.snapshot(),
-            "event_memory": [
-                event.to_dict()
-                for event in self.world.event_memory
-            ],
+            "event_memory": [event.to_dict() for event in self.world.event_memory],
             "evaluation": evaluation,
         }
 
     def resolve_action(self, action: Action) -> Consequence:
+        """
+        Route an action to the resolver for its type.
+
+        Important:
+        An unsupported action type is rejected as a Consequence rather than
+        raised, so the run records the refusal and carries on.
+        """
         if action.action_type == "move":
             return self.resolve_move(action)
 
@@ -216,6 +238,13 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def resolve_move(self, action: Action) -> Consequence:
+        """
+        Decide whether a move happens, and what it changes if it does.
+
+        Important:
+        Validation comes first and can reject the action. Only an accepted
+        Consequence is allowed to mutate the world.
+        """
         actor = self.world.get_entity(action.actor_id)
 
         if action.target_position is None:
@@ -288,6 +317,13 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def resolve_attack(self, action: Action) -> Consequence:
+        """
+        Decide whether an attack lands, and what it changes if it does.
+
+        Important:
+        The hit roll draws from the engine's seeded rng, so the same seed
+        produces the same hits and misses on every run.
+        """
         actor = self.world.get_entity(action.actor_id)
 
         if action.target_entity_id is None:
@@ -313,7 +349,10 @@ class SkyVaultTacticalReferenceEngine:
             return Consequence(
                 action_id=action.action_id,
                 accepted=False,
-                reason=f"Target out of range: distance={distance}, range={attack_range}",
+                reason=(
+                    f"Target out of range: "
+                    f"distance={distance}, range={attack_range}"
+                ),
             )
 
         accuracy = float(actor.capabilities.get("accuracy", 1.0))
@@ -437,4 +476,12 @@ class SkyVaultTacticalReferenceEngine:
         )
 
     def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:
+        """
+        Summarise how the run ended.
+
+        Important:
+        event_count is passed in rather than read from event memory, because
+        this summary is built before SCENARIO_END is recorded and has to count
+        that event too.
+        """
         return build_evaluation_summary(self.world, termination_reason, event_count)

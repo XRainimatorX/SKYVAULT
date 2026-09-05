@@ -1,3 +1,5 @@
+"""World state = the space, the entities in it, and the events recorded so far."""
+
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -24,10 +26,18 @@ class SpaceModel:
     distance_model: str = "chebyshev"
 
     def is_inside(self, position: Position) -> bool:
+        """True when the position falls within the grid bounds."""
         x, y = position
         return 0 <= x < self.width and 0 <= y < self.height
 
     def distance(self, a: Position, b: Position) -> int:
+        """
+        Distance between two positions under this world's distance_model.
+
+        Important:
+        Chebyshev is the default, so a diagonal step costs the same as a
+        straight one. Movement and attack range are both measured with this.
+        """
         ax, ay = a
         bx, by = b
 
@@ -57,14 +67,23 @@ class WorldState:
     event_memory: list[Event] = field(default_factory=list)
 
     def get_entity(self, entity_id: str) -> Entity:
+        """
+        The entity with this id.
+
+        Important:
+        Raises KeyError rather than returning None, so a bad id fails loudly
+        instead of turning into a silent no-op further down.
+        """
         if entity_id not in self.entities:
             raise KeyError(f"Unknown entity_id: {entity_id}")
         return self.entities[entity_id]
 
     def active_entities(self) -> list[Entity]:
+        """Every entity still alive. Destroyed entities stay in self.entities."""
         return [entity for entity in self.entities.values() if entity.is_active()]
 
     def active_factions(self) -> set[str]:
+        """The factions that still have at least one living entity."""
         return {
             entity.faction
             for entity in self.active_entities()
@@ -72,10 +91,8 @@ class WorldState:
         }
 
     def is_occupied(self, position: Position) -> bool:
-        for entity in self.active_entities():
-            if entity.position == position:
-                return True
-        return False
+        """True when a living entity stands on this position."""
+        return any(entity.position == position for entity in self.active_entities())
 
     def record_event(
         self,
@@ -150,6 +167,14 @@ class WorldState:
             return
 
     def snapshot(self) -> dict[str, Any]:
+        """
+        Snapshot = the whole world as plain JSON-safe data.
+
+        Important:
+        This is a copy, not a view. Later mutations to the world never reach a
+        snapshot that was already taken, which is what lets the result package
+        keep an initial and a final state that stay distinct.
+        """
         return {
             "world_id": self.world_id,
             "scenario_id": self.scenario_id,

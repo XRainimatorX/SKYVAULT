@@ -1,3 +1,5 @@
+"""Actor policy = how an entity picks its action for the current tick."""
+
 import random
 
 from .action import Action, new_action_id
@@ -22,6 +24,13 @@ class TacticalReferencePolicy:
         self.rng = rng
 
     def decide_action(self, world: WorldState, actor: Entity) -> Action | None:
+        """
+        Choose what this actor attempts this tick, or None to stand still.
+
+        Important:
+        This only ever proposes. Validation and the world mutation happen in
+        the engine, so a policy can never change the world by deciding.
+        """
         if not actor.is_active():
             return None
 
@@ -85,11 +94,7 @@ class TacticalReferencePolicy:
 
         max_score = max(score for _, score in scored_targets)
 
-        best_targets = [
-            enemy
-            for enemy, score in scored_targets
-            if score == max_score
-        ]
+        best_targets = [enemy for enemy, score in scored_targets if score == max_score]
 
         return self.rng.choice(best_targets)
 
@@ -140,11 +145,23 @@ class TacticalReferencePolicy:
         actor: Entity,
         target: Entity,
     ) -> Position | None:
+        """
+        The adjacent square that gets this actor closest to the target.
+
+        Important:
+        Returns None when either side has no position, or when no free
+        neighbouring square is an improvement. Ties are broken with the
+        engine's seeded rng so the choice repeats across runs.
+        """
         if actor.position is None or target.position is None:
             return None
 
-        ax, ay = actor.position
-        current_distance = world.space.distance(actor.position, target.position)
+        # Bind the narrowed positions so the type stays known inside the loop
+        actor_position = actor.position
+        target_position = target.position
+
+        ax, ay = actor_position
+        current_distance = world.space.distance(actor_position, target_position)
 
         candidates: list[Position] = []
 
@@ -161,19 +178,20 @@ class TacticalReferencePolicy:
                 if world.is_occupied(candidate):
                     continue
 
-                if world.space.distance(candidate, target.position) < current_distance:
+                if world.space.distance(candidate, target_position) < current_distance:
                     candidates.append(candidate)
 
         if not candidates:
             return None
 
-        candidates.sort(key=lambda pos: world.space.distance(pos, target.position))
+        candidates.sort(key=lambda pos: world.space.distance(pos, target_position))
 
-        best_distance = world.space.distance(candidates[0], target.position)
+        best_distance = world.space.distance(candidates[0], target_position)
 
         best_candidates = [
-            pos for pos in candidates
-            if world.space.distance(pos, target.position) == best_distance
+            pos
+            for pos in candidates
+            if world.space.distance(pos, target_position) == best_distance
         ]
 
         return self.rng.choice(best_candidates)
