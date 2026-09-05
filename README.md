@@ -2,7 +2,7 @@
 
 一個戰術模擬引擎。把一份 scenario JSON 跑成一場完整的模擬，並且讓**過程中的每一步都能被回放與追溯** —— 誰在第幾個 tick 做了什麼、造成什麼、世界因此變成什麼樣子。
 
-目前完成到 **Phase 4（Event Memory + Replay System v0.4）**。
+目前完成到 **Phase 4（Event Memory + Replay System）**。
 
 ---
 
