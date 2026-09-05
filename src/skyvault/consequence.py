@@ -1,3 +1,5 @@
+"""Consequence = what an accepted action changes in the world."""
+
 from dataclasses import dataclass, field
 from typing import Any
 

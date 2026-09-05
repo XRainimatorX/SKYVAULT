@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -12,7 +11,6 @@ if str(SRC_PATH) not in sys.path:
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.entity_history import build_entity_history
 from skyvault.scenario_loader import load_scenario
-
 
 RECORD_FIELDS = [
     "time",

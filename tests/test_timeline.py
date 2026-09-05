@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -45,11 +44,7 @@ def test_timeline_has_header_and_scenario_id():
 def test_timeline_has_tick_sections():
     timeline = render_reference_timeline()
 
-    tick_lines = [
-        line
-        for line in timeline.splitlines()
-        if line.startswith("Tick ")
-    ]
+    tick_lines = [line for line in timeline.splitlines() if line.startswith("Tick ")]
 
     assert len(tick_lines) > 0
 

@@ -1,3 +1,5 @@
+"""Evaluation = how the run ended, summarised from the world and its events."""
+
 from typing import Any
 
 from .world_state import WorldState
@@ -50,8 +52,5 @@ def build_evaluation_summary(
             f"Events recorded: {event_count}",
             f"Destroyed entities: {len(destroyed_entities)}",
         ],
-        "failure_points": [
-            "Entity destroyed"
-            for _ in destroyed_entities
-        ],
+        "failure_points": ["Entity destroyed" for _ in destroyed_entities],
     }

@@ -1,3 +1,5 @@
+"""Timeline = the run written out as text a person can read top to bottom."""
+
 from typing import Any
 
 
@@ -37,23 +39,24 @@ def build_entity_names(event_memory: list[dict[str, Any]]) -> dict[str, str]:
     return entity_names
 
 
-# Define a function which writes a single event into sentence
-# Parameter 1 takes in the current time
-# Parameter 2 takes in the dictionary which stores the names of entities
-# corresponding to their id
-# Parameter 3 takes the whole list of events carried out in the same tick
-# Returns a whole list of sentences to be written in the text file
 def write_event(
     time: int,
     entity_names: dict[str, str],
     events_in_same_tick: list[dict[str, Any]],
 ) -> list[str]:
+    """
+    Turn one tick's events into the lines that describe them.
+
+    Takes the tick number, an entity_id to display-name mapping, and every
+    event recorded in that tick. Returns the sentences for that tick, header
+    included, ready to be written out in order.
+    """
 
     # A list to collect sentences generated
     sentence_list = []
 
     # Write in first sentence to start a tick
-    tick_header = f"\nTick {time}" # \n in front to start an extra new line
+    tick_header = f"\nTick {time}"  # \n in front to start an extra new line
     sentence_list.append(tick_header)
 
     # Event types:
@@ -89,11 +92,10 @@ def write_event(
             if event_type == "ATTACK":
 
                 sentence = (
-                    f"\n- {actor_name} selected {event_type} "
-                    f"against {target_name}"
+                    f"\n- {actor_name} selected {event_type} " f"against {target_name}"
                 )
 
-            else :
+            else:
 
                 sentence = f"\n- {actor_name} selected {event_type}"
 
@@ -221,7 +223,7 @@ def render_timeline(
     # Each item in the timeline_list is a list of dictionaries containing events
     # that happened in the very same tick
     # E.g., timeline_list[1] contains the events for every actors at "time" = 1
-    timeline_list: list[list[dict[str, Any]]] = [[]] # Empty list so it starts at 1
+    timeline_list: list[list[dict[str, Any]]] = [[]]  # Empty list so it starts at 1
 
     # Figure out the number of ticks in the whole run
     # Done in a general way so it is flexible to any changes in the output
@@ -232,7 +234,7 @@ def render_timeline(
     # Loop through the whole event_memory, extracting lists of events for each tick
     for count in range(no_of_ticks):
 
-        current_time = count + 1 # count starts from 0 so add 1 to match to time
+        current_time = count + 1  # count starts from 0 so add 1 to match to time
 
         timeline_list.append(
             [event for event in event_memory if event["time"] == current_time]

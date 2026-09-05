@@ -2,7 +2,6 @@ import json
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -44,9 +43,7 @@ def test_replay_has_at_least_one_numeric_tick():
     replay = build_reference_replay()
 
     numeric_ticks = [
-        int(tick)
-        for tick in replay["states"]
-        if tick.isdigit() and int(tick) > 0
+        int(tick) for tick in replay["states"] if tick.isdigit() and int(tick) > 0
     ]
 
     assert len(numeric_ticks) > 0
@@ -55,7 +52,7 @@ def test_replay_has_at_least_one_numeric_tick():
 def test_replay_each_tick_has_description_and_world_state():
     replay = build_reference_replay()
 
-    for tick, state in replay["states"].items():
+    for _tick, state in replay["states"].items():
         assert "description" in state
         assert "world_state" in state
         assert len(state["world_state"]) > 0

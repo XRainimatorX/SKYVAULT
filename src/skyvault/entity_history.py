@@ -1,3 +1,5 @@
+"""Entity history = every event each entity took part in, in order."""
+
 import copy
 from typing import Any
 
@@ -71,7 +73,7 @@ def build_entity_history(
             "entity_id": entity_id,
             "name": entity["name"],
             "faction": entity["faction"],
-            "history": [], # A huge list of events for each entity
+            "history": [],  # A huge list of events for each entity
         }
 
         # Finally adds in the initial state for each entity
@@ -109,7 +111,7 @@ def build_entity_history(
 
             # Loop through the scenario end event and obtain final states
             # for all entities
-            for (end_entity_id, end_entity_data) in end_entity_dict.items():
+            for end_entity_id, end_entity_data in end_entity_dict.items():
 
                 if end_entity_id not in master_dict:
                     continue
@@ -172,7 +174,7 @@ def build_entity_history(
             elif event_type == "ATTACK":
 
                 # Set the role as being affected
-                target_role = "affected" # Since actual damage is dealt
+                target_role = "affected"  # Since actual damage is dealt
 
             # Third case: If the actor destroyed the target
             elif event_type == "ENTITY_DESTROYED":

@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -81,8 +80,7 @@ def test_events_in_each_chain_are_sorted_by_time():
     result_package = run_reference_scenario()
 
     events_by_id = {
-        event["event_id"]: event
-        for event in result_package["event_memory"]
+        event["event_id"]: event for event in result_package["event_memory"]
     }
 
     causal_chain = build_causal_chain(

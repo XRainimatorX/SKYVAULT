@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -11,7 +10,6 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.scenario_loader import load_scenario
-
 
 REQUIRED_FIELDS = [
     "event_id",
@@ -180,9 +178,7 @@ def test_causal_links_connect_events_from_the_same_action():
     events_by_id = {event["event_id"]: event for event in events}
 
     linked_events = [
-        event
-        for event in events
-        if len(event["causal_links"]["caused_by"]) > 0
+        event for event in events if len(event["causal_links"]["caused_by"]) > 0
     ]
 
     assert len(linked_events) > 0

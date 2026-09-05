@@ -1,3 +1,5 @@
+"""Action = an intent an actor submits, before the world has agreed to it."""
+
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
@@ -6,6 +8,13 @@ from .entity import Position
 
 
 def new_action_id() -> str:
+    """
+    A fresh action id.
+
+    Important:
+    This uses uuid4 and is therefore not controlled by the scenario
+    random_seed. Behaviour repeats across runs; these ids do not.
+    """
     return f"action_{uuid4().hex[:10]}"
 
 
