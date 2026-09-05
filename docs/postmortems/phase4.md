@@ -1,6 +1,6 @@
 # Phase 4 回顧
 
-Event Memory + Replay System v0.4
+Event Memory + Replay System
 
 這份文件檢討**流程**，不檢討人。所有問題都以「什麼樣的做法讓這件事得以發生」來描述 —— 目標是讓下一個階段不要重蹈，不是追究誰的責任。
 
