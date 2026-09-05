@@ -169,6 +169,8 @@ README.md              路標，不放技術細節
 docs/architecture.md   系統怎麼運作（會隨程式碼改）
 docs/handoff.md        這份
 docs/phases/           各階段的凍結紀錄（寫完就不改）
+                       phase4_tactical_slice.md 是 Phase 4 結束時的
+                       完整技術文件，1510 行，未刪節
 docs/decisions/        ADR，寫完就不改
 docs/postmortems/      回顧，寫完就不改
 GitHub Issues          任務規格與驗收

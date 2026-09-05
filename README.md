@@ -56,6 +56,7 @@ python3 -m pytest tests/ -q
 |---|---|
 | 系統怎麼運作、模組怎麼分工 | [`docs/architecture.md`](docs/architecture.md) |
 | 我要接手這個專案 | [`docs/handoff.md`](docs/handoff.md) |
+| 完整技術參考（1510 行） | [`docs/phases/phase4_tactical_slice.md`](docs/phases/phase4_tactical_slice.md) |
 | 某個階段做了什麼 | [`docs/phases/`](docs/phases/) |
 | 為什麼這樣設計 | [`docs/decisions/`](docs/decisions/) |
 | 上個階段的回顧 | [`docs/postmortems/`](docs/postmortems/) |
