@@ -1,8 +1,54 @@
 # SKYVAULT
 
-一個戰術模擬引擎。把一份 scenario JSON 跑成一場完整的模擬，並且讓**過程中的每一步都能被回放與追溯** —— 誰在第幾個 tick 做了什麼、造成什麼、世界因此變成什麼樣子。
+一套 **AI-operated world / environment engine**。
 
-目前完成到 **Phase 4（Event Memory + Replay System）**。
+SKYVAULT 創造可運行的虛擬世界與環境，讓其他 AI、系統、人類決策、裝備方案、戰術方案、治理方案可以進入其中被**測試、運行、記錄與分析**。
+
+它回答的問題是：**如果這樣做，世界會怎麼變化？**
+
+```text
+世界
+  ├─ 空間      ├─ 行動      ├─ 狀態變化
+  ├─ 時間      ├─ 事件      ├─ 記錄
+  ├─ 實體      ├─ 因果      └─ 結果分析
+  └─ 規則
+```
+
+## 它不是什麼
+
+```text
+❌ 不是單純戰棋遊戲        遊戲只是表面形式，目標是測試決策與系統後果
+❌ 不是單純軍事模擬器      軍事只是第一個應用場景，不是全部
+❌ 不是 TAC ANGEL          那是戰術決策者；SKYVAULT 是戰術可被測試的世界
+❌ 不是 STARTX             那做戰略推演；SKYVAULT 提供可驗證世界
+❌ 不是 NEXUS              那是總入口與編排者；SKYVAULT 是被調用的世界環境
+```
+
+## 定位
+
+SKYVAULT 是**接口型核心環境**，不是任何系統的上級：
+
+```text
+NEXUS       調度 SKYVAULT，讀取其結果
+STARTX      把戰略方案交給 SKYVAULT 驗證
+TAC ANGEL   在 SKYVAULT 世界內測試戰術行動
+EIDEN-01    將情報轉成 SKYVAULT 的世界參數
+```
+
+它的重要性不來自統治其他系統，而來自：**很多系統需要一個共同環境來測試自己。**
+
+---
+
+## 目前的實作
+
+本 repo 目前是 **tactical reference slice** —— 第一個應用場景（軍事戰術）的參考實作，用來驗證整條世界迴圈能跑通：
+
+```text
+scenario → world state → actor policy → action → validation
+→ consequence → world mutation → event memory → evaluation → result package
+```
+
+各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
 
 ---
 
@@ -77,22 +123,6 @@ docs/               文件
 ```
 
 細節見 [`docs/architecture.md`](docs/architecture.md)。
-
----
-
-## 進度
-
-| Phase | 內容 | 狀態 |
-|---|---|---|
-| 0 | Tactical Reference Slice v0.1 | 完成 |
-| 1 | Core Contract Pack | 未開始 |
-| 2 | World Runtime Core | 未開始 |
-| 3 | Action / Consequence 分離 | 完成（併入 Phase 0） |
-| **4** | **Event Memory + Replay System** | **完成** |
-| 7 | Evaluation Engine | 未開始 |
-| 8 | Reproducibility | 未開始 |
-
-Phase 4 的完成報告：[`docs/phases/phase4_event_memory.md`](docs/phases/phase4_event_memory.md)
 
 ---
 
