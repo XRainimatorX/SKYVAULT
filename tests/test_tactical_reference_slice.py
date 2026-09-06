@@ -1,7 +1,6 @@
 import sys
 from pathlib import Path
 
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
 
@@ -58,6 +57,44 @@ def test_event_has_before_and_after_state():
 
     assert "before_state" in first_event
     assert "after_state" in first_event
+
+
+def test_result_package_carries_initial_and_final_world_state():
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+
+    scenario = load_scenario(scenario_path)
+    engine = SkyVaultTacticalReferenceEngine(scenario)
+
+    result_package = engine.run()
+
+    initial_world_state = result_package["initial_world_state"]
+
+    assert initial_world_state["tick"] == 0
+    assert len(initial_world_state["entities"]) == len(scenario["entities"])
+
+    for entity in scenario["entities"]:
+        recorded = initial_world_state["entities"][entity["entity_id"]]
+
+        assert recorded["state"] == entity["state"]
+        assert recorded["position"] == entity["position"]
+
+    assert result_package["final_world_state"] != initial_world_state
+
+
+def test_evaluation_event_count_matches_event_memory():
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+
+    scenario = load_scenario(scenario_path)
+    engine = SkyVaultTacticalReferenceEngine(scenario)
+
+    result_package = engine.run()
+
+    event_count = result_package["evaluation"]["event_count"]
+
+    key_findings = result_package["evaluation"]["key_findings"]
+
+    assert event_count == len(result_package["event_memory"])
+    assert f"Events recorded: {event_count}" in key_findings
 
 
 def test_policy_is_separated_from_world_state():

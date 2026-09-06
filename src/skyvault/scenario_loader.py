@@ -1,7 +1,8 @@
+"""Scenario loader = reads a scenario file into the dict the engine expects."""
+
 import json
 from pathlib import Path
 from typing import Any
-
 
 REQUIRED_KEYS = {
     "scenario_id",

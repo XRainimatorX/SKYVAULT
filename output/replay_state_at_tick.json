@@ -1,0 +1,1887 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "states": {
+    "0": {
+      "description": "initial state",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            0,
+            0
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            1,
+            0
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            0
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            9,
+            9
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            8,
+            9
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            7,
+            9
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "1": {
+      "description": "after tick 1",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            0,
+            1
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            1,
+            1
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            1
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            8,
+            8
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            7,
+            8
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            6,
+            8
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "2": {
+      "description": "after tick 2",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            0,
+            2
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            1,
+            2
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            2
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            7,
+            7
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            6,
+            7
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            7
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "3": {
+      "description": "after tick 3",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            1,
+            3
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            3
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            3
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            6,
+            6
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            6
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "4": {
+      "description": "after tick 4",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 30,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "5": {
+      "description": "after tick 5",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            4
+          ],
+          "state": {
+            "hp": 13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 7
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 7,
+            "ap": 60,
+            "hunger": 60,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 7
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "6": {
+      "description": "after tick 6",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            2,
+            4
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 16,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "7": {
+      "description": "after tick 7",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 32,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 0,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "8": {
+      "description": "after tick 8",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 25,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 0,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "9": {
+      "description": "after tick 9",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": 15,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 0,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "10": {
+      "description": "after tick 10",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -11,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 0,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    },
+    "final": {
+      "description": "final state",
+      "world_state": {
+        "red_001": {
+          "entity_id": "red_001",
+          "name": "Red Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": 35,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move"
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "red_002": {
+          "entity_id": "red_002",
+          "name": "Red Support",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            3,
+            4
+          ],
+          "state": {
+            "hp": 22,
+            "ap": 50,
+            "hunger": 50,
+            "status": "active",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "red_003": {
+          "entity_id": "red_003",
+          "name": "Red Commander",
+          "entity_type": "tactical_actor",
+          "faction": "RED",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -13,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        },
+        "blue_001": {
+          "entity_id": "blue_001",
+          "name": "Blue Rifleman",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            4,
+            5
+          ],
+          "state": {
+            "hp": -11,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 10,
+            "attack_range": 1,
+            "accuracy": 0.8
+          },
+          "tags": [
+            "ASSAULT"
+          ]
+        },
+        "blue_002": {
+          "entity_id": "blue_002",
+          "name": "Blue Support",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            5,
+            6
+          ],
+          "state": {
+            "hp": 0,
+            "ap": 50,
+            "hunger": 50,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 16
+          },
+          "capabilities": {
+            "attack_damage": 16,
+            "attack_range": 2,
+            "accuracy": 0.55
+          },
+          "tags": [
+            "SUPPORT"
+          ]
+        },
+        "blue_003": {
+          "entity_id": "blue_003",
+          "name": "Blue Commander",
+          "entity_type": "tactical_actor",
+          "faction": "BLUE",
+          "position": [
+            3,
+            5
+          ],
+          "state": {
+            "hp": -3,
+            "ap": 60,
+            "hunger": 60,
+            "status": "destroyed",
+            "last_action": "move",
+            "last_damage_taken": 10
+          },
+          "capabilities": {
+            "attack_damage": 7,
+            "attack_range": 1,
+            "accuracy": 0.7
+          },
+          "tags": [
+            "COMMAND"
+          ]
+        }
+      }
+    }
+  }
+}

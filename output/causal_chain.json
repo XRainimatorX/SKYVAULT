@@ -1,0 +1,524 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "chains": [
+    {
+      "source_action_id": "action_aff06247aa",
+      "events": [
+        "event_2b58c37d2c",
+        "event_4af2986de6"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_aff06247aa caused MOVE."
+    },
+    {
+      "source_action_id": "action_f1e6b14bed",
+      "events": [
+        "event_a31e052b1b",
+        "event_5677381465"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_f1e6b14bed caused MOVE."
+    },
+    {
+      "source_action_id": "action_47d03fd8a5",
+      "events": [
+        "event_ea64403834",
+        "event_b6327cbe13"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_47d03fd8a5 caused MOVE."
+    },
+    {
+      "source_action_id": "action_71923cda62",
+      "events": [
+        "event_c7242a863a",
+        "event_dc8662da0a"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_71923cda62 caused MOVE."
+    },
+    {
+      "source_action_id": "action_581033459b",
+      "events": [
+        "event_1d4f516de2",
+        "event_d78b642859"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_581033459b caused MOVE."
+    },
+    {
+      "source_action_id": "action_5c491ebdd2",
+      "events": [
+        "event_08a0e67aca",
+        "event_dae8f291e2"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_5c491ebdd2 caused MOVE."
+    },
+    {
+      "source_action_id": "action_bd0b84f23d",
+      "events": [
+        "event_0e7e77b15b",
+        "event_53a4c81e97"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_bd0b84f23d caused MOVE."
+    },
+    {
+      "source_action_id": "action_9002e7bfc3",
+      "events": [
+        "event_6744bb2d99",
+        "event_b18b0084fe"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_9002e7bfc3 caused MOVE."
+    },
+    {
+      "source_action_id": "action_e721c3f8ca",
+      "events": [
+        "event_3095e8984c",
+        "event_3d24511309"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_e721c3f8ca caused MOVE."
+    },
+    {
+      "source_action_id": "action_c69e7c6530",
+      "events": [
+        "event_fd6d3b6e1c",
+        "event_258ef70104"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_c69e7c6530 caused MOVE."
+    },
+    {
+      "source_action_id": "action_7685f1dbe2",
+      "events": [
+        "event_850de7ce6e",
+        "event_1713e6dc06"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_7685f1dbe2 caused MOVE."
+    },
+    {
+      "source_action_id": "action_4516cb08b5",
+      "events": [
+        "event_2b0b53b192",
+        "event_9024eab753"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_4516cb08b5 caused MOVE."
+    },
+    {
+      "source_action_id": "action_f12e953147",
+      "events": [
+        "event_45657aa08a",
+        "event_b66a974d81"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_f12e953147 caused MOVE."
+    },
+    {
+      "source_action_id": "action_6c878239bc",
+      "events": [
+        "event_2618830d26",
+        "event_7be85a7050"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_6c878239bc caused MOVE."
+    },
+    {
+      "source_action_id": "action_b026139e0a",
+      "events": [
+        "event_d60a841810",
+        "event_e1b9504577"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_b026139e0a caused MOVE."
+    },
+    {
+      "source_action_id": "action_ed2af6c2e4",
+      "events": [
+        "event_7859538c9b",
+        "event_4432ee9728"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_ed2af6c2e4 caused MOVE."
+    },
+    {
+      "source_action_id": "action_1b27cd5719",
+      "events": [
+        "event_a91ecf6891",
+        "event_3a2bca0a09"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_1b27cd5719 caused MOVE."
+    },
+    {
+      "source_action_id": "action_9a6e226dfa",
+      "events": [
+        "event_bf3d5f17ce",
+        "event_7e41507a5e"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_9a6e226dfa caused MOVE."
+    },
+    {
+      "source_action_id": "action_8b8f353840",
+      "events": [
+        "event_64fe72078c",
+        "event_4d10cf8903"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_8b8f353840 caused MOVE."
+    },
+    {
+      "source_action_id": "action_33bf389052",
+      "events": [
+        "event_7934b5ba96",
+        "event_1569372d6f"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_33bf389052 caused MOVE."
+    },
+    {
+      "source_action_id": "action_7d1ee1f8b7",
+      "events": [
+        "event_a2e85b4781",
+        "event_618dcb7440"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_7d1ee1f8b7 caused MOVE."
+    },
+    {
+      "source_action_id": "action_72da90ad3e",
+      "events": [
+        "event_af4d87d047",
+        "event_666234eb9a"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_72da90ad3e caused MOVE."
+    },
+    {
+      "source_action_id": "action_911dc22c6a",
+      "events": [
+        "event_0a17dec27e",
+        "event_be58b6b653"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_911dc22c6a caused MISS."
+    },
+    {
+      "source_action_id": "action_96cf5a9cc2",
+      "events": [
+        "event_6ae463db6c",
+        "event_3bbd5a2235"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_96cf5a9cc2 caused MOVE."
+    },
+    {
+      "source_action_id": "action_0d07d5afdc",
+      "events": [
+        "event_4ea0cab7a7",
+        "event_659915c6c0"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_0d07d5afdc caused MISS."
+    },
+    {
+      "source_action_id": "action_f5a9182c2b",
+      "events": [
+        "event_bd81986263",
+        "event_98f5df28a4"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_f5a9182c2b caused ATTACK."
+    },
+    {
+      "source_action_id": "action_fcc53fa751",
+      "events": [
+        "event_ead7eb4842",
+        "event_8f54acd405"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_fcc53fa751 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_0c21f7fb37",
+      "events": [
+        "event_d092b780c4",
+        "event_a8eec283b3"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_0c21f7fb37 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_d6600d60f1",
+      "events": [
+        "event_b471a01ce4",
+        "event_bf6845fac7"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_d6600d60f1 caused MISS."
+    },
+    {
+      "source_action_id": "action_a5eaa578a2",
+      "events": [
+        "event_1265479f22",
+        "event_a70f0ec40b"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_a5eaa578a2 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_8a85bb69f3",
+      "events": [
+        "event_20fc9e1b61",
+        "event_d9ef4bb297",
+        "event_b0364c55d1"
+      ],
+      "event_types": [
+        "ATTACK",
+        "ENTITY_DESTROYED"
+      ],
+      "summary": "Action action_8a85bb69f3 caused ATTACK and ENTITY_DESTROYED."
+    },
+    {
+      "source_action_id": "action_2d7459d5b7",
+      "events": [
+        "event_1e94190a9e",
+        "event_f027650f28"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_2d7459d5b7 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_0a88cf125f",
+      "events": [
+        "event_ce1cadb758",
+        "event_b8df35b7af"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_0a88cf125f caused MOVE."
+    },
+    {
+      "source_action_id": "action_7856853896",
+      "events": [
+        "event_c6bd4dadfd",
+        "event_c0d961c2b5"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_7856853896 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_1ef74f99cb",
+      "events": [
+        "event_b89b4ae01d",
+        "event_37545803b7",
+        "event_dc487af9dd"
+      ],
+      "event_types": [
+        "ATTACK",
+        "ENTITY_DESTROYED"
+      ],
+      "summary": "Action action_1ef74f99cb caused ATTACK and ENTITY_DESTROYED."
+    },
+    {
+      "source_action_id": "action_fdf24c9b92",
+      "events": [
+        "event_db1fc755d6",
+        "event_55c5474335"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_fdf24c9b92 caused MOVE."
+    },
+    {
+      "source_action_id": "action_7208fb15cf",
+      "events": [
+        "event_a2bd6c8957",
+        "event_fb8184e83b",
+        "event_a6483593c1"
+      ],
+      "event_types": [
+        "ATTACK",
+        "ENTITY_DESTROYED"
+      ],
+      "summary": "Action action_7208fb15cf caused ATTACK and ENTITY_DESTROYED."
+    },
+    {
+      "source_action_id": "action_fc83a1b607",
+      "events": [
+        "event_d2a95ee1a3",
+        "event_09e9441111"
+      ],
+      "event_types": [
+        "MOVE"
+      ],
+      "summary": "Action action_fc83a1b607 caused MOVE."
+    },
+    {
+      "source_action_id": "action_1fc559d0ba",
+      "events": [
+        "event_2a81907be5",
+        "event_5c132d904f"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_1fc559d0ba caused ATTACK."
+    },
+    {
+      "source_action_id": "action_54a0b3c6d0",
+      "events": [
+        "event_e57cbcf258",
+        "event_bf31f015ff"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_54a0b3c6d0 caused MISS."
+    },
+    {
+      "source_action_id": "action_83f968ae46",
+      "events": [
+        "event_57f8a86b59",
+        "event_57ac28ecea"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_83f968ae46 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_d9b79ea3cb",
+      "events": [
+        "event_fb79f2b8a7",
+        "event_23a5454b81"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_d9b79ea3cb caused ATTACK."
+    },
+    {
+      "source_action_id": "action_5849be5b21",
+      "events": [
+        "event_23696966a5",
+        "event_a3274c06d6"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_5849be5b21 caused MISS."
+    },
+    {
+      "source_action_id": "action_dedff1b72c",
+      "events": [
+        "event_6f4582a7b3",
+        "event_a5cec60395"
+      ],
+      "event_types": [
+        "MISS"
+      ],
+      "summary": "Action action_dedff1b72c caused MISS."
+    },
+    {
+      "source_action_id": "action_72ecd98db2",
+      "events": [
+        "event_8f841a37a4",
+        "event_d968716540"
+      ],
+      "event_types": [
+        "ATTACK"
+      ],
+      "summary": "Action action_72ecd98db2 caused ATTACK."
+    },
+    {
+      "source_action_id": "action_5927d1be36",
+      "events": [
+        "event_a2f74cb2aa",
+        "event_3554652c2c",
+        "event_1fe94e3617"
+      ],
+      "event_types": [
+        "ATTACK",
+        "ENTITY_DESTROYED"
+      ],
+      "summary": "Action action_5927d1be36 caused ATTACK and ENTITY_DESTROYED."
+    }
+  ],
+  "scenario_end": {
+    "event_id": "event_3f49d30093",
+    "event_type": "SCENARIO_END",
+    "summary": "Scenario ended."
+  }
+}

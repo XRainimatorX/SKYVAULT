@@ -1,0 +1,38 @@
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# tests/ and scripts/ put src/ on sys.path before importing skyvault, so their
+# imports cannot sit at the top of the file. The permanent fix is to make the
+# package installable and drop the sys.path block; until then E402 here is
+# expected rather than a defect.
+"tests/*.py" = ["E402"]
+"scripts/*.py" = ["E402"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/skyvault"]
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.bandit]
+# B311 flags random.Random as unsuitable for cryptography. SKYVAULT uses it for
+# reproducible simulation, which is the intended use, not a security control.
+skips = ["B311"]
