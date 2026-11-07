@@ -1,0 +1,197 @@
+{
+  "$defs": {
+    "Comparison": {
+      "additionalProperties": false,
+      "description": "Which other runs this one beat or lost to.",
+      "properties": {
+        "better_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Better Than",
+          "type": "array"
+        },
+        "worse_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Worse Than",
+          "type": "array"
+        }
+      },
+      "title": "Comparison",
+      "type": "object"
+    },
+    "OverallJudgement": {
+      "additionalProperties": false,
+      "description": "The single-line verdict of Formal Spec section 8.3.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "risky",
+            "needs_more_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "confidence"
+      ],
+      "title": "OverallJudgement",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.1/evaluation_result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe required fields are the win/lose summary evaluator.py produces today.\nThe optional ones are the multi-axis verdict of section 8.3; Phase 7\n(Evaluation Engine) is where they get filled. Until then a run reports who\nsurvived and how many events it took, nothing more.",
+  "properties": {
+    "active_entities": {
+      "minimum": 0,
+      "title": "Active Entities",
+      "type": "integer"
+    },
+    "active_factions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Active Factions",
+      "type": "array"
+    },
+    "comparison": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Comparison"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "destroyed_entities": {
+      "minimum": 0,
+      "title": "Destroyed Entities",
+      "type": "integer"
+    },
+    "event_count": {
+      "minimum": 0,
+      "title": "Event Count",
+      "type": "integer"
+    },
+    "failure_causes": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Causes"
+    },
+    "failure_points": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Points",
+      "type": "array"
+    },
+    "key_findings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Key Findings",
+      "type": "array"
+    },
+    "overall_judgement": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OverallJudgement"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "recommended_next_tests": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recommended Next Tests"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    },
+    "scores": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scores"
+    },
+    "termination_reason": {
+      "minLength": 1,
+      "title": "Termination Reason",
+      "type": "string"
+    },
+    "winner_or_result": {
+      "minLength": 1,
+      "title": "Winner Or Result",
+      "type": "string"
+    }
+  },
+  "required": [
+    "termination_reason",
+    "event_count",
+    "active_entities",
+    "destroyed_entities",
+    "active_factions",
+    "winner_or_result",
+    "key_findings",
+    "failure_points"
+  ],
+  "title": "EvaluationResult",
+  "type": "object"
+}

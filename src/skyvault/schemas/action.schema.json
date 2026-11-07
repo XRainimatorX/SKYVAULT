@@ -1,0 +1,145 @@
+{
+  "$id": "skyvault/0.1/action.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Action = what an actor attempts, before the world has agreed to it.\n\nImportant:\nactor_id is mandatory. An action nobody owns cannot be validated, resolved\nor attributed in event memory, so it is rejected at the door.\n\nThe fields after metadata come from Formal Spec section 6.2 and are not\nproduced by any actor yet. They are optional until Phase 3 generalises the\naction framework.",
+  "properties": {
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "action_type": {
+      "minLength": 1,
+      "title": "Action Type",
+      "type": "string"
+    },
+    "actor_id": {
+      "minLength": 1,
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Confidence"
+    },
+    "expected_duration": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Duration"
+    },
+    "expected_effect": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expected Effect"
+    },
+    "intent": {
+      "default": "",
+      "title": "Intent",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "priority": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Priority"
+    },
+    "required_resources": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Required Resources"
+    },
+    "risk_profile": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Risk Profile"
+    },
+    "target_entity_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Entity Id"
+    },
+    "target_position": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "integer"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Position"
+    }
+  },
+  "required": [
+    "action_id",
+    "actor_id",
+    "action_type"
+  ],
+  "title": "ActionRecord",
+  "type": "object"
+}

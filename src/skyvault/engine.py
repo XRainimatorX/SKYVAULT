@@ -6,7 +6,7 @@ from typing import Any
 
 from .action import Action
 from .consequence import Consequence
-from .contracts import validate_action
+from .contracts import validate_action, validate_result_package
 from .entity import Entity
 from .evaluator import build_evaluation_summary
 from .tactical_reference_policy import TacticalReferencePolicy
@@ -214,14 +214,18 @@ class SkyVaultTacticalReferenceEngine:
             tags=["scenario_end"],
         )
 
-        return {
-            "scenario_id": self.scenario["scenario_id"],
-            "scenario_version": self.scenario["scenario_version"],
-            "initial_world_state": initial_world_state,
-            "final_world_state": self.world.snapshot(),
-            "event_memory": [event.to_dict() for event in self.world.event_memory],
-            "evaluation": evaluation,
-        }
+        # The package is checked against its contract before it leaves the
+        # engine; every derived output is built from it alone.
+        return validate_result_package(
+            {
+                "scenario_id": self.scenario["scenario_id"],
+                "scenario_version": self.scenario["scenario_version"],
+                "initial_world_state": initial_world_state,
+                "final_world_state": self.world.snapshot(),
+                "event_memory": [event.to_dict() for event in self.world.event_memory],
+                "evaluation_result": evaluation,
+            }
+        )
 
     def resolve_action(self, action: Action) -> Consequence:
         """

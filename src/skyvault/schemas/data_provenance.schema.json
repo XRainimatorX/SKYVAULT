@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "One source of scenario data.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "EIDEN_01",
+            "STARTX",
+            "manual_input",
+            "external_data",
+            "historical_record"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "confidence"
+      ],
+      "title": "ProvenanceSource",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.1/data_provenance.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",
+  "properties": {
+    "missing_data": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Data",
+      "type": "array"
+    },
+    "reliability_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reliability Notes",
+      "type": "array"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/ProvenanceSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    }
+  },
+  "title": "DataProvenance",
+  "type": "object"
+}

@@ -138,7 +138,7 @@ def test_scenario_end_event_exists_with_evaluation_summary():
     assert event["data"]["winner_or_result"] != ""
     assert event["after_state"] != {}
     assert "entities" in event["after_state"]
-    assert event["data"] == result_package["evaluation"]
+    assert event["data"] == result_package["evaluation_result"]
 
 
 def test_events_record_the_system_that_produced_the_action():

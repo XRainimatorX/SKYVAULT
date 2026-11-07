@@ -1,0 +1,70 @@
+{
+  "$id": "skyvault/0.1/consequence.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Consequence = the result of resolving one action.\n\nImportant:\ndirect_effects stays a list of effect records, which is what the engine\nproduces today. Formal Spec section 6.3 groups effects into state, resource\nand entity changes and adds secondary effects and chain reactions; those\narrive with the Phase 3 action framework, so they are optional here.",
+  "properties": {
+    "accepted": {
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "chain_reactions": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chain Reactions"
+    },
+    "direct_effects": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Direct Effects",
+      "type": "array"
+    },
+    "evaluation_impact": {
+      "additionalProperties": true,
+      "title": "Evaluation Impact",
+      "type": "object"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "secondary_effects": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Secondary Effects"
+    }
+  },
+  "required": [
+    "action_id",
+    "accepted",
+    "reason"
+  ],
+  "title": "ConsequenceRecord",
+  "type": "object"
+}

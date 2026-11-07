@@ -32,7 +32,7 @@ def test_engine_runs_and_creates_events():
 
     assert result_package["scenario_id"] == "tactical_reference_001"
     assert len(result_package["event_memory"]) > 0
-    assert result_package["evaluation"]["event_count"] > 0
+    assert result_package["evaluation_result"]["event_count"] > 0
 
 
 def test_event_has_before_and_after_state():
@@ -89,9 +89,9 @@ def test_evaluation_event_count_matches_event_memory():
 
     result_package = engine.run()
 
-    event_count = result_package["evaluation"]["event_count"]
+    event_count = result_package["evaluation_result"]["event_count"]
 
-    key_findings = result_package["evaluation"]["key_findings"]
+    key_findings = result_package["evaluation_result"]["key_findings"]
 
     assert event_count == len(result_package["event_memory"])
     assert f"Events recorded: {event_count}" in key_findings

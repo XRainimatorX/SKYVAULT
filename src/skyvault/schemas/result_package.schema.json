@@ -1,0 +1,698 @@
+{
+  "$defs": {
+    "CausalLinks": {
+      "additionalProperties": false,
+      "description": "Which recorded events led to this one, and which followed it.",
+      "properties": {
+        "caused_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused By",
+          "type": "array"
+        },
+        "caused_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused Events",
+          "type": "array"
+        }
+      },
+      "title": "CausalLinks",
+      "type": "object"
+    },
+    "Comparison": {
+      "additionalProperties": false,
+      "description": "Which other runs this one beat or lost to.",
+      "properties": {
+        "better_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Better Than",
+          "type": "array"
+        },
+        "worse_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Worse Than",
+          "type": "array"
+        }
+      },
+      "title": "Comparison",
+      "type": "object"
+    },
+    "EntityRecord": {
+      "additionalProperties": false,
+      "description": "Entity = something that exists inside the world.\n\nImportant:\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
+      "properties": {
+        "capabilities": {
+          "additionalProperties": true,
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "faction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Faction"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Position"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "name",
+        "entity_type",
+        "faction",
+        "position"
+      ],
+      "title": "EntityRecord",
+      "type": "object"
+    },
+    "EvaluationRelevance": {
+      "additionalProperties": false,
+      "description": "Whether this event matters to the scenario verdict.",
+      "properties": {
+        "affects_cost": {
+          "default": false,
+          "title": "Affects Cost",
+          "type": "boolean"
+        },
+        "affects_risk": {
+          "default": false,
+          "title": "Affects Risk",
+          "type": "boolean"
+        },
+        "affects_success": {
+          "default": false,
+          "title": "Affects Success",
+          "type": "boolean"
+        }
+      },
+      "title": "EvaluationRelevance",
+      "type": "object"
+    },
+    "EvaluationResult": {
+      "additionalProperties": false,
+      "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe required fields are the win/lose summary evaluator.py produces today.\nThe optional ones are the multi-axis verdict of section 8.3; Phase 7\n(Evaluation Engine) is where they get filled. Until then a run reports who\nsurvived and how many events it took, nothing more.",
+      "properties": {
+        "active_entities": {
+          "minimum": 0,
+          "title": "Active Entities",
+          "type": "integer"
+        },
+        "active_factions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Active Factions",
+          "type": "array"
+        },
+        "comparison": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Comparison"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "destroyed_entities": {
+          "minimum": 0,
+          "title": "Destroyed Entities",
+          "type": "integer"
+        },
+        "event_count": {
+          "minimum": 0,
+          "title": "Event Count",
+          "type": "integer"
+        },
+        "failure_causes": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Causes"
+        },
+        "failure_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Points",
+          "type": "array"
+        },
+        "key_findings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Findings",
+          "type": "array"
+        },
+        "overall_judgement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/OverallJudgement"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "recommended_next_tests": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recommended Next Tests"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        },
+        "scores": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scores"
+        },
+        "termination_reason": {
+          "minLength": 1,
+          "title": "Termination Reason",
+          "type": "string"
+        },
+        "winner_or_result": {
+          "minLength": 1,
+          "title": "Winner Or Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "termination_reason",
+        "event_count",
+        "active_entities",
+        "destroyed_entities",
+        "active_factions",
+        "winner_or_result",
+        "key_findings",
+        "failure_points"
+      ],
+      "title": "EvaluationResult",
+      "type": "object"
+    },
+    "EventAffected": {
+      "additionalProperties": false,
+      "description": "What the event touched.",
+      "properties": {
+        "entities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "locations": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "resources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Resources",
+          "type": "array"
+        },
+        "risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risks",
+          "type": "array"
+        }
+      },
+      "title": "EventAffected",
+      "type": "object"
+    },
+    "EventRecord": {
+      "additionalProperties": false,
+      "description": "Event = something that actually happened inside the world.\n\nImportant:\nThis is the nested shape of Formal Spec section 7.2. target_entity_id and\ndata are additions recorded in ADR 002 and kept by ADR 003.\n\nbefore_state and after_state have no default. An event without them cannot\nbe replayed, so leaving either out is a contract violation.",
+      "properties": {
+        "affected": {
+          "$ref": "#/$defs/EventAffected"
+        },
+        "after_state": {
+          "additionalProperties": true,
+          "title": "After State",
+          "type": "object"
+        },
+        "before_state": {
+          "additionalProperties": true,
+          "title": "Before State",
+          "type": "object"
+        },
+        "causal_links": {
+          "$ref": "#/$defs/CausalLinks"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        },
+        "evaluation_relevance": {
+          "$ref": "#/$defs/EvaluationRelevance"
+        },
+        "event_id": {
+          "minLength": 1,
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/EventSource"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "target_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target Entity Id"
+        },
+        "time": {
+          "minimum": 0,
+          "title": "Time",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "event_id",
+        "time",
+        "event_type",
+        "source",
+        "target_entity_id",
+        "affected",
+        "before_state",
+        "after_state",
+        "causal_links",
+        "evaluation_relevance"
+      ],
+      "title": "EventRecord",
+      "type": "object"
+    },
+    "EventSource": {
+      "additionalProperties": false,
+      "description": "Who caused the event: the actor, the system that decided, the action.",
+      "properties": {
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Action Id"
+        },
+        "actor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actor Id"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "actor_id",
+        "system_id",
+        "action_id"
+      ],
+      "title": "EventSource",
+      "type": "object"
+    },
+    "OverallJudgement": {
+      "additionalProperties": false,
+      "description": "The single-line verdict of Formal Spec section 8.3.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "risky",
+            "needs_more_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "confidence"
+      ],
+      "title": "OverallJudgement",
+      "type": "object"
+    },
+    "ReproducibilityMetadata": {
+      "additionalProperties": false,
+      "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nPhase 1 defines this contract and nothing produces it yet. event_id and\naction_id are still uuid4 and outside the seed's control, so no run could\nhonestly fill output_hash. Phase 8 (Reproducibility) makes ids\ndeterministic and starts attaching this to every result package.",
+      "properties": {
+        "deterministic_replay_available": {
+          "title": "Deterministic Replay Available",
+          "type": "boolean"
+        },
+        "input_hash": {
+          "minLength": 1,
+          "title": "Input Hash",
+          "type": "string"
+        },
+        "output_hash": {
+          "minLength": 1,
+          "title": "Output Hash",
+          "type": "string"
+        },
+        "random_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Random Seed"
+        },
+        "random_seed_policy": {
+          "enum": [
+            "fixed",
+            "controlled_random",
+            "stochastic"
+          ],
+          "title": "Random Seed Policy",
+          "type": "string"
+        },
+        "ruleset_version": {
+          "minLength": 1,
+          "title": "Ruleset Version",
+          "type": "string"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "run_metadata": {
+          "$ref": "#/$defs/RunMetadata"
+        },
+        "runtime_version": {
+          "minLength": 1,
+          "title": "Runtime Version",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "scenario_id",
+        "scenario_version",
+        "random_seed_policy",
+        "random_seed",
+        "runtime_version",
+        "ruleset_version",
+        "input_hash",
+        "output_hash",
+        "deterministic_replay_available",
+        "run_metadata"
+      ],
+      "title": "ReproducibilityMetadata",
+      "type": "object"
+    },
+    "RunMetadata": {
+      "additionalProperties": false,
+      "description": "When and where a run happened.",
+      "properties": {
+        "compute_profile": {
+          "default": "",
+          "title": "Compute Profile",
+          "type": "string"
+        },
+        "ended_at": {
+          "minLength": 1,
+          "title": "Ended At",
+          "type": "string"
+        },
+        "operator_system": {
+          "default": "",
+          "title": "Operator System",
+          "type": "string"
+        },
+        "started_at": {
+          "minLength": 1,
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "started_at",
+        "ended_at"
+      ],
+      "title": "RunMetadata",
+      "type": "object"
+    },
+    "WorldSnapshot": {
+      "additionalProperties": false,
+      "description": "The whole world at one moment, as WorldState.snapshot() writes it.",
+      "properties": {
+        "assumptions": {
+          "additionalProperties": true,
+          "title": "Assumptions",
+          "type": "object"
+        },
+        "entities": {
+          "additionalProperties": {
+            "$ref": "#/$defs/EntityRecord"
+          },
+          "title": "Entities",
+          "type": "object"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "space": {
+          "additionalProperties": true,
+          "title": "Space",
+          "type": "object"
+        },
+        "tick": {
+          "minimum": 0,
+          "title": "Tick",
+          "type": "integer"
+        },
+        "world_id": {
+          "minLength": 1,
+          "title": "World Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "world_id",
+        "scenario_id",
+        "tick",
+        "space",
+        "entities"
+      ],
+      "title": "WorldSnapshot",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.1/result_package.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility stays optional until Phase 8 fills it.",
+  "properties": {
+    "evaluation_result": {
+      "$ref": "#/$defs/EvaluationResult"
+    },
+    "event_memory": {
+      "items": {
+        "$ref": "#/$defs/EventRecord"
+      },
+      "title": "Event Memory",
+      "type": "array"
+    },
+    "final_world_state": {
+      "$ref": "#/$defs/WorldSnapshot"
+    },
+    "initial_world_state": {
+      "$ref": "#/$defs/WorldSnapshot"
+    },
+    "reproducibility": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReproducibilityMetadata"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_version": {
+      "minLength": 1,
+      "title": "Scenario Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "scenario_version",
+    "initial_world_state",
+    "final_world_state",
+    "event_memory",
+    "evaluation_result"
+  ],
+  "title": "ResultPackage",
+  "type": "object"
+}

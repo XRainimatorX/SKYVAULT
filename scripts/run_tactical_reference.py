@@ -86,8 +86,8 @@ def main() -> None:
 
     print("SKYVAULT Tactical Reference Slice v0.1 completed.")
     print(f"Scenario: {result_package['scenario_id']}")
-    print(f"Result: {result_package['evaluation']['winner_or_result']}")
-    print(f"Events: {result_package['evaluation']['event_count']}")
+    print(f"Result: {result_package['evaluation_result']['winner_or_result']}")
+    print(f"Events: {result_package['evaluation_result']['event_count']}")
     print(f"Output: {output_dir}")
 
 

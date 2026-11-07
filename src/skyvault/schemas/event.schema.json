@@ -1,0 +1,215 @@
+{
+  "$defs": {
+    "CausalLinks": {
+      "additionalProperties": false,
+      "description": "Which recorded events led to this one, and which followed it.",
+      "properties": {
+        "caused_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused By",
+          "type": "array"
+        },
+        "caused_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused Events",
+          "type": "array"
+        }
+      },
+      "title": "CausalLinks",
+      "type": "object"
+    },
+    "EvaluationRelevance": {
+      "additionalProperties": false,
+      "description": "Whether this event matters to the scenario verdict.",
+      "properties": {
+        "affects_cost": {
+          "default": false,
+          "title": "Affects Cost",
+          "type": "boolean"
+        },
+        "affects_risk": {
+          "default": false,
+          "title": "Affects Risk",
+          "type": "boolean"
+        },
+        "affects_success": {
+          "default": false,
+          "title": "Affects Success",
+          "type": "boolean"
+        }
+      },
+      "title": "EvaluationRelevance",
+      "type": "object"
+    },
+    "EventAffected": {
+      "additionalProperties": false,
+      "description": "What the event touched.",
+      "properties": {
+        "entities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "locations": {
+          "items": {
+            "items": {
+              "type": "integer"
+            },
+            "maxItems": 2,
+            "minItems": 2,
+            "type": "array"
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "resources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Resources",
+          "type": "array"
+        },
+        "risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risks",
+          "type": "array"
+        }
+      },
+      "title": "EventAffected",
+      "type": "object"
+    },
+    "EventSource": {
+      "additionalProperties": false,
+      "description": "Who caused the event: the actor, the system that decided, the action.",
+      "properties": {
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Action Id"
+        },
+        "actor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actor Id"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "actor_id",
+        "system_id",
+        "action_id"
+      ],
+      "title": "EventSource",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.1/event.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Event = something that actually happened inside the world.\n\nImportant:\nThis is the nested shape of Formal Spec section 7.2. target_entity_id and\ndata are additions recorded in ADR 002 and kept by ADR 003.\n\nbefore_state and after_state have no default. An event without them cannot\nbe replayed, so leaving either out is a contract violation.",
+  "properties": {
+    "affected": {
+      "$ref": "#/$defs/EventAffected"
+    },
+    "after_state": {
+      "additionalProperties": true,
+      "title": "After State",
+      "type": "object"
+    },
+    "before_state": {
+      "additionalProperties": true,
+      "title": "Before State",
+      "type": "object"
+    },
+    "causal_links": {
+      "$ref": "#/$defs/CausalLinks"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "evaluation_relevance": {
+      "$ref": "#/$defs/EvaluationRelevance"
+    },
+    "event_id": {
+      "minLength": 1,
+      "title": "Event Id",
+      "type": "string"
+    },
+    "event_type": {
+      "title": "Event Type",
+      "type": "string"
+    },
+    "source": {
+      "$ref": "#/$defs/EventSource"
+    },
+    "tags": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "target_entity_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Target Entity Id"
+    },
+    "time": {
+      "minimum": 0,
+      "title": "Time",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "event_id",
+    "time",
+    "event_type",
+    "source",
+    "target_entity_id",
+    "affected",
+    "before_state",
+    "after_state",
+    "causal_links",
+    "evaluation_relevance"
+  ],
+  "title": "EventRecord",
+  "type": "object"
+}
