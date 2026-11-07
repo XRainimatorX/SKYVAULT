@@ -1,0 +1,12 @@
+{
+  "action_id": "action_fixture01",
+  "actor_id": "red_001",
+  "action_type": "move",
+  "target_entity_id": null,
+  "target_position": [
+    1,
+    1
+  ],
+  "intent": "approach",
+  "metadata": {}
+}

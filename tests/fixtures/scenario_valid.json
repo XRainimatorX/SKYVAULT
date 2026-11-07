@@ -1,0 +1,91 @@
+{
+  "schema_version": "0.1",
+  "scenario_id": "fixture_minimal_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "fixture_world_001",
+    "world_scope": "tactical_reference_environment",
+    "purpose": [
+      "contract_fixture"
+    ],
+    "space_model": {
+      "type": "grid",
+      "width": 4,
+      "height": 4,
+      "distance_model": "chebyshev"
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 5
+    },
+    "assumption_registry": {
+      "actor_policy": "temporary_tactical_reference_policy"
+    },
+    "evaluation_targets": [
+      "event_memory_created"
+    ]
+  },
+  "entities": [
+    {
+      "entity_id": "red_001",
+      "name": "Red Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "RED",
+      "position": [
+        0,
+        0
+      ],
+      "state": {
+        "hp": 35,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 10,
+        "attack_range": 1,
+        "accuracy": 0.8
+      },
+      "tags": [
+        "ASSAULT"
+      ]
+    },
+    {
+      "entity_id": "blue_001",
+      "name": "Blue Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [
+        3,
+        3
+      ],
+      "state": {
+        "hp": 35,
+        "ap": 50,
+        "hunger": 50,
+        "status": "active"
+      },
+      "capabilities": {
+        "attack_damage": 10,
+        "attack_range": 1,
+        "accuracy": 0.8
+      },
+      "tags": [
+        "ASSAULT"
+      ]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 5,
+    "random_seed": 1,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count"
+    ],
+    "failure_thresholds": [
+      "all_entities_destroyed"
+    ]
+  }
+}
