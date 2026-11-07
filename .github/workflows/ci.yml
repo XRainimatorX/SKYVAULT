@@ -1,0 +1,93 @@
+# Every check a contributor runs before a PR, run on a clean machine.
+# A clean machine is the point: it has no leftover output/ files to make a
+# test that reads the disk pass by accident, and no tool installed in a
+# different environment to disagree with the one the code is checked by.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install runtime and development dependencies
+        run: python -m pip install pydantic pyyaml pytest pytest-cov ruff black mypy bandit types-PyYAML
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format
+        run: black --check src/ tests/ scripts/
+
+      - name: Types
+        run: python -m mypy src/
+
+      - name: Security scan
+        run: python -m bandit -c pyproject.toml -r src/
+
+      - name: Tests with coverage floor
+        run: python -m pytest tests/ -q --cov --cov-fail-under=93
+
+      - name: Tests from another working directory
+        run: cd /tmp && python -m pytest "$GITHUB_WORKSPACE/tests" -q
+
+      - name: Tests must not read output/
+        run: |
+          if grep -rn "open(" tests/ | grep "output/"; then
+            echo "A test reads output/. Call the function and check its return value instead."
+            exit 1
+          fi
+
+      - name: Committed JSON Schemas match the contracts
+        run: |
+          python scripts/export_schemas.py
+          git diff --exit-code src/skyvault/schemas/ || {
+            echo "Run python3 scripts/export_schemas.py and commit the result."
+            exit 1
+          }
+
+      # Generated files existing is not the same as them being right: run the
+      # whole pipeline from an empty output/ and read what it wrote.
+      - name: Full pipeline produces correct outputs
+        run: |
+          rm -f output/*.json output/timeline.txt
+          python scripts/run_tactical_reference.py
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          out = Path("output")
+          package = json.loads((out / "result_package.json").read_text())
+          events = json.loads((out / "event_memory.json").read_text())
+          timeline = (out / "timeline.txt").read_text()
+
+          assert package["evaluation_result"]["winner_or_result"] == "RED_survived"
+          assert package["evaluation_result"]["event_count"] == len(events) == 97
+          assert all(len(event) == 12 and "source" in event for event in events)
+
+          for event in events:
+              if event["event_type"] != "ATTACK":
+                  continue
+              data = event["data"]
+              shown = max(data["hp_after"], 0)
+              sentence = f"HP {data['hp_before']} -> {shown} (damage = {data['damage']})"
+              assert sentence in timeline, sentence
+
+          for name in ("replay_state_at_tick", "entity_history", "causal_chain", "final_state"):
+              json.loads((out / f"{name}.json").read_text())
+
+          print("outputs verified")
+          EOF
