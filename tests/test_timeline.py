@@ -85,3 +85,36 @@ def test_timeline_can_be_written_to_txt(tmp_path):
 
     assert timeline_path.is_file()
     assert timeline_path.read_text(encoding="utf-8") == timeline
+
+
+def test_timeline_damage_matches_event_memory():
+    # Checks values, not keywords. Each attack must appear as its own exact
+    # "HP a -> b (damage = d)" sentence. Matching "(damage = d)" alone is not
+    # enough: another attack with the same damage value would satisfy it, which
+    # is how the Phase 4 fatal-blow defect could hide behind a passing test.
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    result_package = SkyVaultTacticalReferenceEngine(load_scenario(scenario_path)).run()
+
+    text = render_timeline(
+        result_package["scenario_id"],
+        result_package["event_memory"],
+    )
+
+    attacks = [
+        event
+        for event in result_package["event_memory"]
+        if event["event_type"] == "ATTACK"
+    ]
+    fatal = [event for event in attacks if event["data"]["hp_after"] <= 0]
+
+    assert len(attacks) == 14
+    assert len(fatal) == 4
+
+    for event in attacks:
+        data = event["data"]
+        shown_after = max(data["hp_after"], 0)
+
+        assert (
+            f"HP {data['hp_before']} -> {shown_after} (damage = {data['damage']})"
+            in text
+        )

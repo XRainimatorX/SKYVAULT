@@ -3,6 +3,7 @@
 from dataclasses import dataclass, field
 from typing import Any
 
+from .contracts import validate_event
 from .entity import Entity, Position
 from .event_memory import (
     Event,
@@ -120,6 +121,10 @@ class WorldState:
 
         Everything they leave out is filled with its empty structure here, so
         event memory never holds a half-shaped event.
+
+        The finished event is checked against the event contract before it is
+        appended. A malformed event raises ContractError and never reaches
+        event memory.
         """
         event = Event(
             event_id=new_event_id(),
@@ -141,6 +146,7 @@ class WorldState:
             tags=tags or [],
         )
 
+        validate_event(event.to_dict())
         self.link_causal_predecessor(event)
         self.event_memory.append(event)
 

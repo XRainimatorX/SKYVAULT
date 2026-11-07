@@ -76,7 +76,8 @@ def write_event(
 
         # Every branch resolves its own actor and target from the event itself,
         # so no sentence can inherit a name left over from an earlier event
-        actor_name = entity_names.get(event["actor_id"], event["actor_id"])
+        actor_id = event["source"]["actor_id"]
+        actor_name = entity_names.get(actor_id, actor_id)
         target_name = entity_names.get(
             event["target_entity_id"],
             event["target_entity_id"],
@@ -133,11 +134,11 @@ def write_event(
             hp_after = event["data"]["hp_after"]
             damage = event["data"]["damage"]
 
-            # Eliminate any negative hp
+            # Clamp negative hp for display only. damage stays the value the
+            # engine applied: deriving it from the clamped hp_after would
+            # report less damage than event memory recorded.
             if hp_after <= 0:
-
                 hp_after = 0
-                damage = hp_before - hp_after
 
             # Write sentence for ATTACK
             sentence = (

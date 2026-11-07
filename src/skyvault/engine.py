@@ -1,10 +1,12 @@
 """Engine = the tick loop that turns a scenario into a result package."""
 
 import random
+from dataclasses import asdict
 from typing import Any
 
 from .action import Action
 from .consequence import Consequence
+from .contracts import validate_action
 from .entity import Entity
 from .evaluator import build_evaluation_summary
 from .tactical_reference_policy import TacticalReferencePolicy
@@ -137,6 +139,10 @@ class SkyVaultTacticalReferenceEngine:
                         tags=["no_action"],
                     )
                     continue
+
+                # A malformed action is a broken policy, not a rejected move:
+                # it raises here and is never recorded or resolved.
+                validate_action(asdict(action))
 
                 action_entities = [actor.entity_id]
 

@@ -45,9 +45,9 @@ def test_every_source_action_id_is_grouped():
     )
 
     expected = {
-        event["source_action_id"]
+        event["source"]["action_id"]
         for event in result_package["event_memory"]
-        if event["source_action_id"] is not None
+        if event["source"]["action_id"] is not None
         and event["event_type"] != "SCENARIO_END"
     }
 

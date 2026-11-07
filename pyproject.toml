@@ -14,7 +14,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 # imports cannot sit at the top of the file. The permanent fix is to make the
 # package installable and drop the sys.path block; until then E402 here is
 # expected rather than a defect.
-"tests/*.py" = ["E402"]
+"tests/**/*.py" = ["E402"]
 "scripts/*.py" = ["E402"]
 
 [tool.mypy]

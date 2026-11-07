@@ -11,25 +11,21 @@ if str(SRC_PATH) not in sys.path:
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.scenario_loader import load_scenario
 
-REQUIRED_FIELDS = [
+# The nested shape of Formal Spec section 7.2, adopted by ADR 003.
+TOP_LEVEL_FIELDS = {
     "event_id",
     "time",
     "event_type",
-    "actor_id",
-    "system_id",
+    "source",
     "target_entity_id",
-    "source_action_id",
-    "affected_entities",
-    "affected_locations",
-    "affected_resources",
-    "affected_risks",
+    "affected",
     "before_state",
     "after_state",
     "causal_links",
     "evaluation_relevance",
     "data",
     "tags",
-]
+}
 
 
 def run_reference_scenario() -> dict:
@@ -45,7 +41,7 @@ def events_of_type(events: list[dict], event_type: str) -> list[dict]:
     return [event for event in events if event["event_type"] == event_type]
 
 
-def test_every_event_has_phase_4_required_fields():
+def test_every_event_has_the_nested_event_shape():
     result_package = run_reference_scenario()
 
     events = result_package["event_memory"]
@@ -53,13 +49,15 @@ def test_every_event_has_phase_4_required_fields():
     assert len(events) > 0
 
     for event in events:
-        for required_field in REQUIRED_FIELDS:
-            assert required_field in event
+        assert set(event) == TOP_LEVEL_FIELDS
 
-        assert isinstance(event["affected_entities"], list)
-        assert isinstance(event["affected_locations"], list)
-        assert isinstance(event["affected_resources"], list)
-        assert isinstance(event["affected_risks"], list)
+        assert set(event["source"]) == {"actor_id", "system_id", "action_id"}
+        assert set(event["affected"]) == {"entities", "locations", "resources", "risks"}
+
+        assert isinstance(event["affected"]["entities"], list)
+        assert isinstance(event["affected"]["locations"], list)
+        assert isinstance(event["affected"]["resources"], list)
+        assert isinstance(event["affected"]["risks"], list)
         assert isinstance(event["before_state"], dict)
         assert isinstance(event["after_state"], dict)
         assert isinstance(event["data"], dict)
@@ -85,8 +83,8 @@ def test_move_event_has_meaningful_before_and_after_state():
         assert event["after_state"] != {}
         assert event["before_state"] != event["after_state"]
         assert event["before_state"]["position"] != event["after_state"]["position"]
-        assert event["affected_entities"] == [event["actor_id"]]
-        assert len(event["affected_locations"]) > 0
+        assert event["affected"]["entities"] == [event["source"]["actor_id"]]
+        assert len(event["affected"]["locations"]) > 0
 
 
 def test_attack_event_has_meaningful_before_and_after_state():
@@ -121,7 +119,7 @@ def test_entity_destroyed_event_structure():
     )
 
     for event in destroyed_events:
-        assert len(event["affected_entities"]) > 0
+        assert len(event["affected"]["entities"]) > 0
         assert event["evaluation_relevance"]["affects_success"] is True
         assert "failure" in event["tags"]
         assert event["data"]["destroyed_entity"] == event["target_entity_id"]
@@ -157,12 +155,14 @@ def test_events_record_the_system_that_produced_the_action():
     events = result_package["event_memory"]
 
     for event in events:
-        assert event["system_id"] is not None
+        system_id = event["source"]["system_id"]
+
+        assert system_id is not None
 
         if event["event_type"] == "SCENARIO_END":
-            assert event["system_id"] != actor_system_id
+            assert system_id != actor_system_id
         else:
-            assert event["system_id"] == actor_system_id
+            assert system_id == actor_system_id
 
 
 def test_world_state_does_not_import_policy():
@@ -187,10 +187,10 @@ def test_causal_links_connect_events_from_the_same_action():
         for cause_id in event["causal_links"]["caused_by"]:
             cause = events_by_id[cause_id]
 
-            assert cause["source_action_id"] == event["source_action_id"]
+            assert cause["source"]["action_id"] == event["source"]["action_id"]
             assert event["event_id"] in cause["causal_links"]["caused_events"]
 
     for event in events:
-        if event["source_action_id"] is None:
+        if event["source"]["action_id"] is None:
             assert event["causal_links"]["caused_by"] == []
             assert event["causal_links"]["caused_events"] == []
