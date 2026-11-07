@@ -1,0 +1,81 @@
+"""Scenario Grammar = how a task is written so SKYVAULT can run it."""
+
+from typing import Any, Literal
+
+from pydantic import Field, model_validator
+
+from .assumption import AssumptionRegistry
+from .base import ContractModel, NonEmptyStr, check
+from .entity import EntityRecord
+from .provenance import DataProvenance
+from .world import WorldContract
+
+
+class RuntimeSettings(ContractModel):
+    """How the run executes. Formal Spec section 3.3 calls this execution_settings."""
+
+    max_ticks: int = Field(gt=0)
+    random_seed: int
+    deterministic_mode: bool = False
+    random_seed_policy: Literal["fixed", "controlled_random", "stochastic"] | None = (
+        None
+    )
+    repeat_count: int | None = Field(default=None, ge=1)
+
+
+class ScenarioEvaluation(ContractModel):
+    """What the run is judged on."""
+
+    primary_metrics: list[str]
+    failure_thresholds: list[str] = Field(default_factory=list)
+    secondary_metrics: list[str] | None = None
+    anti_gaming_metrics: list[str] | None = None
+    comparison_targets: list[str] | None = None
+
+
+class Scenario(ContractModel):
+    """
+    Scenario = Formal Spec section 3.
+
+    Important:
+    Version 0.1 keeps the flat layout every scenario already uses. Section 3.3
+    groups the same information under identity / world_binding /
+    initial_conditions; adopting that grouping is a schema version change, not
+    a Phase 1 task. See ADR 004.
+
+    schema_version names the contract the file was written against, so a
+    reader can refuse a file it does not understand instead of misreading it.
+    scenario_version is the content's own version and is unrelated.
+    """
+
+    schema_version: Literal["0.1"]
+    scenario_id: NonEmptyStr
+    scenario_version: NonEmptyStr
+    world_contract: WorldContract
+    entities: list[EntityRecord] = Field(min_length=1)
+    runtime: RuntimeSettings
+    evaluation: ScenarioEvaluation
+
+    scenario_type: str | None = None
+    domain: str | None = None
+    purpose: str | None = None
+    assumption_registry: AssumptionRegistry | None = None
+    data_provenance: DataProvenance | None = None
+    participants: dict[str, Any] | None = None
+    allowed_actions: dict[str, Any] | None = None
+    failure_exploration: dict[str, Any] | None = None
+    output: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _entity_ids_are_unique(self) -> "Scenario":
+        seen: set[str] = set()
+        for entity in self.entities:
+            if entity.entity_id in seen:
+                raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
+            seen.add(entity.entity_id)
+        return self
+
+
+def validate_scenario(data: dict[str, Any]) -> dict[str, Any]:
+    """Validate a scenario. Raises ContractError when it breaks the contract."""
+    return check(Scenario, "scenario", data)

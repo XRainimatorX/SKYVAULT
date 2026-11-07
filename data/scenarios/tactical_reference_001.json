@@ -1,4 +1,5 @@
 {
+  "schema_version": "0.1",
   "scenario_id": "tactical_reference_001",
   "scenario_version": "v0.1",
   "world_contract": {
