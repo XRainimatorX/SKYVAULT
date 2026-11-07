@@ -57,10 +57,11 @@ scenario → world state → actor policy → action → validation
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
+python3 -m pip install pydantic pyyaml
 python3 scripts/run_tactical_reference.py
 ```
 
-需要 Python 3.10+，沒有任何執行時期相依套件。
+需要 Python 3.10+。執行時期相依只有兩個：`pydantic`（契約與 JSON Schema）與 `PyYAML`（YAML scenario），宣告在 `pyproject.toml`。
 
 跑完會在 `output/` 產生七個檔案。想快速知道發生了什麼，先看 `output/timeline.txt`：
 
@@ -68,7 +69,7 @@ python3 scripts/run_tactical_reference.py
 Tick 6
 
 - Red Rifleman selected ATTACK against Blue Commander
-- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 7)
+- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 10)
 - Blue Commander in the BLUE faction was destroyed by Red Rifleman
 ```
 
@@ -104,6 +105,8 @@ python3 -m pytest tests/ -q
 | 我要接手這個專案 | [`docs/handoff.md`](docs/handoff.md) |
 | 完整技術參考（1510 行） | [`docs/phases/phase4_tactical_slice.md`](docs/phases/phase4_tactical_slice.md) |
 | 某個階段做了什麼 | [`docs/phases/`](docs/phases/) |
+| 資料格式長什麼樣 | [`docs/spec/contracts.md`](docs/spec/contracts.md) |
+| 每個 Phase 要做什麼、照什麼順序 | [`docs/plan/`](docs/plan/) |
 | 為什麼這樣設計 | [`docs/decisions/`](docs/decisions/) |
 | 上個階段的回顧 | [`docs/postmortems/`](docs/postmortems/) |
 
@@ -115,6 +118,8 @@ python3 -m pytest tests/ -q
 
 ```text
 src/skyvault/       引擎與 exporter
+  contracts/        11 份資料契約（Pydantic）
+  schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入
 tests/              測試
@@ -131,10 +136,10 @@ docs/               文件
 | 項目 | 影響 | 留待 |
 |---|---|---|
 | `event_id` / `action_id` 用 `uuid4()`，不受 seed 控制 | 行為可重現，但輸出檔無法跨 run 逐位元比對 | Phase 8 |
-| `timeline.txt` 致命一擊顯示錯誤的傷害數字 | 4 次擊殺中 3 次顯示錯誤，其餘輸出正確 | 未定 |
-| `affected_resources` / `affected_risks` 恆為空 | 資源與風險模型尚未存在 | Phase 2 / 7 |
+| event 的 `affected.resources` / `affected.risks` 恆為空 | 資源與風險模型尚未存在 | Phase 2 / 7 |
+| 契約中 Spec 有但尚未建模的欄位只是 optional | resource_state、多軸評估、reproducibility 等還沒有東西產生 | Phase 2–9 |
 
-完整清單見 [`docs/phases/phase4_event_memory.md`](docs/phases/phase4_event_memory.md)。
+完整清單見 [`docs/phases/phase1_contract_pack.md`](docs/phases/phase1_contract_pack.md)。
 
 ---
 
@@ -144,10 +149,13 @@ docs/               文件
 python3 -m pytest tests/ -q --cov                # 測試與覆蓋率
 ruff check .                                      # linter
 black --check src/ tests/ scripts/                # 排版
-mypy src/                                         # 型別
+python3 -m mypy src/                              # 型別
+python3 scripts/export_schemas.py                 # 改契約後重新產生 JSON Schema
 python3 -m bandit -c pyproject.toml -r src/       # 安全掃描
 ```
 
 所有設定集中在 `pyproject.toml`。
+
+每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證。
 
 送 PR 前的檢查清單見 [`docs/handoff.md`](docs/handoff.md)。

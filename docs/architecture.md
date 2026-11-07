@@ -13,7 +13,7 @@
 ```text
 scenario JSON
   │
-  ├─ scenario_loader 讀成 dict
+  ├─ scenario_loader 讀 JSON / YAML，通過 scenario 契約
   │
   ├─ engine.build_world()  建立 tick 0 的 WorldState
   │
@@ -21,7 +21,8 @@ scenario JSON
   │   │
   │   └─ 每個 tick，對每個存活單位：
   │        policy.decide_action()      產生 Action（意圖）
-  │        world.record_event()        記錄 ACTION_SELECTED
+  │        validate_action()           壞 action 直接 raise
+  │        world.record_event()        記錄 ACTION_SELECTED（通過 event 契約才寫入）
   │        engine.resolve_action()     驗證並結算 → Consequence
   │        （若 accepted）改變 WorldState
   │        world.record_event()        記錄結果事件
@@ -29,7 +30,7 @@ scenario JSON
   ├─ evaluator.build_evaluation_summary()
   ├─ world.record_event()  記錄 SCENARIO_END
   │
-  └─ result_package
+  └─ result_package（通過 result package 契約才回傳）
        └─ 四個 exporter 各自推導出一份輸出
 ```
 
@@ -126,6 +127,17 @@ scenario JSON
 不依賴 code
 原因：它只是輸入資料。
 ```
+
+## Contracts（在階層最底層）
+
+```text
+   src/skyvault/contracts/
+              11 份契約：Pydantic model + validate_<x>()
+              不 import 專案內任何模組
+              ② ③ ④ 都可以依賴它；exporter 不依賴它
+```
+
+契約是全系統的資料法律，所以它必須在最底層：誰都可以拿它來驗證，它不認識任何人。若契約 import 了 engine 或 world_state，就會出現循環依賴，而且「格式的定義」會開始依賴「格式的使用者」。細節見 [`spec/contracts.md`](spec/contracts.md)。
 
 ## Exporter（在階層之外）
 
@@ -291,6 +303,8 @@ WorldState 不可以決定攻擊目標。
 
 **`get_entity()` 故意 raise 而不回傳 None** —— 錯的 id 要當場炸掉，不要變成後面某處的靜默 no-op。
 
+**`record_event()` 在寫入前先通過 event 契約。** 不合法的 event raise `ContractError`，永遠不會進 event_memory。
+
 **已記錄的事件不可修改。** `event_memory` 只被 append。
 
 ## `action.py`
@@ -367,24 +381,29 @@ build_evaluation_relevance(source)
 Event
 ```
 
-`Event` 的欄位形狀已凍結，17 個 top-level 欄位：
+`Event` dataclass 的屬性是攤平的，方便 engine 傳參數：
+
+```python
+event_id, time, event_type
+actor_id, system_id, target_entity_id, source_action_id
+before_state, after_state
+affected_entities, affected_locations, affected_resources, affected_risks
+causal_links, evaluation_relevance, data, tags
+```
+
+**`to_dict()` 輸出 Spec §7.2 的巢狀形狀**，那才是 event_memory 儲存、event 契約檢查的形狀（[ADR 003](decisions/003_event_nesting.md)）：
 
 ```python
 event_id              str
 time                  int
 event_type            str
-actor_id              str | None
-system_id             str | None      哪個系統做的決策
+source                {actor_id, system_id, action_id}     action_id 是 causal_chain 分組的依據
 target_entity_id      str | None
-source_action_id      str | None      causal_chain 靠這個分組
+affected              {entities, locations, resources, risks}   resources / risks 目前恆空
 before_state          dict
 after_state           dict
-affected_entities     list
-affected_locations    list
-affected_resources    list            目前恆空
-affected_risks        list            目前恆空
-causal_links          dict            {caused_by: [], caused_events: []}
-evaluation_relevance  dict            {affects_success, affects_cost, affects_risk}
+causal_links          {caused_by: [], caused_events: []}
+evaluation_relevance  {affects_success, affects_cost, affects_risk}
 data                  dict            型別專屬資料
 tags                  list
 ```
@@ -392,7 +411,7 @@ tags                  list
 方法：
 
 ```python
-to_dict()    輸出成 JSON-safe dict
+to_dict()    輸出巢狀、JSON-safe 的 dict；每個可變容器都複製一份
 ```
 
 八種 `event_type`：
@@ -405,13 +424,14 @@ MISS              ENTITY_DESTROYED  NO_ACTION SCENARIO_END
 規則：
 
 ```text
-每個 event 都要有完整的 17 個 top-level 欄位。
+每個 event 都要有完整的 12 個頂層鍵與巢狀結構。
 空資料保留 empty list / empty dict，不要省略欄位。
+新事件型別要先登記到 contracts/event.py 的 EVENT_TYPES，否則 record_event() 會拒絕。
 不要把所有東西塞進 data。
 event 寫入後不可修改。
 ```
 
-為什麼是攤平而非巢狀：見 [`decisions/002_event_shape.md`](decisions/002_event_shape.md)。
+屬性攤平、輸出巢狀的理由見 [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md)；Phase 4 的攤平決定見 [`decisions/002_event_shape.md`](decisions/002_event_shape.md)。
 
 `new_event_id()` 用 `uuid4()`，**不受 random_seed 控制**。
 
@@ -423,12 +443,13 @@ event 寫入後不可修改。
 load_scenario(path)
 ```
 
-讀 scenario JSON，回傳 engine 要的 dict。
+讀 scenario 檔（`.json`、`.yaml`、`.yml`，依副檔名決定），通過 scenario 契約後回傳 engine 要的 dict。
 
 規則：
 
 ```text
-只負責讀取與基本解析。
+只負責讀取與契約驗證。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.1 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -501,6 +522,8 @@ engine 不含 replay / timeline / causal chain 邏輯。
 engine 不直接改 entity —— 透過 Consequence 生效。
 ```
 
+**engine 在兩個地方驗證：** policy 交出的 action 在被記錄與結算之前通過 action 契約；`run()` 回傳之前整包通過 result package 契約。壞 action 是 policy 的程式錯誤，raise `ContractError`，不會被記成 `ACTION_REJECTED`（[ADR 004](decisions/004_contract_scope.md) 第 7 點）。
+
 `evaluate()` 的 `event_count` 由 `run()` 明確傳入 `len(event_memory) + 1`，因為 evaluation 在 `SCENARIO_END` 寫入之前計算，必須把那個即將寫入的事件算進去。
 
 ## `evaluator.py`
@@ -533,6 +556,30 @@ evaluator 只讀，不改世界。
 evaluator 不決定行動。
 目前只有勝負與計數，不是多軸評估 —— 留給 Phase 7。
 ```
+
+## `contracts/`
+
+定義：
+
+```text
+11 份契約，各一個 Pydantic model + validate_<x>()
+ContractError
+SCHEMA_VERSION = "0.1"
+build_json_schemas()
+```
+
+規則：
+
+```text
+驗證函式是純函式，回傳正規化後的 dict，不改變資料形狀。
+ContractError 一次列出全部錯誤，格式 "<欄位路徑>: <訊息>"。
+所有 model 設 extra="forbid"：未知的鍵直接被拒。
+不 import 專案內任何模組。
+```
+
+完整欄位與每個 optional 欄位留待哪個 Phase，見 [`spec/contracts.md`](spec/contracts.md)。
+
+**改了契約要重跑 `scripts/export_schemas.py`** —— 連只改 docstring 也要，因為 Pydantic 把它寫進 JSON Schema 的 `description`。
 
 ## Exporter
 
@@ -815,7 +862,7 @@ ACTION_SELECTED  ←caused_by─  ATTACK  ←caused_by─  ENTITY_DESTROYED
 
 ### `event_memory.json`
 
-**唯一真相來源。** 一個 event 的完整陣列，每個含 17 個欄位。
+**唯一真相來源。** 一個 event 的完整陣列，每個都是 12 個頂層鍵的巢狀形狀。
 
 所有其他輸出都由它推導。任何模組都不得修改它。
 
@@ -829,7 +876,7 @@ scenario_version     str
 initial_world_state  dict     tick 0 的世界
 final_world_state    dict     結束時的世界
 event_memory         list     所有事件
-evaluation           dict     結果摘要
+evaluation_result    dict     結果摘要（Phase 1 前叫 evaluation）
 ```
 
 **四個 exporter 的輸入全部來自這裡**，不從 scenario 檔取得任何東西。
@@ -878,14 +925,16 @@ policy.next_step_toward()        多個移動格同分時挑一個
 ```text
 1. event_memory 只被 append，永不修改已寫入的事件
 2. before_state / after_state 是深拷貝
-3. 每個 event 有完整 17 個 top-level 欄位，空值保留為 [] 或 {}
+3. 每個 event 是 12 個頂層鍵的巢狀形狀，空值保留為 [] 或 {}
 4. 只有 accepted 的 Consequence 能改變世界
 5. 被摧毀的 entity 保留在 world.entities，只改 status
 6. 整場模擬只有一個 random.Random 實例
 7. exporter 不 import 專案內任何模組
 8. exporter 不寫檔
-9. evaluation.event_count == len(event_memory)
+9. evaluation_result.event_count == len(event_memory)（result package 契約強制）
 10. result_package 的欄位足以產生全部四個 derived output
+11. contracts 不 import 專案內任何模組；exporter 不 import contracts
+12. 驗證函式不改變資料形狀：驗證前後的 dict 相等
 ```
 
 ---
@@ -894,7 +943,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 
 | 症狀 | 先看哪裡 |
 |---|---|
-| 事件數不對 | `len(event_memory)` vs `evaluation.event_count` |
+| 事件數不對 | `len(event_memory)` vs `evaluation_result.event_count` |
+| `ContractError` | `error.contract` 指出哪份契約，`error.errors` 列出每個欄位路徑 |
+| JSON Schema 測試失敗 | 契約改過（連 docstring 也算）但沒重跑 `scripts/export_schemas.py` |
 | 某個 tick 狀態不對 | `replay_state_at_tick.json` 的該 tick |
 | 某個 entity 行為奇怪 | `entity_history.json` 的該 entity |
 | 不知道某個結果從哪來 | `causal_chain.json` 找 `source_action_id` |
@@ -905,7 +956,7 @@ policy.next_step_toward()        多個移動格同分時挑一個
 | 攻擊打不到 | 檢查 `distance_model`，移動與射程共用同一個 |
 | import 時產生檔案 | 某個模組在 module 層級做 I/O |
 
-`timeline.txt` 目前有一個已知缺陷：致命一擊會顯示錯誤的傷害數字。詳見 [`phases/phase4_event_memory.md`](phases/phase4_event_memory.md) 第 6 節。
+Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 修正，見 [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md)。
 
 ---
 
@@ -914,7 +965,7 @@ policy.next_step_toward()        多個移動格同分時挑一個
 ```text
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
-執行時期相依       無，只用標準函式庫
+執行時期相依       pydantic>=2、PyYAML（ADR 004），宣告在 pyproject.toml
 ```
 
 ```bash
@@ -923,7 +974,8 @@ python3 -m pytest tests/ -q                     # 測試
 python3 -m pytest tests/ -q --cov               # 覆蓋率
 ruff check .                                    # linter
 black --check src/ tests/ scripts/              # 排版
-mypy src/                                       # 型別
+python3 -m mypy src/                            # 型別（要用能 import pydantic 的直譯器）
+python3 scripts/export_schemas.py               # 改契約後重新產生 JSON Schema
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 
@@ -940,4 +992,9 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase4_event_memory.md`](phases/phase4_event_memory.md) | Phase 4 完成報告 |
 | [`phases/phase0_tactical_slice.md`](phases/phase0_tactical_slice.md) | Phase 0 凍結紀錄 |
 | [`postmortems/phase4.md`](postmortems/phase4.md) | Phase 4 回顧 |
-| [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | 為什麼 event 是攤平的 |
+| [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
+| [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
+| [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
+| [`spec/contracts.md`](spec/contracts.md) | 11 份契約的現行規格 |
+| [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
+| [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |

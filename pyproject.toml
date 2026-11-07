@@ -1,3 +1,28 @@
+# Declares what SKYVAULT needs to run. The package is not installable yet (no
+# build-system table): scripts and tests still put src/ on sys.path. Install
+# the dependencies with: python3 -m pip install pydantic pyyaml
+[project]
+name = "skyvault"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    # Contracts and JSON Schema generation (Phase 1, ADR 004).
+    "pydantic>=2,<3",
+    # YAML scenario files (Phase 1, ADR 004).
+    "PyYAML>=6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+    "mypy",
+    "bandit",
+    "types-PyYAML",
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py310"]
