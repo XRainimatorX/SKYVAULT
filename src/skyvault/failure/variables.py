@@ -16,7 +16,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from ..reproducibility import compare_scenarios
+from ..reproducibility import child_version
 
 STRESS_LEVELS = ("mild", "moderate", "severe", "collapse")
 
@@ -251,13 +251,5 @@ def apply_stress(
             raise ValueError(f"{name} does not apply: {reason}")
         stressed = variable.apply(stressed, level, perspective)
 
-    base = scenario["scenario_version"]
     label = "+".join(f"{name}:{level}" for name, level in variables.items())
-    stressed["scenario_version"] = f"{base}+{label}"
-    stressed["version_control"] = {
-        "version": stressed["scenario_version"],
-        "parent_version": base,
-        "changed_from_previous": compare_scenarios(scenario, stressed),
-        "change_reason": f"Failure exploration: {label}",
-    }
-    return stressed
+    return child_version(scenario, stressed, label, f"Failure exploration: {label}")

@@ -4,12 +4,38 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
+from .action import ActionTargetRecord
 from .assumption import AssumptionRegistry
-from .base import ContractModel, NonEmptyStr, check
+from .base import ContractModel, NonEmptyStr, NonNegative, Probability, check
 from .entity import EntityRecord
 from .failure import FailureExplorationSpec
 from .provenance import DataProvenance
 from .world import WorldContract
+
+
+class ScheduledAction(ContractModel):
+    """
+    An action an outside system orders for one actor at one tick.
+
+    Important:
+    At that tick the actor carries it out instead of asking its policy. The
+    action id is still issued by the run, so ids stay deterministic; the
+    ordering system is recorded as source.system_id on every event it
+    causes. Batch branches use this to play out conflicting orders.
+    """
+
+    tick: int = Field(ge=1)
+    actor_id: NonEmptyStr
+    system_id: NonEmptyStr
+    action_type: NonEmptyStr
+    target: ActionTargetRecord
+    intent: str = ""
+    required_resources: dict[NonEmptyStr, NonNegative] = Field(default_factory=dict)
+    expected_effect: str = ""
+    risk_profile: dict[str, Any] = Field(default_factory=dict)
+    priority: str = "normal"
+    confidence: Probability = 1.0
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class RuntimeSettings(ContractModel):
@@ -22,6 +48,7 @@ class RuntimeSettings(ContractModel):
         None
     )
     repeat_count: int | None = Field(default=None, ge=1)
+    scheduled_actions: list[ScheduledAction] = Field(default_factory=list)
 
 
 class ScenarioEvaluation(ContractModel):
@@ -109,6 +136,28 @@ class Scenario(ContractModel):
             if entity.entity_id in seen:
                 raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
             seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _scheduled_actions_fit_the_run(self) -> "Scenario":
+        ids = {entity.entity_id for entity in self.entities}
+        seen: set[tuple[int, str]] = set()
+        for scheduled in self.runtime.scheduled_actions:
+            if scheduled.actor_id not in ids:
+                raise ValueError(
+                    f"scheduled action for unknown actor {scheduled.actor_id!r}"
+                )
+            if scheduled.tick > self.runtime.max_ticks:
+                raise ValueError(
+                    f"scheduled action at tick {scheduled.tick} is after max_ticks"
+                )
+            key = (scheduled.tick, scheduled.actor_id)
+            if key in seen:
+                raise ValueError(
+                    f"{scheduled.actor_id!r} has two scheduled actions "
+                    f"at tick {scheduled.tick}"
+                )
+            seen.add(key)
         return self
 
     @model_validator(mode="after")

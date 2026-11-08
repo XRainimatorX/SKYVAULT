@@ -5,7 +5,7 @@ import random
 from datetime import datetime, timezone
 from typing import Any
 
-from .action import location_to_json
+from .action import Action, ActionTarget, location_to_json
 from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handlers_for
 from .contracts import (
     validate_action,
@@ -69,6 +69,10 @@ class SkyVaultTacticalReferenceEngine:
         self.world = self.build_world(scenario)
         self.policy = TacticalReferencePolicy(self.rng)
         self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
+        self.scheduled = {
+            (item["tick"], item["actor_id"]): item
+            for item in scenario["runtime"].get("scheduled_actions", [])
+        }
 
         assumptions = scenario["world_contract"].get("assumption_registry", {})
 
@@ -89,6 +93,34 @@ class SkyVaultTacticalReferenceEngine:
                 system_id=self.actor_system_id,
                 fault_rng=random.Random(fault_seed),
             ),
+        )
+
+    def scheduled_action(self, actor_id: str, scheduled: dict[str, Any]) -> Action:
+        """
+        The Action an outside system ordered, with an id issued by this run.
+
+        Important:
+        Fields the order leaves out take their contract defaults, so an
+        order only has to say what it wants done.
+        """
+        target = scheduled["target"]
+        location = target.get("location")
+        return Action(
+            action_id=self.world.ids.action(),
+            actor_id=actor_id,
+            action_type=scheduled["action_type"],
+            target=ActionTarget(
+                entity_id=target.get("entity_id"),
+                location=tuple(location) if isinstance(location, list) else location,
+                system_id=target.get("system_id"),
+            ),
+            intent=scheduled.get("intent", ""),
+            required_resources=dict(scheduled.get("required_resources", {})),
+            expected_effect=scheduled.get("expected_effect", ""),
+            risk_profile=dict(scheduled.get("risk_profile", {})),
+            priority=scheduled.get("priority", "normal"),
+            confidence=float(scheduled.get("confidence", 1.0)),
+            metadata=dict(scheduled.get("metadata", {})),
         )
 
     def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:
@@ -163,7 +195,17 @@ class SkyVaultTacticalReferenceEngine:
                 if not actor.is_active():
                     continue
 
-                action = self.policy.decide_action(self.world, actor)
+                # An action an outside system ordered for this tick replaces
+                # the policy's decision; its events carry that system's id
+                scheduled = self.scheduled.get((self.world.tick, actor.entity_id))
+                system_id = (
+                    scheduled["system_id"] if scheduled else self.actor_system_id
+                )
+                action = (
+                    self.scheduled_action(actor.entity_id, scheduled)
+                    if scheduled
+                    else self.policy.decide_action(self.world, actor)
+                )
 
                 if action is None:
                     self.world.record_event(
@@ -193,7 +235,7 @@ class SkyVaultTacticalReferenceEngine:
                 self.world.record_event(
                     event_type="ACTION_SELECTED",
                     actor_id=actor.entity_id,
-                    system_id=self.actor_system_id,
+                    system_id=system_id,
                     target_entity_id=target_entity_id,
                     source_action_id=action.action_id,
                     before_state=actor.snapshot(),
@@ -209,13 +251,13 @@ class SkyVaultTacticalReferenceEngine:
 
                 # Validation, resolution, world mutation and the resulting
                 # events all happen inside the resolver
-                consequence = self.resolver.execute(self.world, action)
+                consequence = self.resolver.execute(self.world, action, system_id)
 
                 if not consequence.accepted:
                     self.world.record_event(
                         event_type="ACTION_REJECTED",
                         actor_id=action.actor_id,
-                        system_id=self.actor_system_id,
+                        system_id=system_id,
                         target_entity_id=target_entity_id,
                         source_action_id=action.action_id,
                         before_state={},

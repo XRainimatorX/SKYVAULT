@@ -332,9 +332,9 @@ def test_every_effect_and_chain_reaction_is_one_event_in_the_reference_run():
     applied = []
     original = engine.resolver.execute
 
-    def counting(world, action):
+    def counting(world, action, system_id=None):
         start = len(world.event_memory)
-        consequence = original(world, action)
+        consequence = original(world, action, system_id)
         applied.append((consequence, len(world.event_memory) - start))
         return consequence
 

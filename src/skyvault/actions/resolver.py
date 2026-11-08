@@ -52,7 +52,9 @@ class ActionResolver:
         self.handlers = dict(handlers)
         self.context = context
 
-    def execute(self, world: WorldState, action: Action) -> Consequence:
+    def execute(
+        self, world: WorldState, action: Action, system_id: str | None = None
+    ) -> Consequence:
         """
         Validate, resolve and apply one action. Returns its Consequence.
 
@@ -60,7 +62,8 @@ class ActionResolver:
         A refusal at any step returns a rejected Consequence and leaves the
         world and event memory untouched. The world's charge for the action
         (validation.action_cost) is applied before the handler's own effects,
-        one RESOURCE_CHANGED per resource.
+        one RESOURCE_CHANGED per resource. system_id, when given, replaces the
+        context's on this action's events: another system ordered it.
         """
         handler = self.handlers.get(action.action_type)
         if handler is None:
@@ -103,7 +106,9 @@ class ActionResolver:
                 reaction.cause_index += len(charges)
 
         validate_consequence(consequence.to_dict())
-        apply_consequence(world, consequence, action, self.context.system_id)
+        apply_consequence(
+            world, consequence, action, system_id or self.context.system_id
+        )
         return consequence
 
     def _order_lost(self, world: WorldState, faction: str | None) -> bool:

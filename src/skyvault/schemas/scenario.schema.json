@@ -1,5 +1,60 @@
 {
   "$defs": {
+    "ActionTargetRecord": {
+      "additionalProperties": false,
+      "description": "What the action is aimed at. Any of the three may be null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "entity_id",
+        "location",
+        "system_id"
+      ],
+      "title": "ActionTargetRecord",
+      "type": "object"
+    },
     "Assumption": {
       "additionalProperties": false,
       "description": "One assumption, with how much it is trusted and how much rides on it.",
@@ -476,6 +531,13 @@
           ],
           "default": null,
           "title": "Repeat Count"
+        },
+        "scheduled_actions": {
+          "items": {
+            "$ref": "#/$defs/ScheduledAction"
+          },
+          "title": "Scheduled Actions",
+          "type": "array"
         }
       },
       "required": [
@@ -566,6 +628,87 @@
         "primary_metrics"
       ],
       "title": "ScenarioEvaluation",
+      "type": "object"
+    },
+    "ScheduledAction": {
+      "additionalProperties": false,
+      "description": "An action an outside system orders for one actor at one tick.\n\nImportant:\nAt that tick the actor carries it out instead of asking its policy. The\naction id is still issued by the run, so ids stay deterministic; the\nordering system is recorded as source.system_id on every event it\ncauses. Batch branches use this to play out conflicting orders.",
+      "properties": {
+        "action_type": {
+          "minLength": 1,
+          "title": "Action Type",
+          "type": "string"
+        },
+        "actor_id": {
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "expected_effect": {
+          "default": "",
+          "title": "Expected Effect",
+          "type": "string"
+        },
+        "intent": {
+          "default": "",
+          "title": "Intent",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "priority": {
+          "default": "normal",
+          "title": "Priority",
+          "type": "string"
+        },
+        "required_resources": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Required Resources",
+          "type": "object"
+        },
+        "risk_profile": {
+          "additionalProperties": true,
+          "title": "Risk Profile",
+          "type": "object"
+        },
+        "system_id": {
+          "minLength": 1,
+          "title": "System Id",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/ActionTargetRecord"
+        },
+        "tick": {
+          "minimum": 1,
+          "title": "Tick",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "tick",
+        "actor_id",
+        "system_id",
+        "action_type",
+        "target"
+      ],
+      "title": "ScheduledAction",
       "type": "object"
     },
     "SpaceModelSpec": {

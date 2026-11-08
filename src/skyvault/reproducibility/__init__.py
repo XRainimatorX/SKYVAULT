@@ -12,6 +12,7 @@ from .registry import RunRegistry
 from .versioning import (
     CHANGE_CATEGORIES,
     RUNTIME_VERSION,
+    child_version,
     compare_runs,
     compare_scenarios,
     ruleset_version,
@@ -23,6 +24,7 @@ __all__ = [
     "RUNTIME_VERSION",
     "RunRegistry",
     "canonical_json",
+    "child_version",
     "compare_runs",
     "compare_scenarios",
     "content_hash",

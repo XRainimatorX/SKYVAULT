@@ -93,6 +93,30 @@ def compare_scenarios(old: dict[str, Any], new: dict[str, Any]) -> dict[str, lis
     return changes
 
 
+def child_version(
+    parent: dict[str, Any], child: dict[str, Any], label: str, reason: str
+) -> dict[str, Any]:
+    """
+    child, recorded as a version derived from parent.
+
+    Important:
+    scenario_version becomes "<parent version>+<label>" and version_control
+    points back at the parent, with changed_from_previous computed by
+    compare_scenarios: the record of what changed cannot drift from what
+    actually changed. Failure exploration and batch variants both derive
+    their scenarios this way. child is modified and returned.
+    """
+    base = parent["scenario_version"]
+    child["scenario_version"] = f"{base}+{label}"
+    child["version_control"] = {
+        "version": child["scenario_version"],
+        "parent_version": base,
+        "changed_from_previous": compare_scenarios(parent, child),
+        "change_reason": reason,
+    }
+    return child
+
+
 def compare_runs(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     """
     How two result packages differ: inputs, outcome, verdict and every score.
