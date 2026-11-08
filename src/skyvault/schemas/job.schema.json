@@ -1,5 +1,90 @@
 {
   "$defs": {
+    "DataProvenance": {
+      "additionalProperties": false,
+      "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",
+      "properties": {
+        "missing_data": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Data",
+          "type": "array"
+        },
+        "reliability_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reliability Notes",
+          "type": "array"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ProvenanceSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "title": "DataProvenance",
+      "type": "object"
+    },
+    "EntityChange": {
+      "additionalProperties": false,
+      "description": "What a request changes on one unit; capabilities and state are merged.",
+      "properties": {
+        "capabilities": {
+          "additionalProperties": true,
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "entity_type": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Type"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        }
+      },
+      "title": "EntityChange",
+      "type": "object"
+    },
     "GovernanceRecord": {
       "additionalProperties": false,
       "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
@@ -102,7 +187,7 @@
     },
     "JobRequest": {
       "additionalProperties": false,
-      "description": "What a system asks the service to do (task_intake).\n\nImportant:\nruntime overrides the scenario's runtime block (max_ticks, random_seed,\npolicy, participants); replay names the job whose run to replay;\nbranches are a branch_compare's named action sets (Phase 12).",
+      "description": "What a system asks the service to do (task_intake).\n\nImportant:\nruntime overrides the scenario's runtime block (max_ticks, random_seed,\npolicy, participants); replay names the job whose run to replay;\nbranches are a branch_compare's named action sets (Phase 12), each\n{branch_id, actions, entity_changes}. entity_changes replaces named\nunits' capabilities, state, name or type ({entity_id: {field: ...}});\ndata_provenance records where those changes came from (Phase 12: what\nEIDEN-01 and STAR GUARD submit).",
       "properties": {
         "batch": {
           "anyOf": [
@@ -132,6 +217,32 @@
           ],
           "default": null,
           "title": "Branches"
+        },
+        "data_provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "entity_changes": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/EntityChange"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Changes"
         },
         "kind": {
           "enum": [
@@ -236,6 +347,56 @@
         "kind"
       ],
       "title": "JobRequest",
+      "type": "object"
+    },
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "One source of scenario data.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "EIDEN_01",
+            "STARTX",
+            "manual_input",
+            "external_data",
+            "historical_record"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "confidence"
+      ],
+      "title": "ProvenanceSource",
       "type": "object"
     },
     "Usage": {

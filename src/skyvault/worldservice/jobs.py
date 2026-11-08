@@ -75,7 +75,10 @@ def _named(folder: Path, name: str, suffix: str = ".json") -> Path:
 def scenario_for(
     request: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
 ) -> dict[str, Any]:
-    """The scenario a request names, with its runtime overrides, checked."""
+    """
+    The scenario a request names, with its runtime overrides, unit changes
+    and data provenance, checked.
+    """
     scenario = json.loads(
         _named(scenarios_dir, request["scenario"]).read_text(encoding="utf-8")
     )
@@ -83,7 +86,42 @@ def scenario_for(
     if extra:
         raise ValueError(f"runtime fields a request may not set: {sorted(extra)}")
     scenario["runtime"].update(copy.deepcopy(request.get("runtime", {})))
+    scenario = changed_entities(scenario, request.get("entity_changes"))
+    if request.get("data_provenance"):
+        provenance = copy.deepcopy(request["data_provenance"])
+        provenance["scenario_id"] = (
+            provenance.get("scenario_id") or scenario["scenario_id"]
+        )
+        scenario["data_provenance"] = provenance
     return validate_scenario(scenario)
+
+
+def changed_entities(
+    scenario: dict[str, Any], changes: dict[str, Any] | None
+) -> dict[str, Any]:
+    """
+    A copy of scenario with units changed: name and type replaced,
+    capabilities and state merged key by key.
+
+    Important:
+    A change to a unit the scenario does not have is refused with NotFound —
+    a request may change what SKYVAULT has, never add to it.
+    """
+    if not changes:
+        return scenario
+    changed = copy.deepcopy(scenario)
+    units = {unit["entity_id"]: unit for unit in changed["entities"]}
+    unknown = sorted(set(changes) - set(units))
+    if unknown:
+        raise NotFound(f"{scenario['scenario_id']} has no units {unknown}")
+    for entity_id, change in changes.items():
+        unit = units[entity_id]
+        for field in ("name", "entity_type"):
+            if change.get(field) is not None:
+                unit[field] = change[field]
+        for field in ("capabilities", "state"):
+            unit[field] = {**unit.get(field, {}), **change.get(field, {})}
+    return changed
 
 
 def profile_for(request: dict[str, Any], scenario: dict[str, Any]) -> dict[str, Any]:
@@ -124,8 +162,9 @@ def compare_variants(
 ) -> list[Variant]:
     """
     A branch_compare's variants: one per named branch and the baseline with
-    none. Each branch's scenario passes the scenario contract, so a branch
-    that orders one unit twice at one tick is refused at the door.
+    none. A branch schedules its actions and changes its units
+    (entity_changes). Each branch's scenario passes the scenario contract,
+    so a branch that orders one unit twice at one tick is refused at the door.
     """
     base = scenario_for(request, scenarios_dir)
     variants = []
@@ -136,11 +175,12 @@ def compare_variants(
                 "system_id": action.get("system_id", request["source_system"]),
                 "proposal_id": f"{branch['branch_id']}:{n}",
             }
-            for n, action in enumerate(branch["actions"], 1)
+            for n, action in enumerate(branch.get("actions", []), 1)
         ]
         variant = branch_variant(base, branch["branch_id"], proposals)
-        validate_scenario(variant.scenario)
-        variants.append(variant)
+        changed = changed_entities(variant.scenario, branch.get("entity_changes"))
+        validate_scenario(changed)
+        variants.append(Variant(variant.variant_id, variant.kind, changed))
     variants.append(branch_variant(base, "none", []))
     return variants
 

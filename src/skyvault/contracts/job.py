@@ -13,6 +13,7 @@ from pydantic import Field, model_validator
 
 from .base import ContractModel, NonEmptyStr, check
 from .governance import GovernanceRecord, Priority
+from .provenance import DataProvenance
 
 JobKind = Literal[
     "scenario_run",
@@ -36,6 +37,15 @@ Lifecycle = Literal[
 NAME = r"^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$"
 
 
+class EntityChange(ContractModel):
+    """What a request changes on one unit; capabilities and state are merged."""
+
+    name: NonEmptyStr | None = None
+    entity_type: NonEmptyStr | None = None
+    capabilities: dict[str, Any] = Field(default_factory=dict)
+    state: dict[str, Any] = Field(default_factory=dict)
+
+
 class JobRequest(ContractModel):
     """
     What a system asks the service to do (task_intake).
@@ -43,7 +53,11 @@ class JobRequest(ContractModel):
     Important:
     runtime overrides the scenario's runtime block (max_ticks, random_seed,
     policy, participants); replay names the job whose run to replay;
-    branches are a branch_compare's named action sets (Phase 12).
+    branches are a branch_compare's named action sets (Phase 12), each
+    {branch_id, actions, entity_changes}. entity_changes replaces named
+    units' capabilities, state, name or type ({entity_id: {field: ...}});
+    data_provenance records where those changes came from (Phase 12: what
+    EIDEN-01 and STAR GUARD submit).
     """
 
     kind: JobKind
@@ -57,6 +71,8 @@ class JobRequest(ContractModel):
     repeat_count: int | None = Field(default=None, ge=1)
     replay: NonEmptyStr | None = None
     branches: list[dict[str, Any]] | None = None
+    entity_changes: dict[str, EntityChange] | None = None
+    data_provenance: DataProvenance | None = None
 
     @model_validator(mode="after")
     def _names_what_it_needs(self) -> "JobRequest":
