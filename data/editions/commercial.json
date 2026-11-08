@@ -1,0 +1,45 @@
+{
+  "edition_id": "commercial",
+  "title": "SKYVAULT Studio",
+  "description": "The clean commercial shell: simulation, training, planning and crisis tools on the same core, with no internal system adapter mounted and no internal system name in what it returns. Measured on the Phase 16 system before any edition code existed: nothing reads this file, so a commercial deployment would be the internal one — a NEXUS submission is accepted (202) and the conflict package of a plain batch tells the customer that NEXUS decides.",
+  "systems": [],
+  "domains": [
+    "military",
+    "city",
+    "airspace"
+  ],
+  "job_kinds": [
+    "scenario_run",
+    "batch",
+    "failure_exploration",
+    "replay"
+  ],
+  "products": [
+    "crisis_planning",
+    "urban_resilience",
+    "ai_scenario_testing",
+    "equipment_screening",
+    "training_aar",
+    "risk_studio"
+  ],
+  "decision_authorities": [
+    "customer"
+  ],
+  "redact": {
+    "NEXUS": "Decision Authority",
+    "SOVEREIGN": "Executive Authority",
+    "STARTX": "Strategy Planner",
+    "TAC ANGEL": "Tactical Agent",
+    "TAC_ANGEL": "Tactical Agent",
+    "EIDEN-01": "Intelligence Feed",
+    "EIDEN_01": "Intelligence Feed",
+    "CYBERHOUND": "Environment Monitor",
+    "STAR GUARD": "Equipment Programme",
+    "STAR_GUARD": "Equipment Programme",
+    "Star Guard": "Equipment Programme",
+    "星衞": "Equipment Programme",
+    "AEROGRID": "Airspace Manager",
+    "SKYFOX": "Drone Operator",
+    "HADES": "Air Defence Operator"
+  }
+}

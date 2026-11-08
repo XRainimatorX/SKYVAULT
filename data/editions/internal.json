@@ -1,0 +1,42 @@
+{
+  "edition_id": "internal",
+  "title": "SKYVAULT Core",
+  "description": "The internal core: every domain, every system adapter, every route and output as the core produces it. Measured on the Phase 16 system before any edition code existed: this is what the world service already is — every one of its routes, all nine system adapters behind /scenario/submit — and nothing reads this file.",
+  "systems": [
+    "NEXUS",
+    "STARTX",
+    "TAC_ANGEL",
+    "EIDEN_01",
+    "AEROGRID",
+    "SKYFOX",
+    "HADES",
+    "CYBERHOUND",
+    "STAR_GUARD"
+  ],
+  "domains": [
+    "military",
+    "city",
+    "airspace"
+  ],
+  "job_kinds": [
+    "scenario_run",
+    "batch",
+    "failure_exploration",
+    "replay",
+    "persistent_world",
+    "branch_compare"
+  ],
+  "products": [
+    "crisis_planning",
+    "urban_resilience",
+    "ai_scenario_testing",
+    "equipment_screening",
+    "training_aar",
+    "risk_studio"
+  ],
+  "decision_authorities": [
+    "NEXUS",
+    "SOVEREIGN"
+  ],
+  "redact": {}
+}
