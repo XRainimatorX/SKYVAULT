@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-1276 passed, 68 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1344 passed）
+1277 passed, 69 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1346 passed）
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。

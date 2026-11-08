@@ -128,6 +128,9 @@ enemy_reaction_speed 三級相同    整數速度 × 1.25 進位 = 2 → 威脅�
 Phase 12 測試    用 position 當「不允許的欄位」→ 改用 faction（position 現在允許）
 軍事測試         "airspace" 不再是「不存在的 domain」→ 改用 "maritime"
 順序問題         test_core_extension 單獨跑時失敗（Phase 14 記錄過）→ 測試先 build_policy 一次，已修
+CI 的一次紅      push 的 CI 在 PostgreSQL 撞 job_events 的主鍵：store 的 log、add_checkpoint、save_conflict 先讀最大編號
+                 再插入，worker 與停止請求同時寫時拿到同一個號碼（Phase 11 起就在）→ 並行測試重現（SQLite 也會）→
+                 撞主鍵時換新號碼重試
 ```
 
 ---
@@ -136,8 +139,8 @@ Phase 12 測試    用 position 當「不允許的欄位」→ 改用 faction（
 
 | 項目 | 結果 |
 |---|---|
-| pytest | 1344 passed（有 Redis / PostgreSQL 時；沒有時 1276 passed、68 skipped）（Phase 14 為 1233） |
-| Python 3.10 venv | 1344 passed |
+| pytest | 1346 passed（有 Redis / PostgreSQL 時；沒有時 1277 passed、69 skipped）（Phase 14 為 1233） |
+| Python 3.10 venv | 1344 passed（store 修正前；修正後 CI 的 3.10 job）|
 | 從 /tmp 執行 | 通過（沒有服務：68 skipped） |
 | 全專案覆蓋率 | 99%；domains/airspace/ 每個檔案 100% |
 | ruff / black / mypy / bandit | 通過（mypy 144 個檔案） |

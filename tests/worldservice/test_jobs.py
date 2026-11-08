@@ -77,6 +77,22 @@ def test_results_checkpoints_and_events_are_kept_in_order(store):
     assert store.events("job_000009") == []
 
 
+def test_numbered_records_written_at_once_from_many_threads_never_collide(store):
+    """A worker and a stop request log to the same job at the same moment."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    def write(i: int) -> None:
+        store.log("job_000001", f"m{i}")
+        store.add_checkpoint("w1", {"i": i})
+        store.save_conflict({"i": i})
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(write, range(40)))
+    assert [e["n"] for e in store.events("job_000001")] == list(range(1, 41))
+    assert sorted(c["i"] for c in store.checkpoints("w1")) == list(range(40))
+    assert store.get_conflict("conflict_000040")["conflict_id"] == "conflict_000040"
+
+
 def test_three_slashes_name_a_file_relative_to_where_the_service_runs(
     tmp_path, monkeypatch
 ):

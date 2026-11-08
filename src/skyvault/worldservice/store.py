@@ -13,6 +13,7 @@ SQLAlchemy), "sqlite://" (memory) or "postgresql://...".
 import json
 import sqlite3
 import threading
+from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any, Protocol
 
@@ -31,6 +32,8 @@ SCHEMA = (
         job_id TEXT NOT NULL, n INTEGER NOT NULL, at TEXT NOT NULL,
         message TEXT NOT NULL, PRIMARY KEY (job_id, n))""",
 )
+# a numbered insert that keeps losing the race gives up after this many tries
+ATTEMPTS = 50
 
 
 def now() -> str:
@@ -71,6 +74,32 @@ class _SQLStore:
     def setup(self) -> None:
         for statement in SCHEMA:
             self._run(statement)
+
+    def _is_duplicate(self, error: Exception) -> bool:
+        return isinstance(error, sqlite3.IntegrityError)
+
+    def _insert_next(
+        self,
+        select: str,
+        select_params: tuple[Any, ...],
+        insert: str,
+        params: Callable[[int], tuple[Any, ...]],
+    ) -> int:
+        """
+        Insert the record numbered one past the highest so far; return its
+        number. Two writers can read the same highest number (a worker and a
+        stop request logging at once): the second insert then hits the
+        primary key and is retried with a fresh number.
+        """
+        for attempt in range(ATTEMPTS):
+            n = int(self._run(select, select_params)[0][0]) + 1
+            try:
+                self._run(insert, params(n))
+                return n
+            except Exception as error:
+                if attempt == ATTEMPTS - 1 or not self._is_duplicate(error):
+                    raise
+        raise AssertionError("unreachable")  # pragma: no cover
 
     def next_job_id(self) -> str:
         rows = self._run("SELECT COALESCE(MAX(seq), 0) FROM jobs")
@@ -126,16 +155,12 @@ class _SQLStore:
         return package
 
     def add_checkpoint(self, world_id: str, checkpoint: dict[str, Any]) -> int:
-        rows = self._run(
+        return self._insert_next(
             "SELECT COALESCE(MAX(n), 0) FROM checkpoints WHERE world_id = ?",
             (world_id,),
-        )
-        n = int(rows[0][0]) + 1
-        self._run(
             "INSERT INTO checkpoints (world_id, n, checkpoint) VALUES (?, ?, ?)",
-            (world_id, n, json.dumps(checkpoint, sort_keys=True)),
+            lambda n: (world_id, n, json.dumps(checkpoint, sort_keys=True)),
         )
-        return n
 
     def checkpoints(self, world_id: str) -> list[dict[str, Any]]:
         rows = self._run(
@@ -146,14 +171,18 @@ class _SQLStore:
 
     def save_conflict(self, record: dict[str, Any]) -> dict[str, Any]:
         """Keep a new conflict as conflict_<next n>; return it with that id."""
-        rows = self._run("SELECT COALESCE(MAX(seq), 0) FROM conflicts")
-        seq = int(rows[0][0]) + 1
-        saved = {**record, "conflict_id": f"conflict_{seq:06d}"}
-        self._run(
+
+        def row(seq: int) -> tuple[Any, ...]:
+            saved = {**record, "conflict_id": f"conflict_{seq:06d}"}
+            return (saved["conflict_id"], seq, json.dumps(saved, sort_keys=True))
+
+        seq = self._insert_next(
+            "SELECT COALESCE(MAX(seq), 0) FROM conflicts",
+            (),
             "INSERT INTO conflicts (conflict_id, seq, record) VALUES (?, ?, ?)",
-            (saved["conflict_id"], seq, json.dumps(saved, sort_keys=True)),
+            row,
         )
-        return saved
+        return {**record, "conflict_id": f"conflict_{seq:06d}"}
 
     def get_conflict(self, conflict_id: str) -> dict[str, Any]:
         rows = self._run(
@@ -173,12 +202,11 @@ class _SQLStore:
         return record
 
     def log(self, job_id: str, message: str) -> None:
-        rows = self._run(
-            "SELECT COALESCE(MAX(n), 0) FROM job_events WHERE job_id = ?", (job_id,)
-        )
-        self._run(
+        self._insert_next(
+            "SELECT COALESCE(MAX(n), 0) FROM job_events WHERE job_id = ?",
+            (job_id,),
             "INSERT INTO job_events (job_id, n, at, message) VALUES (?, ?, ?, ?)",
-            (job_id, int(rows[0][0]) + 1, now(), message),
+            lambda n: (job_id, n, now(), message),
         )
 
     def events(self, job_id: str) -> list[dict[str, Any]]:
@@ -218,6 +246,11 @@ class PostgresStore(_SQLStore):
         self.spec = dsn
         self._connect = lambda: psycopg.connect(dsn, autocommit=True)
         self.setup()
+
+    def _is_duplicate(self, error: Exception) -> bool:
+        import psycopg
+
+        return isinstance(error, psycopg.errors.UniqueViolation)
 
     def _run(self, sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
         with self._connect() as connection, connection.cursor() as cursor:
