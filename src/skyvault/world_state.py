@@ -29,9 +29,9 @@ class WorldState:
     time in its own unit, whatever kind of clock advances it; the name stays
     tick because every event and snapshot already records time under it.
 
-    Every change to the world that later code may need to replay goes through
-    a method that records an event: record_event(), change_resource(),
-    update_entity_state().
+    Every change to the world goes through a method that records an event:
+    mutate_entity() and change_resource(). An action's changes reach them
+    only through actions.resolver.apply_consequence().
     """
 
     world_id: str
@@ -112,6 +112,97 @@ class WorldState:
             tags=["resource_change", "world_state_mutation"],
         )
 
+    def mutate_entity(
+        self,
+        entity_id: str,
+        changes: dict[str, Any],
+        event_type: str,
+        actor_id: str | None = None,
+        system_id: str | None = None,
+        source_action_id: str | None = None,
+        target_entity_id: str | None = None,
+        affected_entities: list[str] | None = None,
+        affected_locations: list[Any] | None = None,
+        data: dict[str, Any] | None = None,
+        tags: list[str] | None = None,
+        evaluation_relevance: dict[str, bool] | None = None,
+    ) -> Event:
+        """
+        Change one entity and record the change as one event.
+
+        Important:
+        changes may hold "position" (the new location, None to take the
+        entity off the map) and "state" (keys to set). Empty changes records
+        the event and changes nothing. Any other key raises before anything
+        happens.
+
+        before_state and after_state are full entity snapshots, so event
+        sourcing replays every entity event the same way.
+        """
+        unknown = set(changes) - {"position", "state"}
+        if unknown:
+            raise ValueError(f"unknown entity change keys: {sorted(unknown)}")
+
+        entity = self.get_entity(entity_id)
+        before = entity.snapshot()
+
+        if "position" in changes:
+            entity.position = changes["position"]
+        entity.state.update(changes.get("state", {}))
+
+        return self.record_event(
+            event_type=event_type,
+            actor_id=actor_id,
+            system_id=system_id,
+            target_entity_id=target_entity_id,
+            source_action_id=source_action_id,
+            before_state=before,
+            after_state=entity.snapshot(),
+            affected_entities=affected_entities,
+            affected_locations=affected_locations,
+            evaluation_relevance=evaluation_relevance,
+            data=data,
+            tags=tags,
+        )
+
+    def record_transition(
+        self,
+        event_type: str,
+        before_state: dict[str, Any],
+        after_state: dict[str, Any],
+        actor_id: str | None = None,
+        system_id: str | None = None,
+        source_action_id: str | None = None,
+        target_entity_id: str | None = None,
+        affected_entities: list[str] | None = None,
+        affected_locations: list[Any] | None = None,
+        data: dict[str, Any] | None = None,
+        tags: list[str] | None = None,
+        evaluation_relevance: dict[str, bool] | None = None,
+    ) -> Event:
+        """
+        Record an event for a transition that already happened. Changes nothing.
+
+        Important:
+        A chain reaction uses this: the hit that took hp to zero is recorded by
+        mutate_entity(), and the destruction it caused is recorded here with the
+        same before and after.
+        """
+        return self.record_event(
+            event_type=event_type,
+            actor_id=actor_id,
+            system_id=system_id,
+            target_entity_id=target_entity_id,
+            source_action_id=source_action_id,
+            before_state=before_state,
+            after_state=after_state,
+            affected_entities=affected_entities,
+            affected_locations=affected_locations,
+            evaluation_relevance=evaluation_relevance,
+            data=data,
+            tags=tags,
+        )
+
     def update_entity_state(
         self,
         entity_id: str,
@@ -124,23 +215,17 @@ class WorldState:
         Merge changes into an entity's state and record ENTITY_STATE_CHANGED.
 
         Important:
-        before_state and after_state are full entity snapshots, the same shape
-        every other entity event records, so event sourcing replays it with no
-        special case. The tactical engine still records its own MOVE and
-        ATTACK events; Phase 3 routes all mutation through methods like this.
+        A state change that belongs to no action (a scripted world event, a
+        test). Changes an action causes go through its Consequence instead.
         """
-        entity = self.get_entity(entity_id)
-        before = entity.snapshot()
-        entity.state.update(changes)
-
-        return self.record_event(
+        return self.mutate_entity(
+            entity_id,
+            {"state": dict(changes)},
             event_type="ENTITY_STATE_CHANGED",
             actor_id=actor_id,
             system_id=system_id,
-            target_entity_id=entity_id,
             source_action_id=source_action_id,
-            before_state=before,
-            after_state=entity.snapshot(),
+            target_entity_id=entity_id,
             affected_entities=[entity_id],
             data={"changes": dict(changes)},
             tags=["state_change", "world_state_mutation"],

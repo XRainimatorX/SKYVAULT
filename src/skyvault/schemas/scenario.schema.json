@@ -725,10 +725,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.2/scenario.schema.json",
+  "$id": "skyvault/0.3/scenario.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.2 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
+  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.3 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
   "properties": {
     "allowed_actions": {
       "anyOf": [
@@ -865,7 +865,7 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "0.2",
+      "const": "0.3",
       "title": "Schema Version",
       "type": "string"
     },

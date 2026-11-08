@@ -18,6 +18,14 @@ EVENT_TYPES = frozenset(
         "SCENARIO_END",
         "RESOURCE_CHANGED",
         "ENTITY_STATE_CHANGED",
+        "OBSERVE",
+        "WAIT",
+        "REPAIR",
+        "SUPPLY",
+        "DEPLOY",
+        "WITHDRAW",
+        "SCAN",
+        "COMMUNICATE",
     }
 )
 

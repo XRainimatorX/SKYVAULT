@@ -154,29 +154,36 @@ def test_entity_position_must_be_two_integers():
         validate_entity(entity)
 
 
-def test_consequence_requires_accepted_and_reason():
+def test_consequence_requires_every_section_6_part():
     with pytest.raises(ContractError) as caught:
         validate_consequence({"action_id": "action_x"})
 
     fields = {error.split(":")[0] for error in caught.value.errors}
-    assert fields == {"accepted", "reason"}
+    assert fields == {
+        "accepted",
+        "reason",
+        "direct_effects",
+        "secondary_effects",
+        "chain_reactions",
+        "evaluation_impact",
+    }
+
+
+def test_consequence_fixture_passes_and_keeps_its_shape():
+    consequence = fixture("consequence_valid")
+
+    assert validate_consequence(consequence) == consequence
 
 
 def test_consequence_produced_by_the_engine_satisfies_the_contract():
     engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
     actor = engine.world.get_entity("red_001")
     action = engine.policy.decide_action(engine.world, actor)
-    consequence = engine.resolve_action(action)
+    consequence = engine.resolver.execute(engine.world, action)
 
-    validate_consequence(
-        {
-            "action_id": consequence.action_id,
-            "accepted": consequence.accepted,
-            "reason": consequence.reason,
-            "direct_effects": consequence.direct_effects,
-            "evaluation_impact": consequence.evaluation_impact,
-        }
-    )
+    recorded = validate_consequence(consequence.to_dict())
+    assert recorded["accepted"] is True
+    assert recorded["direct_effects"]["entity_changes"][0]["event_type"] == "MOVE"
 
 
 # ── layering ─────────────────────────────────────────────────────────────────

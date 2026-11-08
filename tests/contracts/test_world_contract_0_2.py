@@ -1,4 +1,4 @@
-"""Schema 0.2: the World Contract additions Phase 2 brings in."""
+"""The World Contract rules schema 0.2 brought in, still in force."""
 
 import copy
 import json
@@ -35,9 +35,10 @@ def error_text(caught: pytest.ExceptionInfo) -> str:
 # ── versioning ───────────────────────────────────────────────────────────────
 
 
-def test_a_scenario_written_for_schema_0_1_is_rejected():
+@pytest.mark.parametrize("version", ["0.1", "0.2"])
+def test_a_scenario_written_for_an_older_schema_is_rejected(version):
     scenario = fixture("scenario_valid")
-    scenario["schema_version"] = "0.1"
+    scenario["schema_version"] = version
 
     with pytest.raises(ContractError) as caught:
         validate_scenario(scenario)
@@ -46,9 +47,10 @@ def test_a_scenario_written_for_schema_0_1_is_rejected():
 
 
 @pytest.mark.parametrize(
-    "name", ["scenario_valid", "scenario_graph_v0_2", "scenario_network_v0_2"]
+    "name",
+    ["scenario_valid", "scenario_graph", "scenario_network", "scenario_logistics"],
 )
-def test_the_0_2_fixtures_validate_unchanged(name):
+def test_the_scenario_fixtures_validate_unchanged(name):
     scenario = fixture(name)
 
     assert validate_scenario(scenario) == scenario
@@ -61,7 +63,7 @@ def test_the_0_2_fixtures_validate_unchanged(name):
     "field", ["entity_model", "environment_state", "resource_state", "rule_set"]
 )
 def test_world_contract_without_a_phase_2_element_is_rejected(field):
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     del world[field]
 
     with pytest.raises(ContractError) as caught:
@@ -79,7 +81,7 @@ def test_empty_phase_2_elements_are_allowed():
 
 
 def test_a_negative_resource_stock_is_rejected():
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     world["resource_state"]["fuel"] = -1
 
     with pytest.raises(ContractError) as caught:
@@ -100,7 +102,7 @@ def test_an_unknown_space_type_is_rejected():
 
 
 def test_a_graph_without_edges_is_rejected():
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     del world["space_model"]["edges"]
 
     with pytest.raises(ContractError) as caught:
@@ -110,7 +112,7 @@ def test_a_graph_without_edges_is_rejected():
 
 
 def test_an_edge_to_an_unknown_node_is_rejected():
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     world["space_model"]["edges"].append(["A", "Z"])
 
     with pytest.raises(ContractError) as caught:
@@ -120,7 +122,7 @@ def test_an_edge_to_an_unknown_node_is_rejected():
 
 
 def test_duplicate_nodes_are_rejected():
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     world["space_model"]["nodes"].append("A")
 
     with pytest.raises(ContractError) as caught:
@@ -130,7 +132,7 @@ def test_duplicate_nodes_are_rejected():
 
 
 def test_a_graph_edge_with_a_weight_is_rejected():
-    world = fixture("scenario_graph_v0_2")["world_contract"]
+    world = fixture("scenario_graph")["world_contract"]
     world["space_model"]["edges"][0] = ["A", "B", 2]
 
     with pytest.raises(ContractError) as caught:
@@ -141,7 +143,7 @@ def test_a_graph_edge_with_a_weight_is_rejected():
 
 @pytest.mark.parametrize("weight", [0, -3])
 def test_a_network_edge_needs_a_positive_weight(weight):
-    world = fixture("scenario_network_v0_2")["world_contract"]
+    world = fixture("scenario_network")["world_contract"]
     world["space_model"]["edges"][0][2] = weight
 
     with pytest.raises(ContractError) as caught:
@@ -154,7 +156,7 @@ def test_a_network_edge_needs_a_positive_weight(weight):
 
 
 def test_a_graph_entity_must_stand_on_a_known_node():
-    scenario = fixture("scenario_graph_v0_2")
+    scenario = fixture("scenario_graph")
     scenario["entities"][0]["position"] = "Z"
 
     with pytest.raises(ContractError) as caught:
@@ -164,7 +166,7 @@ def test_a_graph_entity_must_stand_on_a_known_node():
 
 
 def test_a_graph_entity_cannot_use_a_grid_cell():
-    scenario = fixture("scenario_graph_v0_2")
+    scenario = fixture("scenario_graph")
     scenario["entities"][0]["position"] = [0, 0]
 
     with pytest.raises(ContractError):
@@ -194,7 +196,7 @@ def test_a_grid_entity_cannot_use_a_node_id():
 
 
 def test_a_phase_clock_without_phase_length_is_rejected():
-    world = fixture("scenario_network_v0_2")["world_contract"]
+    world = fixture("scenario_network")["world_contract"]
     del world["time_model"]["phase_length"]
 
     with pytest.raises(ContractError) as caught:

@@ -67,7 +67,7 @@ def test_reference_scenario_builds_a_grid_world_on_a_tick_clock():
 
 
 def test_graph_scenario_builds_a_graph_world_on_an_event_driven_clock():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
 
     assert isinstance(world.space, GraphSpace)
     assert not isinstance(world.space, NetworkSpace)
@@ -79,7 +79,7 @@ def test_graph_scenario_builds_a_graph_world_on_an_event_driven_clock():
 
 
 def test_network_scenario_builds_a_weighted_world_on_a_phase_clock():
-    world = create_world(fixture("scenario_network_v0_2"))
+    world = create_world(fixture("scenario_network"))
 
     assert isinstance(world.space, NetworkSpace)
     assert isinstance(world.clock, PhaseClock)
@@ -88,7 +88,7 @@ def test_network_scenario_builds_a_weighted_world_on_a_phase_clock():
 
 
 def test_snapshot_records_the_space_type_and_resources():
-    snapshot = create_world(fixture("scenario_network_v0_2")).snapshot()
+    snapshot = create_world(fixture("scenario_network")).snapshot()
 
     assert snapshot["space"]["type"] == "network"
     assert snapshot["resources"] == {"supply": 50.0}
@@ -98,7 +98,7 @@ def test_snapshot_records_the_space_type_and_resources():
 
 
 def test_graph_entities_stand_on_node_ids():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
 
     assert world.get_entity("convoy_1").position == "A"
     assert world.get_entity("depot_1").position == "C"
@@ -120,7 +120,7 @@ def test_grid_positions_become_tuples_and_node_ids_stay_strings():
 
 
 def test_create_world_refuses_an_entity_outside_the_space():
-    scenario = fixture("scenario_graph_v0_2")
+    scenario = fixture("scenario_graph")
     scenario["entities"][0]["position"] = "Z"
 
     with pytest.raises(ValueError, match="outside the world's space"):
@@ -152,7 +152,7 @@ def test_registry_keeps_destroyed_entities_but_lists_only_the_living():
 
 
 def test_world_tick_follows_a_phase_clock():
-    world = create_world(fixture("scenario_network_v0_2"))
+    world = create_world(fixture("scenario_network"))
 
     for _ in range(3):
         world.advance_time()
@@ -163,7 +163,7 @@ def test_world_tick_follows_a_phase_clock():
 
 
 def test_world_time_jumps_to_the_next_scheduled_happening():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
     world.clock.schedule(5, "convoy_departs")  # type: ignore[attr-defined]
     world.clock.schedule(12, "convoy_arrives")  # type: ignore[attr-defined]
 
@@ -176,7 +176,7 @@ def test_world_time_jumps_to_the_next_scheduled_happening():
 
 
 def test_resource_change_updates_the_stock_and_records_an_event():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
 
     event = world.change_resource("fuel", -30, actor_id="convoy_1")
 
@@ -193,7 +193,7 @@ def test_resource_change_updates_the_stock_and_records_an_event():
 
 
 def test_a_resource_never_goes_below_zero_and_nothing_is_recorded():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
 
     with pytest.raises(ValueError, match="cannot apply"):
         world.change_resource("supply", -21)
@@ -222,7 +222,7 @@ def test_resource_snapshot_is_a_copy():
 
 
 def test_entity_state_change_is_recorded_with_full_snapshots():
-    world = create_world(fixture("scenario_graph_v0_2"))
+    world = create_world(fixture("scenario_graph"))
     event = world.update_entity_state("convoy_1", {"status": "loading"})
 
     assert world.get_entity("convoy_1").state["status"] == "loading"
@@ -261,4 +261,18 @@ def test_tactical_engine_refuses_a_world_it_cannot_run():
     from skyvault.engine import SkyVaultTacticalReferenceEngine
 
     with pytest.raises(ValueError, match="grid"):
-        SkyVaultTacticalReferenceEngine(fixture("scenario_graph_v0_2"))
+        SkyVaultTacticalReferenceEngine(fixture("scenario_graph"))
+
+
+def test_a_recorded_event_keeps_node_id_locations_whole():
+    world = create_world(fixture("scenario_graph"))
+
+    event = world.mutate_entity(
+        "convoy_1",
+        {"position": "B"},
+        "MOVE",
+        affected_locations=["A", "B"],
+    )
+
+    assert event.to_dict()["affected"]["locations"] == ["A", "B"]
+    assert event.to_dict()["after_state"]["position"] == "B"

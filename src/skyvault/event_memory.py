@@ -109,7 +109,11 @@ class Event:
             "target_entity_id": self.target_entity_id,
             "affected": {
                 "entities": list(self.affected_entities),
-                "locations": [list(location) for location in self.affected_locations],
+                # A grid cell becomes a list; a node id stays a string
+                "locations": [
+                    location if isinstance(location, str) else list(location)
+                    for location in self.affected_locations
+                ],
                 "resources": list(self.affected_resources),
                 "risks": list(self.affected_risks),
             },

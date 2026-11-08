@@ -170,7 +170,7 @@ def test_snapshot_interval_must_be_positive():
 
 
 def test_resource_changes_rebuild_on_a_graph_world():
-    with (FIXTURES / "scenario_graph_v0_2.json").open(encoding="utf-8") as file:
+    with (FIXTURES / "scenario_graph.json").open(encoding="utf-8") as file:
         world = create_world(validate_scenario(json.load(file)))
     initial = world.snapshot()
 

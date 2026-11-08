@@ -2,7 +2,7 @@
 
 import random
 
-from .action import Action, new_action_id
+from .action import Action, ActionTarget, new_action_id
 from .entity import Entity, Position
 from .world_state import WorldState
 
@@ -56,8 +56,10 @@ class TacticalReferencePolicy:
                 action_id=new_action_id(),
                 actor_id=actor.entity_id,
                 action_type="attack",
-                target_entity_id=target.entity_id,
+                target=ActionTarget(entity_id=target.entity_id),
                 intent="tactical_reference_attack_selected_target",
+                expected_effect="hp_change",
+                confidence=float(actor.capabilities.get("accuracy", 1.0)),
             )
 
         next_position = self.next_step_toward(world, actor, target)
@@ -69,8 +71,9 @@ class TacticalReferencePolicy:
             action_id=new_action_id(),
             actor_id=actor.entity_id,
             action_type="move",
-            target_position=next_position,
+            target=ActionTarget(location=next_position),
             intent="tactical_reference_move_toward_selected_target",
+            expected_effect="position_change",
         )
 
     def choose_target(
