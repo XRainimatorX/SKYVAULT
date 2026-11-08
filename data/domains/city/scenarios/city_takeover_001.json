@@ -1,0 +1,256 @@
+{
+  "scenario_id": "city_takeover_001",
+  "scenario_version": "v0.1",
+  "purpose": "A city taken over in unrest: restore order across eight districts while food, power and medical care hold — or do not.",
+  "description": "Measured on the Phase 12 system before any city code existed: no builder reads this spec. The same kind of world — the reference scenario moved onto a road graph — is refused by the engine ('the tactical reference engine needs a grid space and a tick clock'); with that guard bypassed, the reference policy cannot move on a graph (36 of 55 events are NO_ACTION), and a world of one faction ends at tick 1 with one event, judged pass with stability 1.0. supply_delay only scales stock: nothing arrives late. There is no power dependency, no public order and no governance score; observation refuses every space but a grid except NEXUS's mission view.",
+  "max_ticks": 30,
+  "random_seed": 42,
+  "districts": [
+    {
+      "id": "center",
+      "name": "Old Center",
+      "population": 42000,
+      "public_order": 35,
+      "food": 3,
+      "medical": 0.7,
+      "industry": 0.4,
+      "administration": 0.5
+    },
+    {
+      "id": "market",
+      "name": "Market Quarter",
+      "population": 30000,
+      "public_order": 30,
+      "food": 2,
+      "medical": 0.5,
+      "industry": 0.5,
+      "administration": 0.4
+    },
+    {
+      "id": "harbor",
+      "name": "Harbor",
+      "population": 18000,
+      "public_order": 25,
+      "food": 4,
+      "medical": 0.3,
+      "industry": 0.6,
+      "administration": 0.3
+    },
+    {
+      "id": "north",
+      "name": "North Residential",
+      "population": 36000,
+      "public_order": 45,
+      "food": 2,
+      "medical": 0.6,
+      "industry": 0.2,
+      "administration": 0.5
+    },
+    {
+      "id": "east",
+      "name": "East Residential",
+      "population": 33000,
+      "public_order": 40,
+      "food": 2,
+      "medical": 0.4,
+      "industry": 0.2,
+      "administration": 0.4
+    },
+    {
+      "id": "south",
+      "name": "South Slums",
+      "population": 51000,
+      "public_order": 20,
+      "food": 1,
+      "medical": 0.2,
+      "industry": 0.1,
+      "administration": 0.2
+    },
+    {
+      "id": "west",
+      "name": "West Suburbs",
+      "population": 24000,
+      "public_order": 55,
+      "food": 3,
+      "medical": 0.5,
+      "industry": 0.3,
+      "administration": 0.6
+    },
+    {
+      "id": "works",
+      "name": "Industrial Works",
+      "population": 12000,
+      "public_order": 40,
+      "food": 2,
+      "medical": 0.3,
+      "industry": 0.8,
+      "administration": 0.3
+    }
+  ],
+  "roads": [
+    [
+      "center",
+      "market",
+      1
+    ],
+    [
+      "center",
+      "north",
+      2
+    ],
+    [
+      "center",
+      "east",
+      2
+    ],
+    [
+      "center",
+      "west",
+      2
+    ],
+    [
+      "market",
+      "harbor",
+      1
+    ],
+    [
+      "market",
+      "south",
+      2
+    ],
+    [
+      "harbor",
+      "south",
+      2
+    ],
+    [
+      "harbor",
+      "works",
+      3
+    ],
+    [
+      "north",
+      "east",
+      2
+    ],
+    [
+      "east",
+      "works",
+      2
+    ],
+    [
+      "south",
+      "west",
+      3
+    ],
+    [
+      "west",
+      "north",
+      3
+    ]
+  ],
+  "power": {
+    "plants": [
+      {
+        "id": "plant_works",
+        "at": "works",
+        "output": 100
+      }
+    ],
+    "substations": [
+      {
+        "id": "sub_center",
+        "at": "center",
+        "capacity": 30,
+        "serves": [
+          "center",
+          "market"
+        ],
+        "backup": [
+          "sub_north",
+          "sub_south"
+        ]
+      },
+      {
+        "id": "sub_north",
+        "at": "north",
+        "capacity": 28,
+        "serves": [
+          "north",
+          "east",
+          "west"
+        ],
+        "backup": [
+          "sub_center"
+        ]
+      },
+      {
+        "id": "sub_south",
+        "at": "south",
+        "capacity": 26,
+        "serves": [
+          "south",
+          "harbor"
+        ],
+        "backup": [
+          "sub_center"
+        ]
+      },
+      {
+        "id": "sub_works",
+        "at": "works",
+        "capacity": 20,
+        "serves": [
+          "works"
+        ],
+        "backup": []
+      }
+    ]
+  },
+  "depots": [
+    {
+      "id": "depot_harbor",
+      "at": "harbor",
+      "food": 60
+    }
+  ],
+  "forces": {
+    "administration": {
+      "id": "city_office",
+      "at": "center"
+    },
+    "police": [
+      {
+        "id": "police_1",
+        "at": "center"
+      },
+      {
+        "id": "police_2",
+        "at": "market"
+      },
+      {
+        "id": "police_3",
+        "at": "west"
+      }
+    ],
+    "convoys": [
+      {
+        "id": "convoy_1",
+        "at": "harbor",
+        "capacity": 4
+      },
+      {
+        "id": "convoy_2",
+        "at": "harbor",
+        "capacity": 4
+      }
+    ],
+    "repair_crews": [
+      {
+        "id": "crew_1",
+        "at": "works"
+      }
+    ]
+  },
+  "incidents": []
+}
