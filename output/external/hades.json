@@ -1,0 +1,69 @@
+{
+  "coverage_gaps": [
+    "blue_01",
+    "blue_03",
+    "blue_04"
+  ],
+  "defence_effectiveness": {
+    "mean_damage_dealt": 16.0,
+    "mean_side_losses": 3
+  },
+  "gaps": [],
+  "mean_reaction_ticks": 1.0,
+  "runs": [
+    {
+      "coverage_gaps": [],
+      "defence_effectiveness": {
+        "damage_dealt": 32.0,
+        "intercepts": 9,
+        "kills": 1,
+        "side_losses": 3
+      },
+      "job_id": "job_000001",
+      "reaction_time": {
+        "first_intercept_tick": 1,
+        "first_threat_tick": 0,
+        "ticks": 1
+      }
+    },
+    {
+      "coverage_gaps": [
+        "blue_03",
+        "blue_04"
+      ],
+      "defence_effectiveness": {
+        "damage_dealt": 8.0,
+        "intercepts": 7,
+        "kills": 0,
+        "side_losses": 3
+      },
+      "job_id": "job_000002",
+      "reaction_time": {
+        "first_intercept_tick": 1,
+        "first_threat_tick": 0,
+        "ticks": 1
+      }
+    },
+    {
+      "coverage_gaps": [
+        "blue_01",
+        "blue_03",
+        "blue_04"
+      ],
+      "defence_effectiveness": {
+        "damage_dealt": 8.0,
+        "intercepts": 6,
+        "kills": 0,
+        "side_losses": 3
+      },
+      "job_id": "job_000003",
+      "reaction_time": {
+        "first_intercept_tick": 1,
+        "first_threat_tick": 0,
+        "ticks": 1
+      }
+    }
+  ],
+  "supported": true,
+  "system": "HADES"
+}

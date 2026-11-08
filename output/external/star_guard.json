@@ -1,0 +1,52 @@
+{
+  "gaps": [],
+  "physical_feasibility": {
+    "capability_limits": [],
+    "feasible": true,
+    "situational_rejections": [
+      {
+        "action_type": "move",
+        "actor_id": "red_02",
+        "reason": "Move target occupied",
+        "tick": 3
+      },
+      {
+        "action_type": "move",
+        "actor_id": "red_02",
+        "reason": "Move target occupied",
+        "tick": 5
+      },
+      {
+        "action_type": "move",
+        "actor_id": "red_02",
+        "reason": "Move target occupied",
+        "tick": 3
+      }
+    ]
+  },
+  "supported": true,
+  "system": "STAR_GUARD",
+  "tactical_usefulness": {
+    "baseline": {
+      "mean_damage_dealt": 6.6667,
+      "mean_hp_lost": 30.0,
+      "mean_score": 0.1703,
+      "mission_achieved_rate": 0.0,
+      "unit_survival_rate": 0.0
+    },
+    "equipped": {
+      "mean_damage_dealt": 9.3333,
+      "mean_hp_lost": 50.0,
+      "mean_score": 0.297,
+      "mission_achieved_rate": 0.0,
+      "unit_survival_rate": 0.0
+    },
+    "versus_baseline": {
+      "mean_damage_dealt": 2.6666,
+      "mean_hp_lost": 20.0,
+      "mean_score": 0.1267,
+      "mission_achieved_rate": 0.0,
+      "unit_survival_rate": 0.0
+    }
+  }
+}

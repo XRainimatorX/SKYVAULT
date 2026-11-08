@@ -10080,19 +10080,19 @@
     }
   },
   "reproducibility": {
-    "run_id": "run_20261108T164630146325Z_5e71d369",
+    "run_id": "run_20261108T181105567652Z_5e71d369",
     "scenario_id": "tactical_reference_001",
     "scenario_version": "v0.1",
     "random_seed_policy": "fixed",
     "random_seed": 42,
-    "runtime_version": "0.16.0",
+    "runtime_version": "0.17.0",
     "ruleset_version": "rules-2438b4a50419",
     "input_hash": "5e71d369a6d87f35faf23d1c6f3289da60bede8b1a43de0d843402f6420fd14e",
     "output_hash": "63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09",
     "deterministic_replay_available": true,
     "run_metadata": {
-      "started_at": "2026-11-08T16:46:30.146325+00:00",
-      "ended_at": "2026-11-08T16:46:30.172745+00:00",
+      "started_at": "2026-11-08T18:11:05.567652+00:00",
+      "ended_at": "2026-11-08T18:11:05.597035+00:00",
       "compute_profile": "python 3.11.18",
       "operator_system": "Linux-6.18.44-fc-v310-x86_64-with-glibc2.39",
       "resource_compute_governance": {
@@ -10104,7 +10104,7 @@
           "ticks": 10,
           "decisions": 46,
           "events": 97,
-          "runtime_seconds": 0.02642
+          "runtime_seconds": 0.029383
         },
         "estimated_cost": null,
         "stopped": false,

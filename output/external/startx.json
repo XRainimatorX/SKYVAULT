@@ -1,0 +1,185 @@
+{
+  "baseline": {
+    "distinct_outputs": 5,
+    "draw_rate": 0.2,
+    "failure_frequency": 0.4,
+    "kind": "branch",
+    "loss_rate": 0.4,
+    "mean_event_count": 100.2,
+    "mean_hp_lost": 65.2,
+    "mean_risk_events": 2.0,
+    "mean_score": 0.3704,
+    "outcomes": {
+      "BLUE_survived": 2,
+      "RED_survived": 2,
+      "no_winner_duration_limit": 1
+    },
+    "runs": 5,
+    "scenario_version": "v0.1+branch:none",
+    "score_stdev": 0.158,
+    "variant_id": "branch:none",
+    "win_rate": 0.4,
+    "win_rate_ci": [
+      0.1176,
+      0.7693
+    ]
+  },
+  "branch_comparison": {
+    "best": {
+      "failure_frequency": "branch:press",
+      "mean_hp_lost": "branch:none",
+      "mean_risk_events": "branch:hold",
+      "mean_score": "branch:hold",
+      "win_rate": "branch:none"
+    },
+    "comparison": {
+      "branch:hold": {
+        "better_than": [
+          "branch:press",
+          "branch:none"
+        ],
+        "worse_than": []
+      },
+      "branch:none": {
+        "better_than": [
+          "branch:press"
+        ],
+        "worse_than": [
+          "branch:hold"
+        ]
+      },
+      "branch:press": {
+        "better_than": [],
+        "worse_than": [
+          "branch:hold",
+          "branch:none"
+        ]
+      }
+    },
+    "deltas_vs_first": {
+      "branch:hold": {
+        "failure_frequency": 0.0,
+        "mean_hp_lost": -13.8,
+        "mean_risk_events": -0.6,
+        "mean_score": 0.0688,
+        "win_rate": 0.0
+      },
+      "branch:none": {
+        "failure_frequency": 0.2,
+        "mean_hp_lost": -16.2,
+        "mean_risk_events": -0.2,
+        "mean_score": 0.0089,
+        "win_rate": 0.4
+      },
+      "branch:press": {
+        "failure_frequency": 0.0,
+        "mean_hp_lost": 0.0,
+        "mean_risk_events": 0.0,
+        "mean_score": 0.0,
+        "win_rate": 0.0
+      }
+    },
+    "metrics": {
+      "failure_frequency": "lower is better",
+      "mean_hp_lost": "lower is better",
+      "mean_risk_events": "lower is better",
+      "mean_score": "higher is better",
+      "win_rate": "higher is better"
+    },
+    "ranking": [
+      "branch:hold",
+      "branch:none",
+      "branch:press"
+    ],
+    "table": {
+      "branch:hold": {
+        "failure_frequency": 0.2,
+        "mean_hp_lost": 67.6,
+        "mean_risk_events": 1.6,
+        "mean_score": 0.4303,
+        "win_rate": 0.0
+      },
+      "branch:none": {
+        "failure_frequency": 0.4,
+        "mean_hp_lost": 65.2,
+        "mean_risk_events": 2.0,
+        "mean_score": 0.3704,
+        "win_rate": 0.4
+      },
+      "branch:press": {
+        "failure_frequency": 0.2,
+        "mean_hp_lost": 81.4,
+        "mean_risk_events": 2.2,
+        "mean_score": 0.3615,
+        "win_rate": 0.0
+      }
+    },
+    "variants": [
+      "branch:press",
+      "branch:hold",
+      "branch:none"
+    ]
+  },
+  "branches": [
+    {
+      "branch_id": "press",
+      "consequences": {
+        "draw_rate": 0.8,
+        "loss_rate": 0.2,
+        "outcomes": {
+          "BLUE_survived": 1,
+          "no_winner_duration_limit": 4
+        },
+        "win_rate": 0.0
+      },
+      "resource_pressure": {
+        "mean_hp_lost": 81.4
+      },
+      "risk": {
+        "failure_frequency": 0.2,
+        "mean_risk_events": 2.2
+      },
+      "score": {
+        "mean": 0.3615,
+        "stdev": 0.1044
+      },
+      "versus_baseline": {
+        "failure_frequency": -0.2,
+        "mean_hp_lost": 16.2,
+        "mean_score": -0.0089,
+        "win_rate": -0.4
+      }
+    },
+    {
+      "branch_id": "hold",
+      "consequences": {
+        "draw_rate": 1.0,
+        "loss_rate": 0.0,
+        "outcomes": {
+          "no_winner_duration_limit": 5
+        },
+        "win_rate": 0.0
+      },
+      "resource_pressure": {
+        "mean_hp_lost": 67.6
+      },
+      "risk": {
+        "failure_frequency": 0.2,
+        "mean_risk_events": 1.6
+      },
+      "score": {
+        "mean": 0.4303,
+        "stdev": 0.1032
+      },
+      "versus_baseline": {
+        "failure_frequency": -0.2,
+        "mean_hp_lost": 2.4,
+        "mean_score": 0.0599,
+        "win_rate": -0.4
+      }
+    }
+  ],
+  "gaps": [],
+  "supported": true,
+  "system": "STARTX"
+}

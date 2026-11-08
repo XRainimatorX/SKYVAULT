@@ -1,0 +1,112 @@
+{
+  "gaps": [],
+  "mission_success_rate": 1.0,
+  "path_risk": {
+    "loss_rate": 0.0,
+    "mean_hp_lost": 0.0
+  },
+  "rejected_moves": 9,
+  "runs": [
+    {
+      "job_id": "job_000001",
+      "mission_success": true,
+      "path_risk": {
+        "attacks_received": 0,
+        "destroyed": false,
+        "hp_lost": 0.0
+      },
+      "rejected_moves": [
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 1
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 2
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 4
+        }
+      ],
+      "waypoints_reached": [
+        true,
+        true
+      ]
+    },
+    {
+      "job_id": "job_000002",
+      "mission_success": true,
+      "path_risk": {
+        "attacks_received": 0,
+        "destroyed": false,
+        "hp_lost": 0.0
+      },
+      "rejected_moves": [
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 1
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 2
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 4
+        }
+      ],
+      "waypoints_reached": [
+        true,
+        true
+      ]
+    },
+    {
+      "job_id": "job_000003",
+      "mission_success": true,
+      "path_risk": {
+        "attacks_received": 0,
+        "destroyed": false,
+        "hp_lost": 0.0
+      },
+      "rejected_moves": [
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 1
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 2
+        },
+        {
+          "action_type": "move",
+          "actor_id": "red_01",
+          "reason": "Move target occupied",
+          "tick": 4
+        }
+      ],
+      "waypoints_reached": [
+        true,
+        true
+      ]
+    }
+  ],
+  "supported": true,
+  "system": "SKYFOX"
+}

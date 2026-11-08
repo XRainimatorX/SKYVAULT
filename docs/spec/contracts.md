@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 21 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，與 Phase 11 的 resource_compute_governance、job）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 23 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，Phase 11 的 resource_compute_governance、job，與 Phase 12 的 external_submission、authority_handoff）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)；Phase 12 的外部提交、authority handoff 與 job 的新欄位見 [`../decisions/017_external_system_interface.md`](../decisions/017_external_system_interface.md)。
 
 ---
 
@@ -43,6 +43,8 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 | `load_observer_profile()` | `validate_observer_profile` | raise |
 | `observe()` 回傳之前 | `validate_observation` | raise —— 觀測層產生了壞 observation |
 | engine 把 observing actor 的 order 轉成 Action 之前 | `validate_order` | raise —— 壞 order 是 actor 的錯誤 |
+| `interface.systems.to_request()` / `to_return()` | `validate_external_submission` | raise（API 回 422） |
+| `authority_handoff()` / `decide()` 回傳之前 | `validate_authority_handoff` | raise —— 非權威決定先以 PermissionError 拒絕（API 回 403） |
 
 ## 3. 版本
 
@@ -67,6 +69,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.6 | 5 | 只有新增，不調升：observer_profile、observation 契約 |
 | 0.6 | 11 | 只有新增，不調升：resource_compute_governance、job 契約；run_metadata 多 resource_compute_governance |
 | 0.6 | 6 | 只有新增，不調升：order 契約；optional 的 runtime.participants；observation 的己方單位多 state；scheduled action 的 target 可只寫一欄 |
+| 0.6 | 12 | 只有新增，不調升：external_submission、authority_handoff 契約；job 的 branch_compare、branches、entity_changes、data_provenance |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -318,15 +321,41 @@ policy_id、run_priority、limits | null、usage {runs = 1, ticks | null, decisi
 estimated_cost | null、stopped、stop_reason（七種之一 | null）、partial、duration_clamped_from | null
 
 JobRequest
-kind                    scenario_run | batch | failure_exploration | replay | persistent_world
+kind                    scenario_run | batch | failure_exploration | replay | persistent_world | branch_compare
 source_system = "user", priority | null, required_result_package = true
 scenario / batch / profile   名稱（"<id>/<version>"），解析後必須在 data/ 底下；kind 決定哪一個必填
 runtime                 覆寫 max_ticks、random_seed、random_seed_policy、policy、participants、scheduled_actions
 repeat_count | null, replay（job id）| null
+branches | null         branch_compare 必填（也要 scenario）：[{branch_id, actions = [], entity_changes = {}}]
+entity_changes | null   {entity_id: {name | null, entity_type | null, capabilities {}, state {}}}：名稱與類型取代、
+                        capabilities 與 state 逐鍵合併；scenario 沒有的單位 → NotFound（Phase 12）
+data_provenance | null  DataProvenance：寫進 scenario.data_provenance，scenario_id 預設為該 scenario（Phase 12）
 
 Job
 job_id, request, priority, lifecycle_state（Spec §10 的九種）, world_instance | null, governance | null,
 estimated_cost | null, summary {}, error | null, created_at, updated_at
+```
+
+### 外部提交與 authority handoff（Phase 12）
+
+```python
+ExternalSubmission
+system          NEXUS | STARTX | TAC_ANGEL | EIDEN_01 | AEROGRID | SKYFOX | HADES | CYBERHOUND | STAR_GUARD
+kind            task | actions | branches | intel | environment | equipment | mission | defence | airspace
+                （每個系統只能提交自己的一種：interface.systems.KINDS）
+scenario        名稱 | null（CYBERHOUND 以外必填）
+content {}      該系統自己的內容，由它的 adapter 讀
+
+AuthorityHandoff
+handoff_id                       內容的 sha256（同樣的輸入 → 同樣的 id）
+triggers                         high_risk_outcome | strategic_tradeoff | conflicting_branches | failure_threshold_crossed（至少一個）
+result_summary {}, branch_comparison | null, failure_map | null
+required_decision                要決定什麼
+skyvault_position                {statement, recommended_next_tests = []} —— 事實與建議的測試，不指定分支
+may_recommend                    Literal[True]
+may_execute_final_decision       Literal[False]
+decision_authority               至少一個（預設 NEXUS、SOVEREIGN）
+status = awaiting_decision | decided；decided_by | null（決定時必填，且必須在 decision_authority 裡）；decision | null
 ```
 
 ### Batch 與衝突
@@ -388,7 +417,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    21 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    23 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 

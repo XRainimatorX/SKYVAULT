@@ -1,0 +1,605 @@
+{
+  "gaps": [],
+  "state_action_outcome": [
+    {
+      "action": {
+        "action_id": "action_0000000001",
+        "action_type": "move",
+        "actor_id": "red_001",
+        "faction": "RED",
+        "intent": "tac_angel_probe",
+        "system_id": "TAC_ANGEL",
+        "target_entity_id": null,
+        "target_location": [
+          1,
+          1
+        ]
+      },
+      "consequence": {
+        "accepted": true,
+        "events": [
+          {
+            "data": {
+              "from": [
+                0,
+                0
+              ],
+              "to": [
+                1,
+                1
+              ]
+            },
+            "event_type": "MOVE"
+          }
+        ],
+        "reason": null
+      },
+      "done": false,
+      "event_sequence": [
+        "event_0000000001",
+        "event_0000000002"
+      ],
+      "failure_labels": {
+        "destroyed_later": false,
+        "mission_failed": false,
+        "run_failure_causes": [
+          "red_003 destroyed at tick 8 by blue_002",
+          "time_cost 0.00: ended at tick 10 of 10",
+          "recovery_ability 0.00: 0 hp restored against 50 hp still lost"
+        ]
+      },
+      "labels": {
+        "hidden_risk_ignored_label": false,
+        "inaction_gaming_label": false,
+        "risk_spike_label": false,
+        "short_term_overfit_label": false,
+        "stability_damage_label": false,
+        "strategic_misalignment_label": false
+      },
+      "next_state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          1,
+          1
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "last_action": "move",
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "observation": {
+        "observation_model": "full_state",
+        "units": [
+          {
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35,
+            "position": [
+              9,
+              9
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32,
+            "position": [
+              8,
+              9
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30,
+            "position": [
+              7,
+              9
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_001",
+            "faction": "RED",
+            "hp": 35,
+            "position": [
+              0,
+              0
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_002",
+            "faction": "RED",
+            "hp": 32,
+            "position": [
+              1,
+              0
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_003",
+            "faction": "RED",
+            "hp": 30,
+            "position": [
+              2,
+              0
+            ],
+            "status": "active"
+          }
+        ]
+      },
+      "record_type": "transition",
+      "reward": {
+        "damage_dealt": 0.0,
+        "damage_taken": 0.0,
+        "episode_score": 0.5743,
+        "own_destroyed": false,
+        "target_destroyed": false
+      },
+      "scenario": {
+        "domain": null,
+        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
+        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "perspective": "RED",
+        "profile_id": "balanced",
+        "scenario_id": "tactical_reference_001",
+        "scenario_version": "v0.1",
+        "seed": 42
+      },
+      "state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          0,
+          0
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "success_type": "failure",
+      "tick": 1,
+      "violations": []
+    },
+    {
+      "action": {
+        "action_id": "action_0000000007",
+        "action_type": "move",
+        "actor_id": "red_001",
+        "faction": "RED",
+        "intent": "tac_angel_probe",
+        "system_id": "TAC_ANGEL",
+        "target_entity_id": null,
+        "target_location": [
+          2,
+          2
+        ]
+      },
+      "consequence": {
+        "accepted": true,
+        "events": [
+          {
+            "data": {
+              "from": [
+                1,
+                1
+              ],
+              "to": [
+                2,
+                2
+              ]
+            },
+            "event_type": "MOVE"
+          }
+        ],
+        "reason": null
+      },
+      "done": false,
+      "event_sequence": [
+        "event_0000000013",
+        "event_0000000014"
+      ],
+      "failure_labels": {
+        "destroyed_later": false,
+        "mission_failed": false,
+        "run_failure_causes": [
+          "red_003 destroyed at tick 8 by blue_002",
+          "time_cost 0.00: ended at tick 10 of 10",
+          "recovery_ability 0.00: 0 hp restored against 50 hp still lost"
+        ]
+      },
+      "labels": {
+        "hidden_risk_ignored_label": false,
+        "inaction_gaming_label": false,
+        "risk_spike_label": false,
+        "short_term_overfit_label": false,
+        "stability_damage_label": false,
+        "strategic_misalignment_label": false
+      },
+      "next_state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          2,
+          2
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "last_action": "move",
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "observation": {
+        "observation_model": "full_state",
+        "units": [
+          {
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35,
+            "position": [
+              8,
+              8
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32,
+            "position": [
+              7,
+              8
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30,
+            "position": [
+              6,
+              8
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_001",
+            "faction": "RED",
+            "hp": 35,
+            "position": [
+              1,
+              1
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_002",
+            "faction": "RED",
+            "hp": 32,
+            "position": [
+              0,
+              1
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_003",
+            "faction": "RED",
+            "hp": 30,
+            "position": [
+              2,
+              1
+            ],
+            "status": "active"
+          }
+        ]
+      },
+      "record_type": "transition",
+      "reward": {
+        "damage_dealt": 0.0,
+        "damage_taken": 0.0,
+        "episode_score": 0.5743,
+        "own_destroyed": false,
+        "target_destroyed": false
+      },
+      "scenario": {
+        "domain": null,
+        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
+        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "perspective": "RED",
+        "profile_id": "balanced",
+        "scenario_id": "tactical_reference_001",
+        "scenario_version": "v0.1",
+        "seed": 42
+      },
+      "state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          1,
+          1
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "last_action": "move",
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "success_type": "failure",
+      "tick": 2,
+      "violations": []
+    },
+    {
+      "action": {
+        "action_id": "action_0000000013",
+        "action_type": "move",
+        "actor_id": "red_001",
+        "faction": "RED",
+        "intent": "tac_angel_probe",
+        "system_id": "TAC_ANGEL",
+        "target_entity_id": null,
+        "target_location": [
+          3,
+          3
+        ]
+      },
+      "consequence": {
+        "accepted": true,
+        "events": [
+          {
+            "data": {
+              "from": [
+                2,
+                2
+              ],
+              "to": [
+                3,
+                3
+              ]
+            },
+            "event_type": "MOVE"
+          }
+        ],
+        "reason": null
+      },
+      "done": false,
+      "event_sequence": [
+        "event_0000000025",
+        "event_0000000026"
+      ],
+      "failure_labels": {
+        "destroyed_later": false,
+        "mission_failed": false,
+        "run_failure_causes": [
+          "red_003 destroyed at tick 8 by blue_002",
+          "time_cost 0.00: ended at tick 10 of 10",
+          "recovery_ability 0.00: 0 hp restored against 50 hp still lost"
+        ]
+      },
+      "labels": {
+        "hidden_risk_ignored_label": false,
+        "inaction_gaming_label": false,
+        "risk_spike_label": false,
+        "short_term_overfit_label": false,
+        "stability_damage_label": false,
+        "strategic_misalignment_label": false
+      },
+      "next_state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          3,
+          3
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "last_action": "move",
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "observation": {
+        "observation_model": "full_state",
+        "units": [
+          {
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35,
+            "position": [
+              7,
+              7
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32,
+            "position": [
+              6,
+              7
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30,
+            "position": [
+              5,
+              7
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_001",
+            "faction": "RED",
+            "hp": 35,
+            "position": [
+              2,
+              2
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_002",
+            "faction": "RED",
+            "hp": 32,
+            "position": [
+              0,
+              2
+            ],
+            "status": "active"
+          },
+          {
+            "entity_id": "red_003",
+            "faction": "RED",
+            "hp": 30,
+            "position": [
+              1,
+              2
+            ],
+            "status": "active"
+          }
+        ]
+      },
+      "record_type": "transition",
+      "reward": {
+        "damage_dealt": 0.0,
+        "damage_taken": 0.0,
+        "episode_score": 0.5743,
+        "own_destroyed": false,
+        "target_destroyed": false
+      },
+      "scenario": {
+        "domain": null,
+        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
+        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "perspective": "RED",
+        "profile_id": "balanced",
+        "scenario_id": "tactical_reference_001",
+        "scenario_version": "v0.1",
+        "seed": 42
+      },
+      "state": {
+        "capabilities": {
+          "accuracy": 0.8,
+          "attack_damage": 10,
+          "attack_range": 1
+        },
+        "entity_id": "red_001",
+        "entity_type": "tactical_actor",
+        "faction": "RED",
+        "name": "Red Rifleman",
+        "position": [
+          2,
+          2
+        ],
+        "state": {
+          "ap": 50,
+          "hp": 35,
+          "hunger": 50,
+          "last_action": "move",
+          "status": "active"
+        },
+        "tags": [
+          "ASSAULT"
+        ]
+      },
+      "success_type": "failure",
+      "tick": 3,
+      "violations": []
+    }
+  ],
+  "supported": true,
+  "system": "TAC_ANGEL",
+  "tactical_outcome": {
+    "missions": null,
+    "orders_carried_out": 3,
+    "orders_rejected": [],
+    "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+    "overall_judgement": {
+      "confidence": 0.9231,
+      "status": "needs_more_test"
+    },
+    "overall_score": 0.5743,
+    "units": [
+      {
+        "attacks_received": 0,
+        "damage_dealt": 20.0,
+        "damage_taken": 0.0,
+        "entity_id": "red_001",
+        "hp_lost": 0.0,
+        "kills": 0,
+        "status": "active"
+      }
+    ],
+    "winner_or_result": "no_winner_duration_limit"
+  }
+}

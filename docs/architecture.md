@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              21 份契約：Pydantic model + validate_<x>()
+              23 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -316,6 +316,15 @@ world policy 透過 `WorldView` 讀世界：任何寫入 raise `ReadOnlyWorldErr
    src/skyvault/worldservice/   governance、store、queues、jobs、worlds、api
                                 跑模擬（engine、batch、failure）；不 import service/（Phase 17 的 UI 後端）
    engine.py                    不 import worldservice：只認得 governor 的三個方法（start、after_tick、record）
+```
+
+## Interface（在 world service 兩側）
+
+```text
+   interface/handoff.py、conflicts.py   world service 之下：worlds 與 jobs 用它們（handoff 是純函式，不跑模擬）
+   interface/systems.py、api.py         world service 之上：adapter 產生 job，API 掛在 create_world_service 的 app 上
+   engine.py、batch/                    不 import interface（測試）
+   systems.py                           任務成敗經 domain 的 mission_outcome hook，不 import 軍事 pack
 ```
 
 ## Views、report、service（在階層之外，讀輸出檔）
@@ -1092,8 +1101,12 @@ open_store(spec) -> SQLiteStore | PostgresStore         sqlite:///相對、sqlit
 InProcessQueue(executor, max_parallel_runs, queue_policy) / RQQueue(redis_url, store_spec, governance)
 plan(request, policy, queue_length, store) / new_job(...) / execute_job(job_id, store, policy)
 PersistentWorld(world_id, request, policy, store).advance(ticks) / finish() / delete()
-create_world_service(store, queue, policy) -> FastAPI
+    .submit(system, tick, actor_id, order) / .decide(conflict_id, branch, decided_by) / .events()   （Phase 12）
+changed_entities(scenario, changes) / compare_variants(request)                              （Phase 12）
+create_world_service(store, queue, policy) -> FastAPI      最後呼叫 interface.api.add_external_routes
 ```
+
+persistent world 的提交窗口（Phase 12）：外部 action 排在它的 tick；world 推進到那個 tick 時，沒有衝突就以 scheduled order 執行，有衝突就開 conflict（store 的 conflicts 表）、停下等權威決定 —— advance 拋 WorldAwaiting（API 409）。
 
 | auto-stop | 條件 |
 |---|---|
@@ -1106,6 +1119,44 @@ create_world_service(store, queue, policy) -> FastAPI
 | infinite_loop_detected | 同一個指紋不連續地第 k 次出現（預設 3） |
 
 被停下的 run 照常結束：termination_reason `auto_stop:<原因>`、結果 `no_winner_stopped_early`（沒有分出勝負時）、run_metadata 標 partial。
+
+## `interface/`
+
+Phase 12 建立。開發計劃 Phase 12、Formal Spec §9、§13、§17。
+
+```python
+handoff_triggers(result, failure_map, conflict_package) -> list[str]     四個觸發
+authority_handoff(triggers, result, branch_comparison, failure_map, conflict_package, authorities) -> dict | None
+decide(handoff, decided_by, decision)          非權威 PermissionError；已決定 ValueError
+SubmissionWindow().submit(tick, system, actor_id, order) / .take(tick)    proposal_id "<system>:<n>"
+find_conflicts(base, proposals) / play_out(base, applied, proposals, profile, perspective, repeats, horizon)
+open_conflict(world_id, tick, proposals, played) / resolve(record, branch, decided_by)
+to_request(submission) -> {system, supported, jobs, world_actions, gaps}
+to_return(results, submission) -> 該系統的返回（Spec §9）
+run_submission(submission, store, policy)      同步：規劃、執行、讀回
+add_external_routes(app, store, queue, policy)
+```
+
+| 觸發 | 條件 |
+|---|---|
+| high_risk_outcome | Phase 7 的 extreme_high_risk_optimization（測量 28%） |
+| strategic_tradeoff | sacrifice_long_term_stability… 或 sacrifice_strategic_value…（21%） |
+| conflicting_branches | conflict package 的 required_decision |
+| failure_threshold_crossed | failure_causes 有「Failure threshold reached」；failure map 的 baseline 低於門檻或任一變量在 mild / moderate 崩潰 |
+
+| 系統 | 提交 | 執行 | 返回 |
+|---|---|---|---|
+| NEXUS | task | scenario_run / batch / failure_exploration | result package、briefing、job 狀態與 handoff |
+| STARTX | branches | branch_compare | 每個分支的後果、風險、資源壓力、評分、對 none 的差 |
+| TAC_ANGEL | actions | world 的窗口，或一個 run 的 scheduled orders | 自己命令的 state-action-outcome、被拒的命令、單位與任務 |
+| EIDEN_01 | intel | 每個參數一個分支 + 全部（entity_changes、data_provenance） | 缺口、依 score 變化幅度排序的參數、對 baseline 的影響 |
+| AEROGRID | airspace | 一個 run + coverage observation | 覆蓋率、缺口、反應窗口；空域配置是缺口 |
+| SKYFOX | mission | skyfox_adapter 控制無人機 × repeat | 任務成功率、路線風險、被拒的移動 |
+| HADES | defence | hades_adapter 控制防禦單位 × repeat | 防禦有效性、反應時間、未被交戰的敵人 |
+| CYBERHOUND | environment | 不執行 | supported false、每個參數一個缺口 |
+| STAR_GUARD | equipment | 替換單位 × repeat、原 scenario × repeat（可加 drills） | 物理可行性（只算能力的限制）、戰術用途 |
+
+外部路徑：`POST /scenario/submit`、`GET /submission/{id}`、`POST /world/create`、`POST /action/submit`、`GET /run/{run_id}`（+ `/events`、`/result`、`/state_action_outcome`）、`POST /run/{run_id}/decision`、`POST /failure_exploration/run`、`POST /branch_compare/run`、`POST /branch_conflict/resolve`、`GET /conflict/{id}`（+ `/branches`、`/package`）。SKYVAULT 或任何非權威決定 → 403。
 
 ## `actors/`
 
@@ -1326,7 +1377,9 @@ needs_more_test  其餘
 定義：
 
 ```text
-16 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package），各一個 Pydantic model + validate_<x>()
+23 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package
+  + observer_profile、observation + order + resource_compute_governance、job + external_submission、authority_handoff），
+  各一個 Pydantic model + validate_<x>()
 ContractError
 SCHEMA_VERSION = "0.6"
 build_json_schemas()
@@ -1835,7 +1888,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 21 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 23 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |

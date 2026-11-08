@@ -66,6 +66,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、排隊（優先序、上限）、在 worker 上跑（同一個程序，或 RQ + Redis 的 worker），結果存在 SQLite 或 PostgreSQL，可查、可下載、可重播；persistent world 可以一次推進幾個 tick。每個 run 都受 Resource & Compute Governance 約束：失控的 run 被自動停下並交出 partial result，過大的 batch 在門口被拒。
 
+其他系統用自己的語言接入（Phase 12）：NEXUS 交任務、拿回完整的 result package 與 briefing；STARTX 交分支、拿回分支比較；TAC ANGEL 在進行中的世界下命令、拿回自己命令的 state-action-outcome；EIDEN-01 的情報、SKYFOX 的路線、HADES 的防禦、星衞的裝備、AEROGRID 的覆蓋各自得到 Formal Spec §9 寫明的返回；沒有模型的（CYBERHOUND 的資訊環境）得到缺口，而不是假的模擬。兩個系統的命令互相衝突時，世界停下、每個分支從同一段歷史分叉跑完、交回 conflict package；需要決定的結果（高風險、策略取捨、衝突分支、跨過 failure threshold）一律以 authority handoff 交給 NEXUS 或指定權威 —— SKYVAULT 自己想決定，得到的是 403。
+
 模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
 
 結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
@@ -140,6 +142,7 @@ python3 scripts/observe_run.py                                             # out
 python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
     --participants tests/fixtures/actors/participants_squad.json            # RED 由 TAC ANGEL / HADES、BLUE 由 baseline
 python3 scripts/serve_world.py                                             # world service：http://127.0.0.1:8100/api/docs
+python3 scripts/run_external.py                                            # output/external/：九個系統各自拿回什麼、一個衝突
 docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
@@ -192,6 +195,7 @@ python3 -m pytest tests/ -q
 | `conflict_package.json` | （run_batch）哪些命令衝突、每個分支的結果、等人決定 |
 | `comparative_report.md` | （run_batch）給人讀的比較報告 |
 | `briefing.md`、`.pdf`、`.docx` | （export_briefing）以上全部，一份帶進會議的文件 |
+| `external/<system>.json` | （run_external）九個系統各自拿回什麼；`conflict_*.json`：一個衝突的 package、handoff 與決定 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
 
@@ -218,7 +222,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        21 份資料契約（Pydantic，schema 0.6）
+  contracts/        23 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
@@ -234,6 +238,7 @@ src/skyvault/       引擎與 exporter
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
   worldservice/     後台服務：governance、store、queue、jobs、persistent world、HTTP API
+  interface/        外部系統：九個 adapter、conflict 的分支與決定、authority handoff、外部 API
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
@@ -260,7 +265,10 @@ docs/               文件
 |---|---|---|
 | failure variable 只改既有能力值、hp、資源與命令傳達 | 沒有真的感測、通訊、天氣模型；例如感測失效 = 己方命中率下降 | 需要那些模型的 domain |
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
-| 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | Phase 12 起 |
+| 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | 需要時 |
+| 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
+| 權威名單不能由政策擴充 | 固定 NEXUS、SOVEREIGN（authorities 是參數） | Phase 19 |
+| CYBERHOUND、EIDEN 的世界參數、AEROGRID 的空域、星衞的物理欄位 | 回報為缺口，不模擬 | Phase 14–16 |
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
 | 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | Phase 6 |
 | 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
@@ -270,7 +278,7 @@ docs/               文件
 | persistent world 不能跨程序恢復 | engine 不能序列化；checkpoint 與結果留在 store | 需要時 |
 | batch 內的每個 run 不受 auto-stop | 受 max_batch_count 與 scenario 時限約束 | 需要時 |
 | Docker 只做靜態驗證 | 此環境沒有 daemon；CI 跑 `docker compose config` | — |
-| adapter 用內建替身 | 真正的 TAC ANGEL 等以 callable 接入；沒有 LLM SDK、沒有網路傳輸 | Phase 12 |
+| adapter 用內建替身 | 真正的 TAC ANGEL 等以 callable 或 HTTP 提交接入；沒有 LLM SDK、沒有真正的外部系統連線 | — |
 | 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
@@ -282,7 +290,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase11_background_world_service.md`](docs/phases/phase11_background_world_service.md)。
+完整清單見 [`docs/phases/phase12_external_system_interface.md`](docs/phases/phase12_external_system_interface.md)。
 
 ---
 
