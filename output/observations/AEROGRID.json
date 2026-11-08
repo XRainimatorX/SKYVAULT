@@ -1,0 +1,573 @@
+{
+  "observations": [
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "AEROGRID",
+      "time": 0,
+      "uncertainty": {
+        "confidence_level": 0.0,
+        "delay_ticks": 0,
+        "observed_at": 0,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 0,
+          "coverage_ratio": 0.48,
+          "covered_cells": 48,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "AEROGRID",
+      "time": 1,
+      "uncertainty": {
+        "confidence_level": 0.0,
+        "delay_ticks": 0,
+        "observed_at": 1,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 0,
+          "coverage_ratio": 0.56,
+          "covered_cells": 56,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 2,
+      "uncertainty": {
+        "confidence_level": 0.5,
+        "delay_ticks": 0,
+        "observed_at": 2,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 3,
+          "coverage_ratio": 0.64,
+          "covered_cells": 64,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 3,
+      "uncertainty": {
+        "confidence_level": 0.7,
+        "delay_ticks": 0,
+        "observed_at": 3,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 3,
+          "coverage_ratio": 0.81,
+          "covered_cells": 81,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 4,
+      "uncertainty": {
+        "confidence_level": 0.8667,
+        "delay_ticks": 0,
+        "observed_at": 4,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 3,
+          "coverage_ratio": 1.0,
+          "covered_cells": 100,
+          "gaps": 0,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 5,
+      "uncertainty": {
+        "confidence_level": 0.8667,
+        "delay_ticks": 0,
+        "observed_at": 5,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 3,
+          "coverage_ratio": 1.0,
+          "covered_cells": 100,
+          "gaps": 0,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 6,
+      "uncertainty": {
+        "confidence_level": 0.8333,
+        "delay_ticks": 0,
+        "observed_at": 6,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 2,
+          "coverage_ratio": 0.9,
+          "covered_cells": 90,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 7,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 7,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 1,
+          "coverage_ratio": 0.9,
+          "covered_cells": 90,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 8,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 8,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 1,
+          "coverage_ratio": 0.9,
+          "covered_cells": 90,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 9,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 9,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 1,
+          "coverage_ratio": 0.9,
+          "covered_cells": 90,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "AEROGRID",
+      "time": 10,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 10,
+        "source_quality": "medium",
+        "stale_after": 0
+      },
+      "view": "coverage",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "contacts": 0,
+          "coverage_ratio": 0.9,
+          "covered_cells": 90,
+          "gaps": 1,
+          "total_cells": 100
+        }
+      }
+    }
+  ],
+  "observer_id": "AEROGRID",
+  "output_hash": "63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09",
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "viewpoint": {
+    "actor_id": "red_001",
+    "faction": "RED"
+  }
+}

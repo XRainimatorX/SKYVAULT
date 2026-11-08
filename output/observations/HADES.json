@@ -1,0 +1,1119 @@
+{
+  "observations": [
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "HADES",
+      "time": 0,
+      "uncertainty": {
+        "confidence_level": 0.0,
+        "delay_ticks": 0,
+        "observed_at": 0,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": null,
+          "in_range_now": 0,
+          "threats": 0
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "HADES",
+      "time": 1,
+      "uncertainty": {
+        "confidence_level": 0.0,
+        "delay_ticks": 0,
+        "observed_at": 1,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": null,
+          "in_range_now": 0,
+          "threats": 0
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 2,
+      "uncertainty": {
+        "confidence_level": 0.5,
+        "delay_ticks": 0,
+        "observed_at": 2,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.5,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              7,
+              7
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.5,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              6,
+              7
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.5,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              7
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.5,
+            "distance": 5.0,
+            "entity_id": "blue_002",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 3
+          },
+          {
+            "confidence": 0.5,
+            "distance": 5.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_003",
+            "ticks_to_strike": 4
+          },
+          {
+            "confidence": 0.5,
+            "distance": 5.0,
+            "entity_id": "blue_003",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 4
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 3,
+          "in_range_now": 0,
+          "threats": 3
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 3,
+      "uncertainty": {
+        "confidence_level": 0.7,
+        "delay_ticks": 0,
+        "observed_at": 3,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.7,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              6,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.7,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.7,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              4,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.7,
+            "distance": 3.0,
+            "entity_id": "blue_002",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 1
+          },
+          {
+            "confidence": 0.7,
+            "distance": 3.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_003",
+            "ticks_to_strike": 2
+          },
+          {
+            "confidence": 0.7,
+            "distance": 3.0,
+            "entity_id": "blue_003",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 2
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 1,
+          "in_range_now": 0,
+          "threats": 3
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 4,
+      "uncertainty": {
+        "confidence_level": 0.8667,
+        "delay_ticks": 0,
+        "observed_at": 4,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 30.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_003",
+            "ticks_to_strike": 0
+          },
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_003",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 0
+          },
+          {
+            "confidence": 0.8,
+            "distance": 2.0,
+            "entity_id": "blue_002",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 0
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 3,
+          "threats": 3
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 5,
+      "uncertainty": {
+        "confidence_level": 0.8667,
+        "delay_ticks": 0,
+        "observed_at": 5,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 32.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": 7.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_003",
+            "ticks_to_strike": 0
+          },
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_003",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 0
+          },
+          {
+            "confidence": 0.8,
+            "distance": 2.0,
+            "entity_id": "blue_002",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 0
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 3,
+          "threats": 3
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 6,
+      "uncertainty": {
+        "confidence_level": 0.8333,
+        "delay_ticks": 0,
+        "observed_at": 6,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": 16.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.8,
+            "distance": 2.0,
+            "entity_id": "blue_002",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 0
+          },
+          {
+            "confidence": 0.8,
+            "distance": 2.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_002",
+            "ticks_to_strike": 1
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 1,
+          "threats": 2
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 7,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 7,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 35.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              4,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 1.0,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 0
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 1,
+          "threats": 1
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 8,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 8,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 25.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              4,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 1.0,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 0
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 1,
+          "threats": 1
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 9,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 9,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": 15.0,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              4,
+              5
+            ],
+            "relation": "enemy",
+            "status": "visible"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 1.0,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          }
+        ],
+        "known_risks": [
+          {
+            "confidence": 0.9,
+            "distance": 1.0,
+            "entity_id": "blue_001",
+            "nearest_own": "red_001",
+            "ticks_to_strike": 0
+          }
+        ],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": 0,
+          "in_range_now": 1,
+          "threats": 1
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "observe",
+          "repair",
+          "supply"
+        ],
+        "constraints": [
+          "max_ticks=10"
+        ],
+        "mission_goal": [
+          "state_change_test",
+          "action_consequence_test",
+          "event_memory_test",
+          "evaluation_result_test"
+        ]
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "HADES",
+      "time": 10,
+      "uncertainty": {
+        "confidence_level": 0.9,
+        "delay_ticks": 0,
+        "observed_at": 10,
+        "source_quality": "medium",
+        "stale_after": 2
+      },
+      "view": "threat",
+      "viewpoint": {
+        "actor_id": "red_001",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.9,
+            "entity_id": "blue_001",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              4,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 0.8,
+            "entity_id": "blue_002",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              5,
+              6
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          },
+          {
+            "age": null,
+            "capabilities": null,
+            "confidence": 1.0,
+            "entity_id": "blue_003",
+            "faction": "BLUE",
+            "hp": null,
+            "hp_band": null,
+            "last_seen": null,
+            "position": [
+              3,
+              5
+            ],
+            "relation": "enemy",
+            "status": "destroyed"
+          }
+        ],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {},
+        "summary": {
+          "defense_window": null,
+          "in_range_now": 0,
+          "threats": 0
+        }
+      }
+    }
+  ],
+  "observer_id": "HADES",
+  "output_hash": "63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09",
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "viewpoint": {
+    "actor_id": "red_001",
+    "faction": "RED"
+  }
+}

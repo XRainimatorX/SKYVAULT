@@ -3,7 +3,7 @@
 import platform
 import random
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 from .action import Action, ActionTarget, location_to_json
 from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handlers_for
@@ -15,7 +15,8 @@ from .contracts import (
 from .domains import DomainPack, load_domain
 from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
-from .policies import Policy, build_policy
+from .observation import context_for, load_observer_profile, observe
+from .policies import AnyPolicy, ObservingPolicy, Policy, build_policy
 from .reproducibility import (
     RUNTIME_VERSION,
     input_hash,
@@ -58,7 +59,7 @@ class SkyVaultTacticalReferenceEngine:
         self,
         scenario: dict[str, Any],
         evaluation_profile: dict[str, Any] | None = None,
-        policy: Policy | None = None,
+        policy: AnyPolicy | None = None,
     ):
         self.scenario = scenario
         self.evaluation_profile = self.resolve_profile(evaluation_profile)
@@ -76,6 +77,11 @@ class SkyVaultTacticalReferenceEngine:
             load_domain(scenario["domain"]) if scenario.get("domain") else None
         )
         self.policy = policy or self.choose_policy(scenario)
+        # A policy that names an observer profile decides from observations
+        # only; it is never handed the world (development plan Phase 5)
+        observer = getattr(self.policy, "observer_profile", None)
+        self.observer = load_observer_profile(observer) if observer else None
+        self.observed: dict[int, dict[str, Any]] = {}
         self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
         self.scheduled = {
             (item["tick"], item["actor_id"]): item
@@ -107,7 +113,7 @@ class SkyVaultTacticalReferenceEngine:
             ),
         )
 
-    def choose_policy(self, scenario: dict[str, Any]) -> Policy:
+    def choose_policy(self, scenario: dict[str, Any]) -> AnyPolicy:
         """
         The policy when none was handed in: runtime.policy by registered
         name, else the domain's default, else the tactical reference.
@@ -160,6 +166,34 @@ class SkyVaultTacticalReferenceEngine:
             confidence=float(scheduled.get("confidence", 1.0)),
             metadata=dict(scheduled.get("metadata", {})),
         )
+
+    def observed_decision(self, actor: Any) -> Action | None:
+        """
+        The decision of a policy that sees only its observation.
+
+        Important:
+        The observation is built from the units at the end of every earlier
+        tick plus the units as they are now, so a delayed observer sees an
+        earlier tick and a stale contact is where it was last seen. The
+        policy answers with an order ({action_type, target, intent, ...});
+        the action id is issued here, as for an outside system's order.
+        """
+        if self.observer is None:
+            raise RuntimeError("this run's policy decides from the world")
+        history = dict(self.observed)
+        history[self.world.tick] = {
+            entity_id: entity.snapshot()
+            for entity_id, entity in self.world.entities.items()
+        }
+        observation = observe(
+            history,
+            self.world.tick,
+            self.observer,
+            {"faction": actor.faction, "actor_id": actor.entity_id},
+            context_for(self.scenario, actor.faction, self.world.resources.snapshot()),
+        )
+        order = cast(ObservingPolicy, self.policy).decide_from_observation(observation)
+        return None if order is None else self.scheduled_action(actor.entity_id, order)
 
     def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:
         """
@@ -219,6 +253,8 @@ class SkyVaultTacticalReferenceEngine:
 
         initial_world_state = self.world.snapshot()
         self.snapshots.record(self.world.tick, initial_world_state)
+        if self.observer:
+            self.observed[self.world.tick] = initial_world_state["entities"]
 
         for _ in range(max_ticks):
             self.world.advance_time()
@@ -240,11 +276,13 @@ class SkyVaultTacticalReferenceEngine:
                 system_id = (
                     scheduled["system_id"] if scheduled else self.actor_system_id
                 )
-                action = (
-                    self.scheduled_action(actor.entity_id, scheduled)
-                    if scheduled
-                    else self.policy.decide_action(self.world, actor)
-                )
+                action: Action | None
+                if scheduled:
+                    action = self.scheduled_action(actor.entity_id, scheduled)
+                elif self.observer:
+                    action = self.observed_decision(actor)
+                else:
+                    action = cast(Policy, self.policy).decide_action(self.world, actor)
 
                 if action is None:
                     self.world.record_event(
@@ -314,7 +352,10 @@ class SkyVaultTacticalReferenceEngine:
                     break
 
             # Snapshots are taken at the end of a tick, after all its events
-            self.snapshots.record(self.world.tick, self.world.snapshot())
+            end_of_tick = self.world.snapshot()
+            self.snapshots.record(self.world.tick, end_of_tick)
+            if self.observer:
+                self.observed[self.world.tick] = end_of_tick["entities"]
 
             if termination_reason == "termination_condition_met":
                 break

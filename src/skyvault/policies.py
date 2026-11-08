@@ -2,9 +2,12 @@
 
 Important:
 A policy only proposes: decide_action returns an Action (or None to stand
-still) and never changes the world. Policies are registered by name, so a
-scenario can ask for one by name (runtime.policy.name) without being able
-to load arbitrary code; a caller can also hand the engine a policy object.
+still) and never changes the world. An observing policy names an observer
+profile and is never handed the world: decide_from_observation gets what
+that observer sees and answers with an order (development plan Phase 5).
+Policies are registered by name, so a scenario can ask for one by name
+(runtime.policy.name) without being able to load arbitrary code; a caller
+can also hand the engine a policy object.
 """
 
 import importlib
@@ -25,7 +28,19 @@ class Policy(Protocol):
     def decide_action(self, world: WorldState, actor: Entity) -> Action | None: ...
 
 
-PolicyFactory = Callable[[random.Random, dict[str, Any]], Policy]
+class ObservingPolicy(Protocol):
+    """Anything that decides for one actor from its observation alone."""
+
+    observer_profile: str
+
+    def decide_from_observation(
+        self, observation: dict[str, Any]
+    ) -> dict[str, Any] | None: ...
+
+
+AnyPolicy = Policy | ObservingPolicy
+
+PolicyFactory = Callable[[random.Random, dict[str, Any]], AnyPolicy]
 
 _REGISTRY: dict[str, PolicyFactory] = {}
 
@@ -45,7 +60,7 @@ def register_policy(name: str, factory: PolicyFactory) -> None:
 
 def build_policy(
     name: str, rng: random.Random, params: dict[str, Any] | None = None
-) -> Policy:
+) -> AnyPolicy:
     """The policy registered as name, built with the run's rng."""
     if name not in _REGISTRY:
         known = ", ".join(sorted(_REGISTRY)) or "none"

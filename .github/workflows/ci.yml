@@ -274,6 +274,37 @@ jobs:
           print("training data verified:", report["buckets"], len(clean), "clean transitions")
           EOF
 
+      # Phase 5: what each system sees of one run, under fog of war
+      - name: Observation contract
+        run: |
+          python scripts/observe_run.py
+          python scripts/observe_run.py --scenario data/scenarios/military_urban_001/v0.1.json \
+            --output output/observations_urban
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.contracts import validate_observation
+
+          for folder in ("observations", "observations_urban"):
+              out = Path("output") / folder
+              docs = {p.stem: json.loads(p.read_text()) for p in out.glob("*.json")}
+              assert set(docs) == {"TAC_ANGEL", "STARTX", "NEXUS", "HADES", "AEROGRID"}, set(docs)
+              for name, doc in docs.items():
+                  for observation in doc["observations"]:
+                      assert validate_observation(observation) == observation
+              tac, startx = docs["TAC_ANGEL"]["observations"], docs["STARTX"]["observations"]
+              assert any(o["hidden_state"]["exists"] for o in tac), folder
+              assert all(o["visible_world_state"] != s["visible_world_state"] for o, s in zip(tac, startx))
+              assert "position" not in json.dumps([o["visible_world_state"] for o in startx])
+              assert not any(o["hidden_state"]["exists"] for o in docs["NEXUS"]["observations"])
+              print(folder, "verified:", {n: len(d["observations"]) for n, d in docs.items()})
+          EOF
+          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+            --policy-module examples/tac_angel_policy.py --policy tac_angel_example
+
   # Phase 17: build the UI, serve it with the reference workspace, and drive
   # every page in a real browser
   ui:
