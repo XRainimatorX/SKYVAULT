@@ -160,6 +160,10 @@ class TacticalReferencePolicy:
         actor_position = actor.position
         target_position = target.position
 
+        # The tactical policy steps across grid cells; a node id has no cells
+        if isinstance(actor_position, str) or isinstance(target_position, str):
+            return None
+
         ax, ay = actor_position
         current_distance = world.space.distance(actor_position, target_position)
 

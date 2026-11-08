@@ -46,7 +46,7 @@
     },
     "EntityRecord": {
       "additionalProperties": false,
-      "description": "Entity = something that exists inside the world.\n\nImportant:\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
+      "description": "Entity = something that exists inside the world.\n\nImportant:\nposition is an [x, y] cell on a grid space, or a node id on a graph or\nnetwork space.\n\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
       "properties": {
         "capabilities": {
           "additionalProperties": true,
@@ -86,6 +86,10 @@
               "maxItems": 2,
               "minItems": 2,
               "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
             },
             {
               "type": "null"
@@ -295,12 +299,20 @@
         },
         "locations": {
           "items": {
-            "items": {
-              "type": "integer"
-            },
-            "maxItems": 2,
-            "minItems": 2,
-            "type": "array"
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              {
+                "minLength": 1,
+                "type": "string"
+              }
+            ]
           },
           "title": "Locations",
           "type": "array"
@@ -596,7 +608,7 @@
     },
     "WorldSnapshot": {
       "additionalProperties": false,
-      "description": "The whole world at one moment, as WorldState.snapshot() writes it.",
+      "description": "The whole world at one moment, as WorldState.snapshot() writes it.\n\nImportant:\nresources is part of the snapshot so event sourcing can check a rebuilt\nworld against a recorded one, stock for stock.",
       "properties": {
         "assumptions": {
           "additionalProperties": true,
@@ -608,6 +620,14 @@
             "$ref": "#/$defs/EntityRecord"
           },
           "title": "Entities",
+          "type": "object"
+        },
+        "resources": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Resources",
           "type": "object"
         },
         "scenario_id": {
@@ -636,13 +656,14 @@
         "scenario_id",
         "tick",
         "space",
-        "entities"
+        "entities",
+        "resources"
       ],
       "title": "WorldSnapshot",
       "type": "object"
     }
   },
-  "$id": "skyvault/0.1/result_package.schema.json",
+  "$id": "skyvault/0.2/result_package.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility stays optional until Phase 8 fills it.",

@@ -213,6 +213,10 @@ def test_world_contract_requires_its_core_elements():
         "time_model",
         "assumption_registry",
         "evaluation_targets",
+        "entity_model",
+        "environment_state",
+        "resource_state",
+        "rule_set",
     }
 
 

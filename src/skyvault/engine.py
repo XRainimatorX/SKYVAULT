@@ -7,9 +7,8 @@ from typing import Any
 from .action import Action
 from .consequence import Consequence
 from .contracts import validate_action, validate_result_package
-from .entity import Entity
 from .evaluator import build_evaluation_summary
-from .runtime.space import GridSpace
+from .runtime.world import create_world
 from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import WorldState
 
@@ -54,48 +53,28 @@ class SkyVaultTacticalReferenceEngine:
 
     def build_world(self, scenario: dict[str, Any]) -> WorldState:
         """
-        Build the tick-0 world the scenario describes.
+        Build the time-zero world the scenario describes.
 
         Important:
+        The world itself comes from runtime.create_world(), which supports any
+        space and clock. This engine is the tactical reference: its policy
+        steps between grid cells one tick at a time, so it refuses any other
+        space or clock here instead of misbehaving later.
+
         An entity may omit position, in which case it is built with None.
         Anything that measures distance has to handle that.
         """
         world_contract = scenario["world_contract"]
-        space_model = world_contract["space_model"]
+        space_type = world_contract["space_model"]["type"]
+        time_type = world_contract["time_model"]["type"]
 
-        space = GridSpace(
-            width=int(space_model["width"]),
-            height=int(space_model["height"]),
-            distance_model=space_model.get("distance_model", "chebyshev"),
-        )
-
-        entities: dict[str, Entity] = {}
-
-        for item in scenario["entities"]:
-            position = item.get("position")
-            parsed_position = tuple(position) if position is not None else None
-
-            entity = Entity(
-                entity_id=item["entity_id"],
-                name=item["name"],
-                entity_type=item["entity_type"],
-                faction=item.get("faction"),
-                position=parsed_position,
-                state=dict(item.get("state", {})),
-                capabilities=dict(item.get("capabilities", {})),
-                tags=list(item.get("tags", [])),
+        if space_type != "grid" or time_type != "tick":
+            raise ValueError(
+                "the tactical reference engine needs a grid space and a tick "
+                f"clock, got {space_type!r} space and {time_type!r} time"
             )
 
-            entities[entity.entity_id] = entity
-
-        return WorldState(
-            world_id=world_contract["world_id"],
-            scenario_id=scenario["scenario_id"],
-            tick=0,
-            space=space,
-            entities=entities,
-            assumptions=world_contract.get("assumption_registry", {}),
-        )
+        return create_world(scenario)
 
     def run(self) -> dict[str, Any]:
         """
@@ -111,8 +90,8 @@ class SkyVaultTacticalReferenceEngine:
 
         initial_world_state = self.world.snapshot()
 
-        for tick in range(1, max_ticks + 1):
-            self.world.tick = tick
+        for _ in range(max_ticks):
+            self.world.advance_time()
 
             if len(self.world.active_factions()) <= 1:
                 termination_reason = "termination_condition_met"

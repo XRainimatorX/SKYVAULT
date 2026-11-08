@@ -51,7 +51,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.1/evaluation_result.schema.json",
+  "$id": "skyvault/0.2/evaluation_result.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe required fields are the win/lose summary evaluator.py produces today.\nThe optional ones are the multi-axis verdict of section 8.3; Phase 7\n(Evaluation Engine) is where they get filled. Until then a run reports who\nsurvived and how many events it took, nothing more.",

@@ -6,10 +6,13 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .errors import ContractError
 
-SCHEMA_VERSION = "0.1"
+SCHEMA_VERSION = "0.2"
 
 NonEmptyStr = Annotated[str, Field(min_length=1)]
 Position = Annotated[list[int], Field(min_length=2, max_length=2)]
+# A grid cell, or a node id on a graph or network space.
+Location = Position | NonEmptyStr
+NonNegative = Annotated[float, Field(ge=0.0)]
 Probability = Annotated[float, Field(ge=0.0, le=1.0)]
 
 

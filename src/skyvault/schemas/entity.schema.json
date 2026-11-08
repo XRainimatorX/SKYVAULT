@@ -1,8 +1,8 @@
 {
-  "$id": "skyvault/0.1/entity.schema.json",
+  "$id": "skyvault/0.2/entity.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Entity = something that exists inside the world.\n\nImportant:\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
+  "description": "Entity = something that exists inside the world.\n\nImportant:\nposition is an [x, y] cell on a grid space, or a node id on a graph or\nnetwork space.\n\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
   "properties": {
     "capabilities": {
       "additionalProperties": true,
@@ -42,6 +42,10 @@
           "maxItems": 2,
           "minItems": 2,
           "type": "array"
+        },
+        {
+          "minLength": 1,
+          "type": "string"
         },
         {
           "type": "null"

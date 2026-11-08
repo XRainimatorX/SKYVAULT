@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "scenario_id": "tactical_reference_001",
   "scenario_version": "v0.1",
   "world_contract": {
@@ -31,7 +31,11 @@
       "world_state_changed",
       "event_memory_created",
       "result_package_created"
-    ]
+    ],
+    "entity_model": {},
+    "environment_state": {},
+    "resource_state": {},
+    "rule_set": {}
   },
   "entities": [
     {

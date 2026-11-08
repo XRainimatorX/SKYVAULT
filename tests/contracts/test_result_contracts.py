@@ -16,6 +16,7 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.contracts import (
     CONTRACTS,
+    SCHEMA_VERSION,
     ContractError,
     build_json_schemas,
     validate_evaluation_result,
@@ -210,4 +211,4 @@ def test_schemas_encode_the_acceptance_criteria():
 def test_every_schema_declares_its_dialect_and_version():
     for name, schema in build_json_schemas().items():
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-        assert schema["$id"] == f"skyvault/0.1/{name}.schema.json"
+        assert schema["$id"] == f"skyvault/{SCHEMA_VERSION}/{name}.schema.json"

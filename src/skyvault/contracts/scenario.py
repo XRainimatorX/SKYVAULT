@@ -38,7 +38,7 @@ class Scenario(ContractModel):
     Scenario = Formal Spec section 3.
 
     Important:
-    Version 0.1 keeps the flat layout every scenario already uses. Section 3.3
+    Version 0.2 keeps the flat layout every scenario already uses. Section 3.3
     groups the same information under identity / world_binding /
     initial_conditions; adopting that grouping is a schema version change, not
     a Phase 1 task. See ADR 004.
@@ -48,7 +48,7 @@ class Scenario(ContractModel):
     scenario_version is the content's own version and is unrelated.
     """
 
-    schema_version: Literal["0.1"]
+    schema_version: Literal["0.2"]
     scenario_id: NonEmptyStr
     scenario_version: NonEmptyStr
     world_contract: WorldContract
@@ -73,6 +73,36 @@ class Scenario(ContractModel):
             if entity.entity_id in seen:
                 raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
             seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _entities_stand_in_the_space(self) -> "Scenario":
+        """
+        A grid entity needs an [x, y] cell inside the grid; a graph or network
+        entity needs the id of one of its nodes.
+        """
+        space = self.world_contract.space_model
+        nodes = set(space.nodes or [])
+
+        for entity in self.entities:
+            position = entity.position
+            if position is None:
+                continue
+
+            if space.type == "grid":
+                inside = (
+                    isinstance(position, list)
+                    and 0 <= position[0] < (space.width or 0)
+                    and 0 <= position[1] < (space.height or 0)
+                )
+            else:
+                inside = isinstance(position, str) and position in nodes
+
+            if not inside:
+                raise ValueError(
+                    f"entity {entity.entity_id!r} at {position!r} is outside "
+                    f"the {space.type} space"
+                )
         return self
 
 

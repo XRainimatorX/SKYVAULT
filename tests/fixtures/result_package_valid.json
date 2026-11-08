@@ -6,6 +6,7 @@
     "scenario_id": "fixture_minimal_001",
     "tick": 0,
     "space": {
+      "type": "grid",
       "width": 4,
       "height": 4,
       "distance_model": "chebyshev"
@@ -62,13 +63,15 @@
     },
     "assumptions": {
       "actor_policy": "temporary_tactical_reference_policy"
-    }
+    },
+    "resources": {}
   },
   "final_world_state": {
     "world_id": "fixture_world_001",
     "scenario_id": "fixture_minimal_001",
     "tick": 5,
     "space": {
+      "type": "grid",
       "width": 4,
       "height": 4,
       "distance_model": "chebyshev"
@@ -125,7 +128,8 @@
     },
     "assumptions": {
       "actor_policy": "temporary_tactical_reference_policy"
-    }
+    },
+    "resources": {}
   },
   "event_memory": [
     {

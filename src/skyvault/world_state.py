@@ -4,13 +4,17 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .contracts import validate_event
-from .entity import Entity, Position
+from .entity import Entity, Location
 from .event_memory import (
     Event,
     build_causal_links,
     build_evaluation_relevance,
     new_event_id,
 )
+from .runtime.clock import Clock, TickClock
+from .runtime.registry import EntityRegistry
+from .runtime.resources import ResourceState
+from .runtime.rules import RuleSet
 from .runtime.space import Space
 
 
@@ -19,16 +23,27 @@ class WorldState:
     """
     WorldState = current world condition.
 
-    This is the first true SKYVAULT-shaped object in this slice.
+    Important:
+    Build it with runtime.world.create_world(), which reads space, clock,
+    resources and rules from the world contract. tick is the world's current
+    time in its own unit, whatever kind of clock advances it; the name stays
+    tick because every event and snapshot already records time under it.
+
+    Every change to the world that later code may need to replay goes through
+    a method that records an event: record_event(), change_resource(),
+    update_entity_state().
     """
 
     world_id: str
     scenario_id: str
     tick: int
     space: Space
-    entities: dict[str, Entity]
+    entities: EntityRegistry
     assumptions: dict[str, Any] = field(default_factory=dict)
     event_memory: list[Event] = field(default_factory=list)
+    resources: ResourceState = field(default_factory=ResourceState)
+    rules: RuleSet = field(default_factory=RuleSet)
+    clock: Clock = field(default_factory=TickClock)
 
     def get_entity(self, entity_id: str) -> Entity:
         """
@@ -38,13 +53,11 @@ class WorldState:
         Raises KeyError rather than returning None, so a bad id fails loudly
         instead of turning into a silent no-op further down.
         """
-        if entity_id not in self.entities:
-            raise KeyError(f"Unknown entity_id: {entity_id}")
-        return self.entities[entity_id]
+        return self.entities.require(entity_id)
 
     def active_entities(self) -> list[Entity]:
         """Every entity still alive. Destroyed entities stay in self.entities."""
-        return [entity for entity in self.entities.values() if entity.is_active()]
+        return self.entities.active()
 
     def active_factions(self) -> set[str]:
         """The factions that still have at least one living entity."""
@@ -54,7 +67,86 @@ class WorldState:
             if entity.faction is not None
         }
 
-    def is_occupied(self, position: Position) -> bool:
+    def advance_time(self) -> int:
+        """
+        Move the world's clock forward once and return the new time.
+
+        Important:
+        The clock decides how far: one tick, one phase, or straight to the next
+        scheduled happening. world.tick always mirrors clock.now afterwards.
+        """
+        self.tick = self.clock.advance()
+        return self.tick
+
+    def change_resource(
+        self,
+        resource_id: str,
+        delta: float,
+        actor_id: str | None = None,
+        system_id: str | None = None,
+        source_action_id: str | None = None,
+        data: dict[str, Any] | None = None,
+    ) -> Event:
+        """
+        Change a world-level resource and record it as RESOURCE_CHANGED.
+
+        Important:
+        before_state and after_state hold {resource_id, amount}, and
+        affected.resources names the resource, so event sourcing can rebuild
+        the stock and readers can find every change to it. A change that would
+        go below zero raises before anything is recorded.
+        """
+        before, after = self.resources.change(resource_id, delta)
+
+        return self.record_event(
+            event_type="RESOURCE_CHANGED",
+            actor_id=actor_id,
+            system_id=system_id,
+            target_entity_id=None,
+            source_action_id=source_action_id,
+            before_state={"resource_id": resource_id, "amount": before},
+            after_state={"resource_id": resource_id, "amount": after},
+            affected_resources=[resource_id],
+            evaluation_relevance={"affects_cost": True},
+            data={"delta": delta, **(data or {})},
+            tags=["resource_change", "world_state_mutation"],
+        )
+
+    def update_entity_state(
+        self,
+        entity_id: str,
+        changes: dict[str, Any],
+        actor_id: str | None = None,
+        system_id: str | None = None,
+        source_action_id: str | None = None,
+    ) -> Event:
+        """
+        Merge changes into an entity's state and record ENTITY_STATE_CHANGED.
+
+        Important:
+        before_state and after_state are full entity snapshots, the same shape
+        every other entity event records, so event sourcing replays it with no
+        special case. The tactical engine still records its own MOVE and
+        ATTACK events; Phase 3 routes all mutation through methods like this.
+        """
+        entity = self.get_entity(entity_id)
+        before = entity.snapshot()
+        entity.state.update(changes)
+
+        return self.record_event(
+            event_type="ENTITY_STATE_CHANGED",
+            actor_id=actor_id,
+            system_id=system_id,
+            target_entity_id=entity_id,
+            source_action_id=source_action_id,
+            before_state=before,
+            after_state=entity.snapshot(),
+            affected_entities=[entity_id],
+            data={"changes": dict(changes)},
+            tags=["state_change", "world_state_mutation"],
+        )
+
+    def is_occupied(self, position: Location) -> bool:
         """True when a living entity stands on this position."""
         return any(entity.position == position for entity in self.active_entities())
 
@@ -154,4 +246,5 @@ class WorldState:
                 for entity_id, entity in self.entities.items()
             },
             "assumptions": self.assumptions,
+            "resources": self.resources.snapshot(),
         }

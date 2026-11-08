@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import Field, field_validator
 
-from .base import ContractModel, NonEmptyStr, Position, check
+from .base import ContractModel, Location, NonEmptyStr, check
 
 EVENT_TYPES = frozenset(
     {
@@ -16,6 +16,8 @@ EVENT_TYPES = frozenset(
         "ENTITY_DESTROYED",
         "NO_ACTION",
         "SCENARIO_END",
+        "RESOURCE_CHANGED",
+        "ENTITY_STATE_CHANGED",
     }
 )
 
@@ -32,7 +34,7 @@ class EventAffected(ContractModel):
     """What the event touched."""
 
     entities: list[str] = Field(default_factory=list)
-    locations: list[Position] = Field(default_factory=list)
+    locations: list[Location] = Field(default_factory=list)
     resources: list[str] = Field(default_factory=list)
     risks: list[str] = Field(default_factory=list)
 

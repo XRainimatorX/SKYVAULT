@@ -1,5 +1,5 @@
 {
-  "$id": "skyvault/0.1/consequence.schema.json",
+  "$id": "skyvault/0.2/consequence.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Consequence = the result of resolving one action.\n\nImportant:\ndirect_effects stays a list of effect records, which is what the engine\nproduces today. Formal Spec section 6.3 groups effects into state, resource\nand entity changes and adds secondary effects and chain reactions; those\narrive with the Phase 3 action framework, so they are optional here.",

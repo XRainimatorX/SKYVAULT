@@ -93,7 +93,7 @@
     },
     "SpaceModelSpec": {
       "additionalProperties": false,
-      "description": "How space exists in this world.\n\nImportant:\nA grid needs width and height; the engine cannot place or move anything\nwithout them. Other space types (district networks, airspace) arrive with\nPhase 2 and declare their own units.",
+      "description": "How space exists in this world.\n\nImportant:\ngrid       needs width and height; positions are [x, y] cells.\ngraph      needs nodes and edges [a, b]; distance counts hops.\nnetwork    needs nodes and edges [a, b, weight]; distance sums weights.\n\nGraph and network positions are node ids. No other space type is accepted\nin schema 0.2, so a misspelt type fails instead of building nothing.",
       "properties": {
         "distance_model": {
           "anyOf": [
@@ -112,6 +112,31 @@
           "default": null,
           "title": "Distance Model"
         },
+        "edges": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edges"
+        },
         "height": {
           "anyOf": [
             {
@@ -125,8 +150,28 @@
           "default": null,
           "title": "Height"
         },
+        "nodes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nodes"
+        },
         "type": {
-          "minLength": 1,
+          "enum": [
+            "grid",
+            "graph",
+            "network"
+          ],
           "title": "Type",
           "type": "string"
         },
@@ -167,7 +212,7 @@
     },
     "TimeModelSpec": {
       "additionalProperties": false,
-      "description": "How time advances in this world.",
+      "description": "How time advances in this world.\n\nImportant:\ntick           one step per tick.\nphase          each step moves time forward by phase_length units;\n               time_unit names the unit (for example \"hours\").\nevent_driven   time jumps to the next scheduled event.",
       "properties": {
         "max_duration": {
           "anyOf": [
@@ -197,7 +242,8 @@
         "phase_length": {
           "anyOf": [
             {
-              "type": "string"
+              "exclusiveMinimum": 0,
+              "type": "integer"
             },
             {
               "type": "null"
@@ -206,8 +252,24 @@
           "default": null,
           "title": "Phase Length"
         },
+        "time_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Unit"
+        },
         "type": {
-          "minLength": 1,
+          "enum": [
+            "tick",
+            "phase",
+            "event_driven"
+          ],
           "title": "Type",
           "type": "string"
         }
@@ -219,10 +281,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.1/world_contract.schema.json",
+  "$id": "skyvault/0.2/world_contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nThe required fields are the ones every world declares today. The optional\nones are section 2.2 elements no part of the engine models yet; each will\nbecome required when the phase that gives it meaning lands.\n\nentity_model, environment_state, resource_state, rule_set   Phase 2\nactor_slots                                                 Phase 6\nfailure_variables                                           Phase 9",
+  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nThe remaining optional elements become required with their phase.\n\nactor_slots          Phase 6\nfailure_variables    Phase 9",
   "properties": {
     "actor_slots": {
       "anyOf": [
@@ -256,30 +318,14 @@
       "default": null
     },
     "entity_model": {
-      "anyOf": [
-        {
-          "additionalProperties": true,
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Entity Model"
+      "additionalProperties": true,
+      "title": "Entity Model",
+      "type": "object"
     },
     "environment_state": {
-      "anyOf": [
-        {
-          "additionalProperties": true,
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Environment State"
+      "additionalProperties": true,
+      "title": "Environment State",
+      "type": "object"
     },
     "evaluation_targets": {
       "items": {
@@ -324,34 +370,20 @@
       "type": "array"
     },
     "resource_state": {
-      "anyOf": [
-        {
-          "additionalProperties": true,
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Resource State"
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Resource State",
+      "type": "object"
     },
     "rule_set": {
-      "anyOf": [
-        {
-          "additionalProperties": true,
-          "type": "object"
-        },
-        {
-          "items": {},
-          "type": "array"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Rule Set"
+      "additionalProperties": true,
+      "title": "Rule Set",
+      "type": "object"
     },
     "space_model": {
       "$ref": "#/$defs/SpaceModelSpec"
@@ -377,7 +409,11 @@
     "space_model",
     "time_model",
     "assumption_registry",
-    "evaluation_targets"
+    "evaluation_targets",
+    "entity_model",
+    "environment_state",
+    "resource_state",
+    "rule_set"
   ],
   "title": "WorldContract",
   "type": "object"

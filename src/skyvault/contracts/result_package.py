@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import Field, model_validator
 
-from .base import ContractModel, NonEmptyStr, check
+from .base import ContractModel, NonEmptyStr, NonNegative, check
 from .entity import EntityRecord
 from .evaluation import EvaluationResult
 from .event import EventRecord
@@ -12,7 +12,13 @@ from .reproducibility import ReproducibilityMetadata
 
 
 class WorldSnapshot(ContractModel):
-    """The whole world at one moment, as WorldState.snapshot() writes it."""
+    """
+    The whole world at one moment, as WorldState.snapshot() writes it.
+
+    Important:
+    resources is part of the snapshot so event sourcing can check a rebuilt
+    world against a recorded one, stock for stock.
+    """
 
     world_id: NonEmptyStr
     scenario_id: NonEmptyStr
@@ -20,6 +26,7 @@ class WorldSnapshot(ContractModel):
     space: dict[str, Any]
     entities: dict[str, EntityRecord]
     assumptions: dict[str, Any] = Field(default_factory=dict)
+    resources: dict[str, NonNegative]
 
 
 class ResultPackage(ContractModel):

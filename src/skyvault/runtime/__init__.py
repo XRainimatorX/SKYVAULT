@@ -13,15 +13,21 @@ this package would make the two import each other.
 """
 
 from .clock import Clock, EventDrivenClock, PhaseClock, TickClock, build_clock
+from .registry import EntityRegistry
+from .resources import ResourceState
+from .rules import RuleSet
 from .space import GraphSpace, GridSpace, NetworkSpace, Space, build_space
 
 __all__ = [
     "Clock",
+    "EntityRegistry",
     "EventDrivenClock",
     "GraphSpace",
     "GridSpace",
     "NetworkSpace",
     "PhaseClock",
+    "ResourceState",
+    "RuleSet",
     "Space",
     "TickClock",
     "build_clock",

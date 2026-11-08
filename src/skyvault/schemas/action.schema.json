@@ -1,5 +1,5 @@
 {
-  "$id": "skyvault/0.1/action.schema.json",
+  "$id": "skyvault/0.2/action.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Action = what an actor attempts, before the world has agreed to it.\n\nImportant:\nactor_id is mandatory. An action nobody owns cannot be validated, resolved\nor attributed in event memory, so it is rejected at the door.\n\nThe fields after metadata come from Formal Spec section 6.2 and are not\nproduced by any actor yet. They are optional until Phase 3 generalises the\naction framework.",
