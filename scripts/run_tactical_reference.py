@@ -43,7 +43,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
     output_dir = REPO_ROOT / "output"
 
     scenario = load_scenario(scenario_path)

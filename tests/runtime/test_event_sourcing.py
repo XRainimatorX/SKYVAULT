@@ -23,7 +23,7 @@ from skyvault.runtime import SnapshotStore, rebuild_world
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
 
-REFERENCE_SCENARIO = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+REFERENCE_SCENARIO = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
 
 @pytest.fixture(scope="module")

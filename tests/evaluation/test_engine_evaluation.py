@@ -22,7 +22,7 @@ from skyvault.scenario_loader import (
     scenario_perspective,
 )
 
-REFERENCE_SCENARIO = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+REFERENCE_SCENARIO = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
 
 def scenario():

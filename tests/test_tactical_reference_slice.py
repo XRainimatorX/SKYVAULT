@@ -13,7 +13,7 @@ from skyvault.scenario_loader import load_scenario
 
 
 def test_scenario_loads():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
 
@@ -23,7 +23,7 @@ def test_scenario_loads():
 
 
 def test_engine_runs_and_creates_events():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
@@ -36,7 +36,7 @@ def test_engine_runs_and_creates_events():
 
 
 def test_event_has_before_and_after_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
@@ -60,7 +60,7 @@ def test_event_has_before_and_after_state():
 
 
 def test_result_package_carries_initial_and_final_world_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
@@ -82,7 +82,7 @@ def test_result_package_carries_initial_and_final_world_state():
 
 
 def test_evaluation_event_count_matches_event_memory():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
@@ -98,7 +98,7 @@ def test_evaluation_event_count_matches_event_memory():
 
 
 def test_policy_is_separated_from_world_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
