@@ -8,6 +8,7 @@ from .base import SCHEMA_VERSION, ContractModel
 from .batch import BatchResult, BatchSpec, ConflictPackage
 from .consequence import ConsequenceRecord
 from .entity import EntityRecord
+from .equipment import EquipmentProfile, EquipmentTestResult
 from .evaluation import EvaluationResult
 from .evaluation_profile import EvaluationProfile
 from .event import EventRecord
@@ -27,7 +28,8 @@ from .world import WorldContract
 # profile Phase 7 adds, the failure map Phase 9 adds and the three batch contracts
 # Phase 10 adds, the observer profile and observation Phase 5 adds, the order
 # Phase 6 adds, the governance policy and job Phase 11 adds and the external
-# submission and authority handoff Phase 12 adds, by file name.
+# submission and authority handoff Phase 12 adds and the equipment profile and
+# test result Phase 16 adds, by file name.
 CONTRACTS: dict[str, type[ContractModel]] = {
     "world_contract": WorldContract,
     "scenario": Scenario,
@@ -52,6 +54,8 @@ CONTRACTS: dict[str, type[ContractModel]] = {
     "job": Job,
     "external_submission": ExternalSubmission,
     "authority_handoff": AuthorityHandoff,
+    "equipment_profile": EquipmentProfile,
+    "equipment_test_result": EquipmentTestResult,
 }
 
 

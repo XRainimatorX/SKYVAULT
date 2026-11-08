@@ -237,6 +237,8 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "job",
     "external_submission",
     "authority_handoff",
+    "equipment_profile",
+    "equipment_test_result",
 }
 
 

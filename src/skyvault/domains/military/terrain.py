@@ -4,6 +4,11 @@ Important:
 Read-only helpers over world.environment (the map) and the military rule
 set (the terrain table). Movement is weighted: a path's cost is the sum of
 the move_cost of every cell entered, and rock or water cannot be entered.
+
+A unit may carry capabilities.terrain_access (Phase 16: equipment that
+cannot climb into a building or sinks into a forest floor): it then enters
+and crosses only the terrain named there. Without it, every passable cell
+is open to it, as before.
 """
 
 import heapq
@@ -42,14 +47,30 @@ def terrain_at(world: WorldState, cell: Location | None) -> dict[str, Any]:
     return dict(table[name], name=name)
 
 
+def allowed_terrain(unit: Any) -> set[str] | None:
+    """The terrain a unit may enter (capabilities.terrain_access), or None: any."""
+    access = unit.capabilities.get("terrain_access")
+    return None if access is None else {str(name) for name in access}
+
+
+def terrain_name(world: WorldState, cell: Location | None) -> str:
+    """The name of the terrain at cell ("open" on a world without a map)."""
+    return str(terrain_at(world, cell).get("name", "open"))
+
+
 def reachable(
-    world: WorldState, start: Location, budget: int, blocked: set[Any]
+    world: WorldState,
+    start: Location,
+    budget: int,
+    blocked: set[Any],
+    allowed: set[str] | None = None,
 ) -> dict[tuple[int, int], int]:
     """
     Every cell reachable from start within budget, with its cheapest cost.
 
-    blocked cells can be neither entered nor crossed (enemy units). The
-    start cell is included at cost 0. Ties in the queue break on the cell
+    blocked cells can be neither entered nor crossed (enemy units); with
+    allowed, neither can terrain outside it. The start cell is included at
+    cost 0. Ties in the queue break on the cell
     itself, so the result never depends on dictionary order.
     """
     if not isinstance(start, tuple):
@@ -65,8 +86,11 @@ def reachable(
             cell = (x + dx, y + dy)
             if not world.space.is_inside(cell) or cell in blocked:
                 continue
-            step = terrain_at(world, cell)["move_cost"]
+            ground = terrain_at(world, cell)
+            step = ground["move_cost"]
             if step is None or cost + step > budget:
+                continue
+            if allowed is not None and ground.get("name", "open") not in allowed:
                 continue
             if cost + step < best.get(cell, budget + 1):
                 best[cell] = cost + step
@@ -75,9 +99,24 @@ def reachable(
 
 
 def path_cost(
-    world: WorldState, start: Location, goal: Location, budget: int, blocked: set[Any]
+    world: WorldState,
+    start: Location,
+    goal: Location,
+    budget: int,
+    blocked: set[Any],
+    allowed: set[str] | None = None,
 ) -> int | None:
     """The cheapest cost from start to goal within budget, or None."""
     if not isinstance(goal, tuple):
         return None
-    return reachable(world, start, budget, blocked).get((int(goal[0]), int(goal[1])))
+    cells = reachable(world, start, budget, blocked, allowed)
+    return cells.get((int(goal[0]), int(goal[1])))
+
+
+def exhausted(world: WorldState, unit: Any) -> bool:
+    """
+    Whether a unit has spent its endurance (capabilities.endurance_ticks,
+    Phase 16: the ticks its power lasts). Without it, never.
+    """
+    limit = unit.capabilities.get("endurance_ticks")
+    return limit is not None and world.tick > int(limit)

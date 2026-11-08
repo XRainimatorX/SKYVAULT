@@ -26,6 +26,9 @@ from ..observation.history import history_from_package, observations_for_run
 from ..observation.profiles import load_observer_profile
 from ..report import build_briefing, render_markdown
 from ..training.transitions import build_transitions
+from ..virtualtest.profile import GROUPS, has_equipment_parameters, load_rules
+from ..virtualtest.run import virtual_test
+from ..virtualtest.tactical import unit_changes
 
 SCENARIOS_DIR = Path(__file__).resolve().parents[3] / "data" / "scenarios"
 DEFAULT_REPEATS = 3
@@ -918,10 +921,26 @@ class STARGUARDAdapter:
     (section 9: STAR GUARD ↔ SKYVAULT). drills are orders for the unit at
     given ticks — the maneuvers to check — run in both sets of runs; without
     them only the actions the domain's policy chooses are checked.
+
+    A profile in the Formal Spec section 18 shape (Phase 16: physical,
+    engineering and operational parameters) is mapped onto the unit the way
+    the virtual test maps it, and the return carries the virtual test's
+    equipment_test_result for the submitted scenario and seeds.
     """
 
     system = "STAR_GUARD"
     known = ("name", "capabilities", "state", "entity_type")
+    equipment = (*GROUPS, "equipment_id", "category", "description", "test_targets")
+
+    def gaps(self, profile: dict[str, Any]) -> list[str]:
+        modelled = set(self.known) | (
+            set(self.equipment) if has_equipment_parameters(profile) else set()
+        )
+        return [
+            f"equipment field {k!r} has no model (give section 18 groups: "
+            f"{', '.join(GROUPS)})"
+            for k in sorted(set(profile) - modelled)
+        ]
 
     def to_request(
         self, submission: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
@@ -929,10 +948,15 @@ class STARGUARDAdapter:
         content = submission["content"]
         profile = content["profile"]
         change = {k: copy.deepcopy(profile[k]) for k in self.known if k in profile}
-        gaps = [
-            f"equipment field {k!r} has no model before Phases 14-16"
-            for k in sorted(set(profile) - set(self.known))
-        ]
+        if has_equipment_parameters(profile):
+            scenario = load_scenario_named(submission["scenario"], scenarios_dir)
+            unit = next(
+                e for e in scenario["entities"] if e["entity_id"] == content["replace"]
+            )
+            change = unit_changes(
+                profile, load_rules(), unit, int(scenario["runtime"]["max_ticks"])
+            )
+        gaps = self.gaps(profile)
         drills = [
             {
                 **copy.deepcopy(d),
@@ -994,11 +1018,25 @@ class STARGUARDAdapter:
                     k: round(with_it[k] - without[k], 4) for k in with_it
                 },
             },
-            "gaps": [
-                f"equipment field {k!r} has no model before Phases 14-16"
-                for k in sorted(set(content["profile"]) - set(self.known))
-            ],
+            "gaps": self.gaps(content["profile"]),
+            **self.virtual_test(results, submission),
         }
+
+    def virtual_test(self, results: Results, submission: dict[str, Any]) -> dict:
+        """{virtual_test: equipment_test_result} for a section 18 profile, else {}."""
+        content = submission["content"]
+        profile = content["profile"]
+        if not has_equipment_parameters(profile):
+            return {}
+        half = len(results) // 2
+        seeds = [int(e["job"]["request"]["runtime"]["random_seed"]) for e in results]
+        result = virtual_test(
+            {k: v for k, v in profile.items() if k != "name"},
+            scenarios=[submission["scenario"]],
+            seeds=seeds[:half],
+            replace=content["replace"],
+        )
+        return {"virtual_test": result}
 
 
 ADAPTERS: dict[str, Any] = {

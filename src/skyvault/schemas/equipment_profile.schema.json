@@ -1,0 +1,395 @@
+{
+  "$defs": {
+    "EngineeringParameters": {
+      "additionalProperties": false,
+      "properties": {
+        "maintenance_time": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maintenance Time"
+        },
+        "material_complexity": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "exotic"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Material Complexity"
+        },
+        "part_replacement_difficulty": {
+          "anyOf": [
+            {
+              "enum": [
+                "easy",
+                "moderate",
+                "hard"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Part Replacement Difficulty"
+        },
+        "repair_environment_required": {
+          "anyOf": [
+            {
+              "enum": [
+                "field",
+                "depot",
+                "factory"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repair Environment Required"
+        },
+        "supply_chain_risk": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supply Chain Risk"
+        }
+      },
+      "title": "EngineeringParameters",
+      "type": "object"
+    },
+    "OperationalParameters": {
+      "additionalProperties": false,
+      "properties": {
+        "deployment_time": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Deployment Time"
+        },
+        "mission_role": {
+          "anyOf": [
+            {
+              "enum": [
+                "assault",
+                "support",
+                "recon",
+                "logistics",
+                "command"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mission Role"
+        },
+        "operator_fatigue": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operator Fatigue"
+        },
+        "terrain_accessibility": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Terrain Accessibility"
+        },
+        "transport_requirement": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "truck",
+                "heavy_truck",
+                "heavy_lift",
+                "aircraft"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transport Requirement"
+        }
+      },
+      "title": "OperationalParameters",
+      "type": "object"
+    },
+    "PhysicalParameters": {
+      "additionalProperties": false,
+      "description": "Mass with operator (kg), lengths (m), loads (kN), power (kW), energy (kWh).",
+      "properties": {
+        "base_width": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Base Width"
+        },
+        "center_of_gravity": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Center Of Gravity"
+        },
+        "cooling_capacity": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cooling Capacity"
+        },
+        "endurance": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endurance"
+        },
+        "energy_capacity": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Energy Capacity"
+        },
+        "footprint": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Footprint"
+        },
+        "heat_output": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heat Output"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "joint_load": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Joint Load"
+        },
+        "load_bearing_joints": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Load Bearing Joints"
+        },
+        "mass": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Mass"
+        },
+        "power_requirement": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Power Requirement"
+        }
+      },
+      "title": "PhysicalParameters",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/equipment_profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One piece of equipment, before it is built (section 18).\n\ncapabilities and state are the Phase 12 path: they are copied onto the\nreplaced unit as they are, after the profile's own mapping.",
+  "properties": {
+    "capabilities": {
+      "additionalProperties": true,
+      "title": "Capabilities",
+      "type": "object"
+    },
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "engineering_parameters": {
+      "$ref": "#/$defs/EngineeringParameters"
+    },
+    "equipment_id": {
+      "minLength": 1,
+      "title": "Equipment Id",
+      "type": "string"
+    },
+    "operational_parameters": {
+      "$ref": "#/$defs/OperationalParameters"
+    },
+    "physical_parameters": {
+      "$ref": "#/$defs/PhysicalParameters"
+    },
+    "state": {
+      "additionalProperties": true,
+      "title": "State",
+      "type": "object"
+    },
+    "test_targets": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Test Targets",
+      "type": "array"
+    }
+  },
+  "required": [
+    "equipment_id",
+    "category"
+  ],
+  "title": "EquipmentProfile",
+  "type": "object"
+}

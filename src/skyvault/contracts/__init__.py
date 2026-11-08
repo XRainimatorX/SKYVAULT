@@ -23,6 +23,12 @@ from .batch import (
 )
 from .consequence import ConsequenceRecord, validate_consequence
 from .entity import EntityRecord, validate_entity
+from .equipment import (
+    EquipmentProfile,
+    EquipmentTestResult,
+    validate_equipment_profile,
+    validate_equipment_test_result,
+)
 from .errors import ContractError
 from .evaluation import EvaluationResult, validate_evaluation_result
 from .evaluation_profile import (
@@ -94,6 +100,8 @@ __all__ = [
     "ConsequenceRecord",
     "DataProvenance",
     "EntityRecord",
+    "EquipmentProfile",
+    "EquipmentTestResult",
     "EvaluationProfile",
     "EvaluationResult",
     "ExternalSubmission",
@@ -122,6 +130,8 @@ __all__ = [
     "validate_consequence",
     "validate_data_provenance",
     "validate_entity",
+    "validate_equipment_profile",
+    "validate_equipment_test_result",
     "validate_evaluation_profile",
     "validate_evaluation_result",
     "validate_event",

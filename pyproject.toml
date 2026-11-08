@@ -23,6 +23,9 @@ dependencies = [
     "websockets>=12",
     "python-docx>=1",
     "reportlab>=4",
+    # The virtual test's constraint solver (Phase 16); numpy for its surrogate.
+    "scipy>=1.10",
+    "numpy>=1.24",
     # Parquet export of training datasets (Phase 18).
     "pyarrow>=14",
     # Background world service (Phase 11): job queue and workers on Redis,
@@ -45,6 +48,7 @@ dev = [
     "pandas-stubs",
     "types-reportlab",
     "pyarrow-stubs",
+    "scipy-stubs",
     # FastAPI's TestClient and reading briefing PDFs in tests (Phase 17).
     "httpx",
     "pypdf",

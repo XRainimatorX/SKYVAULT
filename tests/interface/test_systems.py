@@ -439,7 +439,8 @@ def test_star_guard_fields_without_a_model_are_gaps():
     equipment["content"]["profile"]["mass_kg"] = 140
     request = to_request(equipment)
     assert request["gaps"] == [
-        "equipment field 'mass_kg' has no model before Phases 14-16"
+        "equipment field 'mass_kg' has no model (give section 18 groups: "
+        "physical_parameters, engineering_parameters, operational_parameters)"
     ]
     assert "mass_kg" not in request["jobs"][0]["entity_changes"]["red_02"]
 

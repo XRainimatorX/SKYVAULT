@@ -45,7 +45,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install runtime and development dependencies
-        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs rq redis "psycopg[binary]"
+        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs rq redis "psycopg[binary]" scipy scipy-stubs
 
       - name: Lint
         run: ruff check .
@@ -325,6 +325,33 @@ jobs:
           rates = [variant["win_rate"] for variant in batch["variants"]]
           assert rates[0] > rates[1], rates
           print("airspace pack verified: rates", rates, "; leaks", behaviors["baseline"]["mean_leaks"], "vs", behaviors["close in (engage_at 0.5)"]["mean_leaks"])
+          EOF
+
+      # Phase 16: the virtual test — physical, engineering, tactical, failure, judgement
+      - name: Virtual test
+        run: |
+          python scripts/run_virtual_test.py --seeds 2
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.contracts import validate_equipment_test_result
+
+          out = Path("output/virtual_test")
+          status = {}
+          for name in ("EXO_TEST_001", "PAX_TEST_001", "MSX_TEST_001", "ERX_TEST_001"):
+              result = json.loads((out / f"{name}.json").read_text())
+              validate_equipment_test_result(result)
+              status[name] = result["final_judgement"]["status"]
+          assert status["PAX_TEST_001"] == "redesign" and status["MSX_TEST_001"] == "reject", status
+          assert status["EXO_TEST_001"] in ("continue", "redesign"), status
+          pax = json.loads((out / "PAX_TEST_001.json").read_text())
+          energy = next(t for t in pax["failure_exploration"]["redesign_triggers"] if t["constraint"] == "energy")
+          assert abs(energy["required"] - 18.0) < 1e-3, energy
+          assert "| MSX_TEST_001 | MSX | 0.000 | 0.214 |" in (out / "virtual_test_report.md").read_text()
+          print("virtual test verified:", status)
           EOF
 
       # Phase 18: training data from the sources file, filtered for score gaming

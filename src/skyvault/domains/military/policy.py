@@ -19,7 +19,14 @@ from ...action import Action, ActionTarget
 from ...entity import Entity
 from ...world_state import WorldState
 from .handlers import enemy_cells, is_suppressed
-from .terrain import cell_of, military_rules, reachable, terrain_at
+from .terrain import (
+    allowed_terrain,
+    cell_of,
+    exhausted,
+    military_rules,
+    reachable,
+    terrain_at,
+)
 
 SYSTEM_ID = "military_baseline"
 
@@ -75,6 +82,8 @@ class MilitaryBaselinePolicy:
 
     def decide(self, world: WorldState, actor: Entity) -> Action | None:
         """What actor would do now, given what it sees, its morale and doctrine."""
+        if exhausted(world, actor):  # its power is spent: it holds where it is
+            return None
         morale = military_rules(world)["morale"]
         side = self.factions[str(actor.faction)]
         suppression = int(actor.state.get("suppression", 0))
@@ -268,7 +277,11 @@ class MilitaryBaselinePolicy:
         """Free cells actor can reach this tick, in a fixed order."""
         budget = int(actor.capabilities.get("move_range", 1))
         cells = reachable(
-            world, cell_of(actor), budget, enemy_cells(world, actor.faction)
+            world,
+            cell_of(actor),
+            budget,
+            enemy_cells(world, actor.faction),
+            allowed_terrain(actor),
         )
         return sorted(
             cell

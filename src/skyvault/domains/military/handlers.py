@@ -15,7 +15,15 @@ from ...actions.handlers import SupplyHandler, WaitHandler
 from ...actions.validation import ActionValidation
 from ...consequence import ChainReaction, Consequence, DirectEffect, EvaluationImpact
 from ...world_state import WorldState
-from .terrain import cell_of, military_rules, path_cost, terrain_at
+from .terrain import (
+    allowed_terrain,
+    cell_of,
+    exhausted,
+    military_rules,
+    path_cost,
+    terrain_at,
+    terrain_name,
+)
 
 ACTION_TYPES = ("move", "attack", "supply", "wait", "rally")
 
@@ -55,9 +63,14 @@ class MilitaryMoveHandler:
             return ActionValidation.reject("Move target outside world boundary")
         if terrain_at(world, destination)["move_cost"] is None:
             return ActionValidation.reject("Move target is impassable")
+        actor = world.get_entity(action.actor_id)
+        allowed = allowed_terrain(actor)
+        if allowed is not None and terrain_name(world, destination) not in allowed:
+            return ActionValidation.reject("Move target is impassable for this unit")
+        if exhausted(world, actor):
+            return ActionValidation.reject("Insufficient endurance: power spent")
         if world.is_occupied(destination):
             return ActionValidation.reject("Move target occupied")
-        actor = world.get_entity(action.actor_id)
         if actor.position is None:
             return ActionValidation.reject("Actor has no position")
         budget = int(actor.capabilities.get("move_range", 1))
@@ -67,6 +80,7 @@ class MilitaryMoveHandler:
             destination,
             budget,
             enemy_cells(world, actor.faction),
+            allowed,
         )
         if cost is None:
             return ActionValidation.reject(
@@ -87,6 +101,7 @@ class MilitaryMoveHandler:
             destination,
             int(actor.capabilities.get("move_range", 1)),
             enemy_cells(world, actor.faction),
+            allowed_terrain(actor),
         )
         return Consequence(
             action_id=action.action_id,
@@ -140,6 +155,8 @@ class MilitaryAttackHandler:
         target = world.get_entity(action.target.entity_id)
         if actor.position is None or target.position is None:
             return ActionValidation.reject("Actor or target has no position")
+        if exhausted(world, actor):
+            return ActionValidation.reject("Insufficient endurance: power spent")
         weapon_range = int(actor.capabilities.get("attack_range", 1))
         distance = world.space.distance(actor.position, target.position)
         if distance > weapon_range:

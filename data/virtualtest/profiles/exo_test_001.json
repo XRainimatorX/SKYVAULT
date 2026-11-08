@@ -12,8 +12,8 @@
     "load_bearing_joints": 2,
     "power_requirement": 1.2,
     "heat_output": 0.8,
-    "cooling_capacity": 1.0,
-    "energy_capacity": 6.0,
+    "cooling_capacity": 1.1,
+    "energy_capacity": 6.5,
     "endurance": 4
   },
   "engineering_parameters": {

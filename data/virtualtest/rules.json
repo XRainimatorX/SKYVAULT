@@ -1,0 +1,184 @@
+{
+  "version": "0.1",
+  "description": "Rules of the virtual test (development plan Phase 16, Formal Spec section 18): physics-lite thresholds, category envelopes, engineering weights, the mapping to a military unit and the stress conditions. Every number here is a screening assumption, not an engineering value; the ADR records how each was chosen.",
+  "gravity": 9.81,
+  "tick_minutes": 10,
+  "warning_margin": 0.25,
+  "uncertainty_band": 0.1,
+  "heat_min_duty": 0.5,
+  "max_height_indoors": 3.0,
+  "terrain_bearing_kpa": {
+    "open": 150,
+    "road": 1000,
+    "forest": 80,
+    "building": 300,
+    "rubble": 200,
+    "hill": 120,
+    "bridge": 400
+  },
+  "categories": {
+    "EXO": {
+      "dynamic_factor": 1.5,
+      "min_stability": 0.15,
+      "density": [
+        10,
+        60
+      ],
+      "hp_factor": 1.5
+    },
+    "PAX": {
+      "dynamic_factor": 1.8,
+      "min_stability": 0.15,
+      "density": [
+        10,
+        60
+      ],
+      "hp_factor": 2.5
+    },
+    "MSX": {
+      "dynamic_factor": 1.5,
+      "min_stability": 0.2,
+      "density": [
+        5,
+        40
+      ],
+      "hp_factor": 8.0
+    },
+    "ERX": {
+      "dynamic_factor": 1.5,
+      "min_stability": 0.3,
+      "density": [
+        50,
+        400
+      ],
+      "hp_factor": 1.2
+    },
+    "vehicle": {
+      "dynamic_factor": 1.3,
+      "min_stability": 0.4,
+      "density": [
+        50,
+        600
+      ],
+      "hp_factor": 3.0
+    }
+  },
+  "engineering": {
+    "weights": {
+      "material": 0.2,
+      "maintenance": 0.3,
+      "parts": 0.15,
+      "supply": 0.2,
+      "repair": 0.15
+    },
+    "material": {
+      "low": 1.0,
+      "medium": 0.8,
+      "high": 0.55,
+      "exotic": 0.25
+    },
+    "parts": {
+      "easy": 1.0,
+      "moderate": 0.7,
+      "hard": 0.4
+    },
+    "repair": {
+      "field": 1.0,
+      "depot": 0.65,
+      "factory": 0.3
+    },
+    "worth_investing": 0.5,
+    "not_worth_below": 0.3,
+    "supply_risk_high": 0.6
+  },
+  "tactical": {
+    "roles": {
+      "assault": "rifleman",
+      "support": "machine_gunner",
+      "recon": "marksman",
+      "logistics": "logistics",
+      "command": "squad_leader"
+    },
+    "side": "RED",
+    "fast_power_to_mass": 10.0,
+    "slow_power_to_mass": 3.0,
+    "useful_delta": 0.05,
+    "scenarios": [
+      "military_squad_001",
+      "military_urban_001",
+      "military_mountain_001",
+      "military_junction_001"
+    ],
+    "seeds": [
+      42,
+      43,
+      44,
+      45,
+      46
+    ],
+    "infantry_fatigue": 0.1
+  },
+  "judgement": {
+    "max_fixable_change": 0.5
+  },
+  "stress": {
+    "levels": [
+      "mild",
+      "moderate",
+      "severe",
+      "collapse"
+    ],
+    "conditions": {
+      "payload": {
+        "parameter": "mass",
+        "group": "physical_parameters",
+        "factors": [
+          1.1,
+          1.25,
+          1.5,
+          2.0
+        ]
+      },
+      "heat": {
+        "parameter": "cooling_capacity",
+        "group": "physical_parameters",
+        "factors": [
+          0.9,
+          0.75,
+          0.5,
+          0.25
+        ]
+      },
+      "soft_ground": {
+        "parameter": "terrain_bearing",
+        "group": "rules",
+        "factors": [
+          0.75,
+          0.5,
+          0.25,
+          0.1
+        ]
+      },
+      "extended_mission": {
+        "parameter": "endurance",
+        "group": "physical_parameters",
+        "factors": [
+          1.25,
+          1.5,
+          2.0,
+          3.0
+        ]
+      },
+      "supply_disruption": {
+        "parameter": "maintenance_time",
+        "group": "engineering_parameters",
+        "factors": [
+          1.25,
+          1.5,
+          2.0,
+          3.0
+        ]
+      }
+    }
+  }
+}
