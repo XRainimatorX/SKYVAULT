@@ -151,6 +151,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -167,6 +168,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -183,6 +185,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -271,6 +274,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -287,6 +291,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -303,6 +308,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -391,6 +397,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -407,6 +414,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -423,6 +431,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -511,6 +520,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -527,6 +537,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -543,6 +554,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -631,6 +643,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -647,6 +660,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -663,6 +677,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -744,6 +759,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -760,6 +776,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -776,6 +793,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -850,6 +868,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -866,6 +885,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -882,6 +902,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -956,6 +977,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -972,6 +994,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -988,6 +1011,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1062,6 +1086,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1078,6 +1103,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1094,6 +1120,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],

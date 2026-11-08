@@ -57,6 +57,12 @@
               0
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -77,6 +83,12 @@
               0
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -97,6 +109,12 @@
               0
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 30,
+              "hunger": 60,
+              "status": "active"
+            },
             "status": "active"
           }
         ],
@@ -106,6 +124,7 @@
             0,
             0
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "red_001",
             "red_002",
@@ -179,6 +198,13 @@
               1
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -199,6 +225,13 @@
               1
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -219,6 +252,13 @@
               1
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 30,
+              "hunger": 60,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           }
         ],
@@ -228,6 +268,7 @@
             0,
             1
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "red_001",
             "red_002",
@@ -301,6 +342,13 @@
               2
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -321,6 +369,13 @@
               2
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -341,6 +396,13 @@
               2
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 30,
+              "hunger": 60,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -357,6 +419,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -373,6 +436,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -389,6 +453,7 @@
               7
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -398,6 +463,7 @@
             0,
             2
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "red_001",
             "red_002",
@@ -471,6 +537,13 @@
               3
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -491,6 +564,13 @@
               3
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -511,6 +591,13 @@
               3
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 30,
+              "hunger": 60,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -527,6 +614,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -543,6 +631,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -559,6 +648,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -568,6 +658,7 @@
             1,
             3
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_002",
             "blue_003",
@@ -643,6 +734,13 @@
               4
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -663,6 +761,13 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -683,6 +788,13 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 30,
+              "hunger": 60,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -699,6 +811,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -715,6 +828,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -731,6 +845,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -753,6 +868,7 @@
             2,
             4
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -829,6 +945,13 @@
               4
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -849,6 +972,13 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -869,6 +999,14 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": 13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 7,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -885,6 +1023,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -901,6 +1040,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -917,6 +1057,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           }
         ],
@@ -939,6 +1080,7 @@
             2,
             4
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -1015,6 +1157,13 @@
               4
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1035,6 +1184,13 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1055,6 +1211,14 @@
               5
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": -13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 16,
+              "status": "destroyed"
+            },
             "status": "destroyed"
           },
           {
@@ -1071,6 +1235,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -1087,6 +1252,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -1103,6 +1269,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1119,6 +1286,7 @@
             2,
             4
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -1195,6 +1363,13 @@
               5
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1215,6 +1390,13 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 32,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1235,6 +1417,14 @@
               5
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": -13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 16,
+              "status": "destroyed"
+            },
             "status": "destroyed"
           },
           {
@@ -1251,6 +1441,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -1267,6 +1458,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1283,6 +1475,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1299,6 +1492,7 @@
             3,
             5
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -1375,6 +1569,13 @@
               5
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1395,6 +1596,14 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 22,
+              "hunger": 50,
+              "last_action": "move",
+              "last_damage_taken": 10,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1415,6 +1624,14 @@
               5
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": -13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 16,
+              "status": "destroyed"
+            },
             "status": "destroyed"
           },
           {
@@ -1431,6 +1648,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -1447,6 +1665,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1463,6 +1682,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1479,6 +1699,7 @@
             3,
             5
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -1555,6 +1776,13 @@
               5
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1575,6 +1803,14 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 22,
+              "hunger": 50,
+              "last_action": "move",
+              "last_damage_taken": 10,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1595,6 +1831,14 @@
               5
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": -13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 16,
+              "status": "destroyed"
+            },
             "status": "destroyed"
           },
           {
@@ -1611,6 +1855,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "visible"
           },
           {
@@ -1627,6 +1872,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1643,6 +1889,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1659,6 +1906,7 @@
             3,
             5
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
@@ -1735,6 +1983,13 @@
               5
             ],
             "relation": "self",
+            "state": {
+              "ap": 50,
+              "hp": 35,
+              "hunger": 50,
+              "last_action": "move",
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1755,6 +2010,14 @@
               4
             ],
             "relation": "ally",
+            "state": {
+              "ap": 50,
+              "hp": 22,
+              "hunger": 50,
+              "last_action": "move",
+              "last_damage_taken": 10,
+              "status": "active"
+            },
             "status": "active"
           },
           {
@@ -1775,6 +2038,14 @@
               5
             ],
             "relation": "ally",
+            "state": {
+              "ap": 60,
+              "hp": -13,
+              "hunger": 60,
+              "last_action": "move",
+              "last_damage_taken": 16,
+              "status": "destroyed"
+            },
             "status": "destroyed"
           },
           {
@@ -1791,6 +2062,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1807,6 +2079,7 @@
               6
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           },
           {
@@ -1823,6 +2096,7 @@
               5
             ],
             "relation": "enemy",
+            "state": null,
             "status": "destroyed"
           }
         ],
@@ -1832,6 +2106,7 @@
             3,
             5
           ],
+          "distance_model": "chebyshev",
           "entity_ids": [
             "blue_001",
             "blue_002",
