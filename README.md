@@ -58,6 +58,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 很多方案可以一起比較（Phase 10）：版本、參數掃描、外部系統的命令，各跑上百次、可平行，並排比較勝率、成本、風險與失敗頻率。互相衝突的命令不替任何人選：每組相容的命令各成一個分支跑完，交出一份 conflict package 讓 NEXUS 或使用者決定。
 
+第一個 domain pack（Phase 13）：軍事 / 戰術 —— 單位、編隊、地形、感測、武器、後勤、士氣、指揮延遲、任務九種 profile，小隊、城市、山地、交通節點四個 reference scenario，doctrine 比較；TAC ANGEL 或任何外部 policy 可以取代 baseline，每個決定都能匯出成 state-action-outcome 訓練資料。domain pack 不是 core：同一個 engine 照跑。
+
 結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
 
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
@@ -115,6 +117,16 @@ python3 scripts/run_batch.py
 python3 scripts/export_briefing.py              # output/briefing.md、.pdf、.docx
 (cd ui && npm ci && npm run build)              # 第一次需要
 python3 scripts/serve_ui.py                     # http://127.0.0.1:8000
+```
+
+跑軍事 domain pack 的 scenario、讓外部 policy 指揮、匯出訓練資料：
+
+```bash
+python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_urban_001/v0.1.json
+python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+    --policy-module examples/tac_angel_policy.py --policy tac_angel_example
+python3 scripts/run_batch.py --batch data/batches/military_doctrine.json   # 三種 doctrine 並排
+python3 scripts/export_dataset.py                                          # output/tac_angel_dataset.jsonl
 ```
 
 用另一個 profile 評同一場：
@@ -202,12 +214,16 @@ src/skyvault/       引擎與 exporter
   views/            每個畫面的內容，從輸出檔推導
   report/           briefing（Markdown / Word / PDF）
   service/          網頁介面的後端（FastAPI、replay WebSocket）
+  policies.py       policy registry：外部 policy 從這裡接入
+  domains/military/ 第一個 domain pack（不是 core）
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
+data/domains/       domain pack 的 profile 與 scenario spec
+examples/           外部 policy 範例（TAC ANGEL 的介面）
 tests/              測試
 output/             執行產物
 docs/               文件
@@ -225,6 +241,8 @@ docs/               文件
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | Phase 12 起 |
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
+| 軍事 pack 的感測在 policy 內 | 外部 policy 直接讀 world，看得到所有單位；沒有視線 | Phase 5 |
+| 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
 | 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
@@ -236,7 +254,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase17_ui_replay_report.md`](docs/phases/phase17_ui_replay_report.md)。
+完整清單見 [`docs/phases/phase13_military_domain_pack.md`](docs/phases/phase13_military_domain_pack.md)。
 
 ---
 

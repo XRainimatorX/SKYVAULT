@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-590 passed
+687 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -145,6 +145,8 @@ Phase 10 再發現：**同一個 process 內的重跑證明不了可重現。** 
 
 Phase 17 再發現：**本機能跑不等於宣告的相依能跑。** websockets 是開設測量時手動裝的，沒有宣告，CI 的 replay 就連不上；本機只有 3.11，3.10 上 `asyncio.TimeoutError` 不是 `TimeoutError` 的問題只在 CI 出現。測量工具用 scratch venv；推送前用 uv 的 3.10 venv 跑一次完整測試。
 
+Phase 13 再發現：**只被一種輸入測過的輸出，只證明了那一種輸入。** briefing 在 reference run 上完美，第一次跑軍事 run 就念出「1 entity_state_changed」。新增 scenario 來源或 domain 時，把 timeline、views、briefing 在它上面跑一次並讀過。另外：反向驗證的 pattern 對不上時（black 重排過），腳本必須報錯而不是照跑沒變異的程式。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -175,6 +177,12 @@ Phase 17 再發現：**本機能跑不等於宣告的相依能跑。** websocket
 | `asyncio.wait_for` 逾時 | 要接 `asyncio.TimeoutError`；在 3.10 上它不是內建 `TimeoutError`（ruff 會建議改，不要改） |
 | uvicorn 與 WebSocket | uvicorn 本身不支援 WebSocket，靠 `websockets`（已宣告）。少了它 replay 會連不上，server 只印一行警告 |
 | `ui/` | 改頁面後 `npm run build`；`npm run e2e` 需要 server 在跑（`SKYVAULT_URL`）。playwright 釘在 1.63.0 |
+| `scenario.domain` | `"military"` 才載入 pack；null 時 engine 完全照舊。新增 domain 要在 `domains/__init__.py` 的 KNOWN_DOMAINS 登記名稱 → `module:attr` |
+| policy 的選擇順序 | `engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 屬性就會記在 event 上 |
+| 軍事 scenario 是產生的 | 改 `data/domains/military/` 的 profile 或 spec 後跑 `scripts/build_military_scenarios.py`；漂移測試會在不一致時失敗 |
+| 軍事 pack 的 handler | 與 core handler 同樣只讀世界（同一個 AST 檢查）；ATTACK / MISS 的 data 鍵與 core 相同，exporter 才能照讀 |
+| 指揮延遲 | 延遲的命令在抵達時才驗證，所以「Move target occupied」的 ACTION_REJECTED 是正常的摩擦 |
+| `tac_angel_dataset.jsonl` | 不進版本控制（2.8 MB）；episode 以 input / output hash 命名，可重現 |
 | reference scenario 的位置 | Phase 8 起在 `data/scenarios/tactical_reference_001/v0.1.json`（版本資料夾），不是 `data/scenarios/tactical_reference_001.json` |
 | event / action id | 每個 world 自己的計數器（`event_0000000001`）。policy 要從 `world.ids.action()` 取 id；不要再用 uuid（有測試擋） |
 | output_hash | 在**驗證過的** package 上算。驗證會把 int 正規化成 float；在驗證前算的 hash 對不上呼叫端拿到的 package |
@@ -233,7 +241,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -275,16 +283,15 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 13 — Military / Tactical Domain Pack**：把 tactical reference slice 升級成正式的軍事 domain pack —— unit / terrain / sensor / weapon / logistics / morale / command delay profile、城市戰 / 山地 / 交通節點 reference scenario、doctrine 比較、state-action-outcome dataset。規格見 [`plan/phase13_military_domain_pack.md`](plan/phase13_military_domain_pack.md)。
+依 roadmap，下一個是 **Phase 18 — Data / AI Training Pipeline**。規格見 [`plan/phase18_data_ai_training_pipeline.md`](plan/phase18_data_ai_training_pipeline.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-action framework 已有十種 action type    軍事線目前只用五種（MILITARY_ACTION_TYPES）
-failure variable 是近似                  感測、通訊、天氣都只是改命中率或傳令；sensor / command delay profile 可以給它們真的模型
-batch 與 scheduled_actions              doctrine 比較就是 Phase 10 的版本比較；外部 policy 的命令已有入口
-graph / network 空間已可用               tactical policy 只會走格子；地圖 view 已支援圖空間（節點放在圓上）
-RECOMMENDATIONS 是固定文字               domain pack 可以依 scenario 給具體建議
+state-action-outcome dataset           Phase 13 的 build_dataset：每個決定一筆、可重現、有紀錄模型
+大量 run                               Phase 10 的 batch（平行）；Phase 9 的惡化版本
+外部 policy 的入口                     policies.register_policy；engine(policy=…)
+每個 run 都可重現與驗證                 input_hash / output_hash、verify_run（Phase 8）
 ```
 
-開工前先讀 [`phases/phase17_ui_replay_report.md`](phases/phase17_ui_replay_report.md) 的第 4 節與 [`postmortems/phase17.md`](postmortems/phase17.md)。
+開工前先讀 [`phases/phase13_military_domain_pack.md`](phases/phase13_military_domain_pack.md) 的第 4 節與 [`postmortems/phase13.md`](postmortems/phase13.md)。

@@ -60,6 +60,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.5 | 8 | Result Package 的 reproducibility 必填，hash 必須是 64 個 hex；scenario 新增 optional version_control |
 | 0.6 | 9 | World Contract 的 failure_variables 必填（八個變量名之一）；scenario.failure_exploration 有正式形狀；新增 failure_map 契約 |
 | 0.6 | 10 | 只有新增，不調升：optional 的 runtime.scheduled_actions；新增 batch_spec、batch_result、conflict_package 契約 |
+| 0.6 | 13 | 只有新增，不調升：optional 的 runtime.policy {name, params}（已註冊的 policy 名稱） |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -254,6 +255,8 @@ intent, required_resources, expected_effect, risk_profile, priority（預設 "no
 ```
 
 同一 tick、同一 actor 不可有兩道命令。
+
+`runtime.policy`（optional，Phase 13）：`{name, params}`，`name` 必須是以 `skyvault.policies.register_policy` 註冊過的名稱；scenario 檔不能指定模組路徑。`scenario.domain`（既有的 optional 欄位）為 `"military"` 時，engine 使用軍事 domain pack；pack 的 profile 與 dataset 紀錄是 pack 自己的模型，不是 core 契約（見 [`../decisions/012_military_domain_pack.md`](../decisions/012_military_domain_pack.md)）。
 
 | 契約 | model | 必填 | optional（預設） |
 |---|---|---|---|

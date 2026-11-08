@@ -70,6 +70,19 @@ scripts/run_batch.py
               └─ conflict package    每個分支相對基準的差；不選邊
 ```
 
+Domain pack（Phase 13）接在同一個 engine 上：
+
+```text
+scenario.domain = "military"
+  └─ engine
+        ├─ domains.load_domain("military")      依名稱延遲 import；core 不靜態依賴 pack
+        │     ├─ handlers()                     取代同名的 core handler（地形、掩蔽、壓制、彈藥）
+        │     ├─ default_policy()               MilitaryBaselinePolicy（或 engine(policy=…) / runtime.policy）
+        │     └─ upkeep(world)                  每 tick 開始時的 rally，也經過 resolver
+        └─ WorldState.environment               地形（environment_state），唯讀
+run 之後：mission_outcome（任務）、build_dataset（state-action-outcome），都是純函式
+```
+
 UI 與 briefing（Phase 17）只讀上面三個腳本寫出的檔案：
 
 ```text
@@ -245,6 +258,17 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
 ```
 
 與 failure 相同的切法：轉換與統計不認識 engine，所以衝突規則與彙整規則都能用手造的資料測試。engine 唯一的配合是 `runtime.scheduled_actions`，沒有它時什麼都不做。
+
+## Policy registry 與 domain pack
+
+```text
+   src/skyvault/policies.py          Policy protocol、registry；只依賴 action、entity、world_state
+   src/skyvault/domains/__init__.py  DomainPack protocol、load_domain；core 只透過名稱字串認識 pack
+   src/skyvault/domains/military/    pack：依賴 core（actions、consequence、contracts、reproducibility）；
+                                     mission、dataset 不 import engine
+```
+
+core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查。pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
 
 ## Views、report、service（在階層之外，讀輸出檔）
 
@@ -897,6 +921,48 @@ crushing       sensitivity 最大者；同分取較早崩潰者，再同分取�
 替代方案       依各變量的崩潰等級與基線存活率比較：holds_longer / breaks_sooner / mixed / same
 ```
 
+## `policies.py`
+
+Phase 13 建立。
+
+```python
+register_policy(name, factory)       factory(rng, params) -> Policy；同名而不同 factory 時 raise
+build_policy(name, rng, params=None) 未註冊 raise KeyError（列出已註冊的名稱）
+import_policy_module(spec)           import 會註冊 policy 的模組或 .py 檔 —— 只給腳本的 --policy-module 用
+```
+
+engine 選 policy 的順序：`engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 時，它決定的 event 都記這個 id。scenario 檔只能選已註冊的名稱，不能載入程式。
+
+## `domains/military/`
+
+Phase 13 建立。第一個 domain pack，不是 core。
+
+```text
+profiles.py    九種 profile 的 Pydantic 模型（data/domains/military/profiles.json），load_profiles 補齊預設值
+scenario.py    build_scenario(spec, profiles)：spec → 完整 scenario（profile 值寫進單位與 rule_set.military）；
+               doctrine_variant(scenario, faction, doctrine)：子版本
+terrain.py     terrain_at、reachable（加權最短路，敵人擋路）、path_cost
+handlers.py    move（加權成本 ≤ move_range）、attack、rally；supply 與 wait 用 core 的
+policy.py      MilitaryBaselinePolicy
+pack.py        MILITARY
+mission.py     mission_outcome(package, scenario)
+dataset.py     build_dataset(package, scenario)、validate_record
+reference.py   reference_scenarios()：spec + doctrine 變體 → data/scenarios/military_*（漂移測試）
+```
+
+| 規則 | 內容 |
+|---|---|
+| 命中率 | accuracy × (1 − 目標格 cover) × (射手被壓制時 0.5) |
+| 命中 | 扣 hp、加 suppression、扣士氣（跨過壓制門檻時再扣）；近彈加一半 suppression |
+| 彈藥 | 每發扣 ammo_per_shot（射手的 ENTITY_STATE_CHANGED）；沒彈藥被拒 |
+| 士氣狀態 | suppression ≥ 60 被壓制、≥ 85 恐慌（只 wait）；士氣 < 25 撤退 |
+| rally | 每 tick 開始：suppression − 20、士氣 + 5（不超過起始值） |
+| 感測 | 距離 ≤ sensor range × (1 − 目標格 concealment) |
+| 指揮 | 決定延後 delay_ticks（0–3）抵達、以 loss_prob（0–0.2）遺失；獨立的 Random("command:<seed>") |
+| doctrine | aggressive / overwatch（輪流躍進與掩護）/ defensive（看到敵人就找掩蔽） |
+| 後勤 | world resource ammo；logistics 單位補給彈藥低於一半的友軍 |
+| 任務 | destroy / seize / hold / delay，run 之後由終局判定 |
+
 ## `batch/`
 
 Phase 10 建立。Formal Spec §13。
@@ -1399,6 +1465,14 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `conflict_package.json` | 哪些命令互相衝突、每個相容分支相對基準的結果、需要決定（第 16 份契約；只有請求含衝突時寫出） |
 | `comparative_report.md` | 上面三者給人讀的版本 |
 
+## Military domain pack（Phase 13）
+
+| 檔案 / 指令 | 回答什麼 |
+|---|---|
+| `run_tactical_reference.py --scenario data/scenarios/military_*/v0.1.json` | 同樣的十一個輸出，換成軍事 scenario |
+| `run_batch.py --batch data/batches/military_doctrine.json` | urban 中庭的三種 doctrine 並排 |
+| `tac_angel_dataset.jsonl`（`export_dataset.py`） | 每個決定一筆 state-action-outcome；不進版本控制 |
+
 ## Briefing 與 UI（`scripts/export_briefing.py`、`scripts/serve_ui.py`）
 
 | 檔案 / 位址 | 回答什麼 |
@@ -1478,6 +1552,11 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 30. views、report、service 不 import engine；server 不跑模擬
 31. 畫面、timeline.txt 與 briefing 由同一組純函式推導，說的是同一件事
 32. 同一 workspace 的 briefing 三個檔逐位元相同
+33. 沒有 scenario.domain 時，engine 的每一步與 Phase 17 相同
+34. core 不 import domain pack；pack 的 handler / terrain / policy 只讀世界
+35. 指揮延遲 0 且遺失 0 時，與沒有指揮層逐筆相同；遺失不擾動戰鬥的 rng
+36. data/scenarios/military_* 等於 build_military_scenarios.py 產生的內容
+37. dataset 每筆 = 一個 ACTION_SELECTED；同樣的 run 匯出同樣的位元組
 ```
 
 ---
@@ -1537,6 +1616,8 @@ python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 out
 python3 scripts/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
 python3 scripts/run_batch.py [--repeats N] [--workers N]  # 批量與分支比較，寫出四個 batch 輸出
 python3 scripts/export_briefing.py [--workspace DIR]      # briefing.md / .pdf / .docx
+python3 scripts/build_military_scenarios.py               # 改 profile 或 spec 後重建軍事 scenario
+python3 scripts/export_dataset.py [--runs N]              # state-action-outcome dataset
 (cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
 python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
@@ -1573,6 +1654,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase10_batch_branch_comparison.md`](phases/phase10_batch_branch_comparison.md) | Phase 10 完成報告 |
 | [`decisions/011_ui_replay_report.md`](decisions/011_ui_replay_report.md) | UI、WebSocket replay 與 briefing 的設計決定 |
 | [`phases/phase17_ui_replay_report.md`](phases/phase17_ui_replay_report.md) | Phase 17 完成報告 |
+| [`decisions/012_military_domain_pack.md`](decisions/012_military_domain_pack.md) | 軍事 domain pack、policy registry 與 domain 擴充點的設計決定 |
+| [`phases/phase13_military_domain_pack.md`](phases/phase13_military_domain_pack.md) | Phase 13 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md) | 各 Phase 回顧 |
