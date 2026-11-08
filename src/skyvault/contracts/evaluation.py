@@ -4,7 +4,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
-from .base import ContractModel, NonEmptyStr, Probability, check
+from .base import ContractModel, NonEmptyStr, NonNegative, Probability, check
 
 
 class OverallJudgement(ContractModel):
@@ -15,10 +15,18 @@ class OverallJudgement(ContractModel):
 
 
 class Comparison(ContractModel):
-    """Which other runs this one beat or lost to."""
+    """Which other runs this one beat or lost to. Empty for a single run."""
 
     better_than: list[str] = Field(default_factory=list)
     worse_than: list[str] = Field(default_factory=list)
+
+
+class AntiGamingSummary(ContractModel):
+    """Whether the score was earned by a behaviour the profile forbids."""
+
+    gaming_detected: bool
+    flagged_behaviors: list[str]
+    penalty_total: NonNegative
 
 
 class EvaluationResult(ContractModel):
@@ -26,10 +34,13 @@ class EvaluationResult(ContractModel):
     Evaluation Result = Formal Spec section 8.3.
 
     Important:
-    The required fields are the win/lose summary evaluator.py produces today.
-    The optional ones are the multi-axis verdict of section 8.3; Phase 7
-    (Evaluation Engine) is where they get filled. Until then a run reports who
-    survived and how many events it took, nothing more.
+    The first eight fields are the run-end summary the engine records in
+    SCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR
+    004 promised, and adds what the verdict was reached under (profile_id,
+    perspective), the overall score, and the anti-gaming summary that shows
+    whether a high score was earned by gaming.
+
+    scores holds every axis that had data, each in [0, 1], higher better.
     """
 
     termination_reason: NonEmptyStr
@@ -41,12 +52,16 @@ class EvaluationResult(ContractModel):
     key_findings: list[str]
     failure_points: list[str]
 
-    scenario_id: str | None = None
-    overall_judgement: OverallJudgement | None = None
-    scores: dict[str, float] | None = None
-    failure_causes: list[str] | None = None
-    recommended_next_tests: list[str] | None = None
-    comparison: Comparison | None = None
+    scenario_id: NonEmptyStr
+    profile_id: NonEmptyStr
+    perspective: NonEmptyStr
+    overall_judgement: OverallJudgement
+    overall_score: Probability
+    scores: dict[str, Probability]
+    failure_causes: list[str]
+    recommended_next_tests: list[str]
+    comparison: Comparison
+    anti_gaming: AntiGamingSummary
 
 
 def validate_evaluation_result(data: dict[str, Any]) -> dict[str, Any]:

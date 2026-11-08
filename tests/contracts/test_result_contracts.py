@@ -125,12 +125,41 @@ def test_result_package_rejects_a_malformed_event():
 # ── evaluation result ────────────────────────────────────────────────────────
 
 
-def test_evaluation_result_accepts_the_phase_7_fields():
+def test_evaluation_result_requires_the_phase_7_verdict():
     evaluation = fixture("result_package_valid")["evaluation_result"]
-    evaluation["overall_judgement"] = {"status": "risky", "confidence": 0.4}
-    evaluation["scores"] = {"tactical_usefulness": 0.7}
+    for field in ("overall_judgement", "scores", "anti_gaming", "profile_id"):
+        del evaluation[field]
 
-    assert validate_evaluation_result(evaluation) == evaluation
+    with pytest.raises(ContractError) as caught:
+        validate_evaluation_result(evaluation)
+
+    assert {error.split(":")[0] for error in caught.value.errors} == {
+        "overall_judgement",
+        "scores",
+        "anti_gaming",
+        "profile_id",
+    }
+
+
+def test_a_score_outside_zero_to_one_is_rejected():
+    evaluation = fixture("result_package_valid")["evaluation_result"]
+    evaluation["scores"]["mission_success"] = 1.5
+
+    with pytest.raises(ContractError):
+        validate_evaluation_result(evaluation)
+
+
+@pytest.mark.parametrize(
+    "field", ["score_breakdown", "anti_gaming_report", "tradeoff_report"]
+)
+def test_a_result_package_without_a_phase_7_output_is_rejected(field):
+    package = fixture("result_package_valid")
+    del package[field]
+
+    with pytest.raises(ContractError) as caught:
+        validate_result_package(package)
+
+    assert field in {error.split(":")[0] for error in caught.value.errors}
 
 
 def test_evaluation_result_rejects_an_unknown_judgement():

@@ -5,10 +5,16 @@ from typing import Any
 
 from .action import location_to_json
 from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handlers_for
-from .contracts import validate_action, validate_result_package
+from .contracts import (
+    validate_action,
+    validate_evaluation_profile,
+    validate_result_package,
+)
+from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
 from .runtime.snapshots import SnapshotStore
 from .runtime.world import create_world
+from .scenario_loader import default_evaluation_profile, scenario_perspective
 from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import WorldState
 
@@ -37,8 +43,13 @@ class SkyVaultTacticalReferenceEngine:
     → Evaluation Result
     """
 
-    def __init__(self, scenario: dict[str, Any]):
+    def __init__(
+        self,
+        scenario: dict[str, Any],
+        evaluation_profile: dict[str, Any] | None = None,
+    ):
         self.scenario = scenario
+        self.evaluation_profile = self.resolve_profile(evaluation_profile)
 
         runtime = scenario["runtime"]
         random_seed = runtime.get("random_seed")
@@ -61,6 +72,24 @@ class SkyVaultTacticalReferenceEngine:
             handlers_for(MILITARY_ACTION_TYPES),
             ActionContext(rng=self.rng, system_id=self.actor_system_id),
         )
+
+    def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:
+        """
+        The evaluation profile this run is judged by.
+
+        Important:
+        None means data/evaluation_profiles/balanced.json. A profile without a
+        perspective is judged from the scenario's perspective. Either way the
+        profile is checked against its contract before the run starts, so a
+        broken profile fails fast instead of after a whole simulation.
+        """
+        if profile is None:
+            return default_evaluation_profile(self.scenario)
+
+        resolved = validate_evaluation_profile(profile)
+        if resolved["perspective"] is None:
+            resolved["perspective"] = scenario_perspective(self.scenario)
+        return resolved
 
     def build_world(self, scenario: dict[str, Any]) -> WorldState:
         """
@@ -208,6 +237,21 @@ class SkyVaultTacticalReferenceEngine:
             tags=["scenario_end"],
         )
 
+        event_memory = [event.to_dict() for event in self.world.event_memory]
+        final_world_state = self.world.snapshot()
+
+        # The multi-axis verdict is derived from what was recorded, after the
+        # run; SCENARIO_END keeps the run-end summary it was given above
+        evaluated = evaluate_run(
+            initial_world_state,
+            event_memory,
+            final_world_state,
+            evaluation,
+            self.evaluation_profile,
+            max_ticks,
+            self.scenario["evaluation"].get("failure_thresholds", []),
+        )
+
         # The package is checked against its contract before it leaves the
         # engine; every derived output is built from it alone.
         return validate_result_package(
@@ -215,9 +259,9 @@ class SkyVaultTacticalReferenceEngine:
                 "scenario_id": self.scenario["scenario_id"],
                 "scenario_version": self.scenario["scenario_version"],
                 "initial_world_state": initial_world_state,
-                "final_world_state": self.world.snapshot(),
-                "event_memory": [event.to_dict() for event in self.world.event_memory],
-                "evaluation_result": evaluation,
+                "final_world_state": final_world_state,
+                "event_memory": event_memory,
+                **evaluated,
             }
         )
 

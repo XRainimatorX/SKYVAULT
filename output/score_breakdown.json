@@ -1,0 +1,101 @@
+{
+  "mission_success": {
+    "score": 1.0,
+    "raw": 3.0,
+    "unit": "entities",
+    "weight": 3.0,
+    "applicable": true,
+    "description": "Did the perspective faction achieve its aim?",
+    "explanation": "3 of 3 opposing entities destroyed; 2 of 3 own entities still active"
+  },
+  "tactical_value": {
+    "score": 1.0,
+    "raw": 111.0,
+    "unit": "hp",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Damage dealt against the opposing hp pool",
+    "explanation": "111 damage dealt against 97 opposing hp"
+  },
+  "strategic_value": {
+    "score": 0.6667,
+    "raw": 2.0,
+    "unit": "entities",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Own force preserved for what comes next",
+    "explanation": "2 of 3 own entities preserved"
+  },
+  "resource_cost": {
+    "score": 0.5876,
+    "raw": 40.0,
+    "unit": "hp",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Own hp lost (1 = nothing lost)",
+    "explanation": "40 of 97 own hp lost"
+  },
+  "time_cost": {
+    "score": 0.0,
+    "raw": 10.0,
+    "unit": "ticks",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Time used against the limit (1 = no time used)",
+    "explanation": "ended at tick 10 of 10"
+  },
+  "risk_growth": {
+    "score": 0.6667,
+    "raw": 1.0,
+    "unit": "events",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Risk-relevant events against own entities",
+    "explanation": "1 risk-relevant events hit own entities (proxy until a risk model exists)"
+  },
+  "failure_resistance": {
+    "score": 0.6,
+    "raw": 6.0,
+    "unit": "ticks",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "How long the plan held before its first loss",
+    "explanation": "first own loss at tick 6 of 10"
+  },
+  "recovery_ability": {
+    "score": 0.0,
+    "raw": 0.0,
+    "unit": "hp",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Lost hp that was restored",
+    "explanation": "0 hp restored against 40 hp still lost"
+  },
+  "system_robustness": {
+    "score": 1.0,
+    "raw": 0.0,
+    "unit": "actions",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "Own actions the world accepted",
+    "explanation": "0 of 26 own actions rejected"
+  },
+  "logistics_burden": {
+    "score": 0.0,
+    "raw": 0.0,
+    "unit": "units",
+    "weight": 1.0,
+    "applicable": false,
+    "description": "World resources spent (1 = nothing spent)",
+    "explanation": "the world holds no resources to spend"
+  },
+  "stability_impact": {
+    "score": 0.3333,
+    "raw": 4.0,
+    "unit": "entities",
+    "weight": 1.0,
+    "applicable": true,
+    "description": "How much of the world survived (1 = nothing destroyed)",
+    "explanation": "4 of 6 entities destroyed (proxy until a stability model exists)"
+  }
+}

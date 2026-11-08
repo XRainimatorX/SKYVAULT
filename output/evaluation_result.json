@@ -1,0 +1,65 @@
+{
+  "termination_reason": "termination_condition_met",
+  "event_count": 97,
+  "active_entities": 2,
+  "destroyed_entities": 4,
+  "active_factions": [
+    "RED"
+  ],
+  "winner_or_result": "RED_survived",
+  "key_findings": [
+    "Scenario ended because: termination_condition_met",
+    "Events recorded: 97",
+    "Destroyed entities: 4",
+    "Overall score 0.50 under profile balanced: risky (confidence 0.92)",
+    "Strongest axis: mission_success 1.00",
+    "Weakest axis: recovery_ability 0.00"
+  ],
+  "failure_points": [
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed"
+  ],
+  "scenario_id": "tactical_reference_001",
+  "profile_id": "balanced",
+  "perspective": "RED",
+  "overall_judgement": {
+    "status": "risky",
+    "confidence": 0.9231
+  },
+  "overall_score": 0.5045,
+  "scores": {
+    "mission_success": 1.0,
+    "tactical_value": 1.0,
+    "strategic_value": 0.6667,
+    "resource_cost": 0.5876,
+    "time_cost": 0.0,
+    "risk_growth": 0.6667,
+    "failure_resistance": 0.6,
+    "recovery_ability": 0.0,
+    "system_robustness": 1.0,
+    "stability_impact": 0.3333
+  },
+  "failure_causes": [
+    "red_003 destroyed at tick 6 by blue_002",
+    "time_cost 0.00: ended at tick 10 of 10",
+    "recovery_ability 0.00: 0 hp restored against 40 hp still lost",
+    "Anti-gaming: sacrifice_long_term_stability_for_short_term_success"
+  ],
+  "recommended_next_tests": [
+    "Exercise logistics_burden: the world holds no resources to spend",
+    "Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order"
+  ],
+  "comparison": {
+    "better_than": [],
+    "worse_than": []
+  },
+  "anti_gaming": {
+    "gaming_detected": true,
+    "flagged_behaviors": [
+      "sacrifice_long_term_stability_for_short_term_success"
+    ],
+    "penalty_total": 0.15
+  }
+}

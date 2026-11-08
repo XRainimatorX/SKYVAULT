@@ -138,7 +138,14 @@ def test_scenario_end_event_exists_with_evaluation_summary():
     assert event["data"]["winner_or_result"] != ""
     assert event["after_state"] != {}
     assert "entities" in event["after_state"]
-    assert event["data"] == result_package["evaluation_result"]
+    # SCENARIO_END keeps the run-end summary; the package's evaluation_result
+    # is that summary plus the Phase 7 verdict, with more key findings
+    verdict = result_package["evaluation_result"]
+    for key, value in event["data"].items():
+        if key == "key_findings":
+            assert verdict[key][: len(value)] == value
+        else:
+            assert verdict[key] == value
 
 
 def test_events_record_the_system_that_produced_the_action():

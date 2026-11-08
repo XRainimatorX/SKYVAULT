@@ -35,7 +35,7 @@ def error_text(caught: pytest.ExceptionInfo) -> str:
 # ── versioning ───────────────────────────────────────────────────────────────
 
 
-@pytest.mark.parametrize("version", ["0.1", "0.2"])
+@pytest.mark.parametrize("version", ["0.1", "0.2", "0.3"])
 def test_a_scenario_written_for_an_older_schema_is_rejected(version):
     scenario = fixture("scenario_valid")
     scenario["schema_version"] = version

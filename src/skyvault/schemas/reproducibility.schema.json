@@ -33,7 +33,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.3/reproducibility.schema.json",
+  "$id": "skyvault/0.4/reproducibility.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nPhase 1 defines this contract and nothing produces it yet. event_id and\naction_id are still uuid4 and outside the seed's control, so no run could\nhonestly fill output_hash. Phase 8 (Reproducibility) makes ids\ndeterministic and starts attaching this to every result package.",

@@ -331,7 +331,7 @@
     },
     "ScenarioEvaluation": {
       "additionalProperties": false,
-      "description": "What the run is judged on.",
+      "description": "What the run reports, and whose plan it is.\n\nImportant:\nprimary_metrics names the summary fields the run reports (event_count,\nwinner_or_result...). How the run is scored is the evaluation profile's\nbusiness. perspective is the faction whose plan is judged when the\nprofile does not say; without it, the first entity's faction is used.",
       "properties": {
         "anti_gaming_metrics": {
           "anyOf": [
@@ -369,6 +369,19 @@
           },
           "title": "Failure Thresholds",
           "type": "array"
+        },
+        "perspective": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Perspective"
         },
         "primary_metrics": {
           "items": {
@@ -725,10 +738,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.3/scenario.schema.json",
+  "$id": "skyvault/0.4/scenario.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.3 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
+  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.4 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
   "properties": {
     "allowed_actions": {
       "anyOf": [
@@ -865,7 +878,7 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "0.3",
+      "const": "0.4",
       "title": "Schema Version",
       "type": "string"
     },

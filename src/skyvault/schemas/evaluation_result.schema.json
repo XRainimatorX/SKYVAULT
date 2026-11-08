@@ -1,8 +1,37 @@
 {
   "$defs": {
+    "AntiGamingSummary": {
+      "additionalProperties": false,
+      "description": "Whether the score was earned by a behaviour the profile forbids.",
+      "properties": {
+        "flagged_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flagged Behaviors",
+          "type": "array"
+        },
+        "gaming_detected": {
+          "title": "Gaming Detected",
+          "type": "boolean"
+        },
+        "penalty_total": {
+          "minimum": 0.0,
+          "title": "Penalty Total",
+          "type": "number"
+        }
+      },
+      "required": [
+        "gaming_detected",
+        "flagged_behaviors",
+        "penalty_total"
+      ],
+      "title": "AntiGamingSummary",
+      "type": "object"
+    },
     "Comparison": {
       "additionalProperties": false,
-      "description": "Which other runs this one beat or lost to.",
+      "description": "Which other runs this one beat or lost to. Empty for a single run.",
       "properties": {
         "better_than": {
           "items": {
@@ -51,10 +80,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.3/evaluation_result.schema.json",
+  "$id": "skyvault/0.4/evaluation_result.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe required fields are the win/lose summary evaluator.py produces today.\nThe optional ones are the multi-axis verdict of section 8.3; Phase 7\n(Evaluation Engine) is where they get filled. Until then a run reports who\nsurvived and how many events it took, nothing more.",
+  "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe first eight fields are the run-end summary the engine records in\nSCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR\n004 promised, and adds what the verdict was reached under (profile_id,\nperspective), the overall score, and the anti-gaming summary that shows\nwhether a high score was earned by gaming.\n\nscores holds every axis that had data, each in [0, 1], higher better.",
   "properties": {
     "active_entities": {
       "minimum": 0,
@@ -68,16 +97,11 @@
       "title": "Active Factions",
       "type": "array"
     },
+    "anti_gaming": {
+      "$ref": "#/$defs/AntiGamingSummary"
+    },
     "comparison": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/Comparison"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null
+      "$ref": "#/$defs/Comparison"
     },
     "destroyed_entities": {
       "minimum": 0,
@@ -90,19 +114,11 @@
       "type": "integer"
     },
     "failure_causes": {
-      "anyOf": [
-        {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Failure Causes"
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Causes",
+      "type": "array"
     },
     "failure_points": {
       "items": {
@@ -119,57 +135,44 @@
       "type": "array"
     },
     "overall_judgement": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/OverallJudgement"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null
+      "$ref": "#/$defs/OverallJudgement"
+    },
+    "overall_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Overall Score",
+      "type": "number"
+    },
+    "perspective": {
+      "minLength": 1,
+      "title": "Perspective",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
     },
     "recommended_next_tests": {
-      "anyOf": [
-        {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Recommended Next Tests"
+      "items": {
+        "type": "string"
+      },
+      "title": "Recommended Next Tests",
+      "type": "array"
     },
     "scenario_id": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Scenario Id"
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
     },
     "scores": {
-      "anyOf": [
-        {
-          "additionalProperties": {
-            "type": "number"
-          },
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Scores"
+      "additionalProperties": {
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "title": "Scores",
+      "type": "object"
     },
     "termination_reason": {
       "minLength": 1,
@@ -190,7 +193,17 @@
     "active_factions",
     "winner_or_result",
     "key_findings",
-    "failure_points"
+    "failure_points",
+    "scenario_id",
+    "profile_id",
+    "perspective",
+    "overall_judgement",
+    "overall_score",
+    "scores",
+    "failure_causes",
+    "recommended_next_tests",
+    "comparison",
+    "anti_gaming"
   ],
   "title": "EvaluationResult",
   "type": "object"

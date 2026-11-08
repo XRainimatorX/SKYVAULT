@@ -98,5 +98,32 @@ jobs:
           assert rebuilt == package["final_world_state"]
           assert package["final_world_state"]["space"]["type"] == "grid"
 
+          # Phase 7: the multi-axis verdict and its three companions
+          verdict = json.loads((out / "evaluation_result.json").read_text())
+          breakdown = json.loads((out / "score_breakdown.json").read_text())
+          gaming = json.loads((out / "anti_gaming_report.json").read_text())
+          tradeoff = (out / "tradeoff_report.md").read_text()
+          assert verdict == package["evaluation_result"]
+          assert verdict["profile_id"] == "balanced"
+          assert verdict["overall_judgement"]["status"] == "risky"
+          assert len(breakdown) == 11
+          assert gaming["gaming_detected"] is True
+          assert tradeoff.startswith("# Trade-off report — tactical_reference_001")
+          assert "tradeoff_report" in package
+
           print("outputs verified")
+          EOF
+
+      - name: The same run judged under another profile
+        run: |
+          python scripts/run_tactical_reference.py --profile data/evaluation_profiles/tactical.json
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          verdict = json.loads(Path("output/evaluation_result.json").read_text())
+          assert verdict["profile_id"] == "tactical"
+          assert verdict["overall_judgement"]["status"] == "pass"
+          assert verdict["event_count"] == 97
+          print("profile switch verified")
           EOF

@@ -281,7 +281,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.3/world_contract.schema.json",
+  "$id": "skyvault/0.4/world_contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nThe remaining optional elements become required with their phase.\n\nactor_slots          Phase 6\nfailure_variables    Phase 9",

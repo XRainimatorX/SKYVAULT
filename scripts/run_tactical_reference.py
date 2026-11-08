@@ -1,3 +1,4 @@
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -12,8 +13,9 @@ if str(SRC_PATH) not in sys.path:
 from skyvault.causal_chain import build_causal_chain
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.entity_history import build_entity_history
+from skyvault.evaluation import render_tradeoff_report
 from skyvault.replay import build_replay_state_at_tick
-from skyvault.scenario_loader import load_scenario
+from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 from skyvault.timeline import render_timeline
 
 
@@ -31,13 +33,23 @@ def write_text(path: Path, text: str) -> None:
         file.write(text)
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description="Run the tactical reference slice.")
+    parser.add_argument(
+        "--profile",
+        type=Path,
+        default=None,
+        help="evaluation profile (JSON or YAML); default: balanced",
+    )
+    args = parser.parse_args(argv)
+
     scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
     output_dir = REPO_ROOT / "output"
 
     scenario = load_scenario(scenario_path)
+    profile = load_evaluation_profile(args.profile) if args.profile else None
 
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultTacticalReferenceEngine(scenario, evaluation_profile=profile)
     result_package = engine.run()
 
     event_memory = result_package["event_memory"]
@@ -84,10 +96,37 @@ def main() -> None:
         render_timeline(scenario_id, event_memory),
     )
 
+    write_json(
+        output_dir / "evaluation_result.json",
+        result_package["evaluation_result"],
+    )
+
+    write_json(
+        output_dir / "score_breakdown.json",
+        result_package["score_breakdown"],
+    )
+
+    write_json(
+        output_dir / "anti_gaming_report.json",
+        result_package["anti_gaming_report"],
+    )
+
+    write_text(
+        output_dir / "tradeoff_report.md",
+        render_tradeoff_report(result_package["tradeoff_report"]),
+    )
+
+    evaluation = result_package["evaluation_result"]
+    judgement = evaluation["overall_judgement"]
+
     print("SKYVAULT Tactical Reference Slice v0.1 completed.")
     print(f"Scenario: {result_package['scenario_id']}")
-    print(f"Result: {result_package['evaluation_result']['winner_or_result']}")
-    print(f"Events: {result_package['evaluation_result']['event_count']}")
+    print(f"Result: {evaluation['winner_or_result']}")
+    print(f"Events: {evaluation['event_count']}")
+    print(
+        f"Verdict: {judgement['status']} "
+        f"(score {evaluation['overall_score']:.2f}, profile {evaluation['profile_id']})"
+    )
     print(f"Output: {output_dir}")
 
 

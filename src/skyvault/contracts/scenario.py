@@ -24,13 +24,22 @@ class RuntimeSettings(ContractModel):
 
 
 class ScenarioEvaluation(ContractModel):
-    """What the run is judged on."""
+    """
+    What the run reports, and whose plan it is.
+
+    Important:
+    primary_metrics names the summary fields the run reports (event_count,
+    winner_or_result...). How the run is scored is the evaluation profile's
+    business. perspective is the faction whose plan is judged when the
+    profile does not say; without it, the first entity's faction is used.
+    """
 
     primary_metrics: list[str]
     failure_thresholds: list[str] = Field(default_factory=list)
     secondary_metrics: list[str] | None = None
     anti_gaming_metrics: list[str] | None = None
     comparison_targets: list[str] | None = None
+    perspective: NonEmptyStr | None = None
 
 
 class Scenario(ContractModel):
@@ -38,7 +47,7 @@ class Scenario(ContractModel):
     Scenario = Formal Spec section 3.
 
     Important:
-    Version 0.3 keeps the flat layout every scenario already uses. Section 3.3
+    Version 0.4 keeps the flat layout every scenario already uses. Section 3.3
     groups the same information under identity / world_binding /
     initial_conditions; adopting that grouping is a schema version change, not
     a Phase 1 task. See ADR 004.
@@ -48,7 +57,7 @@ class Scenario(ContractModel):
     scenario_version is the content's own version and is unrelated.
     """
 
-    schema_version: Literal["0.3"]
+    schema_version: Literal["0.4"]
     scenario_id: NonEmptyStr
     scenario_version: NonEmptyStr
     world_contract: WorldContract

@@ -197,5 +197,283 @@
         "world_state_mutation"
       ]
     }
-  ]
+  ],
+  "score_breakdown": {
+    "mission_success": {
+      "score": 0.0,
+      "raw": 0,
+      "unit": "entities",
+      "weight": 3.0,
+      "applicable": true,
+      "description": "Did the perspective faction achieve its aim?",
+      "explanation": "0 of 1 opposing entities destroyed; 1 of 1 own entities still active"
+    },
+    "tactical_value": {
+      "score": 0.0,
+      "raw": 0,
+      "unit": "hp",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "Damage dealt against the opposing hp pool",
+      "explanation": "0 damage dealt against 35 opposing hp"
+    },
+    "strategic_value": {
+      "score": 1.0,
+      "raw": 1,
+      "unit": "entities",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "Own force preserved for what comes next",
+      "explanation": "1 of 1 own entities preserved"
+    },
+    "resource_cost": {
+      "score": 1.0,
+      "raw": 0.0,
+      "unit": "hp",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "Own hp lost (1 = nothing lost)",
+      "explanation": "0 of 35 own hp lost"
+    },
+    "time_cost": {
+      "score": 0.5,
+      "raw": 5,
+      "unit": "ticks",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "Time used against the limit (1 = no time used)",
+      "explanation": "ended at tick 5 of 10"
+    },
+    "risk_growth": {
+      "score": 1.0,
+      "raw": 0,
+      "unit": "events",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "Risk-relevant events against own entities",
+      "explanation": "0 risk-relevant events hit own entities (proxy until a risk model exists)"
+    },
+    "failure_resistance": {
+      "score": 1.0,
+      "raw": 5,
+      "unit": "ticks",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "How long the plan held before its first loss",
+      "explanation": "no own entity was lost"
+    },
+    "recovery_ability": {
+      "score": 0.0,
+      "raw": 0.0,
+      "unit": "hp",
+      "weight": 1.0,
+      "applicable": false,
+      "description": "Lost hp that was restored",
+      "explanation": "nothing was lost, so recovery was never tested"
+    },
+    "system_robustness": {
+      "score": 0.0,
+      "raw": 0.0,
+      "unit": "actions",
+      "weight": 1.0,
+      "applicable": false,
+      "description": "Own actions the world accepted",
+      "explanation": "own entities never selected an action"
+    },
+    "logistics_burden": {
+      "score": 0.0,
+      "raw": 0.0,
+      "unit": "units",
+      "weight": 1.0,
+      "applicable": false,
+      "description": "World resources spent (1 = nothing spent)",
+      "explanation": "the world holds no resources to spend"
+    },
+    "stability_impact": {
+      "score": 1.0,
+      "raw": 0,
+      "unit": "entities",
+      "weight": 1.0,
+      "applicable": true,
+      "description": "How much of the world survived (1 = nothing destroyed)",
+      "explanation": "0 of 2 entities destroyed (proxy until a stability model exists)"
+    }
+  },
+  "anti_gaming_report": {
+    "scenario_id": "fixture_minimal_001",
+    "profile_id": "balanced",
+    "primary_metric": "mission_success",
+    "secondary_metrics": [
+      "tactical_value",
+      "strategic_value",
+      "resource_cost",
+      "time_cost",
+      "risk_growth",
+      "failure_resistance",
+      "recovery_ability",
+      "system_robustness",
+      "logistics_burden",
+      "stability_impact"
+    ],
+    "anti_gaming_metrics": [
+      {
+        "metric": "inaction_penalty",
+        "reason": "prevent doing nothing to preserve resources"
+      },
+      {
+        "metric": "stability_penalty",
+        "reason": "prevent fast success that destroys long-term order"
+      },
+      {
+        "metric": "risk_spike_penalty",
+        "reason": "prevent extreme high-risk optimization"
+      },
+      {
+        "metric": "hidden_risk_penalty",
+        "reason": "prevent a visible success that hides critically damaged survivors"
+      },
+      {
+        "metric": "long_term_cost_penalty",
+        "reason": "prevent short-term tactical value that destroys strategic value"
+      }
+    ],
+    "forbidden_optimization_behaviors": [
+      "maximize_score_by_inaction",
+      "sacrifice_long_term_stability_for_short_term_success",
+      "extreme_high_risk_optimization",
+      "ignore_hidden_risk_to_improve_visible_score",
+      "sacrifice_strategic_value_for_short_term_tactical_value"
+    ],
+    "tradeoff_report_required": true,
+    "checks": [
+      {
+        "metric": "inaction_penalty",
+        "reason": "prevent doing nothing to preserve resources",
+        "value": 0.0,
+        "threshold": 0.5,
+        "triggered": false,
+        "behavior": "maximize_score_by_inaction",
+        "forbidden": true,
+        "penalty": 0.0
+      },
+      {
+        "metric": "stability_penalty",
+        "reason": "prevent fast success that destroys long-term order",
+        "value": 1.0,
+        "threshold": 0.5,
+        "triggered": false,
+        "behavior": "sacrifice_long_term_stability_for_short_term_success",
+        "forbidden": true,
+        "penalty": 0.0
+      },
+      {
+        "metric": "risk_spike_penalty",
+        "reason": "prevent extreme high-risk optimization",
+        "value": 0.0,
+        "threshold": 0.34,
+        "triggered": false,
+        "behavior": "extreme_high_risk_optimization",
+        "forbidden": true,
+        "penalty": 0.0
+      },
+      {
+        "metric": "hidden_risk_penalty",
+        "reason": "prevent a visible success that hides critically damaged survivors",
+        "value": 0.0,
+        "threshold": 0.3,
+        "triggered": false,
+        "behavior": "ignore_hidden_risk_to_improve_visible_score",
+        "forbidden": true,
+        "penalty": 0.0
+      },
+      {
+        "metric": "long_term_cost_penalty",
+        "reason": "prevent short-term tactical value that destroys strategic value",
+        "value": 1.0,
+        "threshold": 0.5,
+        "triggered": false,
+        "behavior": "sacrifice_strategic_value_for_short_term_tactical_value",
+        "forbidden": true,
+        "penalty": 0.0
+      }
+    ],
+    "triggered_behaviors": [],
+    "flagged_behaviors": [],
+    "gaming_detected": false,
+    "penalty_total": 0.0
+  },
+  "tradeoff_report": {
+    "scenario_id": "fixture_minimal_001",
+    "profile_id": "balanced",
+    "perspective": "RED",
+    "required": true,
+    "judgement": {
+      "status": "fail",
+      "confidence": 0.7692,
+      "overall_score": 0.55
+    },
+    "tradeoffs": [
+      {
+        "gain": "tactical_value",
+        "gain_score": 0.0,
+        "cost": "strategic_value",
+        "cost_score": 1.0,
+        "assessment": "strategic_value kept at the expense of tactical_value"
+      },
+      {
+        "gain": "mission_success",
+        "gain_score": 0.0,
+        "cost": "resource_cost",
+        "cost_score": 1.0,
+        "assessment": "resource_cost kept at the expense of mission_success"
+      },
+      {
+        "gain": "time_cost",
+        "gain_score": 0.5,
+        "cost": "risk_growth",
+        "cost_score": 1.0,
+        "assessment": "balanced"
+      },
+      {
+        "gain": "mission_success",
+        "gain_score": 0.0,
+        "cost": "stability_impact",
+        "cost_score": 1.0,
+        "assessment": "stability_impact kept at the expense of mission_success"
+      }
+    ],
+    "strongest": [
+      {
+        "metric": "failure_resistance",
+        "score": 1.0
+      },
+      {
+        "metric": "resource_cost",
+        "score": 1.0
+      },
+      {
+        "metric": "risk_growth",
+        "score": 1.0
+      }
+    ],
+    "weakest": [
+      {
+        "metric": "mission_success",
+        "score": 0.0
+      },
+      {
+        "metric": "tactical_value",
+        "score": 0.0
+      },
+      {
+        "metric": "time_cost",
+        "score": 0.5
+      }
+    ],
+    "anti_gaming": {
+      "gaming_detected": false,
+      "flagged_behaviors": [],
+      "triggered_behaviors": []
+    }
+  }
 }
