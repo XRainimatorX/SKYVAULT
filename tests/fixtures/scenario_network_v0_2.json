@@ -1,0 +1,78 @@
+{
+  "schema_version": "0.2",
+  "scenario_id": "fixture_network_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "fixture_network_world",
+    "world_scope": "supply_network",
+    "purpose": [
+      "runtime_fixture"
+    ],
+    "space_model": {
+      "type": "network",
+      "nodes": [
+        "depot",
+        "north",
+        "city"
+      ],
+      "edges": [
+        [
+          "depot",
+          "north",
+          4
+        ],
+        [
+          "north",
+          "city",
+          3
+        ],
+        [
+          "depot",
+          "city",
+          10
+        ]
+      ]
+    },
+    "time_model": {
+      "type": "phase",
+      "phase_length": 6,
+      "time_unit": "hours",
+      "max_ticks": 4
+    },
+    "assumption_registry": {},
+    "evaluation_targets": [
+      "runtime_built"
+    ],
+    "entity_model": {},
+    "environment_state": {},
+    "resource_state": {
+      "supply": 50.0
+    },
+    "rule_set": {}
+  },
+  "entities": [
+    {
+      "entity_id": "truck_1",
+      "name": "Truck",
+      "entity_type": "logistics_unit",
+      "faction": "BLUE",
+      "position": "depot",
+      "state": {
+        "status": "active"
+      },
+      "capabilities": {},
+      "tags": []
+    }
+  ],
+  "runtime": {
+    "max_ticks": 4,
+    "random_seed": 1,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count"
+    ],
+    "failure_thresholds": []
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": "0.2",
+  "scenario_id": "fixture_graph_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "fixture_graph_world",
+    "world_scope": "road_network",
+    "purpose": [
+      "runtime_fixture"
+    ],
+    "space_model": {
+      "type": "graph",
+      "nodes": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "edges": [
+        [
+          "A",
+          "B"
+        ],
+        [
+          "B",
+          "C"
+        ],
+        [
+          "C",
+          "D"
+        ],
+        [
+          "A",
+          "E"
+        ]
+      ]
+    },
+    "time_model": {
+      "type": "event_driven"
+    },
+    "assumption_registry": {},
+    "evaluation_targets": [
+      "runtime_built"
+    ],
+    "entity_model": {
+      "kinds": [
+        "logistics_unit"
+      ]
+    },
+    "environment_state": {
+      "weather": "clear"
+    },
+    "resource_state": {
+      "fuel": 100.0,
+      "supply": 20.0
+    },
+    "rule_set": {
+      "max_convoy_size": 3
+    }
+  },
+  "entities": [
+    {
+      "entity_id": "convoy_1",
+      "name": "Convoy One",
+      "entity_type": "logistics_unit",
+      "faction": "BLUE",
+      "position": "A",
+      "state": {
+        "status": "active"
+      },
+      "capabilities": {},
+      "tags": []
+    },
+    {
+      "entity_id": "depot_1",
+      "name": "Depot",
+      "entity_type": "logistics_unit",
+      "faction": "BLUE",
+      "position": "C",
+      "state": {
+        "status": "active"
+      },
+      "capabilities": {},
+      "tags": []
+    }
+  ],
+  "runtime": {
+    "max_ticks": 10,
+    "random_seed": 7,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count"
+    ],
+    "failure_thresholds": []
+  }
+}
