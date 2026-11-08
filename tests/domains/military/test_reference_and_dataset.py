@@ -290,3 +290,16 @@ def test_every_state_matches_the_engines_own_snapshot_of_the_decider(runs, datas
         assert record["state"]["ammo"] == actor["state"]["ammo"]
         assert record["state"]["suppression"] == actor["state"]["suppression"]
     assert len({r["state"]["hp"] for r in dataset}) > 3  # states really change
+
+
+def test_the_briefing_tells_a_military_run_in_plain_words(runs):
+    from skyvault.report import build_briefing
+
+    briefing = build_briefing({"result_package": runs["mountain"]})
+    happened = next(p for p in briefing["sections"] if p["title"] == "What happened")
+    text = "\n".join(happened["bullets"])
+
+    assert "_" not in text  # no raw event type names
+    assert "entity state" not in text  # ammunition and rally bookkeeping is not counted
+    assert "refused order" in text and "idle unit" in text
+    assert "Red 2nd squad Marksman destroyed by Blue Ridge Marksman" in text

@@ -81,11 +81,11 @@ def _what_happened(package: dict[str, Any]) -> Section:
     bullets = []
     for tick in timeline_view(package)["ticks"]:
         counts = Counter(
-            event["event_type"].lower()
+            WORDS.get(
+                event["event_type"], event["event_type"].lower().replace("_", " ")
+            )
             for event in package["event_memory"]
-            if event["time"] == tick["tick"]
-            and event["event_type"]
-            not in ("ACTION_SELECTED", "ENTITY_DESTROYED", "SCENARIO_END")
+            if event["time"] == tick["tick"] and event["event_type"] not in UNCOUNTED
         )
         parts = [_count(count, kind) for kind, count in sorted(counts.items())]
         parts += [
@@ -100,11 +100,27 @@ def _what_happened(package: dict[str, Any]) -> Section:
     )
 
 
+# Events that are bookkeeping of another event, or are told separately
+UNCOUNTED = {
+    "ACTION_SELECTED",
+    "ENTITY_DESTROYED",
+    "SCENARIO_END",
+    "ENTITY_STATE_CHANGED",
+    "RESOURCE_CHANGED",
+}
+# What a person calls the rest
+WORDS = {"ACTION_REJECTED": "refused order", "NO_ACTION": "idle unit"}
+
+
 def _count(count: int, kind: str) -> str:
-    """'1 miss', '2 misses', '4 attacks'."""
+    """'1 miss', '2 misses', '4 attacks', '3 refused orders', '2 resupplies'."""
     if count == 1:
         return f"1 {kind}"
-    return f"{count} {kind}{'es' if kind.endswith('s') else 's'}"
+    if kind.endswith("s"):
+        return f"{count} {kind}es"
+    if kind.endswith("y") and kind[-2:-1] not in "aeiou":
+        return f"{count} {kind[:-1]}ies"
+    return f"{count} {kind}s"
 
 
 def _losses(overview: dict[str, Any]) -> Section:

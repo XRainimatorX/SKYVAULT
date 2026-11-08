@@ -191,3 +191,20 @@ def test_the_export_is_identical_across_hash_seeds(reference_workspace, tmp_path
         )
 
     assert outputs[0] == outputs[1]
+
+
+@pytest.mark.parametrize(
+    ("count", "kind", "words"),
+    [
+        (1, "miss", "1 miss"),
+        (2, "miss", "2 misses"),
+        (4, "attack", "4 attacks"),
+        (3, "refused order", "3 refused orders"),
+        (2, "resupply", "2 resupplies"),
+        (2, "delay", "2 delays"),
+    ],
+)
+def test_counts_read_as_plain_english(count, kind, words):
+    from skyvault.report.briefing import _count
+
+    assert _count(count, kind) == words
