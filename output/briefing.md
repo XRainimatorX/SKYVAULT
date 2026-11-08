@@ -121,8 +121,8 @@ Conflicting orders: P1 vs P2 (objective, priority, risk); P1 vs P3 (location). H
 
 ## Reproducibility
 
-- Run: run_20261108T024735910798Z_5e71d369
+- Run: run_20261108T032529810557Z_5e71d369
 - Random: seed 42 (fixed)
-- Runtime 0.10.0, rules rules-2438b4a50419
+- Runtime 0.11.0, rules rules-2438b4a50419
 - Input hash: 5e71d369a6d87f35faf23d1c6f3289da60bede8b1a43de0d843402f6420fd14e
 - Output hash: 63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09

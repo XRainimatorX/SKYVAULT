@@ -5,7 +5,7 @@
 #       python-docx reportlab
 [project]
 name = "skyvault"
-version = "0.10.0"
+version = "0.11.0"
 requires-python = ">=3.10"
 dependencies = [
     # Contracts and JSON Schema generation (Phase 1, ADR 004).
