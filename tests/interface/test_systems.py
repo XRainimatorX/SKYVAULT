@@ -420,8 +420,13 @@ def test_star_guard_equipment_replaces_a_unit_next_to_the_baseline():
         for k in useful["equipped"]
     }
     feasibility = returned["physical_feasibility"]
-    assert feasibility["feasible"] is (not feasibility["rejected_actions"])
-    assert {r["actor_id"] for r in feasibility["rejected_actions"]} <= {"red_02"}
+    # the fixture's refusals are all of the moment (an occupied cell): the
+    # equipment itself never hit a limit
+    assert feasibility["feasible"] is True and feasibility["capability_limits"] == []
+    assert {r["reason"] for r in feasibility["situational_rejections"]} == {
+        "Move target occupied"
+    }
+    assert {r["actor_id"] for r in feasibility["situational_rejections"]} == {"red_02"}
     assert useful["equipped"]["mean_hp_lost"] <= 50
 
 
@@ -532,3 +537,50 @@ def test_tac_angel_in_a_domain_hears_each_side_s_mission():
     assert set(missions) == {"RED", "BLUE"}
     assert all(isinstance(m["achieved"], bool) for m in missions.values())
     assert returned["state_action_outcome"][0]["action"]["actor_id"] == "red_01"
+
+
+def test_star_guard_drills_find_what_the_equipment_cannot_do():
+    # red_02 starts at [0, 1]: [0, 4] is three cells — EXO-1 (move_range 3)
+    # reaches it, the rifleman it replaces (move_range 2) does not
+    reach = [{"tick": 1, "action_type": "move", "target": {"location": [0, 4]}}]
+    _, results, returned = carry_out(
+        submission("STAR_GUARD", repeat_count=1, drills=reach)
+    )
+    assert returned["physical_feasibility"]["feasible"] is True
+    baseline_drill = [
+        e["data"]["reason"]
+        for e in results[1]["result"]["event_memory"]
+        if e["event_type"] == "ACTION_REJECTED"
+        and e["source"]["system_id"] == "STAR_GUARD"
+    ]
+    assert baseline_drill == ["Move target out of reach: move_range=2"]
+
+    too_far = [{"tick": 1, "action_type": "move", "target": {"location": [0, 6]}}]
+    _, _, returned = carry_out(submission("STAR_GUARD", repeat_count=1, drills=too_far))
+    feasibility = returned["physical_feasibility"]
+    assert feasibility["feasible"] is False
+    (limit,) = feasibility["capability_limits"]
+    assert (limit["tick"], limit["reason"]) == (
+        1,
+        "Move target out of reach: move_range=3",
+    )
+    assert limit not in feasibility["situational_rejections"]
+
+
+def test_a_unit_with_nowhere_to_go_waits_instead_of_crashing():
+    turret = submission("STAR_GUARD", repeat_count=1)
+    turret["content"]["profile"]["capabilities"]["move_range"] = 0
+    _, results, _ = carry_out(turret)
+    waits = [
+        e
+        for e in results[0]["result"]["event_memory"]
+        if e["event_type"] == "ACTION_SELECTED"
+        and e["source"]["actor_id"] == "red_02"
+        and e["data"]["intent"] == "cannot_move"
+    ]
+    assert waits
+
+
+def test_cyberhound_returns_its_gaps_even_when_asked_directly():
+    returned = to_return([], submission("CYBERHOUND"))
+    assert returned["supported"] is False and len(returned["gaps"]) == 2

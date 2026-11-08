@@ -179,8 +179,13 @@ class MilitaryBaselinePolicy:
     def advance(
         self, world: WorldState, actor: Entity, goal: tuple[int, int]
     ) -> Action:
-        """Move to the reachable cell closest to goal; cover breaks ties."""
+        """
+        Move to the reachable cell closest to goal; cover breaks ties. A unit
+        with no cell to move to (move_range 0, or boxed in) waits.
+        """
         options = self.options(world, actor)
+        if not options:
+            return self.action(world, actor, "wait", intent="cannot_move")
         best = min(
             world.space.distance(cell, goal) - float(terrain_at(world, cell)["cover"])
             for cell in options

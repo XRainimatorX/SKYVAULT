@@ -29,6 +29,17 @@ from ..training.transitions import build_transitions
 
 SCENARIOS_DIR = Path(__file__).resolve().parents[3] / "data" / "scenarios"
 DEFAULT_REPEATS = 3
+# Refusals that come from what a unit can do (range, reach, ammunition,
+# terrain it cannot cross, resources it lacks) — as opposed to the moment
+# (a cell already occupied, a target gone, an order lost)
+CAPABILITY_LIMITS = (
+    "Move target out of reach",
+    "Target out of range",
+    "Out of ammunition",
+    "Move target is impassable",
+    "Actor cannot",
+    "Insufficient",
+)
 NEXUS_TASKS = ("scenario_run", "batch", "failure_exploration")
 
 Request = dict[str, Any]
@@ -434,6 +445,7 @@ class EIDENAdapter:
             "branches": branches,
             "repeat_count": content.get("repeat_count", DEFAULT_REPEATS),
             "data_provenance": {
+                "scenario_id": scenario["scenario_id"],
                 "sources": [
                     {
                         "source_id": content["source_id"],
@@ -766,9 +778,13 @@ class STARGUARDAdapter:
     """
     STAR GUARD's equipment profile replaces one unit of a scenario, run
     repeat_count times next to the scenario as it is. It gets back physical
-    feasibility (the moves and actions SKYVAULT refused the unit) and
-    tactical usefulness (the unit and its side, against the baseline)
-    (section 9: STAR GUARD ↔ SKYVAULT).
+    feasibility (the actions SKYVAULT refused the unit because of what it
+    can do — range, reach, ammunition, terrain, resources — apart from
+    refusals of the moment such as an occupied cell) and tactical
+    usefulness (the unit and its side, against the baseline)
+    (section 9: STAR GUARD ↔ SKYVAULT). drills are orders for the unit at
+    given ticks — the maneuvers to check — run in both sets of runs; without
+    them the domain's policy only tries what the unit can do.
     """
 
     system = "STAR_GUARD"
@@ -784,10 +800,22 @@ class STARGUARDAdapter:
             f"equipment field {k!r} has no model before Phases 14-16"
             for k in sorted(set(profile) - set(self.known))
         ]
+        drills = [
+            {
+                **copy.deepcopy(d),
+                "actor_id": content["replace"],
+                "system_id": self.system,
+            }
+            for d in content.get("drills", [])
+        ]
+        runtime = {"scheduled_actions": drills} if drills else {}
         equipped = seeded_runs(
-            submission, {}, scenarios_dir, entity_changes={content["replace"]: change}
+            submission,
+            runtime,
+            scenarios_dir,
+            entity_changes={content["replace"]: change},
         )
-        baseline = seeded_runs(submission, {}, scenarios_dir)
+        baseline = seeded_runs(submission, runtime, scenarios_dir)
         return request(self.system, equipped + baseline, gaps=gaps)
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
@@ -814,13 +842,17 @@ class STARGUARDAdapter:
 
         equipped, baseline = results[:half], results[half:]
         refused = [r for e in equipped for r in rejected(e["result"], {unit})]
+        limits = [r for r in refused if str(r["reason"]).startswith(CAPABILITY_LIMITS)]
         with_it, without = side(equipped), side(baseline)
         return {
             "system": self.system,
             "supported": True,
+            # feasible: the equipment never hit a limit of what it can do;
+            # refusals of the moment are listed, but do not count against it
             "physical_feasibility": {
-                "feasible": not refused,
-                "rejected_actions": refused,
+                "feasible": not limits,
+                "capability_limits": limits,
+                "situational_rejections": [r for r in refused if r not in limits],
             },
             "tactical_usefulness": {
                 "equipped": with_it,

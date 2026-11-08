@@ -318,7 +318,8 @@ def test_the_recommendation_states_trade_offs_and_leaves_the_choice():
     assert "Highest win_rate: branch P1 (0.5)" in reason
     assert "Lowest failure_frequency: branch P2+P3 (0.1)" in reason
     assert "Lowest mean_hp_lost: branch P2+P3 (50)" in reason
-    assert "Highest mean_score: branch P1 (0.5)" in reason  # a tie names the first
+    # a tie names every branch at the top, never just the first (Phase 12)
+    assert "Highest mean_score: tied between P1, P2+P3 (0.5)" in reason
     assert "does not choose" in reason
 
 

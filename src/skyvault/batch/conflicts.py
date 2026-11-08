@@ -286,15 +286,17 @@ def _decision_reason(
     )
     lines = [f"Conflicting orders: {clashes}."]
     for metric, larger_is_better in METRICS.items():
-        sign = -1 if larger_is_better else 1
-        leader = min(
-            range(len(branches)),
-            key=lambda i: (sign * branches[i]["metrics"][metric], i),
+        values = [b["metrics"][metric] for b in branches]
+        top = max(values) if larger_is_better else min(values)
+        # a tie names every branch at the top: naming one would read as a pick
+        leaders = [b["branch_id"] for b in branches if b["metrics"][metric] == top]
+        who = (
+            f"branch {leaders[0]}"
+            if len(leaders) == 1
+            else "tied between " + ", ".join(leaders)
         )
         lines.append(
-            f"{'Highest' if larger_is_better else 'Lowest'} {metric}: "
-            f"branch {branches[leader]['branch_id']} "
-            f"({branches[leader]['metrics'][metric]:g})."
+            f"{'Highest' if larger_is_better else 'Lowest'} {metric}: {who} ({top:g})."
         )
     lines.append(
         "SKYVAULT does not choose between the branches; "

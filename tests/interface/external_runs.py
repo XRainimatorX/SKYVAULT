@@ -6,9 +6,9 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-from skyvault.interface.systems import KINDS, to_request, to_return
+from skyvault.interface.api import run_submission
+from skyvault.interface.systems import KINDS
 from skyvault.worldservice.governance import load_governance
-from skyvault.worldservice.jobs import execute_job, new_job, plan, scenario_for
 from skyvault.worldservice.store import SQLiteStore
 
 FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "external"
@@ -42,22 +42,8 @@ def submission(system: str, **content: Any) -> dict[str, Any]:
 
 def carry_out(sub: dict[str, Any]) -> tuple[dict, list[dict], dict]:
     """(request, results, returned): every job planned, run and read back."""
-    store, policy = SQLiteStore(), load_governance()
-    request = to_request(sub)
-    results = []
-    for job_request in request["jobs"]:
-        job = new_job(store, job_request, plan(job_request, policy, 0, store), policy)
-        execute_job(job["job_id"], store, policy)
-        job = store.get_job(job["job_id"])
-        assert job["lifecycle_state"] == "completed", job["error"]
-        results.append(
-            {
-                "job": job,
-                "result": store.get_result(job["job_id"]),
-                "scenario": scenario_for(job["request"]),
-            }
-        )
-    return request, results, to_return(results, sub)
+    done = run_submission(sub, SQLiteStore(), load_governance())
+    return done["request"], done["results"], done["returned"]
 
 
 @cache

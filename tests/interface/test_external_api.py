@@ -548,3 +548,58 @@ def test_a_world_action_the_world_refuses_refuses_the_submission(api):
     refused = client.post("/scenario/submit", json=stray)
     assert refused.status_code == 404
     assert "red_099" in refused.json()["detail"]["detail"]
+
+
+def test_a_submission_run_here_raises_when_its_job_fails():
+    from skyvault.interface.api import run_submission
+
+    lost = submission("SKYFOX", drone="red_99", repeat_count=1)
+    with pytest.raises(RuntimeError, match="job_000001 failed: .*red_99"):
+        run_submission(lost, SQLiteStore(), load_governance())
+
+
+def test_the_script_writes_what_each_system_gets_back(tmp_path):
+    import json
+    import subprocess
+    import sys
+
+    done = subprocess.run(
+        [
+            sys.executable,
+            str(SRC.parents[1] / "scripts" / "run_external.py"),
+            "--output",
+            str(tmp_path),
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    assert "CYBERHOUND  0 job(s), not supported, 2 gap(s)" in done.stdout
+    names = sorted(p.name for p in tmp_path.iterdir())
+    assert names == sorted(
+        [
+            f"{s.lower()}.json"
+            for s in (
+                "NEXUS",
+                "STARTX",
+                "TAC_ANGEL",
+                "EIDEN_01",
+                "AEROGRID",
+                "SKYFOX",
+                "HADES",
+                "CYBERHOUND",
+                "STAR_GUARD",
+            )
+        ]
+        + [
+            "nexus_briefing.md",
+            "conflict_package.json",
+            "conflict_handoff.json",
+            "conflict_decided.json",
+        ]
+    )
+    decided = json.loads((tmp_path / "conflict_decided.json").read_text())
+    assert decided["decided_by"] == "NEXUS" and decided["status"] == "decided"
+    handoff = json.loads((tmp_path / "conflict_handoff.json").read_text())
+    assert handoff["status"] == "awaiting_decision"
+    assert handoff["may_execute_final_decision"] is False

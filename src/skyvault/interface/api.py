@@ -21,7 +21,7 @@ from fastapi import Body, FastAPI, HTTPException
 
 from ..contracts import ContractError
 from ..training.transitions import build_transitions
-from ..worldservice.jobs import scenario_for
+from ..worldservice.jobs import execute_job, new_job, plan, scenario_for
 from ..worldservice.queues import JobQueue
 from ..worldservice.store import JobStore
 from ..worldservice.worlds import PersistentWorld, WorldClosed
@@ -30,6 +30,39 @@ from .systems import to_request, to_return
 
 JSONBody = Annotated[dict[str, Any], Body()]
 FINISHED = ("completed", "failed", "archived", "replayed", "deleted")
+
+
+def run_submission(
+    submission: dict[str, Any], store: JobStore, policy: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    A submission carried out here and now, without a queue: every job
+    planned (governance still admits it), run on this thread and read back.
+    Returns {request, results, returned}; a job that fails raises
+    RuntimeError with its error.
+    """
+    request = to_request(submission)
+    results = []
+    for job_request in request["jobs"]:
+        planned = plan(job_request, policy, 0, store)
+        job = new_job(store, job_request, planned, policy)
+        execute_job(job["job_id"], store, policy)
+        job = store.get_job(job["job_id"])
+        if job["lifecycle_state"] != "completed":
+            raise RuntimeError(f"{job['job_id']} failed: {job['error']}")
+        results.append(
+            {
+                "job": job,
+                "result": store.get_result(job["job_id"]),
+                "scenario": scenario_for(job["request"]),
+            }
+        )
+    returned = (
+        to_return(results, submission)
+        if request["supported"]
+        else {"system": request["system"], "supported": False, "gaps": request["gaps"]}
+    )
+    return {"request": request, "results": results, "returned": returned}
 
 
 def problem(status: int, reason: str, detail: str) -> HTTPException:
