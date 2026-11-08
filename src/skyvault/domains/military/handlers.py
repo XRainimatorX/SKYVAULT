@@ -229,11 +229,9 @@ class MilitaryAttackHandler:
                     target_entity_id=target.entity_id,
                     affected_entities=[actor.entity_id, target.entity_id],
                     affected_locations=locations,
-                    evaluation_relevance={
-                        "affects_success": hit,
-                        "affects_cost": True,
-                        "affects_risk": True,
-                    },
+                    # As in the core attack: a hit counts for success and cost,
+                    # a miss for cost; only the destruction is a risk event
+                    evaluation_relevance={"affects_success": hit, "affects_cost": True},
                     data=data,
                     tags=["attack", "hit" if hit else "miss", "suppression"],
                 ),
