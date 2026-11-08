@@ -60,6 +60,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 第一個 domain pack（Phase 13）：軍事 / 戰術 —— 單位、編隊、地形、感測、武器、後勤、士氣、指揮延遲、任務九種 profile，小隊、城市、山地、交通節點四個 reference scenario，doctrine 比較；TAC ANGEL 或任何外部 policy 可以取代 baseline，每個決定都能匯出成 state-action-outcome 訓練資料。domain pack 不是 core：同一個 engine 照跑。
 
+模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
+
 結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
 
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
@@ -73,7 +75,7 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab
+python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow
 python3 scripts/run_tactical_reference.py
 ```
 
@@ -127,6 +129,7 @@ python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squ
     --policy-module examples/tac_angel_policy.py --policy tac_angel_example
 python3 scripts/run_batch.py --batch data/batches/military_doctrine.json   # 三種 doctrine 並排
 python3 scripts/export_dataset.py                                          # output/tac_angel_dataset.jsonl
+python3 scripts/build_training_data.py --workers 4                         # output/training/：三個集合與報告
 ```
 
 用另一個 profile 評同一場：
@@ -216,6 +219,7 @@ src/skyvault/       引擎與 exporter
   service/          網頁介面的後端（FastAPI、replay WebSocket）
   policies.py       policy registry：外部 policy 從這裡接入
   domains/military/ 第一個 domain pack（不是 core）
+  training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
@@ -223,6 +227,7 @@ data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個�
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
 data/domains/       domain pack 的 profile 與 scenario spec
+data/training/      訓練資料要匯出哪些 run
 examples/           外部 policy 範例（TAC ANGEL 的介面）
 tests/              測試
 output/             執行產物
@@ -243,6 +248,7 @@ docs/               文件
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
 | 軍事 pack 的感測在 policy 內 | 外部 policy 直接讀 world，看得到所有單位；沒有視線 | Phase 5 |
 | 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
+| 訓練資料的 observation 不是真正的觀測 | 軍事用 pack 的感測，其他是整個世界的狀態 | Phase 5 |
 | 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
@@ -254,7 +260,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase13_military_domain_pack.md`](docs/phases/phase13_military_domain_pack.md)。
+完整清單見 [`docs/phases/phase18_training_pipeline.md`](docs/phases/phase18_training_pipeline.md)。
 
 ---
 

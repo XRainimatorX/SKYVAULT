@@ -83,6 +83,18 @@ scenario.domain = "military"
 run 之後：mission_outcome（任務）、build_dataset（state-action-outcome），都是純函式
 ```
 
+訓練資料（Phase 18）從 run 產生：
+
+```text
+scripts/build_training_data.py（data/training/sources.json）
+  └─ training.pipeline              跑每個來源 × seed（engine、惡化版本）與 batch
+        ├─ transitions（純函式）     每個決定一筆：state、observation、action、consequence、reward、next_state…
+        ├─ labels（純函式）          六個 anti-gaming 標籤、success_type
+        ├─ filter（純函式）          clean / risky / rejected；rejected 永不進 clean；anti_gaming_report
+        ├─ branches（純函式）        STARTX 的分支評估
+        └─ export / registry / rag   JSONL + Parquet；training data registry；RAG index
+```
+
 UI 與 briefing（Phase 17）只讀上面三個腳本寫出的檔案：
 
 ```text
@@ -269,6 +281,15 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
 ```
 
 core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查。pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
+
+## Training（在 engine 之上，與 batch 同層）
+
+```text
+   src/skyvault/training/   transitions、labels、filter、branches、rag、registry、export、records 不 import
+                            engine / batch / failure（測試逐檔檢查）；只有 pipeline.py 跑模擬
+```
+
+需要 domain 的部分（感測、任務判定）經由 `load_domain` 取得 pack 的 `observe`、`mission_outcome`，與 engine 取得 handler 的路徑相同。
 
 ## Views、report、service（在階層之外，讀輸出檔）
 
@@ -963,6 +984,31 @@ reference.py   reference_scenarios()：spec + doctrine 變體 → data/scenarios
 | 後勤 | world resource ammo；logistics 單位補給彈藥低於一半的友軍 |
 | 任務 | destroy / seize / hold / delay，run 之後由終局判定 |
 
+## `training/`
+
+Phase 18 建立。開發計劃 Phase 18、Formal Spec §16。
+
+```python
+build_transitions(package, scenario)   每個 ACTION_SELECTED 一筆 Transition（records.py 的模型）
+run_labels(package, scenario)          {labels, violations, success_type, apparent_success, mission_achieved}
+split_runs(runs) / anti_gaming_report(runs)
+branch_evaluation(batch_result, branch_comparison, conflict_package=None)
+write_jsonl / read_jsonl / write_parquet / read_parquet
+TrainingRegistry(path)、dataset_id(name, files)
+build_rag_index(documents) / query(index, text, k)
+build_training_data(sources, scenarios_dir, batches_dir)
+```
+
+| 欄位 / 規則 | 內容 |
+|---|---|
+| state / next_state | engine 在 ACTION_SELECTED 記的 actor snapshot；next = 同一 actor 的下一個決定，否則終局 |
+| observation | pack 有 `observe` 時用它（軍事：military_sensor），否則 full_state |
+| reward | damage_dealt、damage_taken、target_destroyed、own_destroyed、episode_score —— 不合成單一數字 |
+| 六個標籤 | Phase 7 五項檢查 + strategic_misalignment（看似成功但任務未達成） |
+| 違規 | profile flagged 的行為；strategic_misalignment 一律是 |
+| 集合 | rejected：有違規；risky：無違規但 verdict risky；clean：其餘（含真失敗） |
+| success_type | genuine_success / false_success / failure |
+
 ## `batch/`
 
 Phase 10 建立。Formal Spec §13。
@@ -1473,6 +1519,20 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `run_batch.py --batch data/batches/military_doctrine.json` | urban 中庭的三種 doctrine 並排 |
 | `tac_angel_dataset.jsonl`（`export_dataset.py`） | 每個決定一筆 state-action-outcome；不進版本控制 |
 
+## Training output（`scripts/build_training_data.py`）
+
+| 檔案 | 回答什麼 |
+|---|---|
+| `output/training/clean_training_dataset.{jsonl,parquet}` | 可以進主訓練集的 transition |
+| `output/training/risky_behavior_dataset.{jsonl,parquet}` | 沒有刷分、但 Phase 7 判為 risky 的 run |
+| `output/training/rejected_behavior_dataset.{jsonl,parquet}` | 有 anti-gaming 違規的 run —— 不可進主訓練集 |
+| `output/training/anti_gaming_report.json` | 每個標籤的次數、每個 run 的去向與理由 |
+| `output/training/branch_evaluation.jsonl` | STARTX 的變體與分支評估 |
+| `output/training/rag_index.json` | run 的檢索索引 |
+| `runs/training_registry.jsonl` | 每次匯出的 dataset_id、來源 run、筆數、標籤統計 |
+
+全部不進版本控制（約 32 MB）；由 sources.json 重產。
+
 ## Briefing 與 UI（`scripts/export_briefing.py`、`scripts/serve_ui.py`）
 
 | 檔案 / 位址 | 回答什麼 |
@@ -1557,6 +1617,9 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 35. 指揮延遲 0 且遺失 0 時，與沒有指揮層逐筆相同；遺失不擾動戰鬥的 rng
 36. data/scenarios/military_* 等於 build_military_scenarios.py 產生的內容
 37. dataset 每筆 = 一個 ACTION_SELECTED；同樣的 run 匯出同樣的位元組
+38. rejected 的 run 的 transition 永遠不在 clean_training_dataset
+39. domain pack 改寫 core 的 handler 時，evaluation_relevance 與 core 相同（只有擊毀算 risk）
+40. training 的純函式不 import engine / batch / failure
 ```
 
 ---
@@ -1600,7 +1663,8 @@ Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 �
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
 執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005）、pandas>=2（ADR 010）、
-                 fastapi、uvicorn、websockets、python-docx、reportlab（ADR 011），宣告在 pyproject.toml
+                 fastapi、uvicorn、websockets、python-docx、reportlab（ADR 011）、pyarrow（ADR 013），
+                 宣告在 pyproject.toml
 UI build         Node 22；ui/package.json 釘死版本、commit lockfile；只在 build 與 e2e 時需要
 ```
 
@@ -1618,6 +1682,7 @@ python3 scripts/run_batch.py [--repeats N] [--workers N]  # 批量與分支比�
 python3 scripts/export_briefing.py [--workspace DIR]      # briefing.md / .pdf / .docx
 python3 scripts/build_military_scenarios.py               # 改 profile 或 spec 後重建軍事 scenario
 python3 scripts/export_dataset.py [--runs N]              # state-action-outcome dataset
+python3 scripts/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
 (cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
 python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
@@ -1656,6 +1721,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase17_ui_replay_report.md`](phases/phase17_ui_replay_report.md) | Phase 17 完成報告 |
 | [`decisions/012_military_domain_pack.md`](decisions/012_military_domain_pack.md) | 軍事 domain pack、policy registry 與 domain 擴充點的設計決定 |
 | [`phases/phase13_military_domain_pack.md`](phases/phase13_military_domain_pack.md) | Phase 13 完成報告 |
+| [`decisions/013_training_pipeline.md`](decisions/013_training_pipeline.md) | 訓練資料、anti-gaming training filter 的設計決定 |
+| [`phases/phase18_training_pipeline.md`](phases/phase18_training_pipeline.md) | Phase 18 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md) | 各 Phase 回顧 |

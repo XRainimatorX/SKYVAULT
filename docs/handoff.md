@@ -11,7 +11,7 @@
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pytest httpx pypdf
+python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow pytest httpx pypdf
 python3 scripts/run_tactical_reference.py
 python3 -m pytest tests/ -q
 ```
@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-687 passed
+718 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -147,6 +147,8 @@ Phase 17 再發現：**本機能跑不等於宣告的相依能跑。** websocket
 
 Phase 13 再發現：**只被一種輸入測過的輸出，只證明了那一種輸入。** briefing 在 reference run 上完美，第一次跑軍事 run 就念出「1 entity_state_changed」。新增 scenario 來源或 domain 時，把 timeline、views、briefing 在它上面跑一次並讀過。另外：反向驗證的 pattern 對不上時（black 重排過），腳本必須報錯而不是照跑沒變異的程式。
 
+Phase 18 再發現：**過濾器正確不代表過濾的結果正確。** 軍事 run 100% 被判刷分，原因是 Phase 13 的 handler 把每一發都標成風險；filter 的邏輯完全對。寫任何「分類」之前，先量真實資料的分布，任何 0% 或 100% 都要問為什麼。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -183,6 +185,10 @@ Phase 13 再發現：**只被一種輸入測過的輸出，只證明了那一種
 | 軍事 pack 的 handler | 與 core handler 同樣只讀世界（同一個 AST 檢查）；ATTACK / MISS 的 data 鍵與 core 相同，exporter 才能照讀 |
 | 指揮延遲 | 延遲的命令在抵達時才驗證，所以「Move target occupied」的 ACTION_REJECTED 是正常的摩擦 |
 | `tac_angel_dataset.jsonl` | 不進版本控制（2.8 MB）；episode 以 input / output hash 命名，可重現 |
+| `training/` 的集合 | rejected（有違規）永不進 clean；clean 包含沒有刷分的真失敗，以 success_type 區分 |
+| reference run 是假成功 | RED 存活但穩定性被 flagged → success_type false_success、進 rejected。這是正確的 |
+| pack 改寫 core handler | evaluation_relevance 要與 core 一致（只有擊毀算 risk），否則評估與訓練資料都會偏 |
+| 訓練資料 | `output/training/` 不進版本控制；由 `data/training/sources.json` 重產，跨 PYTHONHASHSEED 相同 |
 | reference scenario 的位置 | Phase 8 起在 `data/scenarios/tactical_reference_001/v0.1.json`（版本資料夾），不是 `data/scenarios/tactical_reference_001.json` |
 | event / action id | 每個 world 自己的計數器（`event_0000000001`）。policy 要從 `world.ids.action()` 取 id；不要再用 uuid（有測試擋） |
 | output_hash | 在**驗證過的** package 上算。驗證會把 int 正規化成 float；在驗證前算的 hash 對不上呼叫端拿到的 package |
@@ -241,7 +247,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -283,15 +289,14 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 18 — Data / AI Training Pipeline**。規格見 [`plan/phase18_data_ai_training_pipeline.md`](plan/phase18_data_ai_training_pipeline.md)。
+依 roadmap，下一個是 **Phase 5 — Observation Contract**：不同系統看到不同的世界（TAC ANGEL 看局部、STARTX 看大局），不再全部上帝視角。規格見 [`plan/phase5_observation_contract.md`](plan/phase5_observation_contract.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-state-action-outcome dataset           Phase 13 的 build_dataset：每個決定一筆、可重現、有紀錄模型
-大量 run                               Phase 10 的 batch（平行）；Phase 9 的惡化版本
-外部 policy 的入口                     policies.register_policy；engine(policy=…)
-每個 run 都可重現與驗證                 input_hash / output_hash、verify_run（Phase 8）
+軍事 pack 的感測            policy.seen_enemies、dataset.sensor_contacts、pack.observe —— 都應改由觀測層產生
+外部 policy 直接讀 world    TAC ANGEL 範例看得到所有單位；觀測層要在交給 policy 前過濾
+訓練資料的 observation      full_state / military_sensor 兩種 observation_model，之後改用觀測契約
 ```
 
-開工前先讀 [`phases/phase13_military_domain_pack.md`](phases/phase13_military_domain_pack.md) 的第 4 節與 [`postmortems/phase13.md`](postmortems/phase13.md)。
+開工前先讀 [`phases/phase18_training_pipeline.md`](phases/phase18_training_pipeline.md) 的第 4 節與 [`postmortems/phase18.md`](postmortems/phase18.md)。
