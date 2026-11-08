@@ -784,7 +784,7 @@ class STARGUARDAdapter:
     usefulness (the unit and its side, against the baseline)
     (section 9: STAR GUARD ↔ SKYVAULT). drills are orders for the unit at
     given ticks — the maneuvers to check — run in both sets of runs; without
-    them the domain's policy only tries what the unit can do.
+    them only the actions the domain's policy chooses are checked.
     """
 
     system = "STAR_GUARD"

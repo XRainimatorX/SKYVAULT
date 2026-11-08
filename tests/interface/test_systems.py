@@ -254,6 +254,10 @@ def test_eiden_ranks_several_parameters_and_runs_them_together():
         "all_intel",
     ]
     ranked = returned["sensitive_variables"]
+    assert {p["parameter"] for p in ranked} == {
+        "blue_002.accuracy",
+        "blue_001.attack_damage",
+    }
     sizes = [abs(p["versus_baseline"]["mean_score"]) for p in ranked]
     assert sizes == sorted(sizes, reverse=True)
     assert returned["gaps"] == []
@@ -537,6 +541,17 @@ def test_tac_angel_in_a_domain_hears_each_side_s_mission():
     assert set(missions) == {"RED", "BLUE"}
     assert all(isinstance(m["achieved"], bool) for m in missions.values())
     assert returned["state_action_outcome"][0]["action"]["actor_id"] == "red_01"
+    # red_01's later moves, decided by the domain's policy, were refused —
+    # TAC ANGEL hears only about its own orders
+    others = [
+        e
+        for e in results[0]["result"]["event_memory"]
+        if e["event_type"] == "ACTION_REJECTED" and e["source"]["actor_id"] == "red_01"
+    ]
+    assert others and {e["source"]["system_id"] for e in others} == {
+        "military_baseline"
+    }
+    assert returned["tactical_outcome"]["orders_rejected"] == []
 
 
 def test_star_guard_drills_find_what_the_equipment_cannot_do():
@@ -584,3 +599,17 @@ def test_a_unit_with_nowhere_to_go_waits_instead_of_crashing():
 def test_cyberhound_returns_its_gaps_even_when_asked_directly():
     returned = to_return([], submission("CYBERHOUND"))
     assert returned["supported"] is False and len(returned["gaps"]) == 2
+
+
+def test_a_request_s_provenance_is_filed_under_its_scenario():
+    scenario = scenario_for(
+        {
+            "scenario": "tactical_reference_001/v0.1",
+            "data_provenance": {
+                "sources": [
+                    {"source_id": "r1", "source_type": "EIDEN_01", "confidence": 0.5}
+                ]
+            },
+        }
+    )
+    assert scenario["data_provenance"]["scenario_id"] == "tactical_reference_001"
