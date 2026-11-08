@@ -31,17 +31,15 @@ class SnapshotStore:
     def ticks(self) -> list[int]:
         return sorted(self._snapshots)
 
-    def record(self, snapshot: dict[str, Any], force: bool = False) -> bool:
+    def record(self, time: int, snapshot: dict[str, Any], force: bool = False) -> bool:
         """
-        Keep the snapshot when its tick falls on the interval, or when forced.
-
-        Returns whether it was kept. Tick 0, the initial world, always is.
+        Keep the snapshot taken at time when time falls on the interval, or
+        when forced. Returns whether it was kept. Time 0 always is.
         """
-        tick = snapshot["tick"]
-        if not force and tick % self.interval != 0:
+        if not force and time % self.interval != 0:
             return False
 
-        self._snapshots[tick] = copy.deepcopy(snapshot)
+        self._snapshots[time] = copy.deepcopy(snapshot)
         return True
 
     def latest_at_or_before(self, time: int) -> dict[str, Any] | None:

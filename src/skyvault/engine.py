@@ -94,7 +94,7 @@ class SkyVaultTacticalReferenceEngine:
         termination_reason = "duration_limit_reached"
 
         initial_world_state = self.world.snapshot()
-        self.snapshots.record(initial_world_state)
+        self.snapshots.record(self.world.tick, initial_world_state)
 
         for _ in range(max_ticks):
             self.world.advance_time()
@@ -180,7 +180,7 @@ class SkyVaultTacticalReferenceEngine:
                     break
 
             # Snapshots are taken at the end of a tick, after all its events
-            self.snapshots.record(self.world.snapshot())
+            self.snapshots.record(self.world.tick, self.world.snapshot())
 
             if termination_reason == "termination_condition_met":
                 break

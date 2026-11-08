@@ -133,19 +133,19 @@ def test_a_rebuild_from_a_snapshot_equals_one_from_time_zero(run, at_time):
 def test_snapshot_store_keeps_only_ticks_on_the_interval():
     store = SnapshotStore(interval=3)
 
-    kept = [store.record({"tick": tick}) for tick in range(7)]
+    kept = [store.record(tick, {"tick": tick}) for tick in range(7)]
 
     assert kept == [True, False, False, True, False, False, True]
     assert store.ticks() == [0, 3, 6]
     assert len(store) == 3
-    assert store.record({"tick": 4}, force=True)
+    assert store.record(4, {"tick": 4}, force=True)
     assert store.latest_at_or_before(5) == {"tick": 4}
 
 
 def test_snapshot_store_hands_out_copies():
     store = SnapshotStore(interval=1)
     snapshot = {"tick": 0, "entities": {"a": {"hp": 1}}}
-    store.record(snapshot)
+    store.record(0, snapshot)
     snapshot["entities"]["a"]["hp"] = 0
 
     kept = store.latest_at_or_before(0)
@@ -156,7 +156,7 @@ def test_snapshot_store_hands_out_copies():
 
 def test_snapshot_store_has_nothing_before_its_first_snapshot():
     store = SnapshotStore(interval=5)
-    store.record({"tick": 5})
+    store.record(5, {"tick": 5})
 
     assert store.latest_at_or_before(4) is None
 
@@ -208,3 +208,32 @@ def test_sourcing_and_snapshots_import_nothing_from_the_project(module):
 
     assert all(level == 0 for level, _ in imported)
     assert not any(name and name.startswith("skyvault") for _, name in imported)
+
+
+FORBIDDEN = {
+    "engine",
+    "tactical_reference_policy",
+    "timeline",
+    "replay",
+    "entity_history",
+    "causal_chain",
+}
+
+
+@pytest.mark.parametrize(
+    "path",
+    sorted((SRC_PATH / "skyvault" / "runtime").glob("*.py")),
+    ids=lambda path: path.name,
+)
+def test_runtime_never_imports_the_engine_a_policy_or_an_exporter(path):
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    names = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            names.update((node.module or "").split("."))
+            names.update(alias.name for alias in node.names)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                names.update(alias.name.split("."))
+
+    assert not names & FORBIDDEN

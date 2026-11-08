@@ -89,5 +89,14 @@ jobs:
           for name in ("replay_state_at_tick", "entity_history", "causal_chain", "final_state"):
               json.loads((out / f"{name}.json").read_text())
 
+          # Event memory is the truth: replaying it must rebuild the final world
+          import sys
+          sys.path.insert(0, "src")
+          from skyvault.runtime import rebuild_world
+
+          rebuilt = rebuild_world(package["initial_world_state"], package["event_memory"])
+          assert rebuilt == package["final_world_state"]
+          assert package["final_world_state"]["space"]["type"] == "grid"
+
           print("outputs verified")
           EOF
