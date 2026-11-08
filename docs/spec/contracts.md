@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 13 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile 與 Phase 9 的 failure map）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 16 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map，與 Phase 10 的 batch_spec、batch_result、conflict_package）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)。
 
 ---
 
@@ -59,6 +59,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.4 | 7 | Evaluation Result 的 §8.3 欄位必填並加 profile_id / perspective / overall_score / anti_gaming；Result Package 加三份評估輸出；新增 evaluation_profile 契約；scenario.evaluation 加 optional perspective |
 | 0.5 | 8 | Result Package 的 reproducibility 必填，hash 必須是 64 個 hex；scenario 新增 optional version_control |
 | 0.6 | 9 | World Contract 的 failure_variables 必填（八個變量名之一）；scenario.failure_exploration 有正式形狀；新增 failure_map 契約 |
+| 0.6 | 10 | 只有新增，不調升：optional 的 runtime.scheduled_actions；新增 batch_spec、batch_result、conflict_package 契約 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -240,6 +241,44 @@ output               dict                    Spec 的佔位，忽略
 
 variables 的每一項：variable、applicable、reason、assumption、levels（每級 survival_rate、mean_score、mean_first_loss_tick、most_common_failure）、breaking_level、sensitivity。alternatives 的每一項：scenario_version、baseline_survival_rate、breaking_levels、holds_longer_on、breaks_sooner_on、verdict（holds_longer / breaks_sooner / mixed / same）。
 
+### Batch 與衝突
+
+`runtime.scheduled_actions`（optional，預設 `[]`）：外部系統的命令，在指定 tick 取代該 actor 的 policy。
+
+```python
+tick                 int ≥ 1，且 ≤ runtime.max_ticks
+actor_id             必須是 scenario 裡的 entity
+system_id            提案系統；寫進 ACTION_SELECTED 與結果 event 的 source.system_id
+action_type, target  同 Action（target 為 {entity_id, location, system_id}）
+intent, required_resources, expected_effect, risk_profile, priority（預設 "normal"）, confidence, metadata
+```
+
+同一 tick、同一 actor 不可有兩道命令。
+
+| 契約 | model | 必填 | optional（預設） |
+|---|---|---|---|
+| Batch Spec | `BatchSpec` | batch_id、scenario_id、base_version、profile、run_policy {repeat_count ≥ 1, random_seed_policy} | description（""）、perspective（null）、workers（1，≥ 1）、variants（[]）、sweeps（[]）、conflicts（null） |
+| Batch Result | `BatchResult` | batch_id、scenario_id、base_version、profile_id、perspective、repeat_count、seeds、workers、total_runs、variants、runs | — |
+| Conflict Package | `ConflictPackage` | conflict_id、scenario_id、conflicting_actions、conflict_type、conflicts、branch_runs、baseline、recommendation_to_nexus | — |
+
+Batch Spec 的規則：variants、sweeps、conflicts 至少一個；variant_id 不重複；conflicts.proposals 至少一個、proposal_id 不重複。每個 proposal 是一個 scheduled action 加上 `proposal_id`。
+
+```python
+variants[i]          {variant_id, scenario_version}      同一 scenario 資料夾裡的其他版本
+sweeps[i]            {parameter, values}                 路徑同 compare_scenarios
+VariantStats         variant_id、kind（version / sweep / branch）、scenario_version、runs、
+                     win_rate、win_rate_ci（Wilson 95%，兩個值）、loss_rate、draw_rate、
+                     failure_frequency、mean_score、score_stdev、mean_hp_lost、mean_risk_events、
+                     mean_event_count、outcomes、distinct_outputs
+RunRecord            variant_id、kind、scenario_version、seed、outcome、status、score、
+                     hp_lost、risk_events、event_count、output_hash
+Conflict             conflict_id、proposals（兩個）、conflict_types（六種之一以上）、reason
+BranchRun            branch_id、action_set、result_summary、evaluation_delta、metrics
+recommendation       {required_decision, decision_reason}
+```
+
+conflict_types：resource_conflict、timing_conflict、objective_conflict、risk_conflict、location_conflict、priority_conflict。
+
 `initial_world_state` / `final_world_state`（`WorldSnapshot`）的必填欄位：world_id、scenario_id、tick、space、entities、resources。`space` 由 `Space.describe()` 寫入，帶 `type`；`resources` 是名稱 → 數量，數量 ≥ 0。
 
 **Reproducibility 由 engine 產生，每個 result package 都有。** output_hash 是驗證過的 package 去掉 reproducibility 區塊後的 canonical JSON（sort_keys、緊湊、ensure_ascii False）的 SHA-256；input_hash 是 `{scenario, evaluation_profile}` 的同樣雜湊。run_id 為 `run_<UTC 時間>_<input_hash 前 8 碼>`。
@@ -259,7 +298,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    11 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    16 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 

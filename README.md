@@ -56,6 +56,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 方案可以被故意弄壞（Phase 9）：八個 failure variable、四個壓力等級、多個 seed，找出方案在哪裡、為什麼、多快崩潰，哪個變量壓垮它、哪個替代方案撐更久、現實前必須改什麼。
 
+很多方案可以一起比較（Phase 10）：版本、參數掃描、外部系統的命令，各跑上百次、可平行，並排比較勝率、成本、風險與失敗頻率。互相衝突的命令不替任何人選：每組相容的命令各成一個分支跑完，交出一份 conflict package 讓 NEXUS 或使用者決定。
+
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
 
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
@@ -67,11 +69,11 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx
+python3 -m pip install pydantic pyyaml networkx pandas
 python3 scripts/run_tactical_reference.py
 ```
 
-需要 Python 3.10+。執行時期相依有三個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路），宣告在 `pyproject.toml`。
+需要 Python 3.10+。執行時期相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整），宣告在 `pyproject.toml`。
 
 跑完會在 `output/` 產生十一個檔案，最後一行是評估判斷：
 
@@ -97,12 +99,22 @@ python3 scripts/explore_failures.py
 # Best alternative: v0.1-support-rear
 ```
 
+把三個部署、三個敵方命中率與三道互相衝突的命令各跑 100 次（900 次 run，4 個 worker 約 5 秒）：
+
+```bash
+python3 scripts/run_batch.py
+# Best mean score: support-rear
+# Conflicts: 2; branches: P1, P2+P3; decision required: True
+```
+
 用另一個 profile 評同一場：
 
 ```bash
 python3 scripts/run_tactical_reference.py --profile data/evaluation_profiles/tactical.json
 # Verdict: pass (score 0.78, profile tactical)
-```想快速知道發生了什麼，先看 `output/timeline.txt`：
+```
+
+想快速知道發生了什麼，先看 `output/timeline.txt`：
 
 ```text
 Tick 6
@@ -139,6 +151,10 @@ python3 -m pytest tests/ -q
 | `collapse_sequence.json` | （explore_failures）崩潰時己方單位依序怎麼倒下 |
 | `survival_conditions.json` | （explore_failures）每個變量撐到哪一級 |
 | `recommended_modifications.md` | （explore_failures）現實前必須改什麼 |
+| `batch_result.json` | （run_batch）每個變體的勝率、成本、風險、失敗頻率與每個 run |
+| `branch_comparison.json` | （run_batch）變體並排、各指標誰最好 |
+| `conflict_package.json` | （run_batch）哪些命令衝突、每個分支的結果、等人決定 |
+| `comparative_report.md` | （run_batch）給人讀的比較報告 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
 
@@ -165,16 +181,18 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        13 份資料契約（Pydantic，schema 0.6）
+  contracts/        16 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
   reproducibility/  hash、版本、scenario 比較、run registry
   failure/          failure variables、壓力測試、failure map
+  batch/            批量、平行、參數掃描、衝突分支、conflict package
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
 data/evaluation_profiles/   評估 profile（balanced、tactical）
+data/batches/       batch 請求
 tests/              測試
 output/             執行產物
 docs/               文件
@@ -189,7 +207,9 @@ docs/               文件
 | 項目 | 影響 | 留待 |
 |---|---|---|
 | failure variable 只改既有能力值、hp、資源與命令傳達 | 沒有真的感測、通訊、天氣模型；例如感測失效 = 己方命中率下降 | 需要那些模型的 domain |
-| failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；更大的 repeat 要等平行化 | Phase 10 |
+| failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
+| 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | Phase 12 起 |
+| 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
@@ -197,10 +217,10 @@ docs/               文件
 | risk_growth、stability_impact 是代理指標 | 沒有風險與穩定模型；用 affects_risk 事件與摧毀比例代替 | Phase 9 起 |
 | Spec §8.3 的六個軸不評（physical_possibility 等） | 模擬中沒有資料來源 | 需要它們的 domain |
 | consequence 的 evaluation_impact 不進評估 | consequence 不在 result package 裡，評估只讀紀錄 | 未定 |
-| comparison 恆為空 | 單一 run 沒有比較對象 | Phase 10 / 12 |
+| 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase9_failure_exploration.md`](docs/phases/phase9_failure_exploration.md)。
+完整清單見 [`docs/phases/phase10_batch_branch_comparison.md`](docs/phases/phase10_batch_branch_comparison.md)。
 
 ---
 

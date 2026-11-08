@@ -58,6 +58,18 @@ scripts/explore_failures.py
   └─ failure.analysis（純函式）    failure map、collapse sequence、survival conditions、建議
 ```
 
+Batch（Phase 10）是許多個方案、各許多次的 run：
+
+```text
+scripts/run_batch.py
+  └─ batch.run_batch()
+        ├─ batch.variants            版本、參數掃描點、衝突分支 → 每個都是一份 scenario
+        │     └─ batch.conflicts     同 tick 的命令兩兩比較 → 衝突 → 極大相容集合 = 分支 + 基準
+        ├─ batch.runner              每個 (變體, seed) 一次 engine run；workers > 1 用 process pool，順序不變
+        └─ batch.aggregate（純函式） pandas 彙整勝率 / 成本 / 風險 / 失敗頻率；並排比較；報告
+              └─ conflict package    每個分支相對基準的差；不選邊
+```
+
 ## 六個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
@@ -209,6 +221,19 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
 ```
 
 惡化是 scenario 層的事：每個變量把 scenario 改成一個新版本，再交給完全沒改過的 engine。engine 唯一的配合是 `rule_set.faults`（通訊失效的 fault injection），沒有 faults 時它什麼都不做。
+
+## Batch（在 engine 之上，與 failure 同層）
+
+```text
+   src/skyvault/batch/
+              aggregate   純函式，只 import pandas 與標準函式庫
+              conflicts   純函式，只 import aggregate、networkx、標準函式庫（測試逐條檢查）
+              variants    scenario 轉換；依賴 reproducibility（child_version）與 scenario_loader
+              runner      建 engine 跑每個 (變體, seed) —— 在 engine 之上
+              run         組合上面四個
+```
+
+與 failure 相同的切法：轉換與統計不認識 engine，所以衝突規則與彙整規則都能用手造的資料測試。engine 唯一的配合是 `runtime.scheduled_actions`，沒有它時什麼都不做。
 
 ## Reproducibility 與 verification
 
@@ -743,6 +768,8 @@ Phase 3 前的 `resolve_move` / `resolve_attack` 已移除；它們一邊驗證�
 
 **engine 在兩個地方驗證：** policy 交出的 action 在被記錄與結算之前通過 action 契約；`run()` 回傳之前整包通過 result package 契約。壞 action 是 policy 的程式錯誤，raise `ContractError`，不會被記成 `ACTION_REJECTED`（[ADR 004](decisions/004_contract_scope.md) 第 7 點）。
 
+**外部命令（Phase 10）。** `runtime.scheduled_actions` 中指定 tick、指定 actor 的命令取代 policy 的選擇；action id 仍由 `world.ids` 產生，`ACTION_SELECTED` 與結果 event 的 `source.system_id` 是提案系統。沒有 scheduled_actions 時一次都不會被查到 —— reference trace 不變。
+
 `evaluate()` 的 `event_count` 由 `run()` 明確傳入 `len(event_memory) + 1`，因為 evaluation 在 `SCENARIO_END` 寫入之前計算，必須把那個即將寫入的事件算進去。
 
 ## `evaluator.py`
@@ -790,6 +817,7 @@ ruleset_version(scenario, action_types)  "rules-" + hash(rule_set, action types,
 seed_policy(runtime)                   (policy, seed, replayable)
 compare_scenarios(old, new)            Spec §11 五類差異，每項 "<path>: <old> -> <new>"
 compare_runs(a, b)                     same_input / same_output / same_rules + 結果、事件數、判斷、分數的前後值
+child_version(parent, child, label, reason)  子版本：版本號 "<parent>+<label>"、version_control 指回 parent
 RunRegistry(path)                      JSON Lines；record / all / get / by_input
 ```
 
@@ -846,6 +874,70 @@ sensitivity    基線存活率 − 最差等級的存活率（可為負：壓力
 crushing       sensitivity 最大者；同分取較早崩潰者，再同分取名稱
 替代方案       依各變量的崩潰等級與基線存活率比較：holds_longer / breaks_sooner / mixed / same
 ```
+
+## `batch/`
+
+Phase 10 建立。Formal Spec §13。
+
+### `variants.py`
+
+```python
+Variant(variant_id, kind, scenario)          kind ∈ version / sweep / branch
+set_parameter(scenario, path, value)         路徑語法同 compare_scenarios；不改輸入；路徑不存在就 raise
+build_variants(batch, scenarios_dir)         版本 + 掃描點，依請求順序
+branch_variant(base, branch_id, proposals)   命令排進 runtime.scheduled_actions；proposal_id 記在 metadata
+```
+
+掃描點的版本號 `<base>+sweep:<路徑>=<值>`，分支 `<base>+branch:<P1+P2 或 none>`。
+
+### `runner.py`
+
+```python
+run_jobs(variants, profile, seeds, workers=1) -> list[RunRecord]
+```
+
+每個 (變體, seed) 一次 run，紀錄：outcome、verdict、分數、hp_lost（resource_cost 的 raw）、risk_events（risk_growth 的 raw）、事件數、output_hash。workers > 1 用 `ProcessPoolExecutor.map`，結果順序與循序相同。
+
+### `aggregate.py`
+
+```python
+METRICS = {win_rate ↑, failure_frequency ↓, mean_hp_lost ↓, mean_risk_events ↓, mean_score ↑}
+wilson_interval(successes, trials)      95%；0 次時 [0, 1]
+aggregate(records, perspective)         每個變體一份統計，依第一次出現的順序
+compare_branches(stats)                 table、各指標最佳（同分取先列者）、相對第一個的差、
+                                        依平均分數的 ranking 與 better_than / worse_than
+render_comparative_report(result, comparison, package=None) -> Markdown
+```
+
+勝 = `<perspective>_survived`；負 = 其他陣營 survived；其餘為平。
+
+### `conflicts.py`
+
+```python
+detect_conflicts(scenario, proposals)       同 tick 的提案兩兩比較
+compatible_sets(proposals, conflicts)       衝突圖的極大獨立集，依提案順序
+build_conflict_package(scenario, proposals, conflicts, branch_stats, baseline_stats)
+```
+
+| 條件 | 類型 |
+|---|---|
+| 同一 actor 兩個 action | objective（同 priority 加 priority） |
+| 不同 actor 移入 / 部署到同一位置 | location（同 priority 加 priority） |
+| 同一目標，一個傷害（attack）、一個支援（repair、supply） | objective |
+| 同一目標，兩個都改變它（其他組合，含 deploy、withdraw） | timing |
+| 各自付得起、合起來超過開場存量（成本：rule_set.action_costs 優先） | resource |
+| 以上任一成立，且雙方都標了不同的 risk_profile.level | 加 risk |
+
+package 的 `required_decision` 有衝突就是 true；`decision_reason` 列出每個指標由哪個分支領先，最後一句固定是不選邊。
+
+### `run.py`
+
+```python
+run_batch(batch, scenarios_dir, profile_dir, repeats=None, workers=None)
+    -> {batch_result, branch_comparison, conflict_package | None}
+```
+
+請求通過 batch_spec 契約後補上預設值（Phase 9 回顧改法 1）。perspective：請求 → profile → scenario。
 
 ## `verification.py`
 
@@ -927,7 +1019,7 @@ needs_more_test  其餘
 定義：
 
 ```text
-13 份契約（開發計劃的 11 份 + evaluation_profile + failure_map），各一個 Pydantic model + validate_<x>()
+16 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package），各一個 Pydantic model + validate_<x>()
 ContractError
 SCHEMA_VERSION = "0.6"
 build_json_schemas()
@@ -1227,6 +1319,15 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `survival_conditions.json` | 每個變量撐到哪一級、在哪一級崩潰；不適用的變量與原因 |
 | `recommended_modifications.md` | 現實行動前必須改什麼 |
 
+## Batch output（`scripts/run_batch.py`）
+
+| 檔案 | 回答什麼 |
+|---|---|
+| `batch_result.json` | 每個變體跑了幾次、勝率（含 Wilson 區間）、成本、風險、失敗頻率；每個 run 的紀錄（第 15 份契約） |
+| `branch_comparison.json` | 變體並排：各指標最佳、相對第一個的差、ranking、better_than / worse_than |
+| `conflict_package.json` | 哪些命令互相衝突、每個相容分支相對基準的結果、需要決定（第 16 份契約；只有請求含衝突時寫出） |
+| `comparative_report.md` | 上面三者給人讀的版本 |
+
 ## Evaluation output
 
 | 檔案 | 回答什麼 | 內容來源 |
@@ -1292,6 +1393,10 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 23. hashing / versioning / registry 不 import engine
 24. 沒有 rule_set.faults 時，fault_rng 一次都不會被抽；有 faults 時也不擾動主 rng
 25. failure/analysis 不 import 專案模組；variables 不 import engine
+26. 沒有 runtime.scheduled_actions 時，engine 的行為與 Phase 9 相同
+27. batch 的平行與循序結果相同（workers 欄位除外）
+28. batch/aggregate 與 batch/conflicts 不 import engine；conflict package 永不選邊
+29. 寫進輸出的清單排序明確，不依賴 set 的迭代順序：不同 PYTHONHASHSEED 下輸出逐位元相同
 ```
 
 ---
@@ -1334,7 +1439,7 @@ Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 �
 ```text
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
-執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005），宣告在 pyproject.toml
+執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005）、pandas>=2（ADR 010），宣告在 pyproject.toml
 ```
 
 ```bash
@@ -1347,6 +1452,7 @@ python3 -m mypy src/                            # 型別（要用能 import pyda
 python3 scripts/export_schemas.py               # 改契約後重新產生 JSON Schema
 python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 output_hash
 python3 scripts/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
+python3 scripts/run_batch.py [--repeats N] [--workers N]  # 批量與分支比較，寫出四個 batch 輸出
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 
@@ -1366,7 +1472,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 12 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 16 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
@@ -1377,6 +1483,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/008_reproducibility.md`](decisions/008_reproducibility.md) | schema 0.5、決定性 id、hash 與版本的設計決定 |
 | [`decisions/009_failure_exploration.md`](decisions/009_failure_exploration.md) | schema 0.6 與 failure exploration 的設計決定 |
 | [`phases/phase9_failure_exploration.md`](phases/phase9_failure_exploration.md) | Phase 9 完成報告 |
+| [`decisions/010_batch_branch_comparison.md`](decisions/010_batch_branch_comparison.md) | batch、scheduled_actions、衝突分支與 conflict package 的設計決定 |
+| [`phases/phase10_batch_branch_comparison.md`](phases/phase10_batch_branch_comparison.md) | Phase 10 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md) | 各 Phase 回顧 |
