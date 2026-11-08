@@ -100,8 +100,8 @@ def changed_entities(
     scenario: dict[str, Any], changes: dict[str, Any] | None
 ) -> dict[str, Any]:
     """
-    A copy of scenario with units changed: name and type replaced,
-    capabilities and state merged key by key.
+    A copy of scenario with units changed: name, type and position
+    replaced, capabilities and state merged key by key.
 
     Important:
     A change to a unit the scenario does not have is refused with NotFound —
@@ -116,9 +116,9 @@ def changed_entities(
         raise NotFound(f"{scenario['scenario_id']} has no units {unknown}")
     for entity_id, change in changes.items():
         unit = units[entity_id]
-        for field in ("name", "entity_type"):
+        for field in ("name", "entity_type", "position"):
             if change.get(field) is not None:
-                unit[field] = change[field]
+                unit[field] = copy.deepcopy(change[field])
         for field in ("capabilities", "state"):
             unit[field] = {**unit.get(field, {}), **change.get(field, {})}
     return changed

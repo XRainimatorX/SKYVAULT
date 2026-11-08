@@ -371,7 +371,7 @@ class SkyVaultTacticalReferenceEngine:
         actors = [
             entity
             for entity in self.world.active_entities()
-            if acts is None or acts(entity)
+            if acts is None or acts(entity, self.world)
         ]
 
         for actor in actors:

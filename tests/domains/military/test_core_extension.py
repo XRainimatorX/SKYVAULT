@@ -41,6 +41,8 @@ class Holder:
 
 
 def test_the_reference_policy_is_registered_and_others_can_join():
+    # a known name registers itself on first use, whichever test runs first
+    build_policy("tactical_reference", random.Random(1))
     assert "tactical_reference" in registered_policies()
     factory = lambda rng, params: Holder()  # noqa: E731
     register_policy("test_holder", factory)
@@ -91,9 +93,9 @@ def test_without_a_domain_the_engine_is_the_tactical_reference():
 
 def test_domains_are_loaded_by_name():
     assert load_domain("military") is MILITARY
-    # "city" became a real pack in Phase 14
-    with pytest.raises(ValueError, match="unknown domain 'airspace'"):
-        load_domain("airspace")
+    # "city" became a real pack in Phase 14, "airspace" in Phase 15
+    with pytest.raises(ValueError, match="unknown domain 'maritime'"):
+        load_domain("maritime")
 
 
 def test_the_world_reads_the_environment_but_never_snapshots_it():

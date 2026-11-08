@@ -207,10 +207,75 @@ def domain_outcome(package: dict[str, Any], scenario: dict[str, Any]) -> dict | 
         return None
     pack = load_domain(scenario["domain"])
     judged = {}
-    for hook in ("mission_outcome", "governance_outcome"):
+    for hook in ("mission_outcome", "governance_outcome", "airspace_outcome"):
         if hasattr(pack, hook):
             judged[hook] = getattr(pack, hook)(package, scenario)
     return judged
+
+
+def in_airspace(submission: dict[str, Any], scenarios_dir: Path) -> bool:
+    """Whether the submission's scenario runs in the airspace pack (Phase 15)."""
+    scenario = load_scenario_named(submission["scenario"], scenarios_dir)
+    return scenario.get("domain") == "airspace"
+
+
+def airspace_summary(results: Results) -> dict[str, Any]:
+    """
+    The airspace measures over repeated runs (the pack's airspace_outcome):
+    how often the assets came through, leaks, detection and response times,
+    and why each leak happened.
+    """
+    runs = []
+    for entry in results:
+        judged = domain_outcome(entry["result"], entry["scenario"]) or {}
+        outcome = judged["airspace_outcome"]
+        runs.append(
+            {
+                "job_id": entry["job"]["job_id"],
+                "outcome": outcome["outcome"],
+                "leaks": outcome["leaks"],
+                "detection_gap": {
+                    k: v for k, v in outcome["detection_gap"].items() if k != "threats"
+                },
+                "response_time": {
+                    k: v for k, v in outcome["response_time"].items() if k != "threats"
+                },
+                "failure_points": outcome["failure_points"],
+                "false_alarms": outcome["false_alarms"],
+                "fratricide": outcome["fratricide"],
+            }
+        )
+    reasons: dict[str, int] = {}
+    for run in runs:
+        for point in run["failure_points"]:
+            reasons[point["reason"]] = reasons.get(point["reason"], 0) + 1
+    detect = [
+        r["detection_gap"]["mean_ticks_to_detect"]
+        for r in runs
+        if r["detection_gap"]["mean_ticks_to_detect"] is not None
+    ]
+    respond = [
+        r["response_time"]["mean"]
+        for r in runs
+        if r["response_time"]["mean"] is not None
+    ]
+    react = [
+        r["response_time"]["mean_reaction"]
+        for r in runs
+        if r["response_time"]["mean_reaction"] is not None
+    ]
+    return {
+        "defended_rate": rate([r["outcome"] == "defended" for r in runs]),
+        "mean_leaks": average([float(r["leaks"]) for r in runs]),
+        "uncovered_share": (
+            runs[0]["detection_gap"]["uncovered_share"] if runs else None
+        ),
+        "mean_ticks_to_detect": average(detect),
+        "mean_response_ticks": average(respond),
+        "mean_reaction_ticks": average(react),
+        "failure_reasons": dict(sorted(reasons.items())),
+        "runs": runs,
+    }
 
 
 def rate(flags: list[bool]) -> float:
@@ -523,15 +588,47 @@ class AEROGRIDAdapter:
     """
 
     system = "AEROGRID"
-    gap = "airspace configuration (altitude, corridors) has no model before Phase 15"
+    gap = "airspace configuration has a model only in airspace scenarios (Phase 15)"
 
     def to_request(
         self, submission: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
     ) -> Request:
+        if in_airspace(submission, scenarios_dir):
+            return self.airspace_request(submission, scenarios_dir)
         job = {"kind": "scenario_run", "scenario": submission["scenario"]}
         return request(self.system, [job], gaps=[self.gap])
 
+    def airspace_request(
+        self, submission: dict[str, Any], scenarios_dir: Path
+    ) -> Request:
+        """
+        An airspace configuration: each named sensor moved (position),
+        retuned (range, detection, false_alarm, low_altitude) or switched on
+        or off (online) — only sensors the scenario has (a spare included).
+        """
+        changes: dict[str, Any] = {}
+        tunable = ("range", "detection", "false_alarm", "low_altitude")
+        for sensor_id, config in submission["content"].get("sensors", {}).items():
+            change: dict[str, Any] = {}
+            if "position" in config:
+                change["position"] = list(config["position"])
+            capabilities = {k: config[k] for k in tunable if k in config}
+            if capabilities:
+                change["capabilities"] = capabilities
+            if "online" in config:
+                change["state"] = {"online": bool(config["online"])}
+            changes[sensor_id] = change
+        extra = {"entity_changes": changes} if changes else {}
+        return request(self.system, seeded_runs(submission, {}, scenarios_dir, **extra))
+
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
+        if results and results[0]["scenario"].get("domain") == "airspace":
+            return {
+                "system": self.system,
+                "supported": True,
+                "airspace": airspace_summary(results),
+                "gaps": [],
+            }
         (entry,) = results
         package, scenario = entry["result"], entry["scenario"]
         content = submission["content"]
@@ -664,6 +761,14 @@ class HADESAdapter:
     def to_request(
         self, submission: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
     ) -> Request:
+        if in_airspace(submission, scenarios_dir):
+            # the defence behaviour HADES submits: its rules of engagement
+            policy = {
+                "name": "hades_rules",
+                "params": dict(submission["content"].get("behavior", {})),
+            }
+            runs = seeded_runs(submission, {"policy": policy}, scenarios_dir)
+            return request(self.system, runs)
         participant = {
             "participant_id": "hades",
             "policy": {"name": "hades_adapter"},
@@ -734,6 +839,14 @@ class HADESAdapter:
         }
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
+        if results and results[0]["scenario"].get("domain") == "airspace":
+            return {
+                "system": self.system,
+                "supported": True,
+                "behavior": dict(submission["content"].get("behavior", {})),
+                "airspace": airspace_summary(results),
+                "gaps": [],
+            }
         defenders = list(submission["content"]["units"])
         runs = [
             {

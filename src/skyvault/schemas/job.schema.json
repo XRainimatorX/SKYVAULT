@@ -43,7 +43,7 @@
     },
     "EntityChange": {
       "additionalProperties": false,
-      "description": "What a request changes on one unit; capabilities and state are merged.",
+      "description": "What a request changes on one unit; capabilities and state are merged.\nposition moves it (Phase 15: AEROGRID repositions a sensor); the\nscenario contract still checks it is inside the space.",
       "properties": {
         "capabilities": {
           "additionalProperties": true,
@@ -75,6 +75,24 @@
           ],
           "default": null,
           "title": "Name"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Position"
         },
         "state": {
           "additionalProperties": true,

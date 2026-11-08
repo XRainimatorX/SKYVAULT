@@ -46,13 +46,14 @@ def evaluate_run(
 
     confidence is the weight of the axes that had data over all weight.
 
-    A world with no opposing faction (a city) has nothing for
-    mission_success to measure; when the scenario names its success_outcomes,
-    mission_success is 1 for a run whose winner_or_result is one of them and
-    0 otherwise (Phase 14). A failure threshold is also reached when the run
-    ended on a domain reason of that name (termination_condition_met:<name>);
-    end_reasons are the reasons the domain can end a run for, so such a
-    threshold is evaluated even when it was not reached.
+    When the scenario names its success_outcomes, mission_success is 1 for a
+    run whose winner_or_result is one of them and 0 otherwise: a city has no
+    opposing faction to count (Phase 14), and in air defence a breach is a
+    failed mission however many threats were shot down (Phase 15). A failure
+    threshold is also reached when the run ended on a domain reason of that
+    name (termination_condition_met:<name>); end_reasons are the reasons
+    the domain can end a run for, so such a threshold is evaluated even when
+    it was not reached.
     """
     perspective = profile["perspective"]
     if perspective is None:
@@ -66,7 +67,7 @@ def evaluate_run(
         initial_world_state, event_memory, final_world_state, perspective, max_ticks
     )
     values = {name: metric.compute(context) for name, metric in METRIC_REGISTRY.items()}
-    if success_outcomes and not context.enemies:
+    if success_outcomes:
         outcome = summary["winner_or_result"]
         achieved = 1.0 if outcome in success_outcomes else 0.0
         values["mission_success"] = MetricValue(

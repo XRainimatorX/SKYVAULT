@@ -1,0 +1,13 @@
+{
+  "batch_id": "airspace_defence_001_south_radar",
+  "description": "The defence with and without its south radar, 20 runs each: what one sensor is worth.",
+  "scenario_id": "airspace_defence_001",
+  "base_version": "v0.1",
+  "profile": "balanced",
+  "perspective": "DEFENCE",
+  "run_policy": {"repeat_count": 20, "random_seed_policy": "controlled_random"},
+  "workers": 2,
+  "sweeps": [
+    {"parameter": "entities[radar_south].state.online", "values": [true, false]}
+  ]
+}

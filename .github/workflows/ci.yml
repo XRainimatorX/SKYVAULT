@@ -298,6 +298,35 @@ jobs:
           print("city pack verified: score", takeover["score"], "vs", blackout["score"], "; orders", orders)
           EOF
 
+      # Phase 15: the airspace pack — detection gap, response time, failure points
+      - name: Airspace domain pack
+        run: |
+          python scripts/build_airspace_scenarios.py
+          git diff --exit-code data/scenarios/airspace_defence_001
+          python scripts/run_tactical_reference.py --scenario data/scenarios/airspace_defence_001/v0.1.json
+          python scripts/run_airspace.py --runs 5
+          python scripts/run_batch.py --batch data/batches/airspace_sensors.json --repeats 10 --workers 2
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          out = Path("output")
+          package = json.loads((out / "result_package.json").read_text())
+          verdict = package["evaluation_result"]
+          assert verdict["winner_or_result"] == "defended", verdict["winner_or_result"]
+          assert verdict["termination_reason"] == "termination_condition_met:threats_resolved"
+          outcome = json.loads((out / "airspace" / "outcome_airspace_defence_001.json").read_text())
+          assert outcome["leaks"] == 0 and outcome["failure_points"] == [], outcome["failure_points"]
+          configs = json.loads((out / "airspace" / "configs.json").read_text())
+          assert configs["south radar off"]["uncovered_share"] > configs["as built"]["uncovered_share"]
+          behaviors = json.loads((out / "airspace" / "behaviors.json").read_text())
+          assert behaviors["close in (engage_at 0.5)"]["mean_leaks"] > behaviors["baseline"]["mean_leaks"]
+          batch = json.loads((out / "batch_result.json").read_text())
+          rates = [variant["win_rate"] for variant in batch["variants"]]
+          assert rates[0] > rates[1], rates
+          print("airspace pack verified: rates", rates, "; leaks", behaviors["baseline"]["mean_leaks"], "vs", behaviors["close in (engage_at 0.5)"]["mean_leaks"])
+          EOF
+
       # Phase 18: training data from the sources file, filtered for score gaming
       - name: Training data pipeline
         run: |

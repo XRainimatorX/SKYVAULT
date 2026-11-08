@@ -38,7 +38,7 @@ class CityPack:
     ) -> CityAdministrationPolicy:
         return CityAdministrationPolicy()
 
-    def acts(self, entity: Any) -> bool:
+    def acts(self, entity: Any, world: Any = None) -> bool:
         """Only actors decide, and only when not on the road."""
         return entity.entity_type in ACTORS and entity.position is not None
 

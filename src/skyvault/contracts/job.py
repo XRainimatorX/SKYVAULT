@@ -38,9 +38,14 @@ NAME = r"^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$"
 
 
 class EntityChange(ContractModel):
-    """What a request changes on one unit; capabilities and state are merged."""
+    """
+    What a request changes on one unit; capabilities and state are merged.
+    position moves it (Phase 15: AEROGRID repositions a sensor); the
+    scenario contract still checks it is inside the space.
+    """
 
     name: NonEmptyStr | None = None
+    position: list[int] | str | None = None
     entity_type: NonEmptyStr | None = None
     capabilities: dict[str, Any] = Field(default_factory=dict)
     state: dict[str, Any] = Field(default_factory=dict)

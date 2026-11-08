@@ -305,7 +305,7 @@ def test_aerogrid_gets_coverage_gaps_and_its_reaction_window():
     )
     assert window["first_hit_tick"] == first_hit
     assert returned["gaps"] == [
-        "airspace configuration (altitude, corridors) has no model before Phase 15"
+        "airspace configuration has a model only in airspace scenarios (Phase 15)"
     ]
 
 
@@ -479,7 +479,7 @@ def test_a_unit_change_names_only_known_fields():
             {
                 "kind": "scenario_run",
                 "scenario": "tactical_reference_001/v0.1",
-                "entity_changes": {"blue_002": {"position": [0, 0]}},
+                "entity_changes": {"blue_002": {"faction": "RED"}},
             }
         )
 

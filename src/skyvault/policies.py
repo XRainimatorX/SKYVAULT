@@ -71,6 +71,7 @@ KNOWN_POLICIES = {
     "hades_adapter": "skyvault.actors.adapters",
     "aerogrid_adapter": "skyvault.actors.adapters",
     "skyfox_adapter": "skyvault.actors.adapters",
+    "hades_rules": "skyvault.domains.airspace.policy",
 }
 
 
