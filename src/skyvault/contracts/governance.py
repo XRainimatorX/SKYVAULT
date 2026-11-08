@@ -74,8 +74,14 @@ class ResourceComputeGovernance(ContractModel):
 
 
 class Usage(ContractModel):
-    ticks: int = Field(ge=0)
-    decisions: int = Field(ge=0)
+    """
+    What was used. A batch or an exploration counts runs and events; ticks
+    and decisions are counted for single runs only (null otherwise).
+    """
+
+    runs: int = Field(default=1, ge=1)
+    ticks: int | None = Field(ge=0)
+    decisions: int | None = Field(ge=0)
     events: int = Field(ge=0)
     runtime_seconds: float = Field(ge=0.0)
 

@@ -11,6 +11,7 @@ Spec section 15's auto-stop conditions). Neither imports the engine.
 import hashlib
 import json
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -160,6 +161,7 @@ class Governor:
         cap: dict[str, Any] | None = None,
         estimated_cost: dict[str, Any] | None = None,
         duration_clamped_from: int | None = None,
+        cancel_check: Callable[[], bool] | None = None,
     ) -> None:
         self.policy = policy
         self.perspective = perspective
@@ -167,6 +169,7 @@ class Governor:
         self.estimated_cost = estimated_cost
         self.duration_clamped_from = duration_clamped_from
         self.cancel_requested = False
+        self.cancel_check = cancel_check
         self.started = time.monotonic()
         self.last: str | None = None
         self.unchanged = 0
@@ -182,7 +185,7 @@ class Governor:
     def after_tick(
         self, snapshot: dict[str, Any], decisions: int, events: int, ticks: int
     ) -> str | None:
-        if self.cancel_requested:
+        if self.cancel_requested or (self.cancel_check and self.cancel_check()):
             return "cancelled"
         seconds = self.policy["max_runtime_seconds"]
         if seconds is not None and time.monotonic() - self.started > seconds:

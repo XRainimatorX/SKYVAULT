@@ -64,16 +64,10 @@ def run_batch(
     profile["perspective"] = perspective
     seeds = _seeds(base, request)
 
-    variants: list[Variant] = build_variants(request, scenarios_dir)
+    variants = planned_variants(request, base, scenarios_dir)
     proposals = (request["conflicts"] or {}).get("proposals", [])
     conflicts = detect_conflicts(base, proposals)
     sets = compatible_sets(proposals, conflicts)
-    if request["conflicts"] is not None:
-        by_id = {p["proposal_id"]: p for p in proposals}
-        for chosen in [*sets, []]:
-            variants.append(
-                branch_variant(base, branch_id(chosen), [by_id[p] for p in chosen])
-            )
     records = run_jobs(variants, profile, seeds, request["workers"])
     stats = aggregate(records, perspective) if records else []
 
@@ -109,6 +103,28 @@ def run_batch(
         "branch_comparison": compare_branches(stats),
         "conflict_package": package,
     }
+
+
+def planned_variants(
+    request: dict[str, Any], base: dict[str, Any], scenarios_dir: Path = SCENARIO_DIR
+) -> list[Variant]:
+    """
+    Every variant a batch runs: its versions and sweep points, then one branch
+    per compatible set of proposals and the baseline with none. The world
+    service counts a batch's runs with this, so the count cannot drift from
+    what run_batch does.
+    """
+    request = _with_defaults(validate_batch_spec(request))
+    variants: list[Variant] = build_variants(request, scenarios_dir)
+    if request["conflicts"] is not None:
+        proposals = request["conflicts"]["proposals"]
+        sets = compatible_sets(proposals, detect_conflicts(base, proposals))
+        by_id = {p["proposal_id"]: p for p in proposals}
+        for chosen in [*sets, []]:
+            variants.append(
+                branch_variant(base, branch_id(chosen), [by_id[p] for p in chosen])
+            )
+    return variants
 
 
 def _with_defaults(request: dict[str, Any]) -> dict[str, Any]:

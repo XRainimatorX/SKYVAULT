@@ -1120,15 +1120,29 @@
     },
     "Usage": {
       "additionalProperties": false,
+      "description": "What was used. A batch or an exploration counts runs and events; ticks\nand decisions are counted for single runs only (null otherwise).",
       "properties": {
         "decisions": {
-          "minimum": 0,
-          "title": "Decisions",
-          "type": "integer"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Decisions"
         },
         "events": {
           "minimum": 0,
           "title": "Events",
+          "type": "integer"
+        },
+        "runs": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Runs",
           "type": "integer"
         },
         "runtime_seconds": {
@@ -1137,9 +1151,16 @@
           "type": "number"
         },
         "ticks": {
-          "minimum": 0,
-          "title": "Ticks",
-          "type": "integer"
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ticks"
         }
       },
       "required": [

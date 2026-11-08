@@ -25,6 +25,11 @@ dependencies = [
     "reportlab>=4",
     # Parquet export of training datasets (Phase 18).
     "pyarrow>=14",
+    # Background world service (Phase 11): job queue and workers on Redis,
+    # jobs and results in PostgreSQL (SQLite is the default store).
+    "rq>=1.16",
+    "redis>=5",
+    "psycopg[binary]>=3.1",
 ]
 
 [project.optional-dependencies]
