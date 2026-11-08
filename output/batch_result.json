@@ -107,7 +107,7 @@
     140,
     141
   ],
-  "workers": 1,
+  "workers": 4,
   "total_runs": 900,
   "variants": [
     {
