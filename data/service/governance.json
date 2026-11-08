@@ -1,0 +1,15 @@
+{
+  "policy_id": "default",
+  "description": "The world service's default Resource & Compute Governance (Formal Spec section 15). Sized at Phase 11 opening: the longest reference / military run is 25 ticks and 208 decisions; the reference batch is 600 runs and failure exploration about 760; no normal run went more than 4 ticks without a state change (40 seeds x 6 scenarios).",
+  "run_priority": "normal",
+  "compute_budget": {"max_decisions": 5000, "max_events": 20000},
+  "max_scenario_duration": 200,
+  "max_runtime_seconds": 60,
+  "max_parallel_runs": 2,
+  "max_batch_count": 1000,
+  "max_queue_length": 100,
+  "queue_policy": "priority_then_fifo",
+  "persistent_world_resource_cap": {"max_ticks": 1000, "max_events": 100000, "max_checkpoints": 50},
+  "auto_stop": {"no_new_state_change_ticks": 10, "infinite_loop_repeats": 3, "failure_loss_ratio": null},
+  "partial_result_export": true
+}
