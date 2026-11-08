@@ -1,8 +1,108 @@
 {
   "$defs": {
+    "GovernanceRecord": {
+      "additionalProperties": false,
+      "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
+      "properties": {
+        "duration_clamped_from": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Clamped From"
+        },
+        "estimated_cost": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Limits"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "policy_id": {
+          "minLength": 1,
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "run_priority": {
+          "default": "normal",
+          "enum": [
+            "low",
+            "normal",
+            "high",
+            "critical"
+          ],
+          "title": "Run Priority",
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "budget_exceeded",
+                "infinite_loop_detected",
+                "no_new_state_change",
+                "failure_threshold_reached",
+                "max_runtime_exceeded",
+                "resource_cap_reached",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stop Reason"
+        },
+        "stopped": {
+          "title": "Stopped",
+          "type": "boolean"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        }
+      },
+      "required": [
+        "policy_id",
+        "limits",
+        "usage",
+        "stopped",
+        "stop_reason",
+        "partial"
+      ],
+      "title": "GovernanceRecord",
+      "type": "object"
+    },
     "RunMetadata": {
       "additionalProperties": false,
-      "description": "When and where a run happened.",
+      "description": "When and where a run happened, and what it used (Phase 11: every run\ncarries its resource_compute_governance record).",
       "properties": {
         "compute_profile": {
           "default": "",
@@ -19,6 +119,17 @@
           "title": "Operator System",
           "type": "string"
         },
+        "resource_compute_governance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GovernanceRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "started_at": {
           "minLength": 1,
           "title": "Started At",
@@ -30,6 +141,39 @@
         "ended_at"
       ],
       "title": "RunMetadata",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "minimum": 0,
+          "title": "Decisions",
+          "type": "integer"
+        },
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "runtime_seconds": {
+          "minimum": 0.0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "ticks": {
+          "minimum": 0,
+          "title": "Ticks",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ticks",
+        "decisions",
+        "events",
+        "runtime_seconds"
+      ],
+      "title": "Usage",
       "type": "object"
     }
   },

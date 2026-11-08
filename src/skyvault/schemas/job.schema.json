@@ -1,0 +1,406 @@
+{
+  "$defs": {
+    "GovernanceRecord": {
+      "additionalProperties": false,
+      "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
+      "properties": {
+        "duration_clamped_from": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Clamped From"
+        },
+        "estimated_cost": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Limits"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "policy_id": {
+          "minLength": 1,
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "run_priority": {
+          "default": "normal",
+          "enum": [
+            "low",
+            "normal",
+            "high",
+            "critical"
+          ],
+          "title": "Run Priority",
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "budget_exceeded",
+                "infinite_loop_detected",
+                "no_new_state_change",
+                "failure_threshold_reached",
+                "max_runtime_exceeded",
+                "resource_cap_reached",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stop Reason"
+        },
+        "stopped": {
+          "title": "Stopped",
+          "type": "boolean"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        }
+      },
+      "required": [
+        "policy_id",
+        "limits",
+        "usage",
+        "stopped",
+        "stop_reason",
+        "partial"
+      ],
+      "title": "GovernanceRecord",
+      "type": "object"
+    },
+    "JobRequest": {
+      "additionalProperties": false,
+      "description": "What a system asks the service to do (task_intake).\n\nImportant:\nruntime overrides the scenario's runtime block (max_ticks, random_seed,\npolicy, participants); replay names the job whose run to replay.",
+      "properties": {
+        "batch": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Batch"
+        },
+        "kind": {
+          "enum": [
+            "scenario_run",
+            "batch",
+            "failure_exploration",
+            "replay",
+            "persistent_world"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "enum": [
+                "low",
+                "normal",
+                "high",
+                "critical"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile"
+        },
+        "repeat_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repeat Count"
+        },
+        "replay": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Replay"
+        },
+        "required_result_package": {
+          "default": true,
+          "title": "Required Result Package",
+          "type": "boolean"
+        },
+        "runtime": {
+          "additionalProperties": true,
+          "title": "Runtime",
+          "type": "object"
+        },
+        "scenario": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario"
+        },
+        "source_system": {
+          "default": "user",
+          "minLength": 1,
+          "title": "Source System",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "JobRequest",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "minimum": 0,
+          "title": "Decisions",
+          "type": "integer"
+        },
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "runtime_seconds": {
+          "minimum": 0.0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "ticks": {
+          "minimum": 0,
+          "title": "Ticks",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "ticks",
+        "decisions",
+        "events",
+        "runtime_seconds"
+      ],
+      "title": "Usage",
+      "type": "object"
+    },
+    "WorldInstance": {
+      "additionalProperties": false,
+      "properties": {
+        "lifecycle_state": {
+          "enum": [
+            "created",
+            "initialized",
+            "running",
+            "paused",
+            "completed",
+            "failed",
+            "archived",
+            "replayed",
+            "deleted"
+          ],
+          "title": "Lifecycle State",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "world_id": {
+          "minLength": 1,
+          "title": "World Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "world_id",
+        "scenario_id",
+        "lifecycle_state"
+      ],
+      "title": "WorldInstance",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/job.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A job as the service keeps it.",
+  "properties": {
+    "created_at": {
+      "minLength": 1,
+      "title": "Created At",
+      "type": "string"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error"
+    },
+    "estimated_cost": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Cost"
+    },
+    "governance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/GovernanceRecord"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "job_id": {
+      "minLength": 1,
+      "title": "Job Id",
+      "type": "string"
+    },
+    "lifecycle_state": {
+      "enum": [
+        "created",
+        "initialized",
+        "running",
+        "paused",
+        "completed",
+        "failed",
+        "archived",
+        "replayed",
+        "deleted"
+      ],
+      "title": "Lifecycle State",
+      "type": "string"
+    },
+    "priority": {
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "title": "Priority",
+      "type": "string"
+    },
+    "request": {
+      "$ref": "#/$defs/JobRequest"
+    },
+    "summary": {
+      "additionalProperties": true,
+      "title": "Summary",
+      "type": "object"
+    },
+    "updated_at": {
+      "minLength": 1,
+      "title": "Updated At",
+      "type": "string"
+    },
+    "world_instance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WorldInstance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "job_id",
+    "request",
+    "priority",
+    "lifecycle_state",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "Job",
+  "type": "object"
+}

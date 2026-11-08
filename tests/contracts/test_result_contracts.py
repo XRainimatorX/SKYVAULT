@@ -233,6 +233,8 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "observer_profile",
     "observation",
     "order",
+    "resource_compute_governance",
+    "job",
 }
 
 

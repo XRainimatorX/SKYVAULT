@@ -12,6 +12,8 @@ from .evaluation import EvaluationResult
 from .evaluation_profile import EvaluationProfile
 from .event import EventRecord
 from .failure import FailureMap
+from .governance import ResourceComputeGovernance
+from .job import Job
 from .observation import Observation, ObserverProfile
 from .order import Order
 from .provenance import DataProvenance
@@ -22,8 +24,8 @@ from .world import WorldContract
 
 # The eleven contracts of the development plan's Phase 1, plus the evaluation
 # profile Phase 7 adds, the failure map Phase 9 adds and the three batch contracts
-# Phase 10 adds, the observer profile and observation Phase 5 adds and the order
-# Phase 6 adds, by their file names.
+# Phase 10 adds, the observer profile and observation Phase 5 adds, the order
+# Phase 6 adds and the governance policy and job Phase 11 adds, by file name.
 CONTRACTS: dict[str, type[ContractModel]] = {
     "world_contract": WorldContract,
     "scenario": Scenario,
@@ -44,6 +46,8 @@ CONTRACTS: dict[str, type[ContractModel]] = {
     "observer_profile": ObserverProfile,
     "observation": Observation,
     "order": Order,
+    "resource_compute_governance": ResourceComputeGovernance,
+    "job": Job,
 }
 
 

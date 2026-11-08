@@ -97,6 +97,8 @@ def observe(
 
 def units_at(history: History, tick: int) -> Units:
     """The units at tick: the latest recorded tick at or before it."""
+    if tick in history:
+        return history[tick]
     known = [t for t in history if t <= tick]
     if not known:
         raise ValueError(f"no history at or before tick {tick}")
@@ -131,7 +133,7 @@ def enemy_contacts(
             units, faction, profile, concealment, space
         ).items()
     }
-    first = min(history)
+    first = first_tick(history)
     stale_after = profile["stale_after_ticks"]
     for age in range(1, stale_after + 1):
         past = tick - age
@@ -153,11 +155,16 @@ def enemy_contacts(
     ]
 
 
+def first_tick(history: History) -> int:
+    """The earliest tick in history: tick 0 for every run, found without a scan."""
+    return 0 if 0 in history else min(history)
+
+
 def initial_hp(history: History) -> dict[str, float]:
     """Every unit's hp at the start of the run, the scale health bands use."""
     return {
         entity_id: float(unit["state"].get("hp", 0))
-        for entity_id, unit in history[min(history)].items()
+        for entity_id, unit in history[first_tick(history)].items()
     }
 
 
@@ -340,7 +347,7 @@ def aggregate_view(
     faction = viewpoint["faction"]
     start = initial_hp(history)
     window = max(1, profile["stale_after_ticks"])
-    past_tick = max(min(history), tick - window)
+    past_tick = max(first_tick(history), tick - window)
     own_now = _side(units, start, faction)
     own_then = _side(units_at(history, past_tick), start, faction)
     then = enemy_contacts(history, past_tick, faction, profile, context)

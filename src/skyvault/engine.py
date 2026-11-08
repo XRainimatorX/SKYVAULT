@@ -10,6 +10,7 @@ from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handl
 from .actors.participants import Participants
 from .actors.view import WorldView
 from .contracts import (
+    ungoverned_record,
     validate_action,
     validate_evaluation_profile,
     validate_order,
@@ -69,9 +70,19 @@ class SkyVaultTacticalReferenceEngine:
         scenario: dict[str, Any],
         evaluation_profile: dict[str, Any] | None = None,
         policy: AnyPolicy | None = None,
+        governor: Any = None,
     ):
         self.scenario = scenario
         self.evaluation_profile = self.resolve_profile(evaluation_profile)
+        # A governor (the world service's) may stop the run at the end of any
+        # tick; without one the run is never stopped early (Phase 11)
+        self.governor = governor
+        self.decisions = 0
+        self.stop_reason: str | None = None
+        self._began = False
+        self._over = False
+        self._finished = False
+        self._ticks_run = 0
 
         # A stochastic run draws an unseeded generator on purpose and records
         # no seed; every other policy seeds the run's only random source
@@ -218,11 +229,14 @@ class SkyVaultTacticalReferenceEngine:
                 cast(WorldState, self.world_view),
                 cast(Entity, self.world_view.view_of(actor)),
             )
-        history = dict(self.observed)
-        history[self.world.tick] = {
+        # The units as they are now stand in for this tick until its end,
+        # when the end-of-tick snapshot replaces them; nothing is copied, so a
+        # long run costs the same per decision at tick 5000 as at tick 5
+        self.observed[self.world.tick] = {
             entity_id: entity.snapshot()
             for entity_id, entity in self.world.entities.items()
         }
+        history = self.observed
         viewpoint = {"faction": actor.faction, "actor_id": actor.entity_id}
         context = context_for(
             self.scenario, actor.faction, self.world.resources.snapshot()
@@ -294,120 +308,182 @@ class SkyVaultTacticalReferenceEngine:
         The initial world state is captured before the first tick, so the
         package carries both where the run started and where it ended. Every
         derived output is built from the package, never from the scenario file.
+        run() is begin(), step() until the run is over, then finish(); a
+        persistent world calls the three itself (development plan Phase 11).
         """
-        started_at = utc_now()
-        max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
-        termination_reason = "duration_limit_reached"
+        self.begin()
+        while self.step():
+            pass
+        return self.finish()
 
-        initial_world_state = self.world.snapshot()
-        self.snapshots.record(self.world.tick, initial_world_state)
+    def begin(self) -> None:
+        """Record where the run starts; the first tick is the first step()."""
+        if self._began:
+            raise RuntimeError("this run has already begun")
+        self._began = True
+        self._started_at = utc_now()
+        self._max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
+        self._termination = "duration_limit_reached"
+        self._initial = self.world.snapshot()
+        self.snapshots.record(self.world.tick, self._initial)
         if self.observers:
-            self.observed[self.world.tick] = initial_world_state["entities"]
+            self.observed[self.world.tick] = self._initial["entities"]
+        if self.governor is not None:
+            self.governor.start()
 
-        for _ in range(max_ticks):
-            self.world.advance_time()
+    @property
+    def over(self) -> bool:
+        """True once no further tick will run."""
+        return self._over
 
-            if len(self.world.active_factions()) <= 1:
-                termination_reason = "termination_condition_met"
-                break
+    def step(self) -> bool:
+        """
+        Run one tick; True while another tick can follow.
 
-            self.upkeep()
-            actors = list(self.world.active_entities())
+        Important:
+        The governor, when there is one, is asked at the end of every tick
+        that would not have ended the run anyway; a stop reason ends the run
+        with termination_reason "auto_stop:<reason>".
+        """
+        if not self._began:
+            raise RuntimeError("begin() the run before stepping it")
+        if self._over:
+            return False
+        self._ticks_run += 1
+        self.world.advance_time()
 
-            for actor in actors:
-                if not actor.is_active():
-                    continue
+        if len(self.world.active_factions()) <= 1:
+            self._termination = "termination_condition_met"
+            self._over = True
+            return False
 
-                # An action an outside system ordered for this tick replaces
-                # the policy's decision; its events carry that system's id
-                scheduled = self.scheduled.get((self.world.tick, actor.entity_id))
-                deciding, decider_id = self.decider(actor)
-                system_id = scheduled["system_id"] if scheduled else decider_id
-                action = (
-                    self.scheduled_action(actor.entity_id, scheduled)
-                    if scheduled
-                    else self.decide(deciding, actor)
-                )
+        self.upkeep()
+        actors = list(self.world.active_entities())
 
-                if action is None:
-                    self.world.record_event(
-                        event_type="NO_ACTION",
-                        actor_id=actor.entity_id,
-                        system_id=decider_id,
-                        target_entity_id=None,
-                        source_action_id=None,
-                        before_state=actor.snapshot(),
-                        after_state=actor.snapshot(),
-                        affected_entities=[actor.entity_id],
-                        data={"reason": "policy_returned_no_action"},
-                        tags=["no_action"],
-                    )
-                    continue
+        for actor in actors:
+            if not actor.is_active():
+                continue
 
-                # A malformed action is a broken policy, not a rejected move:
-                # it raises here and is never recorded or resolved.
-                validate_action(action.to_dict())
+            # An action an outside system ordered for this tick replaces
+            # the policy's decision; its events carry that system's id
+            scheduled = self.scheduled.get((self.world.tick, actor.entity_id))
+            deciding, decider_id = self.decider(actor)
+            system_id = scheduled["system_id"] if scheduled else decider_id
+            action = (
+                self.scheduled_action(actor.entity_id, scheduled)
+                if scheduled
+                else self.decide(deciding, actor)
+            )
 
-                target_entity_id = action.target.entity_id
-                action_entities = [actor.entity_id]
-
-                if target_entity_id is not None:
-                    action_entities.append(target_entity_id)
-
+            self.decisions += 1
+            if action is None:
                 self.world.record_event(
-                    event_type="ACTION_SELECTED",
+                    event_type="NO_ACTION",
                     actor_id=actor.entity_id,
+                    system_id=decider_id,
+                    target_entity_id=None,
+                    source_action_id=None,
+                    before_state=actor.snapshot(),
+                    after_state=actor.snapshot(),
+                    affected_entities=[actor.entity_id],
+                    data={"reason": "policy_returned_no_action"},
+                    tags=["no_action"],
+                )
+                continue
+
+            # A malformed action is a broken policy, not a rejected move:
+            # it raises here and is never recorded or resolved.
+            validate_action(action.to_dict())
+
+            target_entity_id = action.target.entity_id
+            action_entities = [actor.entity_id]
+
+            if target_entity_id is not None:
+                action_entities.append(target_entity_id)
+
+            self.world.record_event(
+                event_type="ACTION_SELECTED",
+                actor_id=actor.entity_id,
+                system_id=system_id,
+                target_entity_id=target_entity_id,
+                source_action_id=action.action_id,
+                before_state=actor.snapshot(),
+                after_state=actor.snapshot(),
+                affected_entities=action_entities,
+                data={
+                    "action_type": action.action_type,
+                    "intent": action.intent,
+                    "target_position": location_to_json(action.target.location),
+                },
+                tags=["action_selection"],
+            )
+
+            # Validation, resolution, world mutation and the resulting
+            # events all happen inside the resolver
+            consequence = self.resolver.execute(self.world, action, system_id)
+
+            if not consequence.accepted:
+                self.world.record_event(
+                    event_type="ACTION_REJECTED",
+                    actor_id=action.actor_id,
                     system_id=system_id,
                     target_entity_id=target_entity_id,
                     source_action_id=action.action_id,
-                    before_state=actor.snapshot(),
-                    after_state=actor.snapshot(),
+                    before_state={},
+                    after_state={},
                     affected_entities=action_entities,
                     data={
+                        "reason": consequence.reason,
                         "action_type": action.action_type,
-                        "intent": action.intent,
-                        "target_position": location_to_json(action.target.location),
                     },
-                    tags=["action_selection"],
+                    tags=["action_rejected"],
                 )
 
-                # Validation, resolution, world mutation and the resulting
-                # events all happen inside the resolver
-                consequence = self.resolver.execute(self.world, action, system_id)
-
-                if not consequence.accepted:
-                    self.world.record_event(
-                        event_type="ACTION_REJECTED",
-                        actor_id=action.actor_id,
-                        system_id=system_id,
-                        target_entity_id=target_entity_id,
-                        source_action_id=action.action_id,
-                        before_state={},
-                        after_state={},
-                        affected_entities=action_entities,
-                        data={
-                            "reason": consequence.reason,
-                            "action_type": action.action_type,
-                        },
-                        tags=["action_rejected"],
-                    )
-
-                if len(self.world.active_factions()) <= 1:
-                    termination_reason = "termination_condition_met"
-                    break
-
-            # Snapshots are taken at the end of a tick, after all its events
-            end_of_tick = self.world.snapshot()
-            self.snapshots.record(self.world.tick, end_of_tick)
-            if self.observers:
-                self.observed[self.world.tick] = end_of_tick["entities"]
-
-            if termination_reason == "termination_condition_met":
+            if len(self.world.active_factions()) <= 1:
+                self._termination = "termination_condition_met"
                 break
 
+        # Snapshots are taken at the end of a tick, after all its events
+        end_of_tick = self.world.snapshot()
+        self.snapshots.record(self.world.tick, end_of_tick)
+        if self.observers:
+            self.observed[self.world.tick] = end_of_tick["entities"]
+
+        if self._termination == "termination_condition_met":
+            self._over = True
+            return False
+        if self._ticks_run >= self._max_ticks:
+            self._over = True
+            return False
+        if self.governor is not None:
+            reason = self.governor.after_tick(
+                end_of_tick,
+                self.decisions,
+                len(self.world.event_memory),
+                self._ticks_run,
+            )
+            if reason is not None:
+                self.stop(reason)
+                return False
+        return True
+
+    def stop(self, reason: str) -> None:
+        """End the run after the current tick, for reason (auto-stop, cancel, cap)."""
+        self.stop_reason = reason
+        self._termination = f"auto_stop:{reason}"
+        self._over = True
+
+    def finish(self) -> dict[str, Any]:
+        """Close the run (SCENARIO_END, evaluation) and return its result package."""
+        if not self._began:
+            raise RuntimeError("begin() the run before finishing it")
+        if self._finished:
+            raise RuntimeError("this run has already finished")
+        self._finished = True
+        self._over = True
         total_events = len(self.world.event_memory) + 1
 
-        evaluation = self.evaluate(termination_reason, total_events)
+        evaluation = self.evaluate(self._termination, total_events)
 
         self.world.record_event(
             event_type="SCENARIO_END",
@@ -429,24 +505,24 @@ class SkyVaultTacticalReferenceEngine:
         # The multi-axis verdict is derived from what was recorded, after the
         # run; SCENARIO_END keeps the run-end summary it was given above
         evaluated = evaluate_run(
-            initial_world_state,
+            self._initial,
             event_memory,
             final_world_state,
             evaluation,
             self.evaluation_profile,
-            max_ticks,
+            self._max_ticks,
             self.scenario["evaluation"].get("failure_thresholds", []),
         )
 
         package = {
             "scenario_id": self.scenario["scenario_id"],
             "scenario_version": self.scenario["scenario_version"],
-            "initial_world_state": initial_world_state,
+            "initial_world_state": self._initial,
             "final_world_state": final_world_state,
             "event_memory": event_memory,
             **evaluated,
         }
-        package["reproducibility"] = self.reproducibility(started_at, utc_now())
+        package["reproducibility"] = self.reproducibility(self._started_at, utc_now())
 
         # The package is checked against its contract before it leaves the
         # engine; every derived output is built from it alone. Validation
@@ -486,10 +562,33 @@ class SkyVaultTacticalReferenceEngine:
             "run_metadata": {
                 "started_at": started_at.isoformat(),
                 "ended_at": ended_at.isoformat(),
+                "resource_compute_governance": self.governance_record(
+                    (ended_at - started_at).total_seconds()
+                ),
                 "compute_profile": f"python {platform.python_version()}",
                 "operator_system": platform.platform(),
             },
         }
+
+    def governance_record(self, runtime_seconds: float) -> dict[str, Any]:
+        """
+        What this run used, and under which policy (every run has one).
+
+        Important:
+        It lives in run_metadata, outside the output hash: the same run
+        governed or not, stopped or not, is told apart here, while a run that
+        was not stopped hashes exactly as before.
+        """
+        usage = {
+            "ticks": self.world.tick,
+            "decisions": self.decisions,
+            "events": len(self.world.event_memory),
+            "runtime_seconds": round(max(runtime_seconds, 0.0), 6),
+        }
+        if self.governor is None:
+            return ungoverned_record(usage)
+        record: dict[str, Any] = self.governor.record(usage, self.stop_reason)
+        return record
 
     def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:
         """

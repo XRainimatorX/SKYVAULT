@@ -5,17 +5,22 @@ from typing import Annotated, Any, Literal
 from pydantic import Field
 
 from .base import ContractModel, NonEmptyStr, check
+from .governance import GovernanceRecord
 
 SHA256 = Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
 
 
 class RunMetadata(ContractModel):
-    """When and where a run happened."""
+    """
+    When and where a run happened, and what it used (Phase 11: every run
+    carries its resource_compute_governance record).
+    """
 
     started_at: NonEmptyStr
     ended_at: NonEmptyStr
     compute_profile: str = ""
     operator_system: str = ""
+    resource_compute_governance: GovernanceRecord | None = None
 
 
 class ReproducibilityMetadata(ContractModel):
