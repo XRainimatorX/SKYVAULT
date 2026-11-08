@@ -1,0 +1,120 @@
+{
+  "$defs": {
+    "OrderTarget": {
+      "additionalProperties": false,
+      "description": "What an order aims at: name only what applies; the rest is null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "title": "OrderTarget",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/order.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One action intent. Fields left out take their contract defaults.",
+  "properties": {
+    "action_type": {
+      "minLength": 1,
+      "title": "Action Type",
+      "type": "string"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "expected_effect": {
+      "default": "",
+      "title": "Expected Effect",
+      "type": "string"
+    },
+    "intent": {
+      "default": "",
+      "title": "Intent",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "priority": {
+      "default": "normal",
+      "title": "Priority",
+      "type": "string"
+    },
+    "required_resources": {
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Required Resources",
+      "type": "object"
+    },
+    "risk_profile": {
+      "additionalProperties": true,
+      "title": "Risk Profile",
+      "type": "object"
+    },
+    "target": {
+      "$ref": "#/$defs/OrderTarget"
+    }
+  },
+  "required": [
+    "action_type",
+    "target"
+  ],
+  "title": "Order",
+  "type": "object"
+}

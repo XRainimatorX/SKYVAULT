@@ -232,6 +232,7 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "conflict_package",
     "observer_profile",
     "observation",
+    "order",
 }
 
 

@@ -1,60 +1,5 @@
 {
   "$defs": {
-    "ActionTargetRecord": {
-      "additionalProperties": false,
-      "description": "What the action is aimed at. Any of the three may be null.",
-      "properties": {
-        "entity_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Entity Id"
-        },
-        "location": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "integer"
-              },
-              "maxItems": 2,
-              "minItems": 2,
-              "type": "array"
-            },
-            {
-              "minLength": 1,
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Location"
-        },
-        "system_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "System Id"
-        }
-      },
-      "required": [
-        "entity_id",
-        "location",
-        "system_id"
-      ],
-      "title": "ActionTargetRecord",
-      "type": "object"
-    },
     "BatchRunPolicy": {
       "additionalProperties": false,
       "properties": {
@@ -95,6 +40,59 @@
         "proposals"
       ],
       "title": "ConflictRequest",
+      "type": "object"
+    },
+    "OrderTarget": {
+      "additionalProperties": false,
+      "description": "What an order aims at: name only what applies; the rest is null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "title": "OrderTarget",
       "type": "object"
     },
     "Proposal": {
@@ -165,7 +163,7 @@
           "type": "string"
         },
         "target": {
-          "$ref": "#/$defs/ActionTargetRecord"
+          "$ref": "#/$defs/OrderTarget"
         },
         "tick": {
           "minimum": 1,
@@ -174,11 +172,11 @@
         }
       },
       "required": [
+        "action_type",
+        "target",
         "tick",
         "actor_id",
         "system_id",
-        "action_type",
-        "target",
         "proposal_id"
       ],
       "title": "Proposal",

@@ -1,60 +1,5 @@
 {
   "$defs": {
-    "ActionTargetRecord": {
-      "additionalProperties": false,
-      "description": "What the action is aimed at. Any of the three may be null.",
-      "properties": {
-        "entity_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Entity Id"
-        },
-        "location": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "integer"
-              },
-              "maxItems": 2,
-              "minItems": 2,
-              "type": "array"
-            },
-            {
-              "minLength": 1,
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Location"
-        },
-        "system_id": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "System Id"
-        }
-      },
-      "required": [
-        "entity_id",
-        "location",
-        "system_id"
-      ],
-      "title": "ActionTargetRecord",
-      "type": "object"
-    },
     "Assumption": {
       "additionalProperties": false,
       "description": "One assumption, with how much it is trusted and how much rides on it.",
@@ -202,6 +147,30 @@
         }
       },
       "title": "ChangedFromPrevious",
+      "type": "object"
+    },
+    "Controls": {
+      "additionalProperties": false,
+      "description": "Which units a participant decides for: whole factions, single units, or both.",
+      "properties": {
+        "entity_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Entity Ids",
+          "type": "array"
+        },
+        "factions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Factions",
+          "type": "array"
+        }
+      },
+      "title": "Controls",
       "type": "object"
     },
     "DataProvenance": {
@@ -403,6 +372,83 @@
       "title": "FailureExplorationSpec",
       "type": "object"
     },
+    "OrderTarget": {
+      "additionalProperties": false,
+      "description": "What an order aims at: name only what applies; the rest is null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "title": "OrderTarget",
+      "type": "object"
+    },
+    "Participant": {
+      "additionalProperties": false,
+      "description": "One actor slot (Formal Spec section 4, step 4): a registered policy and\nthe units it decides for. Units no participant controls keep the run's\ndefault policy.",
+      "properties": {
+        "controls": {
+          "$ref": "#/$defs/Controls"
+        },
+        "participant_id": {
+          "minLength": 1,
+          "title": "Participant Id",
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "#/$defs/PolicyChoice"
+        }
+      },
+      "required": [
+        "participant_id",
+        "policy",
+        "controls"
+      ],
+      "title": "Participant",
+      "type": "object"
+    },
     "PolicyChoice": {
       "additionalProperties": false,
       "description": "The registered policy a run uses, by name, with its parameters.\n\nImportant:\nOnly names registered with skyvault.policies can be chosen here, so a\nscenario file can pick a policy but never load arbitrary code.",
@@ -518,6 +564,13 @@
           "exclusiveMinimum": 0,
           "title": "Max Ticks",
           "type": "integer"
+        },
+        "participants": {
+          "items": {
+            "$ref": "#/$defs/Participant"
+          },
+          "title": "Participants",
+          "type": "array"
         },
         "policy": {
           "anyOf": [
@@ -664,7 +717,7 @@
     },
     "ScheduledAction": {
       "additionalProperties": false,
-      "description": "An action an outside system orders for one actor at one tick.\n\nImportant:\nAt that tick the actor carries it out instead of asking its policy. The\naction id is still issued by the run, so ids stay deterministic; the\nordering system is recorded as source.system_id on every event it\ncauses. Batch branches use this to play out conflicting orders.",
+      "description": "An order an outside system gives one actor for one tick.\n\nImportant:\nAt that tick the actor carries it out instead of asking its policy. The\naction id is still issued by the run, so ids stay deterministic; the\nordering system is recorded as source.system_id on every event it\ncauses. Batch branches use this to play out conflicting orders.",
       "properties": {
         "action_type": {
           "minLength": 1,
@@ -725,7 +778,7 @@
           "type": "string"
         },
         "target": {
-          "$ref": "#/$defs/ActionTargetRecord"
+          "$ref": "#/$defs/OrderTarget"
         },
         "tick": {
           "minimum": 1,
@@ -734,11 +787,11 @@
         }
       },
       "required": [
+        "action_type",
+        "target",
         "tick",
         "actor_id",
-        "system_id",
-        "action_type",
-        "target"
+        "system_id"
       ],
       "title": "ScheduledAction",
       "type": "object"

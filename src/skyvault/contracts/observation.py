@@ -51,10 +51,11 @@ class KnownEntity(ContractModel):
     One unit as the observer knows it.
 
     Important:
-    Own units (self, ally) are exact and carry their capabilities. An enemy
+    Own units (self, ally) are exact and carry their state and capabilities
+    (state since Phase 6: energy, ammunition, morale...). An enemy
     is visible, destroyed (a wreck in sight) or stale (lost from sight: where
     and how it was at last_seen, age ticks ago); hp or hp_band follow the
-    profile's enemy_detail, and its capabilities are never given.
+    profile's enemy_detail, and its state and capabilities are never given.
     """
 
     entity_id: NonEmptyStr
@@ -68,6 +69,7 @@ class KnownEntity(ContractModel):
     last_seen: int | None = Field(default=None, ge=0)
     age: int | None = Field(default=None, ge=0)
     capabilities: dict[str, Any] | None = None
+    state: dict[str, Any] | None = None
 
     @model_validator(mode="after")
     def _stale_has_age(self) -> "KnownEntity":
@@ -77,6 +79,8 @@ class KnownEntity(ContractModel):
             raise ValueError("own units are active or destroyed")
         if (self.relation == "enemy") == (self.capabilities is not None):
             raise ValueError("capabilities are given for own units only")
+        if self.relation == "enemy" and self.state is not None:
+            raise ValueError("state is given for own units only")
         return self
 
 

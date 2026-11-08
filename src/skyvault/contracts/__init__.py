@@ -47,6 +47,7 @@ from .observation import (
     validate_observation,
     validate_observer_profile,
 )
+from .order import Order, validate_order
 from .provenance import DataProvenance, validate_data_provenance
 from .reproducibility import ReproducibilityMetadata, validate_reproducibility
 from .result_package import ResultPackage, validate_result_package
@@ -77,6 +78,7 @@ __all__ = [
     "FailureMap",
     "Observation",
     "ObserverProfile",
+    "Order",
     "ReproducibilityMetadata",
     "ResultPackage",
     "Scenario",
@@ -97,6 +99,7 @@ __all__ = [
     "validate_failure_map",
     "validate_observation",
     "validate_observer_profile",
+    "validate_order",
     "validate_reproducibility",
     "validate_result_package",
     "validate_scenario",

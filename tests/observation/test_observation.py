@@ -464,6 +464,7 @@ def test_a_lost_contact_stays_where_it_was_last_seen():
             "last_seen": 0,
             "age": 1,
             "capabilities": None,
+            "state": None,
         }
     ]
 
@@ -590,6 +591,7 @@ def test_the_local_view_centres_on_the_deciding_unit():
     ]
     assert state["local_area"] == {
         "center": [0, 0],
+        "distance_model": "chebyshev",
         "radius": 2,
         "entity_ids": ["b1", "b2", "r1"],
     }
@@ -956,10 +958,8 @@ def test_a_world_policy_keeps_no_observation_history(reference):
     engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE))
     engine.run()
 
-    assert engine.observer is None
+    assert engine.observers == {}
     assert engine.observed == {}
-    with pytest.raises(RuntimeError, match="decides from the world"):
-        engine.observed_decision(next(iter(engine.world.entities.values())))
 
 
 def test_the_tac_angel_example_decides_from_observations_only():

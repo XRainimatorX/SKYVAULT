@@ -204,11 +204,12 @@ def _contact(
         "last_seen": stale[0] if stale else None,
         "age": stale[1] if stale else None,
         "capabilities": None,
+        "state": None,
     }
 
 
 def _own(unit: dict[str, Any], relation: str) -> dict[str, Any]:
-    """An own unit: always exact, with its capabilities."""
+    """An own unit: always exact, with its state and capabilities."""
     return {
         "entity_id": unit["entity_id"],
         "faction": unit["faction"],
@@ -221,6 +222,7 @@ def _own(unit: dict[str, Any], relation: str) -> dict[str, Any]:
         "last_seen": None,
         "age": None,
         "capabilities": dict(unit["capabilities"]),
+        "state": dict(unit["state"]),
     }
 
 
@@ -299,6 +301,7 @@ def local_view(
         else {
             "center": centre,
             "radius": radius,
+            "distance_model": (space or {}).get("distance_model") or "chebyshev",
             "entity_ids": sorted(
                 e["entity_id"]
                 for e in known

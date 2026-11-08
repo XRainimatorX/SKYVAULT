@@ -10,6 +10,7 @@ Policies are registered by name, so a scenario can ask for one by name
 can also hand the engine a policy object.
 """
 
+import contextlib
 import importlib
 import importlib.util
 import random
@@ -38,11 +39,39 @@ class ObservingPolicy(Protocol):
     ) -> dict[str, Any] | None: ...
 
 
-AnyPolicy = Policy | ObservingPolicy
+class MultiViewPolicy(Protocol):
+    """Anything that decides from several observers' views of the same moment."""
+
+    observer_profiles: tuple[str, ...]
+
+    def decide_from_observations(
+        self, observations: dict[str, dict[str, Any]]
+    ) -> dict[str, Any] | None: ...
+
+
+AnyPolicy = Policy | ObservingPolicy | MultiViewPolicy
 
 PolicyFactory = Callable[[random.Random, dict[str, Any]], AnyPolicy]
 
 _REGISTRY: dict[str, PolicyFactory] = {}
+
+# Policies the core knows by name only: the module registering each one is
+# imported the first time the name is asked for, so nothing in the core
+# imports a policy (development plan Phase 6: the tactical reference policy
+# can be unplugged).
+KNOWN_POLICIES = {
+    "tactical_reference": "skyvault.tactical_reference_policy",
+    "rule_based": "skyvault.actors.basic",
+    "scripted": "skyvault.actors.basic",
+    "human_input": "skyvault.actors.basic",
+    "external_system": "skyvault.actors.basic",
+    "llm_assisted": "skyvault.actors.basic",
+    "tac_angel_adapter": "skyvault.actors.adapters",
+    "startx_branch_adapter": "skyvault.actors.adapters",
+    "hades_adapter": "skyvault.actors.adapters",
+    "aerogrid_adapter": "skyvault.actors.adapters",
+    "skyfox_adapter": "skyvault.actors.adapters",
+}
 
 
 def register_policy(name: str, factory: PolicyFactory) -> None:
@@ -61,7 +90,17 @@ def register_policy(name: str, factory: PolicyFactory) -> None:
 def build_policy(
     name: str, rng: random.Random, params: dict[str, Any] | None = None
 ) -> AnyPolicy:
-    """The policy registered as name, built with the run's rng."""
+    """
+    The policy registered as name, built with the run's rng.
+
+    Important:
+    A name in KNOWN_POLICIES that is not registered yet has its module
+    imported first. A module that cannot be imported counts as unplugged:
+    the name is then simply not available.
+    """
+    if name not in _REGISTRY and name in KNOWN_POLICIES:
+        with contextlib.suppress(ImportError):
+            importlib.import_module(KNOWN_POLICIES[name])
     if name not in _REGISTRY:
         known = ", ".join(sorted(_REGISTRY)) or "none"
         raise KeyError(f"no policy named {name!r} (registered: {known})")

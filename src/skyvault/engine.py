@@ -7,16 +7,26 @@ from typing import Any, cast
 
 from .action import Action, ActionTarget, location_to_json
 from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handlers_for
+from .actors.participants import Participants
+from .actors.view import WorldView
 from .contracts import (
     validate_action,
     validate_evaluation_profile,
+    validate_order,
     validate_result_package,
 )
 from .domains import DomainPack, load_domain
+from .entity import Entity
 from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
 from .observation import context_for, load_observer_profile, observe
-from .policies import AnyPolicy, ObservingPolicy, Policy, build_policy
+from .policies import (
+    AnyPolicy,
+    MultiViewPolicy,
+    ObservingPolicy,
+    Policy,
+    build_policy,
+)
 from .reproducibility import (
     RUNTIME_VERSION,
     input_hash,
@@ -27,7 +37,6 @@ from .reproducibility import (
 from .runtime.snapshots import SnapshotStore
 from .runtime.world import create_world
 from .scenario_loader import default_evaluation_profile, scenario_perspective
-from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import WorldState
 
 ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
@@ -77,11 +86,27 @@ class SkyVaultTacticalReferenceEngine:
             load_domain(scenario["domain"]) if scenario.get("domain") else None
         )
         self.policy = policy or self.choose_policy(scenario)
-        # A policy that names an observer profile decides from observations
+        # Each participant decides for the units it controls; the rest keep
+        # the policy above (Formal Spec section 4, step 4)
+        self.participants = Participants(
+            scenario["runtime"].get("participants", []),
+            self.world.entities.values(),
+            lambda choice: build_policy(choice["name"], self.rng, choice.get("params")),
+        )
+        # A policy that names observer profiles decides from observations
         # only; it is never handed the world (development plan Phase 5)
-        observer = getattr(self.policy, "observer_profile", None)
-        self.observer = load_observer_profile(observer) if observer else None
+        self.observers: dict[int, list[dict[str, Any]]] = {}
+        for candidate in [self.policy] + [
+            slot.policy for slot in self.participants.slots()
+        ]:
+            names = observer_names(candidate)
+            if names:
+                self.observers[id(candidate)] = [
+                    load_observer_profile(name) for name in names
+                ]
         self.observed: dict[int, dict[str, Any]] = {}
+        # What a world policy reads: the live world, through glass
+        self.world_view = WorldView(self.world)
         self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
         self.scheduled = {
             (item["tick"], item["actor_id"]): item
@@ -116,14 +141,15 @@ class SkyVaultTacticalReferenceEngine:
     def choose_policy(self, scenario: dict[str, Any]) -> AnyPolicy:
         """
         The policy when none was handed in: runtime.policy by registered
-        name, else the domain's default, else the tactical reference.
+        name, else the domain's default, else the tactical reference — by
+        name too, so the core never imports it (development plan Phase 6).
         """
         choice = scenario["runtime"].get("policy")
         if choice:
             return build_policy(choice["name"], self.rng, choice.get("params"))
         if self.domain:
             return self.domain.default_policy(scenario, self.rng)
-        return TacticalReferencePolicy(self.rng)
+        return build_policy("tactical_reference", self.rng)
 
     def upkeep(self) -> None:
         """
@@ -167,33 +193,55 @@ class SkyVaultTacticalReferenceEngine:
             metadata=dict(scheduled.get("metadata", {})),
         )
 
-    def observed_decision(self, actor: Any) -> Action | None:
+    def decider(self, actor: Any) -> tuple[AnyPolicy, str]:
+        """The policy deciding for actor and the system id its decisions carry."""
+        slot = self.participants.for_entity(actor.entity_id)
+        if slot is None:
+            return self.policy, self.actor_system_id
+        return slot.policy, slot.system_id
+
+    def decide(self, policy: AnyPolicy, actor: Any) -> Action | None:
         """
-        The decision of a policy that sees only its observation.
+        What policy proposes for actor, as an Action this run has named.
 
         Important:
-        The observation is built from the units at the end of every earlier
-        tick plus the units as they are now, so a delayed observer sees an
-        earlier tick and a stale contact is where it was last seen. The
-        policy answers with an order ({action_type, target, intent, ...});
-        the action id is issued here, as for an outside system's order.
+        A world policy reads the live world through a read-only view: any
+        write raises (development plan Phase 6). An observing policy gets
+        only its observations, built from the units at the end of every
+        earlier tick plus the units as they are now, and answers with an
+        order; the order passes its contract and the action id is issued
+        here, as for an outside system's order.
         """
-        if self.observer is None:
-            raise RuntimeError("this run's policy decides from the world")
+        profiles = self.observers.get(id(policy))
+        if profiles is None:
+            return cast(Policy, policy).decide_action(
+                cast(WorldState, self.world_view),
+                cast(Entity, self.world_view.view_of(actor)),
+            )
         history = dict(self.observed)
         history[self.world.tick] = {
             entity_id: entity.snapshot()
             for entity_id, entity in self.world.entities.items()
         }
-        observation = observe(
-            history,
-            self.world.tick,
-            self.observer,
-            {"faction": actor.faction, "actor_id": actor.entity_id},
-            context_for(self.scenario, actor.faction, self.world.resources.snapshot()),
+        viewpoint = {"faction": actor.faction, "actor_id": actor.entity_id}
+        context = context_for(
+            self.scenario, actor.faction, self.world.resources.snapshot()
         )
-        order = cast(ObservingPolicy, self.policy).decide_from_observation(observation)
-        return None if order is None else self.scheduled_action(actor.entity_id, order)
+        observations = {
+            profile["observer_id"]: observe(
+                history, self.world.tick, profile, viewpoint, context
+            )
+            for profile in profiles
+        }
+        if getattr(policy, "observer_profiles", None):
+            order = cast(MultiViewPolicy, policy).decide_from_observations(observations)
+        else:
+            order = cast(ObservingPolicy, policy).decide_from_observation(
+                next(iter(observations.values()))
+            )
+        if order is None:
+            return None
+        return self.scheduled_action(actor.entity_id, validate_order(order))
 
     def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:
         """
@@ -253,7 +301,7 @@ class SkyVaultTacticalReferenceEngine:
 
         initial_world_state = self.world.snapshot()
         self.snapshots.record(self.world.tick, initial_world_state)
-        if self.observer:
+        if self.observers:
             self.observed[self.world.tick] = initial_world_state["entities"]
 
         for _ in range(max_ticks):
@@ -273,22 +321,19 @@ class SkyVaultTacticalReferenceEngine:
                 # An action an outside system ordered for this tick replaces
                 # the policy's decision; its events carry that system's id
                 scheduled = self.scheduled.get((self.world.tick, actor.entity_id))
-                system_id = (
-                    scheduled["system_id"] if scheduled else self.actor_system_id
+                deciding, decider_id = self.decider(actor)
+                system_id = scheduled["system_id"] if scheduled else decider_id
+                action = (
+                    self.scheduled_action(actor.entity_id, scheduled)
+                    if scheduled
+                    else self.decide(deciding, actor)
                 )
-                action: Action | None
-                if scheduled:
-                    action = self.scheduled_action(actor.entity_id, scheduled)
-                elif self.observer:
-                    action = self.observed_decision(actor)
-                else:
-                    action = cast(Policy, self.policy).decide_action(self.world, actor)
 
                 if action is None:
                     self.world.record_event(
                         event_type="NO_ACTION",
                         actor_id=actor.entity_id,
-                        system_id=self.actor_system_id,
+                        system_id=decider_id,
                         target_entity_id=None,
                         source_action_id=None,
                         before_state=actor.snapshot(),
@@ -354,7 +399,7 @@ class SkyVaultTacticalReferenceEngine:
             # Snapshots are taken at the end of a tick, after all its events
             end_of_tick = self.world.snapshot()
             self.snapshots.record(self.world.tick, end_of_tick)
-            if self.observer:
+            if self.observers:
                 self.observed[self.world.tick] = end_of_tick["entities"]
 
             if termination_reason == "termination_condition_met":
@@ -461,3 +506,12 @@ class SkyVaultTacticalReferenceEngine:
 def utc_now() -> datetime:
     """The current time in UTC. Only the reproducibility block records it."""
     return datetime.now(timezone.utc)
+
+
+def observer_names(policy: Any) -> tuple[str, ...]:
+    """The observer profiles a policy decides from; empty for a world policy."""
+    several = getattr(policy, "observer_profiles", None)
+    if several:
+        return tuple(several)
+    single = getattr(policy, "observer_profile", None)
+    return (single,) if single else ()

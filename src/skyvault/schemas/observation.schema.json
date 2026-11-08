@@ -60,7 +60,7 @@
     },
     "KnownEntity": {
       "additionalProperties": false,
-      "description": "One unit as the observer knows it.\n\nImportant:\nOwn units (self, ally) are exact and carry their capabilities. An enemy\nis visible, destroyed (a wreck in sight) or stale (lost from sight: where\nand how it was at last_seen, age ticks ago); hp or hp_band follow the\nprofile's enemy_detail, and its capabilities are never given.",
+      "description": "One unit as the observer knows it.\n\nImportant:\nOwn units (self, ally) are exact and carry their state and capabilities\n(state since Phase 6: energy, ammunition, morale...). An enemy\nis visible, destroyed (a wreck in sight) or stale (lost from sight: where\nand how it was at last_seen, age ticks ago); hp or hp_band follow the\nprofile's enemy_detail, and its state and capabilities are never given.",
       "properties": {
         "age": {
           "anyOf": [
@@ -172,6 +172,19 @@
           ],
           "title": "Relation",
           "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
         },
         "status": {
           "enum": [

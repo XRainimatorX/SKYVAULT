@@ -4,18 +4,18 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
-from .action import ActionTargetRecord
 from .assumption import AssumptionRegistry
-from .base import ContractModel, NonEmptyStr, NonNegative, Probability, check
+from .base import ContractModel, NonEmptyStr, check
 from .entity import EntityRecord
 from .failure import FailureExplorationSpec
+from .order import Order
 from .provenance import DataProvenance
 from .world import WorldContract
 
 
-class ScheduledAction(ContractModel):
+class ScheduledAction(Order):
     """
-    An action an outside system orders for one actor at one tick.
+    An order an outside system gives one actor for one tick.
 
     Important:
     At that tick the actor carries it out instead of asking its policy. The
@@ -27,15 +27,6 @@ class ScheduledAction(ContractModel):
     tick: int = Field(ge=1)
     actor_id: NonEmptyStr
     system_id: NonEmptyStr
-    action_type: NonEmptyStr
-    target: ActionTargetRecord
-    intent: str = ""
-    required_resources: dict[NonEmptyStr, NonNegative] = Field(default_factory=dict)
-    expected_effect: str = ""
-    risk_profile: dict[str, Any] = Field(default_factory=dict)
-    priority: str = "normal"
-    confidence: Probability = 1.0
-    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class PolicyChoice(ContractModel):
@@ -51,6 +42,31 @@ class PolicyChoice(ContractModel):
     params: dict[str, Any] = Field(default_factory=dict)
 
 
+class Controls(ContractModel):
+    """Which units a participant decides for: whole factions, single units, or both."""
+
+    factions: list[NonEmptyStr] = Field(default_factory=list)
+    entity_ids: list[NonEmptyStr] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _controls_something(self) -> "Controls":
+        if not (self.factions or self.entity_ids):
+            raise ValueError("a participant controls at least one faction or unit")
+        return self
+
+
+class Participant(ContractModel):
+    """
+    One actor slot (Formal Spec section 4, step 4): a registered policy and
+    the units it decides for. Units no participant controls keep the run's
+    default policy.
+    """
+
+    participant_id: NonEmptyStr
+    policy: PolicyChoice
+    controls: Controls
+
+
 class RuntimeSettings(ContractModel):
     """How the run executes. Formal Spec section 3.3 calls this execution_settings."""
 
@@ -63,6 +79,14 @@ class RuntimeSettings(ContractModel):
     repeat_count: int | None = Field(default=None, ge=1)
     scheduled_actions: list[ScheduledAction] = Field(default_factory=list)
     policy: PolicyChoice | None = None
+    participants: list[Participant] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _unique_participants(self) -> "RuntimeSettings":
+        ids = [p.participant_id for p in self.participants]
+        if len(set(ids)) != len(ids):
+            raise ValueError("participant_id must be unique")
+        return self
 
 
 class ScenarioEvaluation(ContractModel):
