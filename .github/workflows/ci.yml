@@ -305,6 +305,29 @@ jobs:
           python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
             --policy-module examples/tac_angel_policy.py --policy tac_angel_example
 
+      # Phase 6: participants decide for their own units; nobody touches the world
+      - name: Actor layer
+        run: |
+          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+            --participants tests/fixtures/actors/participants_squad.json
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          package = json.loads(Path("output/result_package.json").read_text())
+          deciders = {}
+          for e in package["event_memory"]:
+              if e["event_type"] in ("ACTION_SELECTED", "NO_ACTION"):
+                  deciders.setdefault(e["source"]["actor_id"], set()).add(e["source"]["system_id"])
+          assert all(deciders[u] == {"TAC_ANGEL"} for u in ("red_01", "red_02", "red_03")), deciders
+          assert deciders["red_04"] == {"HADES"}, deciders
+          assert all(v == {"military_baseline"} for k, v in deciders.items() if k.startswith("blue")), deciders
+          print("participants verified:", {k: sorted(v) for k, v in sorted(deciders.items())})
+          EOF
+          python scripts/run_tactical_reference.py --participants tests/fixtures/actors/participants_reference.json
+          python scripts/run_tactical_reference.py | tee /tmp/reference.txt
+          grep -q "Events: 97" /tmp/reference.txt
+
   # Phase 17: build the UI, serve it with the reference workspace, and drive
   # every page in a real browser
   ui:
