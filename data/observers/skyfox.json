@@ -1,0 +1,11 @@
+{
+  "observer_id": "SKYFOX",
+  "description": "A drone's own view: its route area, what its sensor sees around it and its own state (energy included when the unit carries it) (Formal Spec section 5).",
+  "view": "local",
+  "delay_ticks": 0,
+  "stale_after_ticks": 1,
+  "default_sensor_range": 6,
+  "local_radius": 3,
+  "enemy_detail": "banded",
+  "source_quality": "medium"
+}

@@ -1,0 +1,50 @@
+{
+  "description": "Orders for the scripted actor on the reference scenario: red_001 walks three cells toward BLUE, then orders a strike on blue_003 that SKYVAULT rejects (distance 3, range 1 when run as runtime.scheduled_actions on the Phase 5 system): a script decides what to try, SKYVAULT decides whether it can happen. Each order is a valid scheduled action once tick, actor_id and system_id are added.",
+  "orders": [
+    {
+      "tick": 1,
+      "entity_id": "red_001",
+      "action_type": "move",
+      "target": {
+        "location": [
+          1,
+          1
+        ]
+      },
+      "intent": "scripted_advance"
+    },
+    {
+      "tick": 2,
+      "entity_id": "red_001",
+      "action_type": "move",
+      "target": {
+        "location": [
+          2,
+          2
+        ]
+      },
+      "intent": "scripted_advance"
+    },
+    {
+      "tick": 3,
+      "entity_id": "red_001",
+      "action_type": "move",
+      "target": {
+        "location": [
+          3,
+          3
+        ]
+      },
+      "intent": "scripted_advance"
+    },
+    {
+      "tick": 4,
+      "entity_id": "red_001",
+      "action_type": "attack",
+      "target": {
+        "entity_id": "blue_003"
+      },
+      "intent": "scripted_strike"
+    }
+  ]
+}
