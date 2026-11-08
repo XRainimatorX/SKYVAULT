@@ -48,6 +48,8 @@ scenario → world state → actor policy → action → validation
 → consequence → world mutation → event memory → evaluation → result package
 ```
 
+世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。tactical reference 只用其中的 grid + tick。
+
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
 
 ---
@@ -57,11 +59,11 @@ scenario → world state → actor policy → action → validation
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml
+python3 -m pip install pydantic pyyaml networkx
 python3 scripts/run_tactical_reference.py
 ```
 
-需要 Python 3.10+。執行時期相依只有兩個：`pydantic`（契約與 JSON Schema）與 `PyYAML`（YAML scenario），宣告在 `pyproject.toml`。
+需要 Python 3.10+。執行時期相依有三個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路），宣告在 `pyproject.toml`。
 
 跑完會在 `output/` 產生七個檔案。想快速知道發生了什麼，先看 `output/timeline.txt`：
 
@@ -118,7 +120,8 @@ python3 -m pytest tests/ -q
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        11 份資料契約（Pydantic）
+  contracts/        11 份資料契約（Pydantic，schema 0.2）
+  runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入
@@ -136,10 +139,12 @@ docs/               文件
 | 項目 | 影響 | 留待 |
 |---|---|---|
 | `event_id` / `action_id` 用 `uuid4()`，不受 seed 控制 | 行為可重現，但輸出檔無法跨 run 逐位元比對 | Phase 8 |
-| event 的 `affected.resources` / `affected.risks` 恆為空 | 資源與風險模型尚未存在 | Phase 2 / 7 |
-| 契約中 Spec 有但尚未建模的欄位只是 optional | resource_state、多軸評估、reproducibility 等還沒有東西產生 | Phase 2–9 |
+| tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；還沒有 policy 會在圖上行動 | Phase 3 起 |
+| tactical engine 的 MOVE / ATTACK 不經過 `update_entity_state()` | 結果相同（after_state 都是完整快照），但改世界的路徑還有兩條 | Phase 3 |
+| event 的 `affected.risks` 恆為空 | 風險模型尚未存在 | Phase 7 / 9 |
+| 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase1_contract_pack.md`](docs/phases/phase1_contract_pack.md)。
+完整清單見 [`docs/phases/phase2_world_runtime_core.md`](docs/phases/phase2_world_runtime_core.md)。
 
 ---
 
@@ -156,6 +161,6 @@ python3 -m bandit -c pyproject.toml -r src/       # 安全掃描
 
 所有設定集中在 `pyproject.toml`。
 
-每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證。
+每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證（含由 event memory 重建終局世界）。
 
 送 PR 前的檢查清單見 [`docs/handoff.md`](docs/handoff.md)。

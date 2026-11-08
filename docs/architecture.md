@@ -15,9 +15,11 @@ scenario JSON
   │
   ├─ scenario_loader 讀 JSON / YAML，通過 scenario 契約
   │
-  ├─ engine.build_world()  建立 tick 0 的 WorldState
+  ├─ engine.build_world()  呼叫 runtime.create_world() 建立 tick 0 的 WorldState
+  │                        （space、clock、資源、規則都來自 world contract）
   │
   ├─ engine.run()  擷取 initial_world_state，進入 tick 迴圈
+  │                每 5 個 tick 把世界快照存進 SnapshotStore
   │   │
   │   └─ 每個 tick，對每個存活單位：
   │        policy.decide_action()      產生 Action（意圖）
@@ -34,11 +36,13 @@ scenario JSON
        └─ 四個 exporter 各自推導出一份輸出
 ```
 
-## 三個關鍵設計
+## 四個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。Action 要先通過 validation 變成 accepted 的 Consequence，engine 才會動 WorldState。這條線讓「決策」與「生效」分開，policy 換掉不會影響世界規則。
 
 **事件是快照，不是參照。** `record_event()` 存進去的 `before_state` / `after_state` 都是 `snapshot()` 的深拷貝。事件寫入後，世界再怎麼變都不會改到它。回放能成立完全靠這一點。
+
+**任一時刻的世界都能只靠 event memory 還原。** `runtime.rebuild_world()` 從起始快照依序套用每個 event 的 `after_state`；重建到最後必須等於 `final_world_state`，CI 每次都驗。
 
 **exporter 不認識這個系統。** 四個 exporter 只 import 標準函式庫，收 plain dict、回傳 plain dict。它們在型別上就不可能反過來影響模擬。
 
@@ -139,6 +143,20 @@ scenario JSON
 
 契約是全系統的資料法律，所以它必須在最底層：誰都可以拿它來驗證，它不認識任何人。若契約 import 了 engine 或 world_state，就會出現循環依賴，而且「格式的定義」會開始依賴「格式的使用者」。細節見 [`spec/contracts.md`](spec/contracts.md)。
 
+## Runtime（在核心與 contracts 之間）
+
+```text
+   src/skyvault/runtime/
+              space / clock / registry / resources / rules / snapshots / sourcing / world
+              只依賴 contracts 與 ⑤ 的底層資料物件（entity、event_memory）
+              ④ world_state.py 用它的 space、clock、registry、resources、rules
+              不 import engine、policy、exporter（測試逐檔檢查）
+```
+
+世界由哪些積木組成（空間、時間、實體登記、資源、規則），與 tactical engine 怎麼用它們無關。runtime 不認識 tactics，所以同一套積木能建 grid、graph、network 任一種世界。
+
+唯一例外是 `runtime/world.py` 的 `create_world()`：它要回傳 `WorldState`，所以 import ④。它因此**不從 `runtime/__init__.py` 匯出**，否則 world_state ↔ runtime 會循環 import。`sourcing.py` 與 `snapshots.py` 更嚴格：只 import 標準函式庫，跟 exporter 一樣。
+
 ## Exporter（在階層之外）
 
 ```text
@@ -190,6 +208,7 @@ event_memory 記錄發生過的事。
 
 ```text
 Position = tuple[int, int]
+Location = Position | str     grid 上是格子，graph / network 上是節點 id
 Entity
 ```
 
@@ -202,7 +221,7 @@ entity_id       str
 name            str
 entity_type     str
 faction         str | None
-position        Position | None
+position        Location | None
 state           dict      會變的東西：hp / ap / hunger / status / last_action
 capabilities    dict      能力值：attack_damage / attack_range / accuracy
 tags            list
@@ -225,43 +244,82 @@ position 可以是 None —— 任何算距離的地方都要先確認。
 狀態放 state，能力放 capabilities，不要混。
 ```
 
+## `runtime/`
+
+Phase 2 建立。世界的積木，每一塊都可以單獨使用。
+
+### `space.py`
+
+```python
+class Space(Protocol):
+    is_inside(position) -> bool
+    distance(a, b) -> float
+    neighbors(position) -> list
+    describe() -> dict             寫進 snapshot 的 space，帶 type
+build_space(space_model) -> Space
+```
+
+| 型別 | 位置 | distance | 由誰算 |
+|---|---|---|---|
+| `GridSpace` | `(x, y)` | chebyshev / manhattan / euclidean_floor | 自己算，與 Phase 4 的 SpaceModel 逐點相同 |
+| `GraphSpace` | 節點 id | 最少跳數 | networkx 最短路 |
+| `NetworkSpace` | 節點 id | 加權最短路 | networkx 最短路（edge 第三項為權重） |
+
+不連通的兩點距離為 `inf`。tactical engine 的移動與攻擊射程都用同一個 `distance()`，所以換距離模型會同時改變兩者。
+
+### `clock.py`
+
+```python
+TickClock              每次 advance +1
+PhaseClock             每次 advance +phase_length；.phase = now // phase_length
+EventDrivenClock       schedule(at, payload)；advance() 跳到下一個排程時間；due() 取出到期的
+build_clock(time_model) -> Clock
+```
+
+`world.tick` 一律等於 `clock.now`，名稱保留 tick 是因為所有 event 與 snapshot 都用這個鍵記時間。
+
+### `registry.py`、`resources.py`、`rules.py`
+
+```text
+EntityRegistry   Mapping[str, Entity]；add() 拒絕重複 id；require() 找不到 raise KeyError；
+                 active() 只列活著的；被摧毀者保留
+ResourceState    名稱 → 數量；change(id, delta) -> (before, after)；不得為負（raise，不夾住）
+RuleSet          world_contract.rule_set 的唯讀存取；require() 缺參數 raise KeyError
+```
+
+`EntityRegistry.get()` 是 Mapping 原生的、找不到回傳 None；要 raise 用 `require()`（[ADR 005](decisions/005_world_runtime.md) 第 9 點）。
+
+### `world.py`
+
+```python
+create_world(scenario) -> WorldState     由 world contract 建出任一種世界
+entity_from_record(record) -> Entity     JSON list 轉 tuple；節點 id 保持字串
+```
+
+### `sourcing.py`、`snapshots.py`
+
+```python
+rebuild_world(start_state, event_memory, at_time=None) -> dict     純函式
+SnapshotStore(interval).record(time, snapshot) / latest_at_or_before(time)
+```
+
+`rebuild_world` 只套用 `start_state` 的 tick 之後的事件：
+
+```text
+after_state 有 entity_id     取代該 entity
+RESOURCE_CHANGED             after_state {resource_id, amount} 設定存量
+其他（SCENARIO_END）          不套用
+```
+
+從 SnapshotStore 的快照起算，與從 tick 0 起算，結果相同 —— 快照只是捷徑，event memory 才是真相。
+
 ## `world_state.py`
 
 定義：
 
 ```text
-SpaceModel
 WorldState
 ```
-
-### `SpaceModel`
-
-處理格子大小與距離計算。
-
-欄位：
-
-```python
-width            int
-height           int
-distance_model   str    預設 "chebyshev"
-```
-
-方法：
-
-```python
-is_inside(position)     位置是否在格子內
-distance(a, b)          兩點距離
-```
-
-支援三種距離模型：
-
-```text
-chebyshev        max(|dx|, |dy|)          預設，斜走與直走同價
-manhattan        |dx| + |dy|
-euclidean_floor  取整的直線距離
-```
-
-移動與攻擊射程都用同一個 `distance()`，所以換距離模型會同時改變兩者。
 
 ### `WorldState`
 
@@ -272,11 +330,14 @@ euclidean_floor  取整的直線距離
 ```python
 world_id       str
 scenario_id    str
-tick           int
-space          SpaceModel
-entities       dict[str, Entity]
+tick           int               永遠等於 clock.now
+space          Space             GridSpace / GraphSpace / NetworkSpace
+entities       EntityRegistry
 assumptions    dict
 event_memory   list[Event]
+resources      ResourceState
+rules          RuleSet
+clock          Clock
 ```
 
 方法：
@@ -286,6 +347,9 @@ get_entity(entity_id)          找不到時 raise KeyError，不回傳 None
 active_entities()              還活著的 entity
 active_factions()              還有存活單位的陣營
 is_occupied(position)          該位置有沒有活著的單位
+advance_time()                 推進 clock 一次，回傳新的 tick
+change_resource(id, delta)     改資源並記一筆 RESOURCE_CHANGED（affected.resources 有值）
+update_entity_state(id, ...)   合併 state 並記一筆 ENTITY_STATE_CHANGED（前後完整快照）
 record_event(...)              記錄一個事件
 link_causal_predecessor(event) 把事件接到同 action 的前一個事件
 snapshot()                     整個世界的深拷貝
@@ -306,6 +370,8 @@ WorldState 不可以決定攻擊目標。
 **`record_event()` 在寫入前先通過 event 契約。** 不合法的 event raise `ContractError`，永遠不會進 event_memory。
 
 **已記錄的事件不可修改。** `event_memory` 只被 append。
+
+**改變世界要經過會記錄 event 的方法。** 資源扣到負數時在記錄之前就 raise，event_memory 不會出現一筆沒發生的變動。
 
 ## `action.py`
 
@@ -449,7 +515,7 @@ load_scenario(path)
 
 ```text
 只負責讀取與契約驗證。
-缺 scenario_id、帶未知的鍵、schema_version 不是 0.1 → raise ContractError。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.2、entity 不在空間內 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -505,7 +571,7 @@ SkyVaultTacticalReferenceEngine
 方法：
 
 ```python
-build_world(scenario)                    建立 tick 0 的 WorldState
+build_world(scenario)                    呼叫 create_world；只接受 grid + tick，其他 raise ValueError
 run()                                    跑完整場，回傳 result_package
 resolve_action(action)                   依 action_type 分派
 resolve_move(action)                     驗證並結算移動
@@ -521,6 +587,10 @@ engine 不做輸出格式化。
 engine 不含 replay / timeline / causal chain 邏輯。
 engine 不直接改 entity —— 透過 Consequence 生效。
 ```
+
+**tactical engine 刻意維持 grid + tick 專用。** 它的 policy 在格子間一步一步走，給它 graph 或 phase clock 會在 `build_world()` 直接 raise，而不是跑出沒意義的結果。runtime 本身支援全部三種空間與時間。
+
+`self.snapshots` 是 `SnapshotStore(SNAPSHOT_INTERVAL=5)`，記 tick 0 與每個 tick 結束時（只保留落在間隔上的），所以這個 scenario 會存下 tick 0、5、10。
 
 **engine 在兩個地方驗證：** policy 交出的 action 在被記錄與結算之前通過 action 契約；`run()` 回傳之前整包通過 result package 契約。壞 action 是 policy 的程式錯誤，raise `ContractError`，不會被記成 `ACTION_REJECTED`（[ADR 004](decisions/004_contract_scope.md) 第 7 點）。
 
@@ -564,7 +634,7 @@ evaluator 不決定行動。
 ```text
 11 份契約，各一個 Pydantic model + validate_<x>()
 ContractError
-SCHEMA_VERSION = "0.1"
+SCHEMA_VERSION = "0.2"
 build_json_schemas()
 ```
 
@@ -873,7 +943,7 @@ ACTION_SELECTED  ←caused_by─  ATTACK  ←caused_by─  ENTITY_DESTROYED
 ```python
 scenario_id          str
 scenario_version     str
-initial_world_state  dict     tick 0 的世界
+initial_world_state  dict     tick 0 的世界（含 space.type 與 resources）
 final_world_state    dict     結束時的世界
 event_memory         list     所有事件
 evaluation_result    dict     結果摘要（Phase 1 前叫 evaluation）
@@ -935,6 +1005,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 10. result_package 的欄位足以產生全部四個 derived output
 11. contracts 不 import 專案內任何模組；exporter 不 import contracts
 12. 驗證函式不改變資料形狀：驗證前後的 dict 相等
+13. rebuild_world(initial_world_state, event_memory) == final_world_state
+14. 資源存量永不為負；變動一律記成 RESOURCE_CHANGED
+15. runtime 不 import engine、policy、exporter
 ```
 
 ---
@@ -946,7 +1019,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 | 事件數不對 | `len(event_memory)` vs `evaluation_result.event_count` |
 | `ContractError` | `error.contract` 指出哪份契約，`error.errors` 列出每個欄位路徑 |
 | JSON Schema 測試失敗 | 契約改過（連 docstring 也算）但沒重跑 `scripts/export_schemas.py` |
-| 某個 tick 狀態不對 | `replay_state_at_tick.json` 的該 tick |
+| 某個 tick 狀態不對 | `replay_state_at_tick.json` 的該 tick；或 `rebuild_world(..., at_time=N)` |
+| 重建結果 ≠ final_world_state | 有人改了世界卻沒記 event，或 event 的 after_state 不是完整快照 |
+| tactical engine 拒絕 scenario | 它只跑 grid + tick；其他空間與時間要用 `create_world()` 直接建 |
 | 某個 entity 行為奇怪 | `entity_history.json` 的該 entity |
 | 不知道某個結果從哪來 | `causal_chain.json` 找 `source_action_id` |
 | 想快速看懂整場 | `timeline.txt` |
@@ -965,7 +1040,7 @@ Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 �
 ```text
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
-執行時期相依       pydantic>=2、PyYAML（ADR 004），宣告在 pyproject.toml
+執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005），宣告在 pyproject.toml
 ```
 
 ```bash
@@ -998,3 +1073,6 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`spec/contracts.md`](spec/contracts.md) | 11 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
+| [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
+| [`phases/phase2_world_runtime_core.md`](phases/phase2_world_runtime_core.md) | Phase 2 完成報告 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`postmortems/phase2.md`](postmortems/phase2.md) | Phase 1、2 回顧 |

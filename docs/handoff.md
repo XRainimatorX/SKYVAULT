@@ -11,7 +11,7 @@
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml pytest
+python3 -m pip install pydantic pyyaml networkx pytest
 python3 scripts/run_tactical_reference.py
 python3 -m pytest tests/ -q
 ```
@@ -21,7 +21,7 @@ python3 -m pytest tests/ -q
 ```text
 Result: RED_survived
 Events: 97
-91 passed
+182 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。
@@ -30,7 +30,7 @@ Events: 97
 
 ---
 
-## 2. 動手前必須知道的四條規則
+## 2. 動手前必須知道的五條規則
 
 這四條違反了不會立刻報錯，會在整合階段才爆。Phase 4 就是這樣浪費掉一輪。
 
@@ -68,7 +68,13 @@ python3 -c "import skyvault.your_module"
 
 依賴階層見 [`architecture.md`](architecture.md) 第 2 節。
 
-最常犯的：在 `world_state.py` 裡 import policy，或在 exporter 裡 import 任何專案模組。
+最常犯的：在 `world_state.py` 裡 import policy，或在 exporter 裡 import 任何專案模組。`runtime/` 也不得 import engine、policy、exporter，`tests/runtime/test_event_sourcing.py` 逐檔檢查。
+
+### 規則 5：改世界要記 event
+
+改 entity 用 `world.update_entity_state()`，改資源用 `world.change_resource()`，或自己 `record_event()` 並把完整快照放進 `after_state`。
+
+**`rebuild_world(initial_world_state, event_memory) == final_world_state` 是不變量**，CI 每次都驗。偷偷改世界不記 event，重建就對不上。
 
 ---
 
@@ -119,7 +125,9 @@ assert f"HP {hp_before} -> {shown_after} (damage = {damage})" in text
 
 **寫完一個要抓缺陷的測試，把缺陷放回去跑一次，確認它真的會紅。** 沒做這一步，就不知道它是「有效的測試」還是「會過的測試」。
 
-其餘三個 exporter 的測試仍以結構為主；Phase 1 的契約測試補上了形狀的部分，數值對照還沒有。
+其餘三個 exporter 的測試仍以結構為主；Phase 1 的契約測試補上了形狀的部分。Phase 2 的 `rebuild_world()` 測試則逐 tick 對照 replay exporter 的 entity 狀態，等於替 replay 補上了數值對照。
+
+Phase 2 又發現：**守護不變量的測試也要反向驗證。** 分層測試第一版看不到 `from .. import engine`，放回去跑才發現。變異存活時先判斷是不是等價變異 —— 是的話該刪的是程式碼，不是補測試。
 
 ---
 
@@ -128,7 +136,13 @@ assert f"HP {hp_before} -> {shown_after} (damage = {damage})" in text
 | 位置 | 注意什麼 |
 |---|---|
 | `engine.py` 的 `self.rng` | 整場模擬唯一的隨機來源，交給 policy 共用。多建一個 `Random()` 會破壞決定論 |
-| `Entity.position` | 型別是 `Position \| None`。任何算距離的地方都要先確認不是 None |
+| `Entity.position` | 型別是 `Location \| None`：grid 上是 `(x, y)`，graph / network 上是節點 id 字串。算距離前先確認不是 None；需要拆 `x, y` 的地方先確認不是字串 |
+| `EntityRegistry.get()` | Mapping 原生語意，找不到回傳 None。要 raise 用 `require()` 或 `world.get_entity()` |
+| `ResourceState.change()` | 扣到負數 raise，不夾 0。行動前自己檢查夠不夠 |
+| `PhaseClock` | 每次 `advance()` 前進一整個 `phase_length`，不是 1 |
+| tactical engine | 只接受 grid + tick；其他世界在 `build_world()` 就 raise。要跑別的世界用 `create_world()` |
+| `runtime/__init__.py` | 不匯出 `create_world`（會循環 import），從 `skyvault.runtime.world` 取 |
+| scenario 的 `schema_version` | 必須是 `"0.2"`。0.1 檔案被拒，遷移方式見 `spec/contracts.md` 第 3 節 |
 | `snapshot()` | 回傳深拷貝。改成淺拷貝會讓已記錄的事件被後續變動污染，回放就失效了 |
 | `evaluation_result.event_count` | 在 `SCENARIO_END` 寫入前計算，所以由 `run()` 明確傳入 `len(...) + 1`；result package 契約會檢查它等於 `len(event_memory)` |
 | `Event` 的屬性 vs `to_dict()` | 屬性是攤平的，輸出是巢狀的。engine 用屬性；exporter 與測試讀的是巢狀輸出 |
@@ -172,7 +186,9 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）。
+
+第 6 節開頭先列規格矛盾與決定（Phase 1 回顧改法 3）；Frozen Interface 的每個函式附一行行為，不只寫簽名（Phase 2 回顧改法 2）。每個步驟 commit 前，對照第 6 節檢查這一步新增的公開函式。
 
 **多人平行開發時**，每個 section 一份 issue，另開一份共同基準 issue，**同時凍結資料形狀與函式簽名** —— Phase 4 的 [#9](https://github.com/XRainimatorX/SKYVAULT/issues/9) 只凍了資料形狀，結果三組的介面對不上。範例：[#7](https://github.com/XRainimatorX/SKYVAULT/issues/7)、[#8](https://github.com/XRainimatorX/SKYVAULT/issues/8)。
 
@@ -210,19 +226,20 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 2 — World Runtime Core**：建立真正的 world instance、entity registry、多種時間與空間模型、資源變動、event sourcing 與 snapshot。規格見 [`plan/phase2_world_runtime_core.md`](plan/phase2_world_runtime_core.md)。
+依 roadmap，下一個是 **Phase 3 — Action & Consequence Engine**：一般化的 action 驗證與後果結算，含直接效果、次級效果、連鎖反應。規格見 [`plan/phase3_action_consequence_engine.md`](plan/phase3_action_consequence_engine.md)。
 
-Phase 1 留下與它直接相關的事：
+Phase 2 留下與它直接相關的事：
 
 ```text
-World Contract 的 entity_model / environment_state / resource_state / rule_set
-    目前是 optional，Phase 2 落地後改為必填並調升 schema_version
-event 的 affected.resources 恆為空
-    資源模型建立後要開始填
-space_model 只有 grid 真的能跑
-    計劃要求 grid / graph / network；graph 用 networkx
-time_model 只有 tick
-    計劃要求 tick / phase / event-driven
+改世界有兩條路徑
+    tactical 的 MOVE / ATTACK 直接改 entity；runtime 有 update_entity_state / change_resource
+    Phase 3 的框架應該讓所有改動走同一條路
+Action 契約的 required_resources 等六欄仍是 optional
+    ADR 004 列為 Phase 3；資源帳已經存在，可以開始扣
+Consequence 的 secondary_effects / chain_reactions 仍是 optional
+    ADR 004 列為 Phase 3
+RuleSet 只存參數
+    規則本身（什麼 action 合法、造成什麼）是 Phase 3
 ```
 
-開工前先讀 [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) 的第 5 節與 [`postmortems/phase1.md`](postmortems/phase1.md)。
+開工前先讀 [`phases/phase2_world_runtime_core.md`](phases/phase2_world_runtime_core.md) 的第 5 節與 [`postmortems/phase2.md`](postmortems/phase2.md)。

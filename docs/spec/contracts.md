@@ -2,7 +2,7 @@
 
 SKYVAULT 11 份契約的現行規格。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)。
 
 ---
 
@@ -43,12 +43,19 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 ## 3. 版本
 
 ```text
-SCHEMA_VERSION      "0.1"（contracts/base.py）
-scenario            必須帶 schema_version: "0.1"，其他版本直接被拒
-JSON Schema $id     skyvault/0.1/<name>.schema.json
+SCHEMA_VERSION      "0.2"（contracts/base.py）
+scenario            必須帶 schema_version: "0.2"，其他版本（含 0.1）直接被拒
+JSON Schema $id     skyvault/0.2/<name>.schema.json
 ```
 
 optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本。
+
+| 版本 | Phase | 變更 |
+|---|---|---|
+| 0.1 | 1 | 初版 11 份契約 |
+| 0.2 | 2 | World Contract 四欄必填；space / time 型別封閉；位置可為節點 id；snapshot 加 resources；兩種新事件型別 |
+
+0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
 ---
 
@@ -63,7 +70,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | Consequence | `ConsequenceRecord` | action_id、accepted、reason | direct_effects、evaluation_impact；secondary_effects、chain_reactions（Phase 3） |
 | Event | `EventRecord` | 見下 | — |
 
-`position` 是兩個整數，`[x, y]`。
+`position` 是 `[x, y]` 兩個整數（grid），或非空字串的節點 id（graph / network）。
 
 ### Event 的形狀
 
@@ -72,7 +79,7 @@ Spec §7.2 的巢狀形狀，頂層恰為 12 個鍵（[ADR 003](../decisions/003
 ```python
 event_id              str                非空
 time                  int                ≥ 0
-event_type            str                八種之一，見下
+event_type            str                十種之一，見下
 source                {actor_id, system_id, action_id}
 target_entity_id      str | None         ADR 002 的增補欄位
 affected              {entities, locations, resources, risks}
@@ -87,7 +94,15 @@ tags                  list[str]
 ```text
 ACTION_SELECTED   ACTION_REJECTED   MOVE      ATTACK
 MISS              ENTITY_DESTROYED  NO_ACTION SCENARIO_END
+RESOURCE_CHANGED  ENTITY_STATE_CHANGED                         （0.2 新增）
 ```
+
+`affected.locations` 的元素與 position 同型：`[x, y]` 或節點 id。
+
+| 事件 | before_state / after_state | 其他 |
+|---|---|---|
+| `RESOURCE_CHANGED` | `{resource_id, amount}` | `affected.resources` 列出資源；`data.delta`；`affects_cost` 為 true |
+| `ENTITY_STATE_CHANGED` | entity 完整快照 | `affected.entities`；`data.changes` |
 
 新增事件型別要改 `contracts/event.py` 的 `EVENT_TYPES` —— 沒登記的型別會在 `record_event()` 被拒。
 
@@ -95,7 +110,7 @@ MISS              ENTITY_DESTROYED  NO_ACTION SCENARIO_END
 
 | 契約 | model | 必填 | optional（留待） |
 |---|---|---|---|
-| World Contract | `WorldContract` | world_id、world_scope、purpose、space_model、time_model、assumption_registry、evaluation_targets | entity_model、environment_state、resource_state、rule_set（Phase 2）、actor_slots（Phase 6）、failure_variables（Phase 9）、event_memory、data_provenance |
+| World Contract | `WorldContract` | world_id、world_scope、purpose、space_model、time_model、assumption_registry、evaluation_targets、entity_model、environment_state、resource_state、rule_set | actor_slots（Phase 6）、failure_variables（Phase 9）、event_memory、data_provenance |
 | Scenario | `Scenario` | schema_version、**scenario_id**、scenario_version、world_contract、entities（≥ 1）、runtime、evaluation | scenario_type、domain、purpose、assumption_registry、data_provenance、participants、allowed_actions、failure_exploration、output |
 | Assumption Registry | `AssumptionRegistry` | — | scenario_id、assumptions、critical_assumptions、assumption_risks、assumption_confidence |
 | Data Provenance | `DataProvenance` | — | scenario_id、sources、reliability_notes、missing_data |
@@ -104,9 +119,21 @@ Scenario 的額外規則：
 
 ```text
 entity_id 不得重複
-space_model.type 為 "grid" 時必須有 width 與 height
-distance_model 只能是 chebyshev / manhattan / euclidean_floor
+每個 entity 的 position 必須在空間內：grid 是界內的 [x, y]，graph / network 是已知節點
 ```
+
+World Contract 的形狀規則：
+
+| 欄位 | 規則 |
+|---|---|
+| `space_model.type` | `grid` / `graph` / `network` 之一 |
+| grid | 必須有 `width`、`height`（> 0）；`distance_model` 為 chebyshev / manhattan / euclidean_floor |
+| graph | 必須有 `nodes`（不重複）與 `edges`，每條 `[a, b]`，端點必須是已知節點 |
+| network | 同 graph，但每條 edge 是 `[a, b, weight]`，weight > 0 |
+| `time_model.type` | `tick` / `phase` / `event_driven` 之一 |
+| phase | 必須有整數 `phase_length`（> 0）；`time_unit` optional |
+| `resource_state` | 名稱 → 數量，數量 ≥ 0 |
+| `entity_model`、`environment_state`、`rule_set` | dict，可為 `{}` |
 
 **兩種 assumption registry 不要搞混：** `world_contract.assumption_registry` 是扁平的 名稱 → 值 對照（engine 從這裡讀 `actor_policy`）；scenario 頂層的 `assumption_registry` 是 §11.2 的結構化稽核紀錄。
 
@@ -119,6 +146,8 @@ distance_model 只能是 chebyshev / manhattan / euclidean_floor
 | Reproducibility | `ReproducibilityMetadata` | Spec §12.2 全部欄位 | — |
 
 Result Package 的額外規則：`evaluation_result.event_count` 必須等於 `len(event_memory)`。
+
+`initial_world_state` / `final_world_state`（`WorldSnapshot`）的必填欄位：world_id、scenario_id、tick、space、entities、resources。`space` 由 `Space.describe()` 寫入，帶 `type`；`resources` 是名稱 → 數量，數量 ≥ 0。
 
 **Reproducibility 目前沒有任何東西產生它。** event_id 與 action_id 還是 uuid4、不受 seed 控制，沒有任何 run 能誠實填出 output_hash。Phase 8 才開始填。
 
