@@ -120,6 +120,11 @@ class PersistentWorld:
             "cap": dict(self.cap),
         }
 
+    def events(self) -> list[dict[str, Any]]:
+        """The world's event memory so far, as the result package will hold it."""
+        with self.lock:
+            return [event.to_dict() for event in self.engine.world.event_memory]
+
     def advance(self, ticks: int) -> dict[str, Any]:
         """
         Step up to ticks ticks, checkpoint, and pause — or, when a cap or an
@@ -242,11 +247,13 @@ class PersistentWorld:
         actions are carried out at that tick and the world may advance again.
         """
         with self.lock:
-            if conflict_id != self.awaiting:
-                raise KeyError(f"world {self.world_id} is not waiting on {conflict_id}")
+            # who decides is checked first: a non-authority is refused even
+            # on a conflict that is already decided
             record, kept = resolve(
                 self.store.get_conflict(conflict_id), branch, decided_by
             )
+            if conflict_id != self.awaiting:
+                raise KeyError(f"world {self.world_id} is not waiting on {conflict_id}")
             self.store.update_conflict(
                 conflict_id,
                 **{k: v for k, v in record.items() if k != "conflict_id"},

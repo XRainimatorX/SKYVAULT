@@ -355,7 +355,7 @@ def test_an_authority_picks_a_branch_and_the_world_goes_on_with_it(world):
     }
     assert {("red_001", "STARTX"), ("red_002", "HADES")} <= tick1
     assert ("red_001", "TAC_ANGEL") not in tick1
-    with pytest.raises(KeyError, match="not waiting"):
+    with pytest.raises(ValueError, match="already decided by NEXUS"):
         world_.decide("conflict_000001", "none", "NEXUS")
     assert any(
         e["message"] == "NEXUS decided conflict_000001: branch STARTX:2+HADES:3"
@@ -594,3 +594,16 @@ def test_a_branch_keeps_what_its_base_already_scheduled():
 
     assert [a["tick"] for a in scheduled] == [1, 2]
     assert scheduled[1]["metadata"] == {"proposal_id": "P1"}
+
+
+def test_a_world_decides_only_the_conflict_it_waits_on(world):
+    world_, store = world
+    submit_all(world_.window, SUBMISSIONS["conflicting_actions"])
+    world_.advance(1)
+    # another world's conflict, still awaiting, in the same store
+    other = store.save_conflict(
+        {**store.get_conflict("conflict_000001"), "world_id": "job_000099"}
+    )
+    with pytest.raises(KeyError, match="not waiting on conflict_000002"):
+        world_.decide(other["conflict_id"], "none", "NEXUS")
+    assert world_.state()["awaiting_decision"] == "conflict_000001"

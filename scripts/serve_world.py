@@ -6,7 +6,10 @@
 
 With --queue rq the API only queues; run scripts/world_worker.py (same
 --store, --redis and --governance) to execute jobs. The API's own docs are
-at /api/docs.
+at /api/docs. Outside systems use the external interface on the same app
+(Phase 12): /scenario/submit, /world/create, /action/submit, /run/{run_id},
+/branch_compare/run, /failure_exploration/run, /conflict/{id} and
+/branch_conflict/resolve.
 """
 
 import argparse

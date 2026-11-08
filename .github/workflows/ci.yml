@@ -398,6 +398,69 @@ jobs:
           print("rq worker verified:", job["summary"]["result"])
           EOF
 
+      - name: External systems
+        run: |
+          python scripts/serve_world.py --store sqlite:// --port 8102 > /tmp/serve_external.log 2>&1 &
+          sleep 5
+          python - <<'EOF'
+          import json, time, urllib.request
+
+          def call(path, body=None):
+              data = None if body is None else json.dumps(body).encode()
+              request = urllib.request.Request(f"http://127.0.0.1:8102{path}", data, {"Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(request) as response:
+                      return response.status, json.loads(response.read())
+              except urllib.error.HTTPError as error:
+                  return error.code, json.loads(error.read())
+
+          fixture = json.load(open("tests/fixtures/external/submissions.json"))
+          scenario = "tactical_reference_001/v0.1"
+
+          def act(world_id, action, system):
+              order = {k: v for k, v in action.items() if k not in ("tick", "actor_id", "system")}
+              status, proposal = call("/action/submit", {"world_id": world_id, "system": system, "tick": action["tick"], "actor_id": action["actor_id"], "order": order})
+              assert status == 202, proposal
+
+          # TAC ANGEL acts in a running world and takes back its state-action-outcome
+          status, world = call("/world/create", {"scenario": scenario})
+          assert status == 201, world
+          for action in fixture["tac_angel_plan"]["actions"]:
+              act(world["world_id"], action, "TAC_ANGEL")
+          call(f"/api/worlds/{world['world_id']}/advance", {"ticks": 3})
+          call(f"/api/worlds/{world['world_id']}/finish", {})
+          status, sao = call(f"/run/{world['world_id']}/state_action_outcome?system=TAC_ANGEL")
+          assert [r["tick"] for r in sao["state_action_outcome"]] == [1, 2, 3], sao
+
+          # conflicting actions hold the world; only an authority decides
+          status, world = call("/world/create", {"scenario": scenario})
+          for action in fixture["conflicting_actions"]:
+              act(world["world_id"], action, action["system"])
+          status, held = call(f"/api/worlds/{world['world_id']}/advance", {"ticks": 5})
+          conflict = held["awaiting_decision"]
+          assert conflict is not None and held["tick"] == 0, held
+          status, package = call(f"/conflict/{conflict}/package")
+          assert package["recommendation_to_nexus"]["required_decision"] is True, package
+          status, refused = call("/branch_conflict/resolve", {"conflict_id": conflict, "branch_id": "none", "decided_by": "SKYVAULT"})
+          assert status == 403, refused
+          status, decided = call("/branch_conflict/resolve", {"conflict_id": conflict, "branch_id": "TAC_ANGEL:1", "decided_by": "NEXUS"})
+          assert (status, decided["decided_by"]) == (200, "NEXUS"), decided
+          status, moved = call(f"/api/worlds/{world['world_id']}/advance", {"ticks": 1})
+          assert moved["tick"] == 1, moved
+
+          # NEXUS takes the whole result package and the briefing
+          status, answer = call("/scenario/submit", {"system": "NEXUS", "kind": "task", "scenario": scenario, "content": {"report_format": "markdown"}})
+          assert status == 202, answer
+          for _ in range(100):
+              status, returned = call(f"/submission/{answer['submission_id']}")
+              if status == 200:
+                  break
+              time.sleep(0.2)
+          assert returned["result_package"]["reproducibility"]["output_hash"].startswith("63090026e137"), returned["system_status"]
+          assert returned["briefing"].startswith("# SKYVAULT briefing"), returned["briefing"][:80]
+          print("external systems verified: state-action-outcome, conflict", conflict, "decided by NEXUS, NEXUS package")
+          EOF
+
   # Phase 17: build the UI, serve it with the reference workspace, and drive
   # every page in a real browser
   ui:

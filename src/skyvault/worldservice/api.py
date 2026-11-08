@@ -3,7 +3,9 @@
 Important:
 Jobs: submit (planned and admitted, then queued), list, look up, download
 the result, cancel, replay. Persistent worlds: create, advance, look up,
-checkpoints, finish, delete. Status: the service's mode and health, the
+checkpoints, finish, delete; a world waiting for a decision on a conflict
+does not advance (409). The external interface's routes (Phase 12) are
+added to the same app. Status: the service's mode and health, the
 queue and what runs. The API only plans and queues; workers run jobs. A
 refusal says why: 404 for something SKYVAULT does not have, 422 for a
 malformed request or one governance refuses, 429 when the queue is full,
@@ -16,11 +18,12 @@ from typing import Annotated, Any
 from fastapi import Body, FastAPI, HTTPException
 
 from ..contracts import ContractError
+from ..interface.api import add_external_routes
 from .governance import Rejected
 from .jobs import NotFound, execute_job, full_request, new_job, plan
 from .queues import InProcessQueue, JobQueue
 from .store import JobStore
-from .worlds import PersistentWorld, WorldClosed
+from .worlds import PersistentWorld, WorldAwaiting, WorldClosed
 
 # A request body: any JSON object; the job contract checks it
 JSONBody = Annotated[dict[str, Any], Body()]
@@ -237,6 +240,10 @@ def create_world_service(
             raise HTTPException(
                 409, {"reason": "closed", "detail": str(error)}
             ) from None
+        except WorldAwaiting as error:
+            raise HTTPException(
+                409, {"reason": "awaiting_decision", "detail": str(error)}
+            ) from None
 
     @app.get("/api/worlds/{world_id}")
     def world_state(world_id: str) -> dict[str, Any]:
@@ -259,4 +266,10 @@ def create_world_service(
             worlds.pop(world_id, None)
         return {"world_id": world_id, "lifecycle_state": "deleted"}
 
+    # What the external interface (Phase 12) shares with these routes
+    app.state.worlds = worlds
+    app.state.admit = admit
+    app.state.refuse = refuse
+    app.state.create_world = create_world
+    add_external_routes(app, store, queue, policy)
     return app
