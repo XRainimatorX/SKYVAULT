@@ -1,0 +1,75 @@
+{
+  "profile_id": "fixture_balanced_red",
+  "description": "Every axis counts; mission success counts three times. All five anti-gaming checks.",
+  "perspective": "RED",
+  "primary_metric": "mission_success",
+  "secondary_metrics": [
+    "tactical_value",
+    "strategic_value",
+    "resource_cost",
+    "time_cost",
+    "risk_growth",
+    "failure_resistance",
+    "recovery_ability",
+    "system_robustness",
+    "logistics_burden",
+    "stability_impact"
+  ],
+  "weights": {
+    "mission_success": 3.0,
+    "tactical_value": 1.0,
+    "strategic_value": 1.0,
+    "resource_cost": 1.0,
+    "time_cost": 1.0,
+    "risk_growth": 1.0,
+    "failure_resistance": 1.0,
+    "recovery_ability": 1.0,
+    "system_robustness": 1.0,
+    "logistics_burden": 1.0,
+    "stability_impact": 1.0
+  },
+  "thresholds": {
+    "pass": 0.6,
+    "fail": 0.3
+  },
+  "anti_gaming_metrics": [
+    {
+      "metric": "inaction_penalty",
+      "reason": "prevent doing nothing to preserve resources",
+      "threshold": 0.5,
+      "penalty": 0.2
+    },
+    {
+      "metric": "stability_penalty",
+      "reason": "prevent fast success that destroys long-term order",
+      "threshold": 0.5,
+      "penalty": 0.15
+    },
+    {
+      "metric": "risk_spike_penalty",
+      "reason": "prevent extreme high-risk optimization",
+      "threshold": 0.34,
+      "penalty": 0.15
+    },
+    {
+      "metric": "hidden_risk_penalty",
+      "reason": "prevent a visible success that hides critically damaged survivors",
+      "threshold": 0.5,
+      "penalty": 0.1
+    },
+    {
+      "metric": "long_term_cost_penalty",
+      "reason": "prevent short-term tactical value that destroys strategic value",
+      "threshold": 0.5,
+      "penalty": 0.1
+    }
+  ],
+  "forbidden_optimization_behaviors": [
+    "maximize_score_by_inaction",
+    "sacrifice_long_term_stability_for_short_term_success",
+    "extreme_high_risk_optimization",
+    "ignore_hidden_risk_to_improve_visible_score",
+    "sacrifice_strategic_value_for_short_term_tactical_value"
+  ],
+  "tradeoff_report_required": true
+}

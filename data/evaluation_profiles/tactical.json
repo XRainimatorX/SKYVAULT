@@ -1,0 +1,56 @@
+{
+  "profile_id": "tactical",
+  "description": "Win the engagement cheaply and quickly. Stability and logistics are not scored.",
+  "perspective": null,
+  "primary_metric": "mission_success",
+  "secondary_metrics": [
+    "tactical_value",
+    "resource_cost",
+    "time_cost",
+    "failure_resistance",
+    "system_robustness"
+  ],
+  "weights": {
+    "mission_success": 3.0,
+    "tactical_value": 2.0,
+    "strategic_value": 0.0,
+    "resource_cost": 2.0,
+    "time_cost": 1.0,
+    "risk_growth": 0.0,
+    "failure_resistance": 1.0,
+    "recovery_ability": 0.0,
+    "system_robustness": 1.0,
+    "logistics_burden": 0.0,
+    "stability_impact": 0.0
+  },
+  "thresholds": {
+    "pass": 0.6,
+    "fail": 0.3
+  },
+  "anti_gaming_metrics": [
+    {
+      "metric": "inaction_penalty",
+      "reason": "prevent doing nothing to preserve resources",
+      "threshold": 0.5,
+      "penalty": 0.2
+    },
+    {
+      "metric": "risk_spike_penalty",
+      "reason": "prevent extreme high-risk optimization",
+      "threshold": 0.34,
+      "penalty": 0.15
+    },
+    {
+      "metric": "hidden_risk_penalty",
+      "reason": "prevent a visible success that hides critically damaged survivors",
+      "threshold": 0.5,
+      "penalty": 0.1
+    }
+  ],
+  "forbidden_optimization_behaviors": [
+    "maximize_score_by_inaction",
+    "extreme_high_risk_optimization",
+    "ignore_hidden_risk_to_improve_visible_score"
+  ],
+  "tradeoff_report_required": true
+}
