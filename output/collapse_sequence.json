@@ -1,0 +1,17 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "stress": "communication_failure:collapse",
+  "scenario_version": "v0.1+communication_failure:collapse",
+  "seed": 42,
+  "outcome": "no_winner_duration_limit",
+  "status": "fail",
+  "score": 0.3434,
+  "sequence": [
+    {
+      "tick": 9,
+      "entity": "red_003",
+      "by": "blue_001"
+    }
+  ],
+  "output_hash": "0aa4f29cca98f67956c24cfeaa6dc2f9e46ec85cee849b9a20f08b6d00c17326"
+}

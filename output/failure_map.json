@@ -1,0 +1,339 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "perspective": "RED",
+  "profile_id": "balanced",
+  "objective": "find_weakness",
+  "repeat_count": 10,
+  "seeds": [
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51
+  ],
+  "survival_threshold": 0.5,
+  "baseline": {
+    "survival_rate": 0.6,
+    "mean_score": 0.3575,
+    "outcomes": {
+      "BLUE_survived": 4,
+      "RED_survived": 2,
+      "no_winner_duration_limit": 4
+    },
+    "fails_without_stress": false
+  },
+  "variables": [
+    {
+      "variable": "sensor_failure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.6,
+          "mean_score": 0.3449,
+          "mean_first_loss_tick": 6.1,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.7,
+          "mean_score": 0.3625,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.7,
+          "mean_score": 0.3759,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_003"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.6,
+          "mean_score": 0.3258,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        }
+      ],
+      "breaking_level": null,
+      "sensitivity": 0.0
+    },
+    {
+      "variable": "communication_failure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "actor_policy",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.7,
+          "mean_score": 0.4003,
+          "mean_first_loss_tick": 6.75,
+          "most_common_failure": "red_003 lost at tick 7 to blue_001"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.8,
+          "mean_score": 0.427,
+          "mean_first_loss_tick": 7.6667,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.5,
+          "mean_score": 0.3299,
+          "mean_first_loss_tick": 7.1111,
+          "most_common_failure": "red_003 lost at tick 5 to blue_003"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.3136,
+          "mean_first_loss_tick": 8.2222,
+          "most_common_failure": "red_003 lost at tick 9 to blue_001"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.6
+    },
+    {
+      "variable": "weather_degradation",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.7,
+          "mean_score": 0.373,
+          "mean_first_loss_tick": 6.2,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.8,
+          "mean_score": 0.4188,
+          "mean_first_loss_tick": 6.3333,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.4751,
+          "mean_first_loss_tick": 6.4,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.6,
+          "mean_score": 0.4511,
+          "mean_first_loss_tick": 7.125,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        }
+      ],
+      "breaking_level": null,
+      "sensitivity": 0.0
+    },
+    {
+      "variable": "enemy_reaction_speed",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.3385,
+          "mean_first_loss_tick": 5.7,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.3393,
+          "mean_first_loss_tick": 5.6,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.4,
+          "mean_score": 0.2864,
+          "mean_first_loss_tick": 5.3,
+          "most_common_failure": "red_003 lost at tick 5 to blue_002"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.2,
+          "mean_score": 0.2431,
+          "mean_first_loss_tick": 5.2,
+          "most_common_failure": "red_003 lost at tick 5 to blue_002"
+        }
+      ],
+      "breaking_level": "severe",
+      "sensitivity": 0.4
+    },
+    {
+      "variable": "equipment_overheat",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.6,
+          "mean_score": 0.3465,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.7,
+          "mean_score": 0.3683,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.7,
+          "mean_score": 0.3157,
+          "mean_first_loss_tick": 5.9,
+          "most_common_failure": "red_003 lost at tick 6 to blue_003"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.2389,
+          "mean_first_loss_tick": 5.8,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.6
+    },
+    {
+      "variable": "civilian_pressure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "force_availability",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.8,
+          "mean_score": 0.3732,
+          "mean_first_loss_tick": 6.1,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.7,
+          "mean_score": 0.3562,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.7,
+          "mean_score": 0.3437,
+          "mean_first_loss_tick": 5.7,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.1,
+          "mean_score": 0.2021,
+          "mean_first_loss_tick": 5.1,
+          "most_common_failure": "red_003 lost at tick 5 to blue_003"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.5
+    }
+  ],
+  "crushing_variable": "communication_failure",
+  "crushing_assumption": "actor_policy",
+  "failure_points": [
+    "red_003 lost at tick 6 to blue_001 (23 of 112 failed runs)",
+    "red_003 lost at tick 6 to blue_002 (21 of 112 failed runs)",
+    "red_003 lost at tick 5 to blue_002 (20 of 112 failed runs)",
+    "red_003 lost at tick 6 to blue_003 (11 of 112 failed runs)",
+    "red_003 lost at tick 5 to blue_003 (11 of 112 failed runs)"
+  ],
+  "failure_causes": [
+    "mission_success too low in 112 of 112 failed runs",
+    "recovery_ability too low in 111 of 112 failed runs",
+    "time_cost too low in 110 of 112 failed runs",
+    "resource_cost too low in 90 of 112 failed runs",
+    "strategic_value too low in 80 of 112 failed runs",
+    "risk_growth too low in 80 of 112 failed runs",
+    "tactical_value too low in 60 of 112 failed runs",
+    "system_robustness too low in 9 of 112 failed runs",
+    "stability_impact too low in 6 of 112 failed runs",
+    "Anti-gaming: sacrifice_strategic_value_for_short_term_tactical_value in 2 of 112 failed runs",
+    "Anti-gaming: extreme_high_risk_optimization in 2 of 112 failed runs",
+    "Anti-gaming: maximize_score_by_inaction in 1 of 112 failed runs"
+  ],
+  "how_fast": {
+    "mean_first_loss_tick": 6.1261,
+    "mean_elimination_tick": 9.35
+  },
+  "branches": [
+    {
+      "variables": [
+        "equipment_overheat",
+        "communication_failure"
+      ],
+      "level": "moderate",
+      "survival_rate": 0.6,
+      "mean_score": 0.3895
+    }
+  ],
+  "alternatives": [
+    {
+      "scenario_version": "v0.1-support-rear",
+      "baseline_survival_rate": 0.9,
+      "breaking_levels": {
+        "sensor_failure": null,
+        "communication_failure": "collapse",
+        "weather_degradation": null,
+        "enemy_reaction_speed": null,
+        "equipment_overheat": "collapse",
+        "civilian_pressure": "collapse"
+      },
+      "holds_longer_on": [
+        "baseline",
+        "enemy_reaction_speed"
+      ],
+      "breaks_sooner_on": [],
+      "verdict": "holds_longer"
+    },
+    {
+      "scenario_version": "v0.1-spread",
+      "baseline_survival_rate": 0.9,
+      "breaking_levels": {
+        "sensor_failure": null,
+        "communication_failure": "severe",
+        "weather_degradation": null,
+        "enemy_reaction_speed": "severe",
+        "equipment_overheat": "collapse",
+        "civilian_pressure": "collapse"
+      },
+      "holds_longer_on": [
+        "baseline"
+      ],
+      "breaks_sooner_on": [
+        "communication_failure"
+      ],
+      "verdict": "mixed"
+    }
+  ],
+  "best_alternative": "v0.1-support-rear"
+}

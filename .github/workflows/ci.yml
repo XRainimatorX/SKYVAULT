@@ -147,3 +147,32 @@ jobs:
           assert runs[0]["input_hash"] != runs[1]["input_hash"]  # balanced, then tactical
           print("reproducibility verified")
           EOF
+
+      # Phase 9: stress the plan and check the four failure outputs
+      - name: Failure exploration
+        run: |
+          python scripts/explore_failures.py --repeats 2
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.contracts import validate_failure_map
+
+          out = Path("output")
+          failure_map = validate_failure_map(json.loads((out / "failure_map.json").read_text()))
+          assert failure_map["scenario_version"] == "v0.1"
+          assert failure_map["seeds"] == [42, 43]
+          assert len(failure_map["variables"]) == 6
+          assert [a["scenario_version"] for a in failure_map["alternatives"]] == [
+              "v0.1-support-rear",
+              "v0.1-spread",
+          ]
+          json.loads((out / "collapse_sequence.json").read_text())
+          conditions = json.loads((out / "survival_conditions.json").read_text())
+          assert len(conditions["per_variable"]) == 6
+          text = (out / "recommended_modifications.md").read_text()
+          assert text.startswith("# Recommended modifications — tactical_reference_001 v0.1")
+          print("failure exploration verified")
+          EOF
