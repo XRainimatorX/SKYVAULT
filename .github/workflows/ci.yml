@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install runtime and development dependencies
-        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab httpx pypdf types-reportlab
+        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs
 
       - name: Lint
         run: ruff check .
@@ -245,6 +245,33 @@ jobs:
           comparison = json.loads((out / "branch_comparison.json").read_text())
           assert comparison["variants"] == ["aggressive", "overwatch", "defensive"]
           print("military pack verified:", len(records), "records")
+          EOF
+
+      # Phase 18: training data from the sources file, filtered for score gaming
+      - name: Training data pipeline
+        run: |
+          python scripts/build_training_data.py --workers 2
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.training.export import read_jsonl, read_parquet
+          from skyvault.training.records import validate_transition
+
+          out = Path("output/training")
+          report = json.loads((out / "anti_gaming_report.json").read_text())
+          assert report["runs"] == 100 and all(report["buckets"].values()), report["buckets"]
+          assert report["success_types"]["genuine_success"] and report["success_types"]["false_success"]
+          rejected = {e["output_hash"] for e in report["entries"] if e["bucket"] == "rejected"}
+          clean = read_jsonl(out / "clean_training_dataset.jsonl")
+          assert not {t["scenario"]["output_hash"] for t in clean} & rejected
+          assert read_parquet(out / "clean_training_dataset.parquet") == clean
+          for record in clean[:200]:
+              validate_transition(record)
+          assert len(read_jsonl(out / "branch_evaluation.jsonl")) == 15
+          print("training data verified:", report["buckets"], len(clean), "clean transitions")
           EOF
 
   # Phase 17: build the UI, serve it with the reference workspace, and drive

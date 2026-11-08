@@ -7,7 +7,9 @@ from ...action import Action, ActionTarget
 from ...actions import ActionHandler
 from ...policies import Policy
 from ...world_state import WorldState
+from .dataset import sensor_contacts
 from .handlers import ACTION_TYPES, military_handlers
+from .mission import mission_outcome
 from .policy import MilitaryBaselinePolicy
 from .terrain import military_rules
 
@@ -43,6 +45,23 @@ class MilitaryPack:
             if int(unit.state.get("suppression", 0)) > 0
             or int(unit.state.get("morale", start)) < start
         ]
+
+    def mission_outcome(
+        self, package: dict[str, Any], scenario: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Each faction's mission judged after the run (mission.py)."""
+        return mission_outcome(package, scenario)
+
+    def observe(
+        self, actor: dict[str, Any], units: dict[str, Any], scenario: dict[str, Any]
+    ) -> dict[str, Any]:
+        """What actor's sensor shows of units (entity snapshots)."""
+        seen, allies = sensor_contacts(actor, units, scenario)
+        return {
+            "observation_model": "military_sensor",
+            "seen_enemies": seen,
+            "allies": allies,
+        }
 
 
 MILITARY = MilitaryPack()

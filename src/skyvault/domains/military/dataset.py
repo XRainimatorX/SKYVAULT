@@ -138,7 +138,7 @@ def build_dataset(package: dict[str, Any], scenario: dict[str, Any]) -> list[dic
                             "unit_type": actor["entity_type"],
                             "faction": actor["faction"],
                         },
-                        "state": _state(actor, units, terrain, table),
+                        "state": _state(actor, units, terrain, table, scenario),
                         "action": {
                             "action_id": event["source"]["action_id"],
                             "action_type": event["data"]["action_type"],
@@ -165,14 +165,18 @@ def _cell(terrain: dict[str, Any], table: dict[str, Any], position: list[int]):
     return name, table[name]
 
 
-def _state(
-    actor: dict[str, Any],
-    units: dict[str, Any],
-    terrain: dict[str, Any],
-    table: dict[str, Any],
-) -> dict[str, Any]:
+def sensor_contacts(
+    actor: dict[str, Any], units: dict[str, Any], scenario: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """
+    (enemies actor's sensor sees, friends) from entity snapshots.
+
+    The pack's sensing rule: an enemy is seen within sensor range × (1 −
+    concealment of its cell). Both lists keep the order of units.
+    """
+    terrain = scenario["world_contract"]["environment_state"]["terrain"]
+    table = scenario["world_contract"]["rule_set"]["military"]["terrain"]
     x, y = actor["position"]
-    name, ground = _cell(terrain, table, actor["position"])
     sensor = float(actor["capabilities"].get("sensor_range", 5))
     seen, allies = [], []
     for other in units.values():
@@ -196,9 +200,21 @@ def _state(
             allies.append(contact)
         elif distance <= sensor * (1 - float(other_ground["concealment"])):
             seen.append(contact)
+    return seen, allies
+
+
+def _state(
+    actor: dict[str, Any],
+    units: dict[str, Any],
+    terrain: dict[str, Any],
+    table: dict[str, Any],
+    scenario: dict[str, Any],
+) -> dict[str, Any]:
+    name, ground = _cell(terrain, table, actor["position"])
+    seen, allies = sensor_contacts(actor, units, scenario)
     state = actor["state"]
     return {
-        "position": [x, y],
+        "position": list(actor["position"]),
         "hp": float(state.get("hp", 0)),
         "ammo": float(state.get("ammo", 0)),
         "morale": float(state.get("morale", 0)),

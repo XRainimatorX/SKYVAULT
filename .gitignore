@@ -9,3 +9,6 @@ runs/
 
 # Training dataset written by scripts/export_dataset.py (several MB; regenerate it)
 output/tac_angel_dataset.jsonl
+
+# Training data written by scripts/build_training_data.py (tens of MB; regenerate it)
+output/training/

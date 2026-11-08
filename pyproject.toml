@@ -2,7 +2,7 @@
 # build-system table): scripts and tests still put src/ on sys.path. Install
 # the dependencies with:
 #   python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn \
-#       websockets python-docx reportlab
+#       websockets python-docx reportlab pyarrow
 [project]
 name = "skyvault"
 version = "0.12.0"
@@ -23,6 +23,8 @@ dependencies = [
     "websockets>=12",
     "python-docx>=1",
     "reportlab>=4",
+    # Parquet export of training datasets (Phase 18).
+    "pyarrow>=14",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +39,7 @@ dev = [
     "types-networkx",
     "pandas-stubs",
     "types-reportlab",
+    "pyarrow-stubs",
     # FastAPI's TestClient and reading briefing PDFs in tests (Phase 17).
     "httpx",
     "pypdf",
