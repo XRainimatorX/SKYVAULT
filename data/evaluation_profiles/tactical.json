@@ -43,7 +43,7 @@
     {
       "metric": "hidden_risk_penalty",
       "reason": "prevent a visible success that hides critically damaged survivors",
-      "threshold": 0.5,
+      "threshold": 0.3,
       "penalty": 0.1
     }
   ],
