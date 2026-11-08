@@ -7,11 +7,11 @@ the PDF is written in reportlab's invariant mode, and the DOCX gets fixed
 document properties and fixed timestamps inside its zip.
 """
 
+import html
 import io
 import zipfile
 from datetime import datetime
 from typing import Any
-from xml.sax.saxutils import escape
 
 from docx import Document
 from reportlab.lib import colors
@@ -27,6 +27,11 @@ from reportlab.platypus import (
 )
 
 AUTHOR = "SKYVAULT"
+
+
+def escape(text: str) -> str:
+    """Text safe inside reportlab's paragraph markup: only & < > matter."""
+    return html.escape(text, quote=False)
 
 
 def render_markdown(briefing: dict[str, Any]) -> str:
