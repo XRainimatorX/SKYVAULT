@@ -3,3 +3,6 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Run registry written by scripts/run_tactical_reference.py
+runs/

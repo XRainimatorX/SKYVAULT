@@ -2,6 +2,20 @@
   "schema_version": "0.5",
   "scenario_id": "tactical_reference_001",
   "scenario_version": "v0.2",
+  "version_control": {
+    "version": "v0.2",
+    "parent_version": "v0.1",
+    "changed_from_previous": {
+      "assumptions_changed": [],
+      "data_changed": [
+        "entities[blue_002].capabilities.accuracy: 0.55 -> 0.75"
+      ],
+      "rules_changed": [],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "Blue support retrained: blue_002 accuracy 0.55 -> 0.75."
+  },
   "world_contract": {
     "world_id": "tactical_reference_world_001",
     "world_scope": "tactical_reference_environment",

@@ -127,3 +127,23 @@ jobs:
           assert verdict["event_count"] == 97
           print("profile switch verified")
           EOF
+
+      # Phase 8: a recorded run must rerun to the same output hash, and the
+      # next scenario version must be told apart from it
+      - name: Reproducibility and scenario versions
+        run: |
+          python scripts/verify_run.py output/result_package.json
+          python scripts/run_tactical_reference.py --scenario data/scenarios/tactical_reference_001/v0.2.json
+          python scripts/verify_run.py output/result_package.json
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          package = json.loads(Path("output/result_package.json").read_text())
+          assert package["evaluation_result"]["winner_or_result"] == "BLUE_survived"
+          assert package["reproducibility"]["scenario_version"] == "v0.2"
+          runs = [json.loads(line) for line in Path("runs/registry.jsonl").read_text().splitlines()]
+          assert [run["scenario_version"] for run in runs] == ["v0.1", "v0.1", "v0.2"]
+          assert runs[0]["input_hash"] != runs[1]["input_hash"]  # balanced, then tactical
+          print("reproducibility verified")
+          EOF

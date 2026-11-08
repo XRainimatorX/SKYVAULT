@@ -16,6 +16,7 @@ from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.entity_history import build_entity_history
 from skyvault.evaluation import render_tradeoff_report
 from skyvault.replay import build_replay_state_at_tick
+from skyvault.reproducibility import RunRegistry
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 from skyvault.timeline import render_timeline
 
@@ -37,6 +38,18 @@ def write_text(path: Path, text: str) -> None:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run the tactical reference slice.")
     parser.add_argument(
+        "--scenario",
+        type=Path,
+        default=SCENARIO_DIR / "tactical_reference_001" / "v0.1.json",
+        help="scenario file; default: tactical_reference_001 v0.1",
+    )
+    parser.add_argument(
+        "--registry",
+        type=Path,
+        default=REPO_ROOT / "runs" / "registry.jsonl",
+        help="run registry to append to; default: runs/registry.jsonl",
+    )
+    parser.add_argument(
         "--profile",
         type=Path,
         default=None,
@@ -44,10 +57,9 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    scenario_path = SCENARIO_DIR / "tactical_reference_001" / "v0.1.json"
     output_dir = REPO_ROOT / "output"
 
-    scenario = load_scenario(scenario_path)
+    scenario = load_scenario(args.scenario)
     profile = load_evaluation_profile(args.profile) if args.profile else None
 
     engine = SkyVaultTacticalReferenceEngine(scenario, evaluation_profile=profile)
@@ -117,17 +129,21 @@ def main(argv: list[str] | None = None) -> None:
         render_tradeoff_report(result_package["tradeoff_report"]),
     )
 
+    entry = RunRegistry(args.registry).record(result_package)
+
     evaluation = result_package["evaluation_result"]
     judgement = evaluation["overall_judgement"]
 
     print("SKYVAULT Tactical Reference Slice v0.1 completed.")
-    print(f"Scenario: {result_package['scenario_id']}")
+    version = result_package["scenario_version"]
+    print(f"Scenario: {result_package['scenario_id']} {version}")
     print(f"Result: {evaluation['winner_or_result']}")
     print(f"Events: {evaluation['event_count']}")
     print(
         f"Verdict: {judgement['status']} "
         f"(score {evaluation['overall_score']:.2f}, profile {evaluation['profile_id']})"
     )
+    print(f"Run: {entry['run_id']} (output {entry['output_hash'][:12]})")
     print(f"Output: {output_dir}")
 
 

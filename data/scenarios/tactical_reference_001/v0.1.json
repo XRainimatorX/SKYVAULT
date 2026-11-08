@@ -2,6 +2,18 @@
   "schema_version": "0.5",
   "scenario_id": "tactical_reference_001",
   "scenario_version": "v0.1",
+  "version_control": {
+    "version": "v0.1",
+    "parent_version": null,
+    "changed_from_previous": {
+      "assumptions_changed": [],
+      "data_changed": [],
+      "rules_changed": [],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "First version: the Phase 4 tactical reference slice."
+  },
   "world_contract": {
     "world_id": "tactical_reference_world_001",
     "world_scope": "tactical_reference_environment",

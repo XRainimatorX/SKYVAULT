@@ -8,6 +8,7 @@ a package to check it lives in skyvault.verification, which does.
 """
 
 from .hashing import canonical_json, content_hash, input_hash, output_hash
+from .registry import RunRegistry
 from .versioning import (
     CHANGE_CATEGORIES,
     RUNTIME_VERSION,
@@ -20,6 +21,7 @@ from .versioning import (
 __all__ = [
     "CHANGE_CATEGORIES",
     "RUNTIME_VERSION",
+    "RunRegistry",
     "canonical_json",
     "compare_runs",
     "compare_scenarios",
