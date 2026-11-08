@@ -52,7 +52,8 @@ def reachable(
     start cell is included at cost 0. Ties in the queue break on the cell
     itself, so the result never depends on dictionary order.
     """
-    assert isinstance(start, tuple)  # nosec B101 - grid only, checked by the engine
+    if not isinstance(start, tuple):
+        raise ValueError(f"reachable needs a grid cell, got {start!r}")
     origin = (int(start[0]), int(start[1]))
     best: dict[tuple[int, int], int] = {origin: 0}
     queue: list[tuple[int, tuple[int, int]]] = [(0, origin)]

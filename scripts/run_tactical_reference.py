@@ -15,6 +15,7 @@ from skyvault.causal_chain import build_causal_chain
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.entity_history import build_entity_history
 from skyvault.evaluation import render_tradeoff_report
+from skyvault.policies import import_policy_module
 from skyvault.replay import build_replay_state_at_tick
 from skyvault.reproducibility import RunRegistry
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
@@ -55,11 +56,25 @@ def main(argv: list[str] | None = None) -> None:
         default=None,
         help="evaluation profile (JSON or YAML); default: balanced",
     )
+    parser.add_argument(
+        "--policy",
+        default=None,
+        help="registered policy to decide with instead of the scenario's own",
+    )
+    parser.add_argument(
+        "--policy-module",
+        default=None,
+        help="module or .py file to import first; it registers policies",
+    )
     args = parser.parse_args(argv)
 
     output_dir = REPO_ROOT / "output"
 
     scenario = load_scenario(args.scenario)
+    if args.policy_module:
+        import_policy_module(args.policy_module)
+    if args.policy:
+        scenario["runtime"]["policy"] = {"name": args.policy}
     profile = load_evaluation_profile(args.profile) if args.profile else None
 
     engine = SkyVaultTacticalReferenceEngine(scenario, evaluation_profile=profile)

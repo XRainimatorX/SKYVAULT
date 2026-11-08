@@ -12,6 +12,7 @@ import copy
 from typing import Any
 
 from ...contracts import SCHEMA_VERSION, validate_scenario
+from ...reproducibility import child_version
 
 DOMAIN = "military"
 
@@ -119,6 +120,33 @@ def build_scenario(spec: dict[str, Any], profiles: dict[str, Any]) -> dict[str, 
         },
     }
     return validate_scenario(scenario)
+
+
+def doctrine_variant(
+    scenario: dict[str, Any], faction: str, doctrine: str
+) -> dict[str, Any]:
+    """
+    The same scenario with one faction fighting under another doctrine.
+
+    It is a child version labelled with the doctrine (v0.1+defensive), so
+    compare_scenarios records the change in the rules and in the
+    actor_policy assumption, and a batch can set the doctrines side by side.
+    """
+    variant = copy.deepcopy(scenario)
+    factions = variant["world_contract"]["rule_set"]["military"]["factions"]
+    if faction not in factions:
+        raise ValueError(f"no faction {faction!r} in {scenario['scenario_id']}")
+    factions[faction]["doctrine"] = doctrine
+    doctrines = "/".join(f"{f}:{side['doctrine']}" for f, side in factions.items())
+    variant["world_contract"]["assumption_registry"][
+        "actor_policy"
+    ] = f"military_baseline[{doctrines}]"
+    return child_version(
+        scenario,
+        variant,
+        doctrine,
+        f"Doctrine comparison: {faction} fights {doctrine}",
+    )
 
 
 def _size(rows: list[str]) -> tuple[int, int]:

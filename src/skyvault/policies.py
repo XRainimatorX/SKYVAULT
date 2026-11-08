@@ -7,8 +7,11 @@ scenario can ask for one by name (runtime.policy.name) without being able
 to load arbitrary code; a caller can also hand the engine a policy object.
 """
 
+import importlib
+import importlib.util
 import random
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any, Protocol
 
 from .action import Action
@@ -53,3 +56,23 @@ def build_policy(
 def registered_policies() -> list[str]:
     """Every registered policy name, sorted."""
     return sorted(_REGISTRY)
+
+
+def import_policy_module(spec: str) -> None:
+    """
+    Import a module or .py file that registers policies.
+
+    Important:
+    Only for a person running a script, who names the code to load
+    explicitly (--policy-module). Scenario files cannot reach this: they can
+    only pick names that are already registered.
+    """
+    if spec.endswith(".py"):
+        path = Path(spec).resolve()
+        loader_spec = importlib.util.spec_from_file_location(path.stem, path)
+        if loader_spec is None or loader_spec.loader is None:
+            raise ImportError(f"cannot load policies from {spec}")
+        module = importlib.util.module_from_spec(loader_spec)
+        loader_spec.loader.exec_module(module)
+    else:
+        importlib.import_module(spec)

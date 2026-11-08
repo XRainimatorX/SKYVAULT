@@ -28,7 +28,7 @@
          "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
         {"name": "2nd squad", "formation": "line", "anchor": [6, 0],
          "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
-        {"name": "Support", "formation": "line", "anchor": [4, 3],
+        {"name": "Support", "formation": "line", "anchor": [4, 0],
          "units": ["marksman", "logistics"]}
       ]
     },

@@ -6,3 +6,6 @@ htmlcov/
 
 # Run registry written by scripts/run_tactical_reference.py
 runs/
+
+# Training dataset written by scripts/export_dataset.py (several MB; regenerate it)
+output/tac_angel_dataset.jsonl

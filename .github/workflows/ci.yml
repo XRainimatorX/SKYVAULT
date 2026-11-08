@@ -218,6 +218,35 @@ jobs:
           print("briefing verified")
           EOF
 
+      # Phase 13: the military domain pack on the same engine
+      - name: Military domain pack
+        run: |
+          python scripts/run_tactical_reference.py --scenario data/scenarios/military_urban_001/v0.1.json
+          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+            --policy-module examples/tac_angel_policy.py --policy tac_angel_example
+          python scripts/export_dataset.py --runs 1 --output output/tac_angel_dataset.jsonl
+          python scripts/run_batch.py --batch data/batches/military_doctrine.json --repeats 3 --workers 2
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.domains.military.dataset import validate_record
+
+          out = Path("output")
+          package = json.loads((out / "result_package.json").read_text())
+          deciders = {e["source"]["system_id"] for e in package["event_memory"] if e["event_type"] == "ACTION_SELECTED"}
+          assert deciders == {"TAC_ANGEL"}, deciders
+          records = [json.loads(line) for line in (out / "tac_angel_dataset.jsonl").read_text().splitlines()]
+          assert len(records) > 400
+          for record in records:
+              validate_record(record)
+          comparison = json.loads((out / "branch_comparison.json").read_text())
+          assert comparison["variants"] == ["aggressive", "overwatch", "defensive"]
+          print("military pack verified:", len(records), "records")
+          EOF
+
   # Phase 17: build the UI, serve it with the reference workspace, and drive
   # every page in a real browser
   ui:
