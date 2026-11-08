@@ -1,6 +1,8 @@
 # Declares what SKYVAULT needs to run. The package is not installable yet (no
 # build-system table): scripts and tests still put src/ on sys.path. Install
-# the dependencies with: python3 -m pip install pydantic pyyaml networkx pandas
+# the dependencies with:
+#   python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn \
+#       python-docx reportlab
 [project]
 name = "skyvault"
 version = "0.10.0"
@@ -14,6 +16,11 @@ dependencies = [
     "networkx>=3",
     # Batch aggregation (Phase 10). pandas 3 needs Python 3.11; pip picks 2.x on 3.10.
     "pandas>=2",
+    # UI backend and briefing export (Phase 17).
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "python-docx>=1",
+    "reportlab>=4",
 ]
 
 [project.optional-dependencies]
@@ -27,6 +34,10 @@ dev = [
     "types-PyYAML",
     "types-networkx",
     "pandas-stubs",
+    "types-reportlab",
+    # FastAPI's TestClient and reading briefing PDFs in tests (Phase 17).
+    "httpx",
+    "pypdf",
 ]
 
 [tool.black]

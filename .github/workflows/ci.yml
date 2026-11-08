@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install runtime and development dependencies
-        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs
+        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn python-docx reportlab httpx pypdf types-reportlab
 
       - name: Lint
         run: ruff check .
