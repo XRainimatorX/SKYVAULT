@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 18 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，與 Phase 5 的 observer_profile、observation）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 19 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，與 Phase 6 的 order）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)。
 
 ---
 
@@ -42,6 +42,7 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 | `engine.run()` 回傳之前 | `validate_result_package` | raise |
 | `load_observer_profile()` | `validate_observer_profile` | raise |
 | `observe()` 回傳之前 | `validate_observation` | raise —— 觀測層產生了壞 observation |
+| engine 把 observing actor 的 order 轉成 Action 之前 | `validate_order` | raise —— 壞 order 是 actor 的錯誤 |
 
 ## 3. 版本
 
@@ -64,6 +65,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.6 | 10 | 只有新增，不調升：optional 的 runtime.scheduled_actions；新增 batch_spec、batch_result、conflict_package 契約 |
 | 0.6 | 13 | 只有新增，不調升：optional 的 runtime.policy {name, params}（已註冊的 policy 名稱） |
 | 0.6 | 5 | 只有新增，不調升：observer_profile、observation 契約 |
+| 0.6 | 6 | 只有新增，不調升：order 契約；optional 的 runtime.participants；observation 的己方單位多 state；scheduled action 的 target 可只寫一欄 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -271,7 +273,27 @@ uncertainty            {confidence_level ∈ [0,1], stale_after, source_quality,
 decision_context       {mission_goal, constraints, available_actions}
 ```
 
-known_entities 的每一項：entity_id、faction、relation（self / ally / enemy）、status（己方 active / destroyed；敵方 visible / destroyed / stale）、position、hp、hp_band（intact / damaged / critical）、confidence、last_seen、age（恰好在 stale 時給）、capabilities（只有己方）。
+known_entities 的每一項：entity_id、faction、relation（self / ally / enemy）、status（己方 active / destroyed；敵方 visible / destroyed / stale）、position、hp、hp_band（intact / damaged / critical）、confidence、last_seen、age（恰好在 stale 時給）、capabilities 與 state（只有己方；state 自 Phase 6）。local view 的 local_area 另有 distance_model。
+
+### Order 與 participants（Phase 6）
+
+actor 交出的意圖。action id、actor、system 由 run 補上；scheduled action（Phase 10）= order + tick、actor_id、system_id。
+
+```python
+Order
+action_type            str（非空）
+target                 {entity_id, location, system_id}   三欄都可省略（預設 null）
+intent                 str = ""
+required_resources     {名稱: ≥ 0} = {}
+expected_effect        str = ""
+risk_profile           {} = {}
+priority               str = "normal"
+confidence             [0, 1] = 1.0
+metadata               {} = {}
+
+runtime.participants   [{participant_id, policy {name, params}, controls {factions, entity_ids}}] = []
+                       participant_id 不重複；controls 至少一項；一個單位不能被兩個 participant 控制（engine 檢查）
+```
 
 ### Batch 與衝突
 
@@ -332,7 +354,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    18 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    19 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 

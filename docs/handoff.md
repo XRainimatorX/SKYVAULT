@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-793 passed
+881 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -151,6 +151,8 @@ Phase 18 再發現：**過濾器正確不代表過濾的結果正確。** 軍事
 
 Phase 5 再發現：**跑得完不等於用得對。** TAC ANGEL 範例把 known_risks 的 in_range（敵人打得到我）當成「我打得到敵人」，在每個 scenario 都跑得完、測試全綠。新介面的第一個使用者要逐欄讀過：它讀的每個欄位是什麼意思、它拿來做什麼。另外：policy registry 是 process 層級的狀態，同一個 .py 檔載入兩次會撞名 —— 單一測試檔綠、全套紅；推送前一定跑全套。
 
+Phase 6 再發現：**要證明「只能」，先寫一個違反它的程式。** 「actor 只能透過 Action 提交意圖」看起來早已成立，直到一個 policy 在 decide_action 裡把敵人全設成 destroyed、4 筆 event 就贏了。另外：**效能比較用牆鐘時間、兩個版本交替跑**；cProfile 看不到 `__getattr__` 內部被丟出又接住的 AttributeError，曾讓兩個差 45% 的版本在 profiler 裡看起來一樣快。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -249,7 +251,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -291,15 +293,16 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 6 — Actor Policy / External Agent Layer**：把「誰來決定行動」完全拆出 core —— SKYVAULT 只決定能不能做、做了會怎樣、怎麼記錄、怎麼評估；各種 actor（規則、腳本、人、外部系統、TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX adapter）只透過 Action 提交意圖。規格見 [`plan/phase6_actor_agent_layer.md`](plan/phase6_actor_agent_layer.md)。
+依 roadmap，下一個是 **Phase 11 — Background World Service**：把 SKYVAULT 從手動 script 變成後台服務 —— 七種模式（standby、triggered scenario、persistent world、batch、monitoring、replay、failure exploration），加上 Resource & Compute Governance（預算、優先序、平行上限、auto-stop、partial result）。規格見 [`plan/phase11_background_world_service.md`](plan/phase11_background_world_service.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-ObservingPolicy（Phase 5）     外部 policy 已能只拿 observation 決定；agent 的協定可以建在它上面
-軍事 baseline 的感測            每個單位自己看；觀測層是整個陣營共享 —— 要不要統一、是否讓 profile 指定（Phase 5 回顧第 7 節）
-訓練資料的 observation          full_state / military_sensor，之後改由觀測層產生
-scheduled_actions（Phase 10）  外部系統的命令；agent 的決定可能走同一條路
+service/（Phase 17）           FastAPI 已在：讀 workspace 的 API 與 replay WebSocket；任務提交是新的
+batch/（Phase 10）             ProcessPoolExecutor 的平行、workers 上限；沒有預算與排隊（§15）
+run registry（Phase 8）        JSON Lines；run status 與歷史 run 的重播可以從它出發
+actors/ActionQueue（Phase 6）  外部提交的機制（執行緒安全、逾時）
+SnapshotStore（Phase 2）       in-memory；checkpointing 要從它出發
 ```
 
-開工前先讀 [`phases/phase5_observation_contract.md`](phases/phase5_observation_contract.md) 的第 4 節與 [`postmortems/phase5.md`](postmortems/phase5.md)。
+技術欄點名的 Redis、PostgreSQL、Celery / RQ / Dramatiq、Docker 需要外部服務：依決策規則，先找文件寫的「first」版本（例如 in-memory、SQLite），做不到的記為已知限制。開工前先讀 [`phases/phase6_actor_agent_layer.md`](phases/phase6_actor_agent_layer.md) 的第 4 節與 [`postmortems/phase6.md`](postmortems/phase6.md)。

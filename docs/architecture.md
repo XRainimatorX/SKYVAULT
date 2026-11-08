@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              18 份契約：Pydantic model + validate_<x>()
+              19 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -299,6 +299,16 @@ core 的任何模組（engine 透過 load_domain 除外）都不 import pack —
 ```
 
 需要 domain 的部分（concealment、各陣營的任務）經由 `load_domain` 取得 pack 的 `concealment`、`mission_goal`；沒有 pack 或沒有這兩個方法時，concealment 為 0、任務是 world 的 purpose。
+
+## Actors（與 policies 同層，在 engine 之下）
+
+```text
+   src/skyvault/actors/   view、queue、participants、basic、adapters；不 import engine（測試逐檔檢查）
+                          engine 只 import view 與 participants；actor 類型由 policies.KNOWN_POLICIES 以名稱延遲 import
+   src/skyvault/world_state.py   不 import policies、actors、engine、tactical_reference_policy（AST 測試）
+```
+
+world policy 透過 `WorldView` 讀世界：任何寫入 raise `ReadOnlyWorldError`。其他 actor 只拿到 observation、只交出 order。engine 不 import tactical_reference_policy —— 它和其他 policy 一樣以名稱取得，可以被拔掉。
 
 ## Views、report、service（在階層之外，讀輸出檔）
 
@@ -846,7 +856,7 @@ Phase 3 前的 `resolve_move` / `resolve_attack` 已移除；它們一邊驗證�
 
 **外部命令（Phase 10）。** `runtime.scheduled_actions` 中指定 tick、指定 actor 的命令取代 policy 的選擇；action id 仍由 `world.ids` 產生，`ACTION_SELECTED` 與結果 event 的 `source.system_id` 是提案系統。沒有 scheduled_actions 時一次都不會被查到 —— reference trace 不變。
 
-**只看 observation 的 policy（Phase 5）。** policy 有 `observer_profile` 時，`observed_decision()` 用 `engine.observed` 加上現在的單位呼叫 `observe()`，把 observation 交給 `decide_from_observation`，回傳的命令走 `scheduled_action()` 拿到 action id。world 從不交給它。沒有 observer_profile 時 `engine.observed` 永遠是空的 —— reference trace 不變。
+**誰決定（Phase 5、6）。** `decider(actor)` 回傳控制這個單位的 participant 的 policy 與 system_id，沒有 participant 時是預設 policy。`decide(policy, actor)`：world policy 拿到 `self.world_view`（一場 run 一個 `WorldView`）與單位的 `EntityView`，寫入 raise；observing policy 拿到 `engine.observed` 加上現在的單位產生的 observation（一個或多個），回傳的 order 通過 order 契約後走 `scheduled_action()` 拿到 action id。world 從不交給它。`engine.observers` 記每個 observing policy 的 profile；沒有時 `engine.observed` 永遠是空的 —— reference trace 不變。NO_ACTION 記決定者的 system_id。
 
 `evaluate()` 的 `event_count` 由 `run()` 明確傳入 `len(event_memory) + 1`，因為 evaluation 在 `SCENARIO_END` 寫入之前計算，必須把那個即將寫入的事件算進去。
 
@@ -965,6 +975,8 @@ import_policy_module(spec)           import 會註冊 policy 的模組或 .py �
 
 engine 選 policy 的順序：`engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 時，它決定的 event 都記這個 id。scenario 檔只能選已註冊的名稱，不能載入程式。
 
+**KNOWN_POLICIES 與多視角（Phase 6）。** `build_policy` 遇到未註冊、但在 `KNOWN_POLICIES` 裡的名稱時先 import 它的模組（tactical_reference 與十種 actor 類型）；模組無法 import 就當作沒有這個名稱。`MultiViewPolicy` 宣告 `observer_profiles`（tuple），engine 呼叫 `decide_from_observations({observer_id: observation})`。`AnyPolicy = Policy | ObservingPolicy | MultiViewPolicy`。
+
 **ObservingPolicy（Phase 5）。** 有 `observer_profile` 屬性的 policy 不會拿到 world：engine 呼叫 `decide_from_observation(observation)`，它回傳 `{action_type, target, intent, …}` 或 None，action id 由 engine 產生（與 scheduled_actions 同一條路）。`AnyPolicy = Policy | ObservingPolicy`；registry 的 factory 可以回傳任一種。
 
 ## `domains/military/`
@@ -1054,6 +1066,32 @@ observations_for_run(package, scenario, profile, viewpoint)   每 tick 一份
 | coverage | AEROGRID | 覆蓋格數、比例、缺口數 |
 
 engine 只在 observing policy 時記 `engine.observed`（tick 0 與每 tick 結束時的單位）；它與 `history_from_package` 逐 tick 相同（測試）。
+
+## `actors/`
+
+Phase 6 建立。開發計劃 Phase 6、Formal Spec §4 步驟 4–6、§9。
+
+```python
+WorldView(world)、EntityView(entity)     唯讀；view_of(entity) 每個單位一個 view；寫入 raise ReadOnlyWorldError
+ActionQueue                              submit_nowait / await submit / take(tick, entity_id, timeout) / pending
+Participants(participants, entities, build)   for_entity(entity_id) -> Slot | None；slots()
+register_client(name, client)            外部系統與 LLM 的 client 只能在程式裡以名稱註冊
+```
+
+| actor | 視角 | 決定 |
+|---|---|---|
+| RuleBasedActor | TAC_ANGEL | 依序：attack_in_range、close_on_visible、close_on_known、hold |
+| ScriptedActor | TAC_ANGEL | (tick, entity_id) → order；建構時驗證 |
+| HumanInputActor | TAC_ANGEL | QueueInput（ActionQueue）或 ConsoleInput（stdin JSON） |
+| ExternalSystemActor | TAC_ANGEL | client（同步或 coroutine）；逾時 / 失敗 → 不行動並計數 |
+| LLMAssistedActor | TAC_ANGEL | client(prompt) 的第一個 JSON；不合格 → RuleBasedActor 並計數 |
+| TACAngelAdapter | TAC_ANGEL | maneuver: engage / advance / hold |
+| STARTXBranchAdapter | STARTX + TAC_ANGEL | stance: press / hold / withdraw（STARTX 只看 aggregate） |
+| HADESAdapter | HADES + TAC_ANGEL | response: intercept / monitor（observe，否則 wait） |
+| AEROGRIDAdapter | AEROGRID + TAC_ANGEL | reposition：遠離最近的友軍；否則射程內開火 |
+| SKYFOXAdapter | SKYFOX | 沿 route 一步一步飛；energy 低於門檻時停 |
+
+WorldView 開放的讀取：tick、world_id、scenario_id、space（is_inside、distance、neighbors、describe、width、height）、ids（action）、entities、active_entities、get_entity、is_occupied、active_factions、environment、resources（amount、snapshot）、rules（require、索引、as_dict）、assumptions、snapshot。rules 與 environment 在 view 建立時凍結一次（list 變成 tuple）。
 
 ## `batch/`
 
@@ -1730,6 +1768,7 @@ python3 scripts/build_military_scenarios.py               # 改 profile 或 spec
 python3 scripts/export_dataset.py [--runs N]              # state-action-outcome dataset
 python3 scripts/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
 python3 scripts/observe_run.py [--scenario F] [--faction F] [--actor ID]   # 五個 observer 各自看到什麼
+python3 scripts/run_tactical_reference.py --participants F                # 每個 participant 決定自己的單位
 (cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
 python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
@@ -1751,7 +1790,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 18 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 19 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
@@ -1772,6 +1811,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase18_training_pipeline.md`](phases/phase18_training_pipeline.md) | Phase 18 完成報告 |
 | [`decisions/014_observation_contract.md`](decisions/014_observation_contract.md) | observer profile、fog of war 與五種 view 的設計決定 |
 | [`phases/phase5_observation_contract.md`](phases/phase5_observation_contract.md) | Phase 5 完成報告 |
+| [`decisions/015_actor_agent_layer.md`](decisions/015_actor_agent_layer.md) | 唯讀世界、participant、actor 類型與 adapter 的設計決定 |
+| [`phases/phase6_actor_agent_layer.md`](phases/phase6_actor_agent_layer.md) | Phase 6 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md)、[`phase6.md`](postmortems/phase6.md) | 各 Phase 回顧 |
