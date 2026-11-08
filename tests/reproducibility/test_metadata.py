@@ -99,9 +99,12 @@ def test_another_profile_is_another_input_with_the_same_events():
 def test_the_runtime_version_is_the_package_version():
     pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
 
-    assert RUNTIME_VERSION == skyvault.__version__ == "0.8.0"
-    assert 'version = "0.8.0"' in pyproject
-    assert run()["reproducibility"]["runtime_version"] == "0.8.0"
+    declared = re.search(r'^version = "([^"]+)"$', pyproject, re.MULTILINE).group(1)
+
+    # One version, kept in two files, recorded in every package
+    assert RUNTIME_VERSION == skyvault.__version__ == declared
+    assert run()["reproducibility"]["runtime_version"] == declared
+    assert re.fullmatch(r"0\.\d+\.0", declared)
 
 
 def test_the_ruleset_version_moves_with_rules_not_with_data():
