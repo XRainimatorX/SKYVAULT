@@ -201,3 +201,58 @@ jobs:
           assert text.startswith("# Comparative report — tactical_reference_001_doctrine")
           print("batch verified")
           EOF
+
+      # Phase 17: the briefing from the workspace the steps above wrote
+      - name: Briefing export
+        run: |
+          python scripts/export_briefing.py
+          python - <<'EOF'
+          from pathlib import Path
+
+          out = Path("output")
+          text = (out / "briefing.md").read_text()
+          for title in ["Summary", "What happened", "Failure exploration", "Plan comparison", "Reproducibility"]:
+              assert f"\n## {title}\n" in text, title
+          assert (out / "briefing.pdf").read_bytes().startswith(b"%PDF")
+          assert (out / "briefing.docx").read_bytes().startswith(b"PK")
+          print("briefing verified")
+          EOF
+
+  # Phase 17: build the UI, serve it with the reference workspace, and drive
+  # every page in a real browser
+  ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install Python dependencies
+        run: python -m pip install pydantic pyyaml networkx pandas fastapi uvicorn python-docx reportlab
+
+      - name: Write the reference workspace
+        run: |
+          python scripts/run_tactical_reference.py
+          python scripts/explore_failures.py
+          python scripts/run_batch.py
+
+      - name: Install and build the UI
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+          npx playwright install --with-deps chromium
+
+      - name: Drive every page in a browser
+        run: |
+          python scripts/serve_ui.py --port 8000 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/health && break; sleep 1; done
+          cd ui && SKYVAULT_URL=http://127.0.0.1:8000 npm run e2e
