@@ -971,3 +971,20 @@ def test_out_of_ammunition_the_defence_never_fires():
     package = run(scenario)
     assert events(package, "engage") == []
     assert leaks(package) == 7
+
+
+def test_a_stale_track_in_range_does_not_kill_a_target_that_has_flown_out():
+    world, context = engage_world(kill=1.0)
+    world.get_entity("threat_w1_1").position = (2, 10)  # the track still says [7, 10]
+    action = order(world, "gun_west", "engage", track="T1")
+    assert HANDLERS["engage"].validate(world, action, context).valid
+    done = HANDLERS["engage"].resolve(world, action, context)
+    assert done.effects[-1].event_type == "MISS"
+    assert not [e for e in done.effects if e.event_type == "ENTITY_DESTROYED"]
+
+
+def test_an_uncleared_track_gives_an_interceptor_no_turn():
+    world = policy_world(track("T1", "threat_w1_1", [8, 10], opened=4))
+    assert not AIRSPACE.acts(world.get_entity("gun_west"), world)
+    world.tick = 5
+    assert AIRSPACE.acts(world.get_entity("gun_west"), world)

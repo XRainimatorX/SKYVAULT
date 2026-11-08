@@ -85,7 +85,7 @@ def main() -> None:
     print(
         f"{NAME}: {outcome['outcome']}, {outcome['leaks']} leak(s), "
         f"{outcome['detection_gap']['uncovered_share']:.0%} uncovered, "
-        f"reaction {outcome['response_time']['mean_reaction']} ticks"
+        f"reaction {outcome['response_time']['mean_reaction'] or 0:.1f} ticks"
     )
 
     behaviors = compare("HADES", "defence", "behavior", BEHAVIORS, args.runs)
@@ -95,7 +95,7 @@ def main() -> None:
     for label, row in {**behaviors, **configs}.items():
         print(
             f"{label:<26} defended {row['defended_rate']:.0%}, "
-            f"leaks {row['mean_leaks']}"
+            f"leaks {row['mean_leaks']:.1f}"
         )
 
     summary = {

@@ -1,0 +1,55 @@
+{
+  "as built": {
+    "defended_rate": 0.7,
+    "failure_reasons": {
+      "misidentified": 2,
+      "missed_in_window": 1,
+      "not_engaged": 1
+    },
+    "mean_leaks": 0.4,
+    "mean_reaction_ticks": 0.9286,
+    "mean_response_ticks": 3.5333,
+    "mean_ticks_to_detect": 2.4571,
+    "uncovered_share": 0.21
+  },
+  "south radar off": {
+    "defended_rate": 0.4,
+    "failure_reasons": {
+      "detected_too_late": 1,
+      "misidentified": 2,
+      "missed_in_window": 2,
+      "never_detected": 2,
+      "not_engaged": 5
+    },
+    "mean_leaks": 1.2,
+    "mean_reaction_ticks": 0.9562,
+    "mean_response_ticks": 3.5957,
+    "mean_ticks_to_detect": 2.3595,
+    "uncovered_share": 0.4025
+  },
+  "spare radar east": {
+    "defended_rate": 0.7,
+    "failure_reasons": {
+      "detected_too_late": 1,
+      "misidentified": 1,
+      "not_engaged": 1
+    },
+    "mean_leaks": 0.3,
+    "mean_reaction_ticks": 0.781,
+    "mean_response_ticks": 4.0833,
+    "mean_ticks_to_detect": 1.7143,
+    "uncovered_share": 0.18
+  },
+  "spare radar west": {
+    "defended_rate": 0.7,
+    "failure_reasons": {
+      "misidentified": 1,
+      "missed_in_window": 2
+    },
+    "mean_leaks": 0.3,
+    "mean_reaction_ticks": 1.0952,
+    "mean_response_ticks": 4.4857,
+    "mean_ticks_to_detect": 1.4286,
+    "uncovered_share": 0.11
+  }
+}

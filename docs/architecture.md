@@ -279,22 +279,23 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
    src/skyvault/domains/military/    pack：依賴 core（actions、consequence、contracts、reproducibility）；
                                      mission、dataset 不 import engine
    src/skyvault/domains/city/        pack（Phase 14）：model、score、report 是純函式，不 import engine
+   src/skyvault/domains/airspace/    pack（Phase 15）：model、metrics 是純函式，不 import engine、batch 或 random
 ```
 
-core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查（military 與 city）。
+core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查（military、city、airspace）。
 
 engine 向 pack 讀的可選宣告（Phase 14，getattr 與預設值）：
 
 | 宣告 | 預設 | 作用 |
 |---|---|---|
 | `spaces` | `("grid",)` | engine 接受的空間；沒有 domain 只接受 grid |
-| `ends_with_last_faction` | `True` | False：只剩一方不結束（city 只有一方） |
-| `acts(entity)` | 全部 | 哪些實體每 tick 決定 |
+| `ends_with_last_faction` | `True` | False：只剩一方不結束（city 只有一方；airspace 的威脅在波次前待命） |
+| `acts(entity, world)` | 全部 | 哪些實體這個 tick 決定（Phase 15 起收 world：攔截器只在有機會開火時才有回合） |
 | `finished(world)` | — | 回傳原因 → run 以 `termination_condition_met:<原因>` 結束 |
 | `end_reasons` | `()` | finished 可能給的原因：同名的 failure threshold 算已評估 |
 | `outcome_label(world)` | — | winner_or_result 的名稱（取代 `<陣營>_survived`） |
 | `failure_variables()` | — | 以 domain 的語言解讀 failure variable（failure.variables.variable_for） |
-| `mission_outcome`、`governance_outcome` | — | run 之後的判斷；NEXUS 的 domain_outcome |pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
+| `mission_outcome`、`governance_outcome`、`airspace_outcome` | — | run 之後的判斷；NEXUS 的 domain_outcome |pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
 
 ## Training（在 engine 之上，與 batch 同層）
 
@@ -1066,6 +1067,32 @@ reference.py   reference_scenarios()：data/domains/city/ → data/scenarios/cit
 | 修復 | 維修隊先修腳下的；否則失效優先於跳脫、再依沒電的人口；失效 3 tick、跳脫 1 tick |
 | 結果 | order_restored / order_held / order_not_restored / governance_collapsed（全部 riot 時提早結束） |
 | 分數 | order、services、administration、trend 四成分加權（0.4 / 0.3 / 0.15 / 0.15），取最後三分之一 tick 的平均 |
+
+## `domains/airspace/`
+
+Phase 15 建立。第三個 domain pack：2D 低空空域。
+
+```text
+model.py       distance（Chebyshev）、step_toward、detection_probability、covered、interception_window
+scenario.py    build_airspace_scenario(spec, rules, behavior)：grid、DEFENCE / THREAT、rule_set.airspace（含 hades、command）
+handlers.py    upkeep：launch（指揮節點下令）、fly、sense；actor：engage、move
+policy.py      AirDefencePolicy：HADES 的交戰規則與巡邏；註冊為 hades_rules（不抽隨機數）
+pack.py        AIRSPACE
+metrics.py     detection_gap、response_times、failure_points、airspace_outcome（只讀 result package）
+failures.py    sensor_failure、enemy_reaction_speed（小數速度累積）、equipment_overheat
+report.py      airspace_report(summary)
+reference.py   reference_scenarios()：data/domains/airspace/ → data/scenarios/airspace_*（漂移測試）
+```
+
+| 規則 | 內容 |
+|---|---|
+| 飛行 | 威脅待命到波次的 tick，之後每 tick speed 格直線飛向目標資產（小數累積在 state.carry）；抵達 = 命中，資產 2 次命中摧毀 |
+| 偵測 | 每 tick、每個在線感測器、每個範圍內飛行物抽一次：detection × (1 − 0.5·d/range)，低空 × low_altitude；每個感測器另抽一次誤報 |
+| 航跡 | 指揮節點的 state.tracks；識別以 identify 判對；reaction_delay 後放行；track_timeout 未見即失去；假航跡一律當威脅 |
+| 攔截 | 齊射（不超過彈藥）、每發 kill 機率、目標此刻須在射程內；之後 reload；友軍被擊落 = fratricide；撞上同高度無人機 = 兩者摧毀 |
+| HADES | engage_at、priority（nearest_to_asset / first_tracked）、salvo、hold_fire_below |
+| 結果 | defended（沒有威脅抵達）/ breached；success_outcomes = ["defended"] |
+| 漏過的原因 | never_detected → misidentified → detected_too_late → no_window → missed_in_window → not_engaged |
 
 ## `training/`
 

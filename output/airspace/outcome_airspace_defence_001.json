@@ -1,0 +1,117 @@
+{
+  "detection_gap": {
+    "mean_ticks_to_detect": 2.0,
+    "threats": {
+      "threat_w1_1": {
+        "first_detected": 7,
+        "launch_tick": 2,
+        "outcome": "destroyed",
+        "ticks_to_detect": 5
+      },
+      "threat_w1_2": {
+        "first_detected": 5,
+        "launch_tick": 2,
+        "outcome": "destroyed",
+        "ticks_to_detect": 3
+      },
+      "threat_w1_3": {
+        "first_detected": 4,
+        "launch_tick": 2,
+        "outcome": "destroyed",
+        "ticks_to_detect": 2
+      },
+      "threat_w2_1": {
+        "first_detected": 11,
+        "launch_tick": 10,
+        "outcome": "destroyed",
+        "ticks_to_detect": 1
+      },
+      "threat_w2_2": {
+        "first_detected": 11,
+        "launch_tick": 10,
+        "outcome": "destroyed",
+        "ticks_to_detect": 1
+      },
+      "threat_w2_3": {
+        "first_detected": 10,
+        "launch_tick": 10,
+        "outcome": "destroyed",
+        "ticks_to_detect": 0
+      },
+      "threat_w2_4": {
+        "first_detected": 12,
+        "launch_tick": 10,
+        "outcome": "destroyed",
+        "ticks_to_detect": 2
+      }
+    },
+    "uncovered_cells": 84,
+    "uncovered_share": 0.21,
+    "undetected_leaks": [],
+    "worst_ticks_to_detect": 5
+  },
+  "failure_points": [],
+  "false_alarms": 0,
+  "fratricide": 0,
+  "leaks": 0,
+  "outcome": "defended",
+  "response_time": {
+    "mean": 3.7143,
+    "mean_reaction": 0.8571,
+    "never_engaged": [],
+    "threats": {
+      "threat_w1_1": {
+        "engageable_from": 8,
+        "first_engaged": 10,
+        "reaction_ticks": 2,
+        "response_ticks": 3,
+        "track_opened": 7
+      },
+      "threat_w1_2": {
+        "engageable_from": 7,
+        "first_engaged": 8,
+        "reaction_ticks": 1,
+        "response_ticks": 3,
+        "track_opened": 5
+      },
+      "threat_w1_3": {
+        "engageable_from": 7,
+        "first_engaged": 7,
+        "reaction_ticks": 0,
+        "response_ticks": 3,
+        "track_opened": 4
+      },
+      "threat_w2_1": {
+        "engageable_from": 15,
+        "first_engaged": 15,
+        "reaction_ticks": 0,
+        "response_ticks": 4,
+        "track_opened": 11
+      },
+      "threat_w2_2": {
+        "engageable_from": 13,
+        "first_engaged": 14,
+        "reaction_ticks": 1,
+        "response_ticks": 3,
+        "track_opened": 11
+      },
+      "threat_w2_3": {
+        "engageable_from": 15,
+        "first_engaged": 16,
+        "reaction_ticks": 1,
+        "response_ticks": 6,
+        "track_opened": 10
+      },
+      "threat_w2_4": {
+        "engageable_from": 15,
+        "first_engaged": 16,
+        "reaction_ticks": 1,
+        "response_ticks": 4,
+        "track_opened": 12
+      }
+    },
+    "worst": 6,
+    "worst_reaction": 2
+  },
+  "shots_at_phantoms": 0
+}
