@@ -45,8 +45,8 @@ def main() -> None:
         )
         judgement = result["final_judgement"]
         print(
-            f"{equipment_id:<14} physical {result['physical_possibility']['score']:.2f}"
-            f"  engineering {result['engineering_feasibility']['score']:.2f}"
+            f"{equipment_id:<14} physical {result['physical_possibility']['score']:.3f}"
+            f"  engineering {result['engineering_feasibility']['score']:.3f}"
             f"  → {judgement['status']}"
         )
     (folder / "virtual_test_report.md").write_text(

@@ -1,0 +1,310 @@
+{
+  "category": "MSX",
+  "engineering_feasibility": {
+    "bottlenecks": [
+      "exotic materials",
+      "more maintenance than operation (15.0 h per hour run)",
+      "repairs need a factory",
+      "supply chain risk 80%"
+    ],
+    "components": {
+      "maintenance": 0.0625,
+      "material": 0.25,
+      "parts": 0.4,
+      "repair": 0.3,
+      "supply": 0.2
+    },
+    "maintenance_risks": [
+      "15.0 h of maintenance per hour of operation",
+      "parts are hard to replace",
+      "cannot be repaired in the field (factory)"
+    ],
+    "score": 0.2137
+  },
+  "equipment_id": "MSX_TEST_001",
+  "failure_exploration": {
+    "collapse_sequence": [
+      {
+        "fails": [
+          "ground_pressure"
+        ],
+        "level": "severe"
+      },
+      {
+        "fails": [
+          "heat"
+        ],
+        "level": "collapse"
+      }
+    ],
+    "failure_points": [
+      {
+        "breaks": [],
+        "condition": "payload",
+        "level": null
+      },
+      {
+        "breaks": [
+          "heat"
+        ],
+        "condition": "heat",
+        "level": "collapse"
+      },
+      {
+        "breaks": [
+          "ground_pressure"
+        ],
+        "condition": "soft_ground",
+        "level": "severe"
+      },
+      {
+        "breaks": [],
+        "condition": "extended_mission",
+        "level": null
+      },
+      {
+        "breaks": [],
+        "condition": "supply_disruption",
+        "level": null
+      }
+    ],
+    "redesign_triggers": [
+      {
+        "change": 0.1667,
+        "constraint": "stability",
+        "current": 3.0,
+        "parameter": "base_width",
+        "required": 3.5,
+        "status": "warning",
+        "target_margin": 0.25
+      },
+      {
+        "change": 0.0595,
+        "constraint": "joint_load",
+        "current": 250.0,
+        "parameter": "joint_load",
+        "required": 264.8701,
+        "status": "impossible",
+        "target_margin": 0.0
+      },
+      {
+        "change": 0.3333,
+        "constraint": "energy",
+        "current": 600.0,
+        "parameter": "energy_capacity",
+        "required": 800.0,
+        "status": "impossible",
+        "target_margin": 0.0
+      },
+      {
+        "change": 0.1719,
+        "constraint": "heat",
+        "current": 320.0,
+        "parameter": "cooling_capacity",
+        "required": 375.0,
+        "status": "warning",
+        "target_margin": 0.25
+      },
+      {
+        "change": -0.0561,
+        "constraint": "mass_limit",
+        "current": 18000.0,
+        "parameter": "mass",
+        "required": 16989.461,
+        "status": "impossible",
+        "target_margin": 0.0
+      }
+    ]
+  },
+  "final_judgement": {
+    "reason": "physically impossible (joint_load: its joints carry more than their rating while it moves (margin -0.06); energy: its energy store cannot power the declared endurance (margin -0.25)) and not worth engineering (score 0.21: exotic materials, more maintenance than operation (15.0 h per hour run), repairs need a factory, supply chain risk 80%)",
+    "status": "reject"
+  },
+  "physical_possibility": {
+    "checks": [
+      {
+        "check": "stability",
+        "margin": 0.071429,
+        "status": "warning"
+      },
+      {
+        "check": "joint_load",
+        "margin": -0.056141,
+        "status": "impossible"
+      },
+      {
+        "check": "ground_pressure",
+        "margin": 2.397893,
+        "status": "pass"
+      },
+      {
+        "check": "energy",
+        "margin": -0.25,
+        "status": "impossible"
+      },
+      {
+        "check": "heat",
+        "margin": 0.066667,
+        "status": "warning"
+      },
+      {
+        "check": "scale",
+        "margin": 1.083333,
+        "status": "pass"
+      }
+    ],
+    "impossible_flags": [
+      "joint_load: its joints carry more than their rating while it moves (margin -0.06)",
+      "energy: its energy store cannot power the declared endurance (margin -0.25)"
+    ],
+    "score": 0.0,
+    "warnings": [
+      "stability: tips over at a smaller lean than its category allows (margin +0.07)",
+      "heat: it makes more heat than it can shed (margin +0.07)"
+    ]
+  },
+  "require_external_simulation": {
+    "adapter": {
+      "note": "no external simulation adapter is attached (FMI / FMU later)",
+      "questions": [
+        "stability: margin +0.071 is within \u00b10.1",
+        "joint_load: margin -0.056 is within \u00b10.1",
+        "heat: margin +0.067 is within \u00b10.1"
+      ],
+      "simulator": "stand_in",
+      "status": "not_run"
+    },
+    "reasons": [
+      "stability: margin +0.071 is within \u00b10.1",
+      "joint_load: margin -0.056 is within \u00b10.1",
+      "heat: margin +0.067 is within \u00b10.1"
+    ],
+    "required": true
+  },
+  "tactical_usefulness": {
+    "contexts": [
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.1703,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
+        },
+        "equipped": {
+          "mean_score": 0.2778,
+          "mission_rate": 0.0,
+          "unit_survival": 1.0
+        },
+        "replaces": "red_02",
+        "scenario": "military_squad_001",
+        "value": 0.715,
+        "versus_baseline": {
+          "mean_score": 0.1075,
+          "mission_rate": 0.0,
+          "unit_survival": 1.0
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.3604,
+          "mission_rate": 0.4,
+          "unit_survival": 0.2
+        },
+        "equipped": {
+          "mean_score": 0.3651,
+          "mission_rate": 0.6,
+          "unit_survival": 1.0
+        },
+        "replaces": "red_02",
+        "scenario": "military_urban_001",
+        "value": 0.6094,
+        "versus_baseline": {
+          "mean_score": 0.0047,
+          "mission_rate": 0.2,
+          "unit_survival": 0.8
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.3192,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
+        },
+        "equipped": {
+          "mean_score": 0.1647,
+          "mission_rate": 0.0,
+          "unit_survival": 1.0
+        },
+        "replaces": "red_02",
+        "scenario": "military_mountain_001",
+        "value": 0.191,
+        "versus_baseline": {
+          "mean_score": -0.1545,
+          "mission_rate": 0.0,
+          "unit_survival": 1.0
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.2501,
+          "mission_rate": 0.0,
+          "unit_survival": 0.4
+        },
+        "equipped": {
+          "mean_score": 0.2878,
+          "mission_rate": 0.0,
+          "unit_survival": 1.0
+        },
+        "replaces": "red_02",
+        "scenario": "military_junction_001",
+        "value": 0.5754,
+        "versus_baseline": {
+          "mean_score": 0.0377,
+          "mission_rate": 0.0,
+          "unit_survival": 0.6
+        }
+      }
+    ],
+    "logistics_burden": "high",
+    "score": 0.5227,
+    "unit": {
+      "capabilities": {
+        "accuracy": 0.475,
+        "ammo_per_shot": 1,
+        "attack_damage": 10,
+        "attack_range": 3,
+        "endurance_ticks": 9,
+        "max_ammo": 12,
+        "move_range": 3,
+        "sensor": "eyes",
+        "sensor_range": 5,
+        "suppression": 20,
+        "terrain_access": [
+          "open",
+          "road"
+        ],
+        "weapon": "rifle"
+      },
+      "name": "MSX_TEST_001",
+      "replaces": "red_02",
+      "state": {
+        "ammo": 12,
+        "hp": 240.0,
+        "morale": 80,
+        "readiness": 1.0,
+        "status": "active",
+        "suppression": 0
+      }
+    },
+    "useful_contexts": [
+      "military_squad_001",
+      "military_urban_001"
+    ],
+    "weak_contexts": [
+      "military_mountain_001"
+    ]
+  }
+}

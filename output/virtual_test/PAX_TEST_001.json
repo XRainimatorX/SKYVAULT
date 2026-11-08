@@ -1,0 +1,280 @@
+{
+  "category": "PAX",
+  "engineering_feasibility": {
+    "bottlenecks": [
+      "more maintenance than operation (1.3 h per hour run)"
+    ],
+    "components": {
+      "maintenance": 0.4286,
+      "material": 0.55,
+      "parts": 0.4,
+      "repair": 0.65,
+      "supply": 0.5
+    },
+    "maintenance_risks": [
+      "1.3 h of maintenance per hour of operation",
+      "parts are hard to replace",
+      "cannot be repaired in the field (depot)"
+    ],
+    "score": 0.4961
+  },
+  "equipment_id": "PAX_TEST_001",
+  "failure_exploration": {
+    "collapse_sequence": [
+      {
+        "fails": [
+          "joint_load"
+        ],
+        "level": "moderate"
+      },
+      {
+        "fails": [
+          "ground_pressure",
+          "heat"
+        ],
+        "level": "severe"
+      }
+    ],
+    "failure_points": [
+      {
+        "breaks": [
+          "joint_load"
+        ],
+        "condition": "payload",
+        "level": "moderate"
+      },
+      {
+        "breaks": [
+          "heat"
+        ],
+        "condition": "heat",
+        "level": "severe"
+      },
+      {
+        "breaks": [
+          "ground_pressure"
+        ],
+        "condition": "soft_ground",
+        "level": "collapse"
+      },
+      {
+        "breaks": [],
+        "condition": "extended_mission",
+        "level": null
+      },
+      {
+        "breaks": [],
+        "condition": "supply_disruption",
+        "level": null
+      }
+    ],
+    "redesign_triggers": [
+      {
+        "change": 0.0301,
+        "constraint": "joint_load",
+        "current": 9.0,
+        "parameter": "joint_load",
+        "required": 9.2705,
+        "status": "warning",
+        "target_margin": 0.25
+      },
+      {
+        "change": 0.2,
+        "constraint": "energy",
+        "current": 15.0,
+        "parameter": "energy_capacity",
+        "required": 18.0001,
+        "status": "impossible",
+        "target_margin": 0.0
+      },
+      {
+        "change": 0.4062,
+        "constraint": "heat",
+        "current": 4.0,
+        "parameter": "cooling_capacity",
+        "required": 5.625,
+        "status": "warning",
+        "target_margin": 0.25
+      }
+    ]
+  },
+  "final_judgement": {
+    "reason": "physically impossible as specified (energy: its energy store cannot power the declared endurance (margin -0.17)); within reach: energy_capacity 15.0 \u2192 18.0001",
+    "status": "redesign"
+  },
+  "physical_possibility": {
+    "checks": [
+      {
+        "check": "stability",
+        "margin": 0.975309,
+        "status": "pass"
+      },
+      {
+        "check": "joint_load",
+        "margin": 0.213533,
+        "status": "warning"
+      },
+      {
+        "check": "ground_pressure",
+        "margin": 3.36872,
+        "status": "pass"
+      },
+      {
+        "check": "energy",
+        "margin": -0.166667,
+        "status": "impossible"
+      },
+      {
+        "check": "heat",
+        "margin": -0.111111,
+        "status": "warning"
+      },
+      {
+        "check": "scale",
+        "margin": 0.974857,
+        "status": "pass"
+      }
+    ],
+    "impossible_flags": [
+      "energy: its energy store cannot power the declared endurance (margin -0.17)"
+    ],
+    "score": 0.0,
+    "warnings": [
+      "joint_load: its joints carry more than their rating while it moves (margin +0.21)",
+      "heat: it makes more heat than it can shed (margin -0.11)"
+    ]
+  },
+  "require_external_simulation": {
+    "adapter": {},
+    "reasons": [],
+    "required": false
+  },
+  "tactical_usefulness": {
+    "contexts": [
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.1703,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
+        },
+        "equipped": {
+          "mean_score": 0.4164,
+          "mission_rate": 0.0,
+          "unit_survival": 0.8
+        },
+        "replaces": "red_02",
+        "scenario": "military_squad_001",
+        "value": 0.9922,
+        "versus_baseline": {
+          "mean_score": 0.2461,
+          "mission_rate": 0.0,
+          "unit_survival": 0.8
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.3604,
+          "mission_rate": 0.4,
+          "unit_survival": 0.2
+        },
+        "equipped": {
+          "mean_score": 0.3967,
+          "mission_rate": 0.4,
+          "unit_survival": 1.0
+        },
+        "replaces": "red_02",
+        "scenario": "military_urban_001",
+        "value": 0.5726,
+        "versus_baseline": {
+          "mean_score": 0.0363,
+          "mission_rate": 0.0,
+          "unit_survival": 0.8
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.3192,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
+        },
+        "equipped": {
+          "mean_score": 0.2783,
+          "mission_rate": 0.0,
+          "unit_survival": 0.2
+        },
+        "replaces": "red_02",
+        "scenario": "military_mountain_001",
+        "value": 0.4182,
+        "versus_baseline": {
+          "mean_score": -0.0409,
+          "mission_rate": 0.0,
+          "unit_survival": 0.2
+        }
+      },
+      {
+        "applicable": true,
+        "baseline": {
+          "mean_score": 0.2501,
+          "mission_rate": 0.0,
+          "unit_survival": 0.4
+        },
+        "equipped": {
+          "mean_score": 0.1954,
+          "mission_rate": 0.0,
+          "unit_survival": 0.4
+        },
+        "replaces": "red_02",
+        "scenario": "military_junction_001",
+        "value": 0.3906,
+        "versus_baseline": {
+          "mean_score": -0.0547,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
+        }
+      }
+    ],
+    "logistics_burden": "high",
+    "score": 0.5934,
+    "unit": {
+      "capabilities": {
+        "accuracy": 0.575,
+        "ammo_per_shot": 1,
+        "attack_damage": 10,
+        "attack_range": 3,
+        "endurance_ticks": 15,
+        "max_ammo": 12,
+        "move_range": 3,
+        "sensor": "eyes",
+        "sensor_range": 5,
+        "suppression": 20,
+        "terrain_access": [
+          "bridge",
+          "hill",
+          "open",
+          "road",
+          "rubble"
+        ],
+        "weapon": "rifle"
+      },
+      "name": "PAX_TEST_001",
+      "replaces": "red_02",
+      "state": {
+        "ammo": 12,
+        "hp": 75.0,
+        "morale": 80,
+        "readiness": 1.0,
+        "status": "active",
+        "suppression": 0
+      }
+    },
+    "useful_contexts": [
+      "military_squad_001"
+    ],
+    "weak_contexts": [
+      "military_junction_001"
+    ]
+  }
+}

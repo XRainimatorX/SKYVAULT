@@ -432,7 +432,7 @@ FIX = {"status": "impossible", "parameter": "energy_capacity", "current": 10.0}
             {"score": 0.2, "bottlenecks": ["x"]},
             USEFUL,
             CLEAR,
-            [],
+            [{**FIX, "required": 12.0, "change": 0.2}],  # fixable, but not worth it
             "reject",
         ),
         (
@@ -574,3 +574,11 @@ def test_the_rules_run_no_simulation(name):
 
 def test_a_check_already_on_its_target_keeps_its_value():
     assert solve(EXO, RULES, "energy", "energy_capacity", 0.0) == 6.5
+
+
+def test_a_third_more_upkeep_than_operation_is_already_a_bottleneck():
+    assert engineering_feasibility(PAX, RULES)["bottlenecks"] == [
+        "more maintenance than operation (1.3 h per hour run)"
+    ]
+    lighter = changed(PAX, "engineering_parameters", maintenance_time=3.0)  # 1 h/h
+    assert engineering_feasibility(lighter, RULES)["bottlenecks"] == []

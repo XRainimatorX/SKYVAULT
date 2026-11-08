@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              23 份契約：Pydantic model + validate_<x>()
+              25 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -283,6 +283,8 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
 ```
 
 core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查（military、city、airspace）。
+
+軍事 pack 的兩個可選能力（Phase 16）：`terrain_access`（只能進入與穿越列出的地形）、`endurance_ticks`（超過後不能移動與攻擊、baseline policy 讓它停在原地）。沒有時一步都不變。
 
 engine 向 pack 讀的可選宣告（Phase 14，getattr 與預設值）：
 
@@ -1094,6 +1096,32 @@ reference.py   reference_scenarios()：data/domains/airspace/ → data/scenarios
 | 結果 | defended（沒有威脅抵達）/ breached；success_outcomes = ["defended"] |
 | 漏過的原因 | never_detected → misidentified → detected_too_late → no_window → missed_in_window → not_engaged |
 
+## `virtualtest/`
+
+Phase 16 建立。Formal Spec §18 的三重篩查，在 engine 與 batch 之上（和 failure/ 同層）；core 不 import 它，只有 interface 的 STAR GUARD adapter 用它。
+
+```text
+profile.py      load_rules、load_profile、reference_profiles（data/virtualtest/）
+physics.py      六條 physics-lite 規則 → margin、status（pass / warning / impossible / unknown）、分數；可進入的地形、有效續航
+engineering.py  五個成分的加權分數、瓶頸、維修風險
+solver.py       scipy.optimize.brentq：每條限制要改到多少、最大質量
+stress.py       五種壓力條件 × 四級（不跑模擬）：failure points、collapse sequence
+external.py     ExternalSimulator protocol 與替身；何時需要外部仿真
+judgement.py    reject → redesign → require_external_simulation → continue
+tactical.py     profile → 軍事單位；四個 scenario × seeds，裝備 vs baseline
+surrogate.py    numpy 最小平方：mass、power、energy 對戰術 Δscore
+report.py、run.py   virtual_test_report、virtual_test(profile) → equipment_test_result
+```
+
+physics、engineering、solver、stress、external、judgement 不 import engine、tactical、batch 或 surrogate（測試）。
+
+| 規則 | 內容 |
+|---|---|
+| margin | 可用量 / 需要量 − 1；< 0 impossible（heat 在 duty ≥ 0.5、scale 一律為 warning）；< 0.25 warning；缺輸入 unknown |
+| 對應 | hp × 類別係數；move ±1（功率質量比 ≥ 10 / < 3 W/kg）；命中依疲勞相對步兵 0.1 / h；地形；續航（一 tick = 10 分鐘） |
+| 有用 | Δscore ≥ 0.05 且任務不少，或任務更多且分數沒掉 0.05 以上 |
+| 外部仿真 | margin 在 ±0.1 內、scale 超出、類別不認識、缺參數 |
+
 ## `training/`
 
 Phase 18 建立。開發計劃 Phase 18、Formal Spec §16。
@@ -1443,8 +1471,9 @@ needs_more_test  其餘
 定義：
 
 ```text
-23 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package
-  + observer_profile、observation + order + resource_compute_governance、job + external_submission、authority_handoff），
+25 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package
+  + observer_profile、observation + order + resource_compute_governance、job + external_submission、authority_handoff
+  + equipment_profile、equipment_test_result），
   各一個 Pydantic model + validate_<x>()
 ContractError
 SCHEMA_VERSION = "0.6"
@@ -1954,7 +1983,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 23 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 25 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |

@@ -64,6 +64,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 第三個 domain pack（Phase 15）：空域 —— 低空無人機分波飛向資產，雷達每個 tick 抽一次看不看得到、還會誤報，指揮節點建立航跡、可能認錯敵我、要等反應延遲才放行，攔截器齊射、裝填、打完彈藥就停。HADES 交出交戰規則、AEROGRID 移動或開關雷達、SKYFOX 在同一片天空巡邏（可能被自己人擊落）；每一場都輸出 detection gap、response time，以及每個漏過的原因。
 
+裝備在造出來之前先測（Phase 16）：一份 EXO / PAX / MSX / ERX 的 profile 經過 physics-lite 規則（穩定、關節負載、接地壓力、能量、散熱、尺度）、工程可行性（材料、維修、零件、供應鏈、修復環境）與軍事任務裡和原單位的比較，得到三個分數；壓力條件下列出它在哪一級、按什麼順序垮掉，constraint solver 算出要改到多少，太接近邊線時標明需要真正的工程仿真；最後判斷 continue、redesign、reject 或 require_external_simulation。
+
 每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
 
 誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
@@ -87,11 +89,11 @@ SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、�
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow
+python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow scipy
 python3 scripts/run_tactical_reference.py
 ```
 
-需要 Python 3.10+。模擬本身的相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整）；介面與 briefing 另用 `fastapi`、`uvicorn`、`websockets`、`python-docx`、`reportlab`。全部宣告在 `pyproject.toml`。建 UI 需要 Node 22。
+需要 Python 3.10+。模擬本身的相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整）；介面與 briefing 另用 `fastapi`、`uvicorn`、`websockets`、`python-docx`、`reportlab`。裝備篩查的 constraint solver 用 `scipy`。全部宣告在 `pyproject.toml`。建 UI 需要 Node 22。
 
 跑完會在 `output/` 產生十一個檔案，最後一行是評估判斷：
 
@@ -150,6 +152,7 @@ python3 scripts/run_external.py                                            # out
 python3 scripts/run_tactical_reference.py --scenario data/scenarios/city_blackout_001/v0.1.json   # 一座停電的城市
 python3 scripts/run_city.py                                                # output/city/：governance score、連鎖、補給延遲
 python3 scripts/run_airspace.py                                            # output/airspace/：偵測缺口、反應、漏過原因、規則與雷達配置比較
+python3 scripts/run_virtual_test.py                                        # output/virtual_test/：四份裝備的三重篩查與判斷
 docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
@@ -204,6 +207,7 @@ python3 -m pytest tests/ -q
 | `briefing.md`、`.pdf`、`.docx` | （export_briefing）以上全部，一份帶進會議的文件 |
 | `city/` | （run_city）每座城市的 governance stability score、停電連鎖、補給延遲研究與 city_report.md |
 | `airspace/` | （run_airspace）reference 空域的 detection gap、response time、failure points；HADES 規則與 AEROGRID 配置的比較；airspace_report.md |
+| `virtual_test/` | （run_virtual_test）每份裝備的 equipment_test_result 與 virtual_test_report.md |
 | `external/<system>.json` | （run_external）九個系統各自拿回什麼；`conflict_*.json`：一個衝突的 package、handoff 與決定 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
@@ -231,7 +235,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        23 份資料契約（Pydantic，schema 0.6）
+  contracts/        25 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
@@ -245,6 +249,7 @@ src/skyvault/       引擎與 exporter
   domains/military/ 第一個 domain pack（不是 core）
   domains/city/     第二個 domain pack：道路網上的城市、治安、電力連鎖、補給、governance score
   domains/airspace/ 第三個 domain pack：空域、機率偵測、航跡、攔截、HADES / SKYFOX / AEROGRID
+  virtualtest/      裝備的三重篩查：physics-lite、工程、戰術、壓力、solver、surrogate、外部仿真、判斷
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
@@ -257,6 +262,7 @@ data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個�
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
 data/domains/       domain pack 的 profile、rules 與 scenario spec（military、city、airspace）
+data/virtualtest/   virtual test 的規則與四份裝備 profile
 data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
 data/service/       world service 的 governance 政策
@@ -279,7 +285,8 @@ docs/               文件
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | 需要時 |
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
 | 權威名單不能由政策擴充 | 固定 NEXUS、SOVEREIGN（authorities 是參數） | Phase 19 |
-| CYBERHOUND、EIDEN 的世界參數、星衞的物理欄位 | 回報為缺口，不模擬（AEROGRID 的空域在 airspace scenario 有模型） | Phase 16 |
+| CYBERHOUND、EIDEN 的世界參數 | 回報為缺口，不模擬（AEROGRID 的空域、星衞的裝備參數已有模型） | 需要時 |
+| 裝備篩查的係數是假設 | physics-lite 門檻、一個軍事 tick = 10 分鐘、hp 係數代表防護；FMI / FMU 尚未接上 | 有真實資料時 |
 | 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
 | 空域只有 2D、兩種高度，威脅只會直線飛 | 沒有閃避、改目標；HADES 不能指定攔截器、AEROGRID 不能新增感測器 | 計劃寫 3D later |
 | briefing 不敘述城市的狀態變化 | 「What happened」只數行動；NEXUS 拿 domain_outcome，人讀 output/city/city_report.md | 需要時 |
@@ -304,7 +311,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase15_airspace_pack.md`](docs/phases/phase15_airspace_pack.md)。
+完整清單見 [`docs/phases/phase16_star_guard_virtual_test.md`](docs/phases/phase16_star_guard_virtual_test.md)。
 
 ---
 

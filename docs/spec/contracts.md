@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 23 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，Phase 11 的 resource_compute_governance、job，與 Phase 12 的 external_submission、authority_handoff）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 25 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，Phase 11 的 resource_compute_governance、job，Phase 12 的 external_submission、authority_handoff，與 Phase 16 的 equipment_profile、equipment_test_result）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)；Phase 12 的外部提交、authority handoff 與 job 的新欄位見 [`../decisions/017_external_system_interface.md`](../decisions/017_external_system_interface.md)；Phase 14 的 success_outcomes 見 [`../decisions/018_city_domain_pack.md`](../decisions/018_city_domain_pack.md)；Phase 15 的 EntityChange.position 與 success_outcomes 的擴大見 [`../decisions/019_airspace_domain_pack.md`](../decisions/019_airspace_domain_pack.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)；Phase 12 的外部提交、authority handoff 與 job 的新欄位見 [`../decisions/017_external_system_interface.md`](../decisions/017_external_system_interface.md)；Phase 14 的 success_outcomes 見 [`../decisions/018_city_domain_pack.md`](../decisions/018_city_domain_pack.md)；Phase 15 的 EntityChange.position 與 success_outcomes 的擴大見 [`../decisions/019_airspace_domain_pack.md`](../decisions/019_airspace_domain_pack.md)；Phase 16 的兩份裝備契約見 [`../decisions/020_virtual_test_support.md`](../decisions/020_virtual_test_support.md)。
 
 ---
 
@@ -362,6 +362,32 @@ decision_authority               至少一個（預設 NEXUS、SOVEREIGN）
 status = awaiting_decision | decided；decided_by | null（決定時必填，且必須在 decision_authority 裡）；decision | null
 ```
 
+### 裝備（Phase 16）
+
+```python
+EquipmentProfile（Formal Spec §18）
+equipment_id, category（EXO | PAX | MSX | ERX | vehicle；其他類別可提交，判斷時需要外部仿真）, description = ""
+physical_parameters      mass kg、height m、center_of_gravity m、joint_load kN、power_requirement kW、heat_output kW、endurance h，
+                         與增補的 base_width m、footprint m²、load_bearing_joints ≥ 1、energy_capacity kWh、cooling_capacity kW
+engineering_parameters   material_complexity low | medium | high | exotic、maintenance_time h、
+                         part_replacement_difficulty easy | moderate | hard、supply_chain_risk 0–1、
+                         repair_environment_required field | depot | factory
+operational_parameters   operator_fatigue 0–1 / h、terrain_accessibility [地形]、transport_requirement none | truck | heavy_truck |
+                         heavy_lift | aircraft、deployment_time min、mission_role assault | support | recon | logistics | command
+test_targets [], capabilities {}, state {}（Phase 12 的路徑：對應之後原樣覆寫）
+每個參數都是 optional；數值不得為負
+
+EquipmentTestResult
+equipment_id, category
+physical_possibility      {score 0–1, warnings, impossible_flags, checks: [{check, margin, status}]}
+engineering_feasibility   {score 0–1, bottlenecks, maintenance_risks, components}
+tactical_usefulness       {score 0–1 | null（沒測）, useful_contexts, weak_contexts, logistics_burden low | medium | high, contexts, unit}
+failure_exploration       {failure_points, collapse_sequence, redesign_triggers}
+require_external_simulation {required, reasons, adapter}
+final_judgement           {status: continue | redesign | reject | require_external_simulation, reason}
+surrogate | null
+```
+
 ### Batch 與衝突
 
 `runtime.scheduled_actions`（optional，預設 `[]`）：外部系統的命令，在指定 tick 取代該 actor 的 policy。
@@ -421,7 +447,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    23 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    25 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 
