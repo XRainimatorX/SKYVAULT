@@ -56,7 +56,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.4/action.schema.json",
+  "$id": "skyvault/0.5/action.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Action = what an actor attempts, before the world has agreed to it.\n\nImportant:\nactor_id is mandatory. An action nobody owns cannot be validated, resolved\nor attributed in event memory, so it is rejected at the door.\n\nSchema 0.3 adopts Formal Spec section 6.2 whole: target is nested, and the\nsix fields ADR 004 left optional are required. required_resources maps a\nresource id to a non-negative amount. expected_duration, expected_effect,\nrisk_profile and priority are declarations, recorded but not enforced.",

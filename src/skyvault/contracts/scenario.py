@@ -42,12 +42,37 @@ class ScenarioEvaluation(ContractModel):
     perspective: NonEmptyStr | None = None
 
 
+class ChangedFromPrevious(ContractModel):
+    """Formal Spec section 11: what moved since the parent version, by kind."""
+
+    assumptions_changed: list[str] = Field(default_factory=list)
+    data_changed: list[str] = Field(default_factory=list)
+    rules_changed: list[str] = Field(default_factory=list)
+    metrics_changed: list[str] = Field(default_factory=list)
+    failure_variables_changed: list[str] = Field(default_factory=list)
+
+
+class VersionControl(ContractModel):
+    """
+    Formal Spec section 11 scenario_version_control.
+
+    Important:
+    version must equal the scenario's own scenario_version, so the two can
+    never tell different stories. parent_version is null for a first version.
+    """
+
+    version: NonEmptyStr
+    parent_version: NonEmptyStr | None
+    changed_from_previous: ChangedFromPrevious
+    change_reason: str
+
+
 class Scenario(ContractModel):
     """
     Scenario = Formal Spec section 3.
 
     Important:
-    Version 0.4 keeps the flat layout every scenario already uses. Section 3.3
+    Version 0.5 keeps the flat layout every scenario already uses. Section 3.3
     groups the same information under identity / world_binding /
     initial_conditions; adopting that grouping is a schema version change, not
     a Phase 1 task. See ADR 004.
@@ -57,7 +82,7 @@ class Scenario(ContractModel):
     scenario_version is the content's own version and is unrelated.
     """
 
-    schema_version: Literal["0.4"]
+    schema_version: Literal["0.5"]
     scenario_id: NonEmptyStr
     scenario_version: NonEmptyStr
     world_contract: WorldContract
@@ -74,6 +99,7 @@ class Scenario(ContractModel):
     allowed_actions: dict[str, Any] | None = None
     failure_exploration: dict[str, Any] | None = None
     output: dict[str, Any] | None = None
+    version_control: VersionControl | None = None
 
     @model_validator(mode="after")
     def _entity_ids_are_unique(self) -> "Scenario":
@@ -82,6 +108,16 @@ class Scenario(ContractModel):
             if entity.entity_id in seen:
                 raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
             seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _version_control_names_this_version(self) -> "Scenario":
+        control = self.version_control
+        if control is not None and control.version != self.scenario_version:
+            raise ValueError(
+                f"version_control.version {control.version!r} is not "
+                f"scenario_version {self.scenario_version!r}"
+            )
         return self
 
     @model_validator(mode="after")

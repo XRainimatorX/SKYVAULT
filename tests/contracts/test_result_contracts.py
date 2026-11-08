@@ -61,10 +61,10 @@ def reproducibility_record() -> dict:
         "scenario_version": "v0.1",
         "random_seed_policy": "fixed",
         "random_seed": 42,
-        "runtime_version": "0.1.0",
-        "ruleset_version": "tactical_reference_v0.1",
-        "input_hash": "sha256:in",
-        "output_hash": "sha256:out",
+        "runtime_version": "0.8.0",
+        "ruleset_version": "rules-0123456789ab",
+        "input_hash": "a" * 64,
+        "output_hash": "b" * 64,
         "deterministic_replay_available": True,
         "run_metadata": {"started_at": "t0", "ended_at": "t1"},
     }
@@ -201,11 +201,23 @@ def test_reproducibility_rejects_an_unknown_seed_policy():
         validate_reproducibility(record)
 
 
-def test_result_package_accepts_reproducibility_once_phase_8_fills_it():
+def test_a_result_package_without_reproducibility_is_rejected():
     package = fixture("result_package_valid")
-    package["reproducibility"] = reproducibility_record()
+    del package["reproducibility"]
 
-    assert validate_result_package(package) == package
+    with pytest.raises(ContractError) as caught:
+        validate_result_package(package)
+
+    assert "reproducibility" in {error.split(":")[0] for error in caught.value.errors}
+
+
+@pytest.mark.parametrize("field", ["input_hash", "output_hash"])
+def test_a_hash_must_be_64_hex_characters(field):
+    record = reproducibility_record()
+    record[field] = "sha256:abc"
+
+    with pytest.raises(ContractError):
+        validate_reproducibility(record)
 
 
 # ── JSON Schema ──────────────────────────────────────────────────────────────

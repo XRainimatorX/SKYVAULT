@@ -675,19 +675,19 @@
     },
     "ReproducibilityMetadata": {
       "additionalProperties": false,
-      "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nPhase 1 defines this contract and nothing produces it yet. event_id and\naction_id are still uuid4 and outside the seed's control, so no run could\nhonestly fill output_hash. Phase 8 (Reproducibility) makes ids\ndeterministic and starts attaching this to every result package.",
+      "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nEvery result package carries this from Phase 8 on. input_hash covers the\nscenario and the evaluation profile; output_hash covers the whole result\npackage except this block, which records when the run happened and so can\nnever repeat. Two runs with the same output_hash produced the same result.\n\nrandom_seed is null for a stochastic run, which cannot be replayed.",
       "properties": {
         "deterministic_replay_available": {
           "title": "Deterministic Replay Available",
           "type": "boolean"
         },
         "input_hash": {
-          "minLength": 1,
+          "pattern": "^[0-9a-f]{64}$",
           "title": "Input Hash",
           "type": "string"
         },
         "output_hash": {
-          "minLength": 1,
+          "pattern": "^[0-9a-f]{64}$",
           "title": "Output Hash",
           "type": "string"
         },
@@ -695,9 +695,6 @@
           "anyOf": [
             {
               "type": "integer"
-            },
-            {
-              "type": "string"
             },
             {
               "type": "null"
@@ -1067,10 +1064,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.4/result_package.schema.json",
+  "$id": "skyvault/0.5/result_package.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility stays optional until Phase 8 fills it.\n\nSchema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report\nand tradeoff_report. The development plan requires the trade-off report\nin every result package, so all three are mandatory.",
+  "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility is required from schema 0.5 (Phase 8): a result that\ncannot say where it came from cannot be audited.\n\nSchema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report\nand tradeoff_report. The development plan requires the trade-off report\nin every result package, so all three are mandatory.",
   "properties": {
     "anti_gaming_report": {
       "$ref": "#/$defs/AntiGamingReport"
@@ -1092,15 +1089,7 @@
       "$ref": "#/$defs/WorldSnapshot"
     },
     "reproducibility": {
-      "anyOf": [
-        {
-          "$ref": "#/$defs/ReproducibilityMetadata"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null
+      "$ref": "#/$defs/ReproducibilityMetadata"
     },
     "scenario_id": {
       "minLength": 1,
@@ -1132,7 +1121,8 @@
     "evaluation_result",
     "score_breakdown",
     "anti_gaming_report",
-    "tradeoff_report"
+    "tradeoff_report",
+    "reproducibility"
   ],
   "title": "ResultPackage",
   "type": "object"

@@ -41,7 +41,11 @@ def trace(package: dict[str, Any]) -> list[list[Any]]:
 
 
 def digest(package: dict[str, Any]) -> str:
-    text = json.dumps(package, sort_keys=True)
+    # The reproducibility block records when the run happened; leave it out
+    produced = {
+        key: value for key, value in package.items() if key != "reproducibility"
+    }
+    text = json.dumps(produced, sort_keys=True)
     seen: dict[str, str] = {}
 
     def number(match: re.Match[str]) -> str:

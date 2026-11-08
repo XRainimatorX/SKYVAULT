@@ -125,7 +125,8 @@ class ResultPackage(ContractModel):
     The four derived outputs (timeline, replay, entity history, causal chain)
     are built from this package alone, so initial_world_state is required too.
 
-    reproducibility stays optional until Phase 8 fills it.
+    reproducibility is required from schema 0.5 (Phase 8): a result that
+    cannot say where it came from cannot be audited.
 
     Schema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report
     and tradeoff_report. The development plan requires the trade-off report
@@ -141,7 +142,7 @@ class ResultPackage(ContractModel):
     score_breakdown: dict[str, ScoreEntry]
     anti_gaming_report: AntiGamingReport
     tradeoff_report: TradeoffReport
-    reproducibility: ReproducibilityMetadata | None = None
+    reproducibility: ReproducibilityMetadata
 
     @model_validator(mode="after")
     def _event_count_matches_event_memory(self) -> "ResultPackage":

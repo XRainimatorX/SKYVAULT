@@ -59,7 +59,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.4/evaluation_profile.schema.json",
+  "$id": "skyvault/0.5/evaluation_profile.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Evaluation Profile = which axes count, how much, and what counts as gaming.\n\nImportant:\nThe same run can be judged under different profiles; the profile never\nchanges what happened, only the verdict. perspective is the faction whose\nplan is judged; null means \"decide from the scenario\".\n\nThe section 16 fields keep their spec names. A triggered check only costs\nscore, and only counts as gaming, when its behaviour is listed in\nforbidden_optimization_behaviors.",

@@ -206,7 +206,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.4/consequence.schema.json",
+  "$id": "skyvault/0.5/consequence.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Consequence = what resolving one action will do to the world.\n\nImportant:\nSchema 0.3 adopts Formal Spec section 6.3: effects are grouped, and\nsecondary effects, chain reactions and the five evaluation deltas are\nrequired. A rejected consequence carries them all empty.",

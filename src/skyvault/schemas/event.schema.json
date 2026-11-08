@@ -141,7 +141,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.4/event.schema.json",
+  "$id": "skyvault/0.5/event.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Event = something that actually happened inside the world.\n\nImportant:\nThis is the nested shape of Formal Spec section 7.2. target_entity_id and\ndata are additions recorded in ADR 002 and kept by ADR 003.\n\nbefore_state and after_state have no default. An event without them cannot\nbe replayed, so leaving either out is a contract violation.",

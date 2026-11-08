@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.4",
+  "schema_version": "0.5",
   "scenario_version": "v0.1",
   "world_contract": {
     "world_id": "fixture_world_001",

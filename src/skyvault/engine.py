@@ -1,6 +1,8 @@
 """Engine = the tick loop that turns a scenario into a result package."""
 
+import platform
 import random
+from datetime import datetime, timezone
 from typing import Any
 
 from .action import location_to_json
@@ -12,6 +14,13 @@ from .contracts import (
 )
 from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
+from .reproducibility import (
+    RUNTIME_VERSION,
+    input_hash,
+    output_hash,
+    ruleset_version,
+    seed_policy,
+)
 from .runtime.snapshots import SnapshotStore
 from .runtime.world import create_world
 from .scenario_loader import default_evaluation_profile, scenario_perspective
@@ -51,10 +60,12 @@ class SkyVaultTacticalReferenceEngine:
         self.scenario = scenario
         self.evaluation_profile = self.resolve_profile(evaluation_profile)
 
-        runtime = scenario["runtime"]
-        random_seed = runtime.get("random_seed")
-
-        self.rng = random.Random(random_seed)
+        # A stochastic run draws an unseeded generator on purpose and records
+        # no seed; every other policy seeds the run's only random source
+        self.seed_policy, self.random_seed, self.replayable = seed_policy(
+            scenario["runtime"]
+        )
+        self.rng = random.Random(self.random_seed)
         self.world = self.build_world(scenario)
         self.policy = TacticalReferencePolicy(self.rng)
         self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
@@ -125,6 +136,7 @@ class SkyVaultTacticalReferenceEngine:
         package carries both where the run started and where it ended. Every
         derived output is built from the package, never from the scenario file.
         """
+        started_at = utc_now()
         max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
         termination_reason = "duration_limit_reached"
 
@@ -252,18 +264,58 @@ class SkyVaultTacticalReferenceEngine:
             self.scenario["evaluation"].get("failure_thresholds", []),
         )
 
+        package = {
+            "scenario_id": self.scenario["scenario_id"],
+            "scenario_version": self.scenario["scenario_version"],
+            "initial_world_state": initial_world_state,
+            "final_world_state": final_world_state,
+            "event_memory": event_memory,
+            **evaluated,
+        }
+        package["reproducibility"] = self.reproducibility(started_at, utc_now())
+
         # The package is checked against its contract before it leaves the
-        # engine; every derived output is built from it alone.
-        return validate_result_package(
-            {
-                "scenario_id": self.scenario["scenario_id"],
-                "scenario_version": self.scenario["scenario_version"],
-                "initial_world_state": initial_world_state,
-                "final_world_state": final_world_state,
-                "event_memory": event_memory,
-                **evaluated,
-            }
-        )
+        # engine; every derived output is built from it alone. Validation
+        # normalises values (a whole-number score becomes 3.0), so the output
+        # hash is taken over the validated package, the one callers receive.
+        validated = validate_result_package(package)
+        validated["reproducibility"]["output_hash"] = output_hash(validated)
+        return validated
+
+    def reproducibility(
+        self, started_at: datetime, ended_at: datetime
+    ) -> dict[str, Any]:
+        """
+        Formal Spec section 12: what it takes to rerun this run.
+
+        Important:
+        output_hash is a placeholder here; run() fills it in from the validated
+        package. The block itself records when the run happened, which no rerun
+        repeats, so it is never part of the output hash. run_id combines the
+        start time and the input, so two runs of the same input stay
+        distinguishable in a run registry.
+        """
+        inputs = input_hash(self.scenario, self.evaluation_profile)
+        return {
+            "run_id": f"run_{started_at:%Y%m%dT%H%M%S%fZ}_{inputs[:8]}",
+            "scenario_id": self.scenario["scenario_id"],
+            "scenario_version": self.scenario["scenario_version"],
+            "random_seed_policy": self.seed_policy,
+            "random_seed": self.random_seed,
+            "runtime_version": RUNTIME_VERSION,
+            "ruleset_version": ruleset_version(
+                self.scenario, sorted(self.resolver.handlers)
+            ),
+            "input_hash": inputs,
+            "output_hash": "0" * 64,
+            "deterministic_replay_available": self.replayable,
+            "run_metadata": {
+                "started_at": started_at.isoformat(),
+                "ended_at": ended_at.isoformat(),
+                "compute_profile": f"python {platform.python_version()}",
+                "operator_system": platform.platform(),
+            },
+        }
 
     def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:
         """
@@ -275,3 +327,8 @@ class SkyVaultTacticalReferenceEngine:
         that event too.
         """
         return build_evaluation_summary(self.world, termination_reason, event_count)
+
+
+def utc_now() -> datetime:
+    """The current time in UTC. Only the reproducibility block records it."""
+    return datetime.now(timezone.utc)
