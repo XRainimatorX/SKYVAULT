@@ -1,0 +1,43 @@
+{
+  "scenario_id": "military_mountain_001",
+  "scenario_version": "v0.1",
+  "purpose": "An attack uphill against a squad dug in on a ridge between rocks.",
+  "max_ticks": 25,
+  "random_seed": 42,
+  "map": [
+    "^^^hhhhhh^^^",
+    "^^hhhhhhhh^^",
+    "^.hhhhhhhh.^",
+    "...hh..hh...",
+    "............",
+    "..f......f..",
+    "..ff....ff..",
+    "............",
+    "...f....f...",
+    "............",
+    "............",
+    "............"
+  ],
+  "factions": {
+    "RED": {
+      "doctrine": "overwatch",
+      "command": "radio",
+      "mission": {"type": "seize", "objective": [[5, 1], [6, 1]], "deadline": 25},
+      "groups": [
+        {"name": "1st squad", "formation": "line", "anchor": [1, 10],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
+        {"name": "2nd squad", "formation": "line", "anchor": [6, 10],
+         "units": ["squad_leader", "rifleman", "rifleman", "marksman"]}
+      ]
+    },
+    "BLUE": {
+      "doctrine": "defensive",
+      "command": "immediate",
+      "mission": {"type": "hold", "objective": [[5, 1], [6, 1]]},
+      "groups": [
+        {"name": "Ridge", "formation": "line", "anchor": [3, 1],
+         "units": ["squad_leader", "rifleman", "machine_gunner", "marksman", "rifleman"]}
+      ]
+    }
+  }
+}

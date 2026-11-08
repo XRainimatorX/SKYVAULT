@@ -1,0 +1,45 @@
+{
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.1",
+  "purpose": "A platoon seizes a courtyard held by a squad inside a ring of buildings.",
+  "max_ticks": 25,
+  "random_seed": 42,
+  "map": [
+    "............",
+    ".BB.BB.BB.B.",
+    ".BB.BB.BB.B.",
+    "............",
+    ".BB.BBBB.BB.",
+    ".BB.B..B.BB.",
+    "....B..B....",
+    ".BB.BBBB.BB.",
+    "............",
+    ".BB.BB.BB.BB",
+    ".BB.BB.BB.BB",
+    "............"
+  ],
+  "factions": {
+    "RED": {
+      "doctrine": "aggressive",
+      "command": "radio",
+      "mission": {"type": "seize", "objective": [[5, 5], [6, 5], [5, 6], [6, 6]], "deadline": 25},
+      "groups": [
+        {"name": "1st squad", "formation": "line", "anchor": [0, 0],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
+        {"name": "2nd squad", "formation": "line", "anchor": [6, 0],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
+        {"name": "Support", "formation": "line", "anchor": [4, 3],
+         "units": ["marksman", "logistics"]}
+      ]
+    },
+    "BLUE": {
+      "doctrine": "defensive",
+      "command": "immediate",
+      "mission": {"type": "hold", "objective": [[5, 5], [6, 5], [5, 6], [6, 6]]},
+      "groups": [
+        {"name": "Garrison", "formation": "wedge", "anchor": [4, 4],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner", "marksman"]}
+      ]
+    }
+  }
+}
