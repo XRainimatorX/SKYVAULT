@@ -699,3 +699,23 @@ def test_a_convoy_away_from_home_heads_back_first():
     view = WorldView(world)
     back = CityAdministrationPolicy().decide_action(view, view.get_entity("convoy_1"))
     assert (back.action_type, back.target.location) == ("travel", "harbor")
+
+
+def test_a_delivery_next_door_comes_back_and_loads_again():
+    # the harbor district is where the depot stands: make it the hungriest
+    hungry = spec()
+    for district in hungry["districts"]:
+        district["food"] = 20 if district["id"] != "harbor" else 0
+    hungry["forces"]["convoys"] = hungry["forces"]["convoys"][:1]
+    package = run(build_city_scenario(hungry, RULES))
+    trips = [
+        (e["time"], e["data"]["to"]) for e in events(package, "dispatch", "departure")
+    ]
+    deliveries = [
+        (e["time"], e["target_entity_id"])
+        for e in package["event_memory"]
+        if e["event_type"] == "SUPPLY"
+    ]
+    assert trips[0] == (1, "harbor") and deliveries[0] == (2, "harbor")
+    # back home the tick after and dispatched again: never stranded on the road
+    assert trips[1] == (3, "harbor") and deliveries[1] == (4, "harbor")
