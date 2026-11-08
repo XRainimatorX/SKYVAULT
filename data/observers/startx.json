@@ -1,0 +1,11 @@
+{
+  "observer_id": "STARTX",
+  "description": "High-level trends for one side: strength, losses, resource pressure and long-term risk, with no unit positions (Formal Spec section 5).",
+  "view": "aggregate",
+  "delay_ticks": 1,
+  "stale_after_ticks": 5,
+  "default_sensor_range": 5,
+  "local_radius": 0,
+  "enemy_detail": "hidden",
+  "source_quality": "high"
+}

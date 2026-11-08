@@ -1,0 +1,11 @@
+{
+  "observer_id": "NEXUS",
+  "description": "Mission progress, system state and the overall result across every side (Formal Spec section 5).",
+  "view": "mission",
+  "delay_ticks": 0,
+  "stale_after_ticks": 0,
+  "default_sensor_range": 0,
+  "local_radius": 0,
+  "enemy_detail": "hidden",
+  "source_quality": "high"
+}

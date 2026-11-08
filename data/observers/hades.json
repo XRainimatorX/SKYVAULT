@@ -1,0 +1,11 @@
+{
+  "observer_id": "HADES",
+  "description": "Incoming threats against one side: who is closing in, how soon they can strike, and the defence window (Formal Spec section 5).",
+  "view": "threat",
+  "delay_ticks": 0,
+  "stale_after_ticks": 2,
+  "default_sensor_range": 5,
+  "local_radius": 0,
+  "enemy_detail": "exact",
+  "source_quality": "medium"
+}

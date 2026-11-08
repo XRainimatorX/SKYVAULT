@@ -1,0 +1,11 @@
+{
+  "observer_id": "TAC_ANGEL",
+  "description": "Local tactical state for one unit: what its side's sensors see around it, its mission limits and immediate pressure (Formal Spec section 5).",
+  "view": "local",
+  "delay_ticks": 0,
+  "stale_after_ticks": 3,
+  "default_sensor_range": 5,
+  "local_radius": 4,
+  "enemy_detail": "banded",
+  "source_quality": "medium"
+}
