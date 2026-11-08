@@ -40,11 +40,15 @@ scenario JSON
   │                              只從 initial / events / final 算出 11 軸判斷、
   │                              防刷分報告與 trade-off report
   │
+  ├─ reproducibility 區塊       run_id、seed policy、runtime / ruleset 版本、input_hash；
+  │                              通過契約後，output_hash 取自驗證過的 package
+  │
   └─ result_package（通過 result package 契約才回傳）
-       └─ 四個 exporter 各自推導出一份輸出；runner 另外寫出評估的四個檔
+       ├─ 四個 exporter 各自推導出一份輸出；runner 另外寫出評估的四個檔
+       └─ runner 把這次 run 追加到 runs/registry.jsonl
 ```
 
-## 五個關鍵設計
+## 六個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
 
@@ -53,6 +57,8 @@ scenario JSON
 **任一時刻的世界都能只靠 event memory 還原。** `runtime.rebuild_world()` 從起始快照依序套用每個 event 的 `after_state`；重建到最後必須等於 `final_world_state`，CI 每次都驗。
 
 **評估是紀錄的推導，不是模擬的一部分。** `evaluate_run()` 在 SCENARIO_END 之後執行，只讀 initial / event memory / final，與 exporter 一樣不 import 專案模組。換 evaluation profile 只會換判斷，不會換發生過的事 —— 有測試證明兩個 profile 的 event 完全相同。
+
+**同一輸入得到同一個 output_hash。** event 與 action 的 id 是每個 run 自己的計數器，不再是 uuid；scenario + profile 相同、seed 相同、規則相同，result package 除了記錄執行時間的 reproducibility 區塊外逐位元相同。`scripts/verify_run.py` 只靠 result package 就能找回輸入、重跑並比對。
 
 **exporter 不認識這個系統。** 四個 exporter 只 import 標準函式庫，收 plain dict、回傳 plain dict。它們在型別上就不可能反過來影響模擬。
 
@@ -182,6 +188,18 @@ scenario JSON
 ```
 
 policy 決定「想做什麼」，actions 決定「世界接不接受、接受了會怎樣」。兩者在同一層但互不認識：policy 換掉，世界規則不變；規則改了，policy 不用知道。
+
+## Reproducibility 與 verification
+
+```text
+   src/skyvault/reproducibility/
+              hashing / versioning / registry
+              只依賴 contracts（SCHEMA_VERSION）與 skyvault.__version__；不 import engine
+   src/skyvault/verification.py
+              在 engine 之上（與 scripts 同層）：建 engine 重跑一個 package
+```
+
+engine 用 reproducibility 產生 hash 與版本；verification 用 engine 重跑。兩者若放在同一個模組會循環依賴，所以重跑放在 engine 之上。
 
 ## Evaluation（在階層之外，與 exporter 同級）
 
@@ -326,6 +344,15 @@ RuleSet          world_contract.rule_set 的唯讀存取；require() 缺參數 r
 
 `EntityRegistry.get()` 是 Mapping 原生的、找不到回傳 None；要 raise 用 `require()`（[ADR 005](decisions/005_world_runtime.md) 第 9 點）。
 
+### `ids.py`
+
+```python
+IdSequence(prefix).next()      f"{prefix}_{n:010d}"，n 從 1 開始
+RunIds().event() / .action()   一個 run 的兩個序列
+```
+
+計數器屬於 world，不屬於程序：兩個並存的 world 各自從 1 開始。十位數字維持 Phase 1 的 id 形狀（十個 hex 字元）。
+
 ### `world.py`
 
 ```python
@@ -375,6 +402,7 @@ event_memory   list[Event]
 resources      ResourceState
 rules          RuleSet
 clock          Clock
+ids            RunIds            event / action id 的計數器（Phase 8）
 ```
 
 方法：
@@ -417,7 +445,6 @@ WorldState 不可以決定攻擊目標。
 定義：
 
 ```text
-new_action_id()
 location_to_json(location)       格子轉 list，節點 id 保持字串
 ActionTarget
 Action（= ActionAttempt）
@@ -452,7 +479,7 @@ Action 不改變世界。
 Action 不判斷合不合法 —— 那是 actions/ 的事。
 ```
 
-`new_action_id()` 用 `uuid4()`，**不受 scenario 的 random_seed 控制**。
+action id 由 `world.ids.action()` 產生（`action_0000000001` 起），policy 從 world 取，所以同一輸入的 id 每次相同。
 
 ## `consequence.py`
 
@@ -538,7 +565,6 @@ apply_consequence(world, consequence, action, system_id=None) -> list[Event]
 定義：
 
 ```text
-new_event_id()
 build_causal_links(source)
 build_evaluation_relevance(source)
 Event
@@ -596,7 +622,7 @@ event 寫入後不可修改。
 
 屬性攤平、輸出巢狀的理由見 [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md)；Phase 4 的攤平決定見 [`decisions/002_event_shape.md`](decisions/002_event_shape.md)。
 
-`new_event_id()` 用 `uuid4()`，**不受 random_seed 控制**。
+event id 由 `WorldState.record_event()` 呼叫 `self.ids.event()` 產生（`event_0000000001` 起），每個 world 各自計數。
 
 ## `scenario_loader.py`
 
@@ -615,7 +641,7 @@ scenario_perspective(scenario)          evaluation.perspective，否則第一個
 
 ```text
 只負責讀取與契約驗證。
-缺 scenario_id、帶未知的鍵、schema_version 不是 0.4、entity 不在空間內 → raise ContractError。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.5、entity 不在空間內、version_control.version 與 scenario_version 不符 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -729,6 +755,35 @@ evaluator 不決定行動。
 它只產生 SCENARIO_END 的摘要；多軸判斷在 evaluation/。
 ```
 
+## `reproducibility/`
+
+Phase 8 建立。Formal Spec §11（版本控制）與 §12（Reproducibility）。
+
+```python
+canonical_json(value)                  sort_keys、緊湊、ensure_ascii False
+content_hash(value)                    canonical JSON 的 SHA-256
+input_hash(scenario, profile)          scenario 與 profile 一起
+output_hash(package)                   去掉 reproducibility 的 content_hash
+RUNTIME_VERSION                        = skyvault.__version__（每個 Phase 調升 minor）
+ruleset_version(scenario, action_types)  "rules-" + hash(rule_set, action types, SCHEMA_VERSION)[:12]
+seed_policy(runtime)                   (policy, seed, replayable)
+compare_scenarios(old, new)            Spec §11 五類差異，每項 "<path>: <old> -> <new>"
+compare_runs(a, b)                     same_input / same_output / same_rules + 結果、事件數、判斷、分數的前後值
+RunRegistry(path)                      JSON Lines；record / all / get / by_input
+```
+
+scenario 的版本放在 `data/scenarios/<scenario_id>/<version>.json`，檔內 `version_control` 記錄 parent 與變更；`compare_scenarios(parent, child)` 的結果應與 child 的 `changed_from_previous` 相同（測試檢查 v0.1 → v0.2）。
+
+## `verification.py`
+
+```python
+locate_inputs(package)                              → (scenario, profile)，只靠 package 找
+verify_reproducibility(package, scenario, profile)  → {reproduced, replay_available, input_hash_matches,
+                                                       expected / recorded / actual_output_hash}
+```
+
+`expected_output_hash` 從 package 本身重算，所以 package 被改過、即使 reproducibility 區塊沒動，也不會被判為重現成功。stochastic 的 run 不重跑。
+
 ## `evaluation/`
 
 Phase 7 建立。Formal Spec §8（多軸評估）與 §16（Metric Anti-Gaming）。
@@ -801,7 +856,7 @@ needs_more_test  其餘
 ```text
 12 份契約（開發計劃的 11 份 + evaluation_profile），各一個 Pydantic model + validate_<x>()
 ContractError
-SCHEMA_VERSION = "0.4"
+SCHEMA_VERSION = "0.5"
 build_json_schemas()
 ```
 
@@ -934,13 +989,16 @@ build_causal_chain(scenario_id, event_memory)
 啟動入口。
 
 ```text
-載入 scenario
+載入 scenario（--scenario，預設 tactical_reference_001/v0.1.json）與 profile（--profile）
 跑 engine
 從 result_package 取出欄位
-呼叫四個 exporter
-寫出七個檔案
-印出摘要
+呼叫四個 exporter 與 render_tradeoff_report
+寫出十一個檔案
+把 run 追加到 run registry（--registry，預設 runs/registry.jsonl，已 gitignore）
+印出摘要、判斷、run_id 與 output_hash 前 12 碼
 ```
+
+`scripts/verify_run.py <result_package.json>`：從 package 找回 scenario 與 profile，重跑，比對 output_hash；重現成功 exit 0，否則 exit 1。
 
 規則：
 
@@ -1085,7 +1143,7 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `entity_history.json` | 某個 entity 一生經歷了什麼 | `build_entity_history()` |
 | `causal_chain.json` | 哪個 action 造成哪些 event | `build_causal_chain()` |
 
-四個都是純推導 —— 刪掉重跑會得到相同內容（除了 uuid）。
+四個都是純推導 —— 刪掉重跑會得到相同內容。
 
 ## Evaluation output
 
@@ -1114,7 +1172,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 
 同一個 seed 每次跑出完全相同的行為 —— 同樣的事件數、同樣的型別順序、同樣的勝負。
 
-**但 `event_id` 與 `action_id` 用 `uuid4()`，不受 seed 控制**，`causal_links` 裡也存 id，所以 `output/*.json` 無法跨 run 逐位元比對。這是已知限制，留待 Phase 8。
+Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids.py`），所以連 id 也相同：兩次 run 的 result package 除了 reproducibility 區塊外逐位元相同，output_hash 相同。
+
+`runtime.random_seed_policy` 為 `stochastic` 時，engine 刻意用不帶 seed 的 `Random()`，reproducibility 記錄 `random_seed: null`、`deterministic_replay_available: false`。
 
 實測：seed 42 → `RED_survived`；seed 7 → `BLUE_survived`。雙方單位完全對稱，勝負純由擲骰決定。
 
@@ -1145,6 +1205,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 18. reference run 與 tests/fixtures/reference_trace.json 一致（除非 Phase 刻意改變模擬，並重新產生）
 19. evaluation/ 不 import 專案模組；evaluate_run 不改輸入、同輸入同輸出
 20. 換 evaluation profile 不改變 event memory 與 final_world_state
+21. 同一 scenario + profile + seed + 規則 → 同一個 output_hash
+22. output_hash = 驗證過的 result package 去掉 reproducibility 後的 canonical JSON 的 SHA-256
+23. hashing / versioning / registry 不 import engine
 ```
 
 ---
@@ -1168,6 +1231,8 @@ policy.next_step_toward()        多個移動格同分時挑一個
 | 想知道為什麼被判 risky / fail | `evaluation_result.json` 的 `failure_causes`，再看 `anti_gaming_report.json` 的 `checks` |
 | 某一軸分數看不懂 | `score_breakdown.json` 的 `raw`、`explanation`；`applicable: false` 表示沒有資料 |
 | 換 profile 後 event 也變了 | 不該發生 —— 評估不能改模擬；檢查有沒有人在 evaluation/ 裡 import 了專案模組 |
+| verify_run 說沒有重現 | 看 `input_hash_matches`：false 是輸入變了（scenario 或 profile 被改）；true 但 hash 不同是程式行為變了，或 package 被改過 |
+| 兩次 run 的 output_hash 不同 | 有隨機來源沒走 engine.rng，或有東西用了時間 / uuid；`tests/reproducibility/test_determinism.py` 會抓 |
 | 結果每次不同 | 檢查 `random_seed`；檢查有沒有人另外建了 `Random()` |
 | 輸出檔內容是錯的 | 確認 runner 有呼叫 exporter，而不是寫入別的東西 |
 | 回放的歷史狀態都是最終狀態 | 檢查 `snapshot()` 是否被改成淺拷貝 |
@@ -1194,6 +1259,7 @@ ruff check .                                    # linter
 black --check src/ tests/ scripts/              # 排版
 python3 -m mypy src/                            # 型別（要用能 import pydantic 的直譯器）
 python3 scripts/export_schemas.py               # 改契約後重新產生 JSON Schema
+python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 output_hash
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 
@@ -1221,5 +1287,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/006_action_consequence.md`](decisions/006_action_consequence.md) | schema 0.3 與 action framework 的設計決定 |
 | [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) | Phase 3 完成報告 |
 | [`decisions/007_evaluation_engine.md`](decisions/007_evaluation_engine.md) | schema 0.4 與 evaluation engine 的設計決定 |
+| [`decisions/008_reproducibility.md`](decisions/008_reproducibility.md) | schema 0.5、決定性 id、hash 與版本的設計決定 |
+| [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md) | 各 Phase 回顧 |

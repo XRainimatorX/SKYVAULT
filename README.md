@@ -52,6 +52,8 @@ scenario → world state → actor policy → action → validation
 
 actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
 
+每次 run 都可重現（Phase 8）：event 與 action 的 id 是決定性的，同一輸入得到同一個 output_hash；每個 result package 帶著 input_hash、規則版本與執行版本；scenario 以版本資料夾管理、可比較差異；run 記在 registry、可從 result package 重跑驗證。
+
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
 
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
@@ -73,6 +75,15 @@ python3 scripts/run_tactical_reference.py
 
 ```text
 Verdict: risky (score 0.50, profile balanced)
+```
+
+驗證這次的結果可以重現、換另一個 scenario 版本：
+
+```bash
+python3 scripts/verify_run.py output/result_package.json
+# Reproduced: yes
+python3 scripts/run_tactical_reference.py --scenario data/scenarios/tactical_reference_001/v0.2.json
+# Result: BLUE_survived（v0.2 只把 blue_002 的命中率從 0.55 調到 0.75）
 ```
 
 用另一個 profile 評同一場：
@@ -139,13 +150,14 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        12 份資料契約（Pydantic，schema 0.4）
+  contracts/        12 份資料契約（Pydantic，schema 0.5）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
+  reproducibility/  hash、版本、scenario 比較、run registry
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
-data/scenarios/     scenario 輸入
+data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 tests/              測試
 output/             執行產物
@@ -160,7 +172,7 @@ docs/               文件
 
 | 項目 | 影響 | 留待 |
 |---|---|---|
-| `event_id` / `action_id` 用 `uuid4()`，不受 seed 控制 | 行為可重現，但輸出檔無法跨 run 逐位元比對 | Phase 8 |
+| run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
 | `state_changes`（環境變動）一律 raise | WorldState 沒有建模 environment_state | 需要它的 domain |
@@ -170,7 +182,7 @@ docs/               文件
 | comparison 恆為空 | 單一 run 沒有比較對象 | Phase 10 / 12 |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase7_evaluation_engine.md`](docs/phases/phase7_evaluation_engine.md)。
+完整清單見 [`docs/phases/phase8_reproducibility.md`](docs/phases/phase8_reproducibility.md)。
 
 ---
 
