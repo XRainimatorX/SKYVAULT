@@ -52,6 +52,8 @@ scenario → world state → actor policy → action → validation
 
 actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
 
+每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
+
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
 
 ---
@@ -67,7 +69,18 @@ python3 scripts/run_tactical_reference.py
 
 需要 Python 3.10+。執行時期相依有三個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路），宣告在 `pyproject.toml`。
 
-跑完會在 `output/` 產生七個檔案。想快速知道發生了什麼，先看 `output/timeline.txt`：
+跑完會在 `output/` 產生十一個檔案，最後一行是評估判斷：
+
+```text
+Verdict: risky (score 0.50, profile balanced)
+```
+
+用另一個 profile 評同一場：
+
+```bash
+python3 scripts/run_tactical_reference.py --profile data/evaluation_profiles/tactical.json
+# Verdict: pass (score 0.78, profile tactical)
+```想快速知道發生了什麼，先看 `output/timeline.txt`：
 
 ```text
 Tick 6
@@ -96,8 +109,12 @@ python3 -m pytest tests/ -q
 | `replay_state_at_tick.json` | 每個 tick 結束時的世界 |
 | `entity_history.json` | 每個單位的一生 |
 | `causal_chain.json` | 哪個 action 造成哪些 event |
+| `evaluation_result.json` | 多軸判斷：值不值得、危不危險、為什麼 |
+| `score_breakdown.json` | 每一軸的分數、原始值與說明 |
+| `anti_gaming_report.json` | 高分是不是刷出來的 |
+| `tradeoff_report.md` | 得到什麼、付出什麼 |
 
-後面四個都是從 `event_memory.json` 推導出來的，刪掉重跑會一樣。
+timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
 
 ---
 
@@ -122,12 +139,14 @@ python3 -m pytest tests/ -q
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        11 份資料契約（Pydantic，schema 0.3）
+  contracts/        12 份資料契約（Pydantic，schema 0.4）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
+  evaluation/       多軸評估、防刷分、trade-off report
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入
+data/evaluation_profiles/   評估 profile（balanced、tactical）
 tests/              測試
 output/             執行產物
 docs/               文件
@@ -145,11 +164,13 @@ docs/               文件
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
 | `state_changes`（環境變動）一律 raise | WorldState 沒有建模 environment_state | 需要它的 domain |
-| secondary_effects / evaluation_impact 只記錄不使用 | 風險、穩定、評分模型尚不存在 | Phase 7 / 9 |
-| event 的 `affected.risks` 恆為空 | 風險模型尚未存在 | Phase 7 / 9 |
+| risk_growth、stability_impact 是代理指標 | 沒有風險與穩定模型；用 affects_risk 事件與摧毀比例代替 | Phase 9 起 |
+| Spec §8.3 的六個軸不評（physical_possibility 等） | 模擬中沒有資料來源 | 需要它們的 domain |
+| consequence 的 evaluation_impact 不進評估 | consequence 不在 result package 裡，評估只讀紀錄 | 未定 |
+| comparison 恆為空 | 單一 run 沒有比較對象 | Phase 10 / 12 |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase3_action_consequence_engine.md`](docs/phases/phase3_action_consequence_engine.md)。
+完整清單見 [`docs/phases/phase7_evaluation_engine.md`](docs/phases/phase7_evaluation_engine.md)。
 
 ---
 

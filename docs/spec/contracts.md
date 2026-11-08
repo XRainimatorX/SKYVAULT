@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 11 份契約的現行規格。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 12 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)。
 
 ---
 
@@ -44,9 +44,9 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 ## 3. 版本
 
 ```text
-SCHEMA_VERSION      "0.3"（contracts/base.py）
-scenario            必須帶 schema_version: "0.3"，其他版本（含 0.1、0.2）直接被拒
-JSON Schema $id     skyvault/0.3/<name>.schema.json
+SCHEMA_VERSION      "0.4"（contracts/base.py）
+scenario            必須帶 schema_version: "0.4"，其他版本（含 0.1–0.3）直接被拒
+JSON Schema $id     skyvault/0.4/<name>.schema.json
 ```
 
 optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本。
@@ -56,10 +56,13 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.1 | 1 | 初版 11 份契約 |
 | 0.2 | 2 | World Contract 四欄必填；space / time 型別封閉；位置可為節點 id；snapshot 加 resources；兩種新事件型別 |
 | 0.3 | 3 | Action 採 Spec §6.2 全形狀（巢狀 target、六欄必填）；Consequence 採 §6.3 分組（四部分必填）；八種新事件型別 |
+| 0.4 | 7 | Evaluation Result 的 §8.3 欄位必填並加 profile_id / perspective / overall_score / anti_gaming；Result Package 加三份評估輸出；新增 evaluation_profile 契約；scenario.evaluation 加 optional perspective |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
 0.2 → 0.3 的遷移：scenario 只改 `schema_version: "0.3"`。action 與 consequence 不寫在 scenario 檔裡；直接產生它們的程式（policy、測試）要改成下面的新形狀。
+
+0.3 → 0.4 的遷移：scenario 只改 `schema_version: "0.4"`（可選擇加 `evaluation.perspective`）。手寫的 result package 要補上完整的 evaluation_result 與三份評估輸出 —— 最簡單的做法是用 `evaluate_run()` 產生。
 
 ---
 
@@ -180,11 +183,34 @@ World Contract 的形狀規則：
 
 | 契約 | model | 必填 | optional（留待） |
 |---|---|---|---|
-| Evaluation Result | `EvaluationResult` | termination_reason、event_count、active_entities、destroyed_entities、active_factions、winner_or_result、key_findings、failure_points | overall_judgement、scores、failure_causes、recommended_next_tests、comparison（Phase 7） |
-| Result Package | `ResultPackage` | scenario_id、scenario_version、initial_world_state、final_world_state、event_memory、**evaluation_result** | reproducibility（Phase 8） |
+| Evaluation Result | `EvaluationResult` | 摘要八欄（termination_reason … failure_points）＋ scenario_id、profile_id、perspective、overall_judgement、overall_score、scores、failure_causes、recommended_next_tests、comparison、anti_gaming | — |
+| Result Package | `ResultPackage` | scenario_id、scenario_version、initial_world_state、final_world_state、event_memory、**evaluation_result**、score_breakdown、anti_gaming_report、**tradeoff_report** | reproducibility（Phase 8） |
+| Evaluation Profile | `EvaluationProfile` | profile_id、perspective（可為 null）、primary_metric、secondary_metrics、weights、thresholds、anti_gaming_metrics、forbidden_optimization_behaviors、tradeoff_report_required | description |
 | Reproducibility | `ReproducibilityMetadata` | Spec §12.2 全部欄位 | — |
 
 Result Package 的額外規則：`evaluation_result.event_count` 必須等於 `len(event_memory)`。
+
+Evaluation Result 的形狀細節：
+
+```python
+overall_judgement   {status: pass / fail / risky / needs_more_test, confidence: 0–1}
+overall_score       0–1
+scores              {軸名: 0–1}               只列有資料的軸
+comparison          {better_than, worse_than}  單一 run 為空
+anti_gaming         {gaming_detected, flagged_behaviors, penalty_total}
+```
+
+Evaluation Profile 的規則：
+
+```text
+weights、primary_metric、secondary_metrics 的名稱必須是 11 軸之一；至少一個權重 > 0
+thresholds 用鍵 pass 與 fail，0 ≤ fail ≤ pass ≤ 1
+anti_gaming_metrics 每項 {metric, reason, threshold, penalty}；metric 是五項檢查之一
+forbidden_optimization_behaviors 只能是五項檢查對應的行為名
+perspective 為 null 時由 scenario 決定（evaluation.perspective，否則第一個有陣營的 entity）
+```
+
+`data/evaluation_profiles/` 有 balanced 與 tactical 兩份。
 
 `initial_world_state` / `final_world_state`（`WorldSnapshot`）的必填欄位：world_id、scenario_id、tick、space、entities、resources。`space` 由 `Space.describe()` 寫入，帶 `type`；`resources` 是名稱 → 數量，數量 ≥ 0。
 

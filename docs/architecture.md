@@ -33,20 +33,26 @@ scenario JSON
   │          apply_consequence()         唯一改世界的地方：每個 effect 一筆 event
   │        （若 rejected）記錄 ACTION_REJECTED
   │
-  ├─ evaluator.build_evaluation_summary()
-  ├─ world.record_event()  記錄 SCENARIO_END
+  ├─ evaluator.build_evaluation_summary()   勝負與計數的摘要
+  ├─ world.record_event()  記錄 SCENARIO_END（data = 上面的摘要）
+  │
+  ├─ evaluation.evaluate_run()   evaluation/ 套件：依 evaluation profile，
+  │                              只從 initial / events / final 算出 11 軸判斷、
+  │                              防刷分報告與 trade-off report
   │
   └─ result_package（通過 result package 契約才回傳）
-       └─ 四個 exporter 各自推導出一份輸出
+       └─ 四個 exporter 各自推導出一份輸出；runner 另外寫出評估的四個檔
 ```
 
-## 四個關鍵設計
+## 五個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
 
 **事件是快照，不是參照。** `record_event()` 存進去的 `before_state` / `after_state` 都是 `snapshot()` 的深拷貝。事件寫入後，世界再怎麼變都不會改到它。回放能成立完全靠這一點。
 
 **任一時刻的世界都能只靠 event memory 還原。** `runtime.rebuild_world()` 從起始快照依序套用每個 event 的 `after_state`；重建到最後必須等於 `final_world_state`，CI 每次都驗。
+
+**評估是紀錄的推導，不是模擬的一部分。** `evaluate_run()` 在 SCENARIO_END 之後執行，只讀 initial / event memory / final，與 exporter 一樣不 import 專案模組。換 evaluation profile 只會換判斷，不會換發生過的事 —— 有測試證明兩個 profile 的 event 完全相同。
 
 **exporter 不認識這個系統。** 四個 exporter 只 import 標準函式庫，收 plain dict、回傳 plain dict。它們在型別上就不可能反過來影響模擬。
 
@@ -145,7 +151,7 @@ scenario JSON
 
 ```text
    src/skyvault/contracts/
-              11 份契約：Pydantic model + validate_<x>()
+              12 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -176,6 +182,17 @@ scenario JSON
 ```
 
 policy 決定「想做什麼」，actions 決定「世界接不接受、接受了會怎樣」。兩者在同一層但互不認識：policy 換掉，世界規則不變；規則改了，policy 不用知道。
+
+## Evaluation（在階層之外，與 exporter 同級）
+
+```text
+   src/skyvault/evaluation/
+              metrics / anti_gaming / tradeoff / evaluate
+              只 import 標準函式庫，收 plain dict、回傳 plain dict
+              engine 呼叫它；它不認識 engine
+```
+
+評估只能看見 event memory 記下的東西。若讓它 import world_state 或 engine，它就可能用到「引擎知道但沒記錄」的資訊，評估結果就不再能只靠 result package 重現。
 
 ## Exporter（在階層之外）
 
@@ -587,15 +604,18 @@ event 寫入後不可修改。
 
 ```text
 load_scenario(path)
+load_evaluation_profile(path)
+default_evaluation_profile(scenario)    balanced.json，perspective 依 scenario 決定
+scenario_perspective(scenario)          evaluation.perspective，否則第一個有陣營的 entity
 ```
 
-讀 scenario 檔（`.json`、`.yaml`、`.yml`，依副檔名決定），通過 scenario 契約後回傳 engine 要的 dict。
+讀 scenario 與 evaluation profile 檔（`.json`、`.yaml`、`.yml`，依副檔名決定），各自通過契約後回傳 dict。
 
 規則：
 
 ```text
 只負責讀取與契約驗證。
-缺 scenario_id、帶未知的鍵、schema_version 不是 0.3、entity 不在空間內 → raise ContractError。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.4、entity 不在空間內 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -651,6 +671,7 @@ SkyVaultTacticalReferenceEngine
 方法：
 
 ```python
+__init__(scenario, evaluation_profile=None)  None → balanced；profile 在 run 之前就通過契約
 build_world(scenario)                    呼叫 create_world；只接受 grid + tick，其他 raise ValueError
 run()                                    跑完整場，回傳 result_package
 evaluate(termination_reason, event_count)  產生 evaluation summary
@@ -705,17 +726,82 @@ failure_points        list
 ```text
 evaluator 只讀，不改世界。
 evaluator 不決定行動。
-目前只有勝負與計數，不是多軸評估 —— 留給 Phase 7。
+它只產生 SCENARIO_END 的摘要；多軸判斷在 evaluation/。
 ```
+
+## `evaluation/`
+
+Phase 7 建立。Formal Spec §8（多軸評估）與 §16（Metric Anti-Gaming）。
+
+### `metrics.py`
+
+```python
+EvaluationContext.build(initial_world_state, event_memory, final_world_state, perspective, max_ticks)
+MetricValue(raw, score, applicable, explanation)
+Metric(name, description, unit, compute)
+METRIC_REGISTRY      11 軸
+```
+
+每個 score ∈ [0, 1]，越高越好；成本類反轉。沒有資料可判斷時 `applicable = False`，不計入加權並降低 confidence。F = perspective 陣營，E = 其他有陣營的 entity：
+
+| 軸 | 定義 |
+|---|---|
+| mission_success | F 全滅 → 0；E 全滅 → 1；否則 E 被摧毀的比例 |
+| tactical_value | F 造成的傷害 / E 初始 hp（上限 1） |
+| strategic_value | F 存活 / F 總數 |
+| resource_cost | 1 − F 損失 hp / F 初始 hp |
+| time_cost | 1 − 結束 tick / max_ticks |
+| risk_growth | 1 − 以 F 為目標的 affects_risk 事件 / F 總數（代理指標） |
+| failure_resistance | F 第一次損失的 tick / 結束 tick；沒有損失 → 1 |
+| recovery_ability | REPAIR 恢復的 hp / 曾損失的 hp；沒有損失 → 不適用 |
+| system_robustness | 1 − F 被拒的 action / F 選擇的 action |
+| logistics_burden | 1 − F 花掉的世界資源 / 初始世界資源；沒有資源 → 不適用 |
+| stability_impact | 1 − 全場被摧毀 / 全場 entity（代理指標） |
+
+### `anti_gaming.py`
+
+```python
+detect_gaming(context, scores, profile) -> dict
+```
+
+| 檢查 | 觸發條件 | 行為 |
+|---|---|---|
+| inaction_penalty | F 的回合中 NO_ACTION 或 wait 的比例 > 門檻 | maximize_score_by_inaction |
+| stability_penalty | mission_success ≥ 0.8 且 stability_impact < 門檻 | sacrifice_long_term_stability_for_short_term_success |
+| risk_spike_penalty | 單一 tick 內以 F 為目標的風險事件 / F 總數 > 門檻 | extreme_high_risk_optimization |
+| hidden_risk_penalty | mission_success ≥ 0.8 且 F 存活者中 hp ≤ 25% 的比例 > 門檻 | ignore_hidden_risk_to_improve_visible_score |
+| long_term_cost_penalty | tactical_value ≥ 0.8 且 strategic_value < 門檻 | sacrifice_strategic_value_for_short_term_tactical_value |
+
+觸發一定被報告；只有行為列在 profile 的 `forbidden_optimization_behaviors` 時才扣分並算作刷分。
+
+### `evaluate.py`、`tradeoff.py`
+
+```python
+evaluate_run(initial, events, final, summary, profile, max_ticks, failure_thresholds=None)
+    -> {evaluation_result, score_breakdown, anti_gaming_report, tradeoff_report}
+build_tradeoff_report(score_breakdown, anti_gaming_report, judgement, profile) -> dict
+render_tradeoff_report(report) -> str       Markdown
+```
+
+overall_score = 適用且有權重的軸的加權平均 − 防刷分扣分。判斷依序：
+
+```text
+fail             overall < fail 門檻，或 mission_success = 0，或 scenario failure_threshold 觸發
+risky            偵測到禁止的刷分行為，或 risk_growth < 0.5
+pass             overall ≥ pass 門檻
+needs_more_test  其餘
+```
+
+`evaluate_run` 是純函式：不改輸入，同輸入同輸出。
 
 ## `contracts/`
 
 定義：
 
 ```text
-11 份契約，各一個 Pydantic model + validate_<x>()
+12 份契約（開發計劃的 11 份 + evaluation_profile），各一個 Pydantic model + validate_<x>()
 ContractError
-SCHEMA_VERSION = "0.3"
+SCHEMA_VERSION = "0.4"
 build_json_schemas()
 ```
 
@@ -958,7 +1044,7 @@ ACTION_SELECTED  ←caused_by─  ATTACK  ←caused_by─  ENTITY_DESTROYED
 
 # 6. 輸出
 
-執行一次產生七個檔案。
+執行一次產生十一個檔案。
 
 ## Truth source
 
@@ -978,7 +1064,10 @@ scenario_version     str
 initial_world_state  dict     tick 0 的世界（含 space.type 與 resources）
 final_world_state    dict     結束時的世界
 event_memory         list     所有事件
-evaluation_result    dict     結果摘要（Phase 1 前叫 evaluation）
+evaluation_result    dict     摘要 + Spec §8.3 的多軸判斷（Phase 1 前叫 evaluation）
+score_breakdown      dict     11 軸的 score、raw、unit、weight、applicable、explanation
+anti_gaming_report   dict     Spec §16 欄位 + 每項檢查的結果
+tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分摘要
 ```
 
 **四個 exporter 的輸入全部來自這裡**，不從 scenario 檔取得任何東西。
@@ -997,6 +1086,17 @@ evaluation_result    dict     結果摘要（Phase 1 前叫 evaluation）
 | `causal_chain.json` | 哪個 action 造成哪些 event | `build_causal_chain()` |
 
 四個都是純推導 —— 刪掉重跑會得到相同內容（除了 uuid）。
+
+## Evaluation output
+
+| 檔案 | 回答什麼 | 內容來源 |
+|---|---|---|
+| `evaluation_result.json` | 這個方案值不值得、危不危險 | `result_package["evaluation_result"]` |
+| `score_breakdown.json` | 每一軸為什麼是這個分數 | `result_package["score_breakdown"]` |
+| `anti_gaming_report.json` | 高分是不是刷出來的 | `result_package["anti_gaming_report"]` |
+| `tradeoff_report.md` | 得到什麼、付出什麼 | `render_tradeoff_report(result_package["tradeoff_report"])` |
+
+`python3 scripts/run_tactical_reference.py --profile <path>` 用別的 profile 評同一個 scenario；不給就用 `data/evaluation_profiles/balanced.json`。
 
 ---
 
@@ -1043,6 +1143,8 @@ policy.next_step_toward()        多個移動格同分時挑一個
 16. handler 只讀世界；action 的改變只經過 apply_consequence()
 17. action 造成的每筆 event 的 source.action_id 都是該 action；NO_ACTION 與 SCENARIO_END 為 null
 18. reference run 與 tests/fixtures/reference_trace.json 一致（除非 Phase 刻意改變模擬，並重新產生）
+19. evaluation/ 不 import 專案模組；evaluate_run 不改輸入、同輸入同輸出
+20. 換 evaluation profile 不改變 event memory 與 final_world_state
 ```
 
 ---
@@ -1063,6 +1165,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 | 某個 entity 行為奇怪 | `entity_history.json` 的該 entity |
 | 不知道某個結果從哪來 | `causal_chain.json` 找 `source_action_id` |
 | 想快速看懂整場 | `timeline.txt` |
+| 想知道為什麼被判 risky / fail | `evaluation_result.json` 的 `failure_causes`，再看 `anti_gaming_report.json` 的 `checks` |
+| 某一軸分數看不懂 | `score_breakdown.json` 的 `raw`、`explanation`；`applicable: false` 表示沒有資料 |
+| 換 profile 後 event 也變了 | 不該發生 —— 評估不能改模擬；檢查有沒有人在 evaluation/ 裡 import 了專案模組 |
 | 結果每次不同 | 檢查 `random_seed`；檢查有沒有人另外建了 `Random()` |
 | 輸出檔內容是錯的 | 確認 runner 有呼叫 exporter，而不是寫入別的東西 |
 | 回放的歷史狀態都是最終狀態 | 檢查 `snapshot()` 是否被改成淺拷貝 |
@@ -1108,11 +1213,13 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 11 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 12 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
 | [`phases/phase2_world_runtime_core.md`](phases/phase2_world_runtime_core.md) | Phase 2 完成報告 |
 | [`decisions/006_action_consequence.md`](decisions/006_action_consequence.md) | schema 0.3 與 action framework 的設計決定 |
 | [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) | Phase 3 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md) | Phase 1–3 回顧 |
+| [`decisions/007_evaluation_engine.md`](decisions/007_evaluation_engine.md) | schema 0.4 與 evaluation engine 的設計決定 |
+| [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md) | 各 Phase 回顧 |

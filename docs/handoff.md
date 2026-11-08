@@ -21,7 +21,8 @@ python3 -m pytest tests/ -q
 ```text
 Result: RED_survived
 Events: 97
-289 passed
+Verdict: risky (score 0.50, profile balanced)
+353 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。
@@ -133,6 +134,8 @@ Phase 3 又發現 Phase 2 留下兩個全綠的缺陷：節點位置被 `Event.t
 
 Phase 2 也發現：**守護不變量的測試也要反向驗證。** 分層測試第一版看不到 `from .. import engine`，放回去跑才發現。變異存活時先判斷是不是等價變異 —— 判斷方法是**找一個讓兩者結果不同的輸入**，找得到就是測試缺口；找不到且說得出原因，才是等價、該刪程式碼。Phase 2 曾把「現有測試分不出來」當成等價，結果是一個 Phase 3 才發現的缺陷。
 
+Phase 7 再發現：**設定值也會沉默。** profile 的 hidden_risk 門檻原本是 0.5，契約通過、手調門檻的測試也會觸發，但 reference scenario 的 300 個 seed 裡沒有一場會讓它觸發。每個門檻都要有一場真實的 run 證明它會觸發。反向驗證的變異也要確認真的被執行 —— 插在 docstring 裡的 import 不是 import。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -150,6 +153,11 @@ Phase 2 也發現：**守護不變量的測試也要反向驗證。** 分層測�
 | handler | 只讀。要改世界就回傳 `DirectEffect`；連 `target.state.update(...)` 都會被 AST 測試擋 |
 | 致命一擊 | 是 ATTACK effect 加一個 ENTITY_DESTROYED chain reaction，兩筆 event 的 before / after 相同 |
 | `rule_set.action_costs` | 有定義的 action type 以它收費，actor 的 `required_resources` 被忽略；supply 運送的就是收的費 |
+| evaluation/ | 與 exporter 同級：只吃 plain dict，不 import 專案模組。評估只能看見 event memory 記下的東西 |
+| SCENARIO_END.data vs evaluation_result | SCENARIO_END 存的是勝負摘要；package 的 evaluation_result 是摘要 + 多軸判斷，key_findings 多三條 |
+| evaluation profile | 不給就是 balanced；perspective 為 null 時取 scenario.evaluation.perspective，再沒有就取第一個 entity 的陣營 |
+| profile 的 `pass` | Python 關鍵字，model 用 alias；`check()` 依 alias 輸出，所以驗證後仍是 `pass` |
+| 新增評估軸 | 要同時加進 `evaluation/metrics.py` 的 registry 與 `contracts/evaluation_profile.py` 的 METRIC_NAMES（有測試比對兩者） |
 | `git stash` 切版本比對 | 同大小、同一秒改寫的檔案會讓 Python 沿用舊 `.pyc`。切換後先 `find . -name __pycache__ -prune -exec rm -rf {} +` |
 | tactical engine | 只接受 grid + tick；其他世界在 `build_world()` 就 raise。要跑別的世界用 `create_world()` |
 | `runtime/__init__.py` | 不匯出 `create_world`（會循環 import），從 `skyvault.runtime.world` 取 |
@@ -197,7 +205,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）。
 
 第 6 節開頭先列規格矛盾與決定（Phase 1 回顧改法 3）；Frozen Interface 的每個函式附一行行為，不只寫簽名（Phase 2 回顧改法 2）。每個步驟 commit 前，對照第 6 節檢查這一步新增的公開函式 —— **簽名與語意分開對照**（Phase 3 回顧改法 3）。拆步驟時寫下每一步結束時哪些測試是綠的；寫不出來就和下一步合併（Phase 3 回顧改法 4）。
 
@@ -237,20 +245,18 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 7 — Evaluation Engine**：多軸評估（成功、成本、風險、穩定……）、失敗原因、建議下一步測試。規格見 [`plan/phase7_evaluation_engine.md`](plan/phase7_evaluation_engine.md)。
+依 roadmap，下一個是 **Phase 8 — Reproducibility Engine**：同一輸入得到同一結果，並能證明它。規格見 [`plan/phase8_reproducibility.md`](plan/phase8_reproducibility.md)。
 
-Phase 3 留下與它直接相關的事：
+Phase 7 留下與它直接相關的事：
 
 ```text
-Consequence.evaluation_impact 已經有五個數值 delta
-    cost / risk / stability / tactical_value / strategic_value，每個 accepted action 都有一份
-    目前沒有任何程式讀它們 —— 它們不在 result package 裡
-Consequence.secondary_effects 只有 supply 會寫
-    風險、穩定的模型要從這裡開始
-Evaluation Result 契約的 overall_judgement / scores / failure_causes /
-recommended_next_tests / comparison 仍是 optional
-    ADR 004 列為 Phase 7
-event 的 affected.risks 仍恆為空
+event_id / action_id 仍是 uuid4，不受 seed 控制
+    行為可重現，輸出檔無法逐位元比對；tests/reference_trace.py 用「依首次出現順序換成序號」繞過
+    Phase 8 要讓 id 本身可重現，Reproducibility 契約才能誠實填 output_hash
+Reproducibility 契約已定義、result package 的 reproducibility 仍是 optional
+    ADR 004 列為 Phase 8
+evaluate_run 已是純函式
+    同一 result package + 同一 profile → 同一判斷；Phase 8 可以把 profile 一併記進 metadata
 ```
 
-開工前先讀 [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) 的第 5 節與 [`postmortems/phase3.md`](postmortems/phase3.md)。
+開工前先讀 [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) 的第 5 節與 [`postmortems/phase7.md`](postmortems/phase7.md)。
