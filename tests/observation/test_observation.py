@@ -682,6 +682,7 @@ def test_the_threat_view_counts_ticks_until_each_enemy_can_strike():
             unit("b1", "BLUE", [5, 5], attack_range=1),
             unit("b2", "BLUE", [0, 4], attack_range=1, move_range=1),
             unit("b3", "BLUE", [0, 5], attack_range=2, move_range=2),
+            unit("b4", "BLUE", [8, 8], attack_range=1, move_range=2),
         )
     }
 
@@ -695,10 +696,11 @@ def test_the_threat_view_counts_ticks_until_each_enemy_can_strike():
     ] == [
         ("b1", "r2", 0),
         ("b3", "r2", 1),
+        ("b4", "r2", 2),  # three cells to cover at two a tick: two ticks
         ("b2", "r1", 3),  # as near to r1 as to r2: the first id wins
     ]
-    assert state["summary"] == {"threats": 3, "in_range_now": 1, "defense_window": 0}
-    assert [e["hp"] for e in state["known_entities"]] == [30.0, 30.0, 30.0]
+    assert state["summary"] == {"threats": 4, "in_range_now": 1, "defense_window": 0}
+    assert [e["hp"] for e in state["known_entities"]] == [30.0] * 4
 
 
 def test_the_threat_view_without_threats_has_no_window():
@@ -946,7 +948,8 @@ def test_the_engines_history_is_the_packages_history():
     package = engine.run()
 
     rebuilt = history_from_package(package)
-    assert {t: rebuilt[t] for t in engine.observed} == engine.observed
+    assert sorted(engine.observed) == sorted(rebuilt)
+    assert engine.observed == rebuilt
 
 
 def test_a_world_policy_keeps_no_observation_history(reference):
