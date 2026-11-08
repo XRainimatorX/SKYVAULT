@@ -203,7 +203,9 @@ async def _handle(
                 break
             try:
                 interrupt = await asyncio.wait_for(inbox.get(), timeout=interval)
-            except TimeoutError:
+            # asyncio.TimeoutError, not TimeoutError: they are one class only
+            # from Python 3.11 on, and wait_for raises the asyncio one on 3.10
+            except asyncio.TimeoutError:  # noqa: UP041
                 continue
             if interrupt is None:
                 return None

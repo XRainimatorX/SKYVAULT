@@ -2,7 +2,7 @@
 # build-system table): scripts and tests still put src/ on sys.path. Install
 # the dependencies with:
 #   python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn \
-#       python-docx reportlab
+#       websockets python-docx reportlab
 [project]
 name = "skyvault"
 version = "0.11.0"
@@ -19,6 +19,8 @@ dependencies = [
     # UI backend and briefing export (Phase 17).
     "fastapi>=0.110",
     "uvicorn>=0.29",
+    # uvicorn has no WebSocket support of its own; the replay needs it.
+    "websockets>=12",
     "python-docx>=1",
     "reportlab>=4",
 ]
