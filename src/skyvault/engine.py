@@ -79,9 +79,16 @@ class SkyVaultTacticalReferenceEngine:
 
         # Every action goes through the resolver; the military line keeps
         # move, attack, observe, supply and repair (development plan Phase 3)
+        # Injected faults draw from their own generator, so stressing a plan
+        # never shifts the draws the battle itself makes
+        fault_seed = None if self.random_seed is None else f"faults:{self.random_seed}"
         self.resolver = ActionResolver(
             handlers_for(MILITARY_ACTION_TYPES),
-            ActionContext(rng=self.rng, system_id=self.actor_system_id),
+            ActionContext(
+                rng=self.rng,
+                system_id=self.actor_system_id,
+                fault_rng=random.Random(fault_seed),
+            ),
         )
 
     def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:

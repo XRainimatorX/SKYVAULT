@@ -51,7 +51,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/data_provenance.schema.json",
+  "$id": "skyvault/0.6/data_provenance.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",

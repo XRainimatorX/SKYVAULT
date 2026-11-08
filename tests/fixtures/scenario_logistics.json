@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5",
+  "schema_version": "0.6",
   "scenario_id": "fixture_logistics_001",
   "scenario_version": "v0.1",
   "world_contract": {
@@ -56,7 +56,12 @@
           "spare_parts": 1.0
         }
       }
-    }
+    },
+    "failure_variables": [
+      "supply_delay",
+      "resource_shortage",
+      "communication_failure"
+    ]
   },
   "entities": [
     {

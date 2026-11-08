@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5",
+  "schema_version": "0.6",
   "scenario_version": "v0.1",
   "world_contract": {
     "world_id": "fixture_world_001",
@@ -26,7 +26,8 @@
     "entity_model": {},
     "environment_state": {},
     "resource_state": {},
-    "rule_set": {}
+    "rule_set": {},
+    "failure_variables": []
   },
   "entities": [
     {

@@ -21,12 +21,18 @@ class ActionContext:
     """
     What a handler may use besides the world.
 
-    rng is the run's only random source; drawing from it keeps the run
-    reproducible. system_id is recorded on every event as source.system_id.
+    rng is the run's only random source for decisions and outcomes; drawing
+    from it keeps the run reproducible. system_id is recorded on every event
+    as source.system_id.
+
+    fault_rng decides injected faults (rule_set.faults). It is separate so
+    that injecting a fault never shifts the draws the battle itself makes;
+    without faults it is never drawn from.
     """
 
     rng: random.Random
     system_id: str | None = None
+    fault_rng: random.Random | None = None
 
 
 class ActionResolver:
@@ -62,8 +68,14 @@ class ActionResolver:
                 action.action_id, f"Unsupported action type: {action.action_type}"
             )
 
-        if not world.get_entity(action.actor_id).is_active():
+        actor = world.get_entity(action.actor_id)
+        if not actor.is_active():
             return Consequence.rejected(action.action_id, "Actor is not active")
+
+        if self._order_lost(world, actor.faction):
+            return Consequence.rejected(
+                action.action_id, "Communication failure: order not received"
+            )
 
         validation = handler.validate(world, action, self.context)
         if not validation.valid:
@@ -93,6 +105,24 @@ class ActionResolver:
         validate_consequence(consequence.to_dict())
         apply_consequence(world, consequence, action, self.context.system_id)
         return consequence
+
+    def _order_lost(self, world: WorldState, faction: str | None) -> bool:
+        """
+        Whether an injected communication fault swallows this actor's order.
+
+        Important:
+        rule_set.faults.drop_actions = {faction, rate} makes each action of
+        that faction fail with probability rate, before validation. Failure
+        exploration sets it; ordinary scenarios never do, and then nothing is
+        drawn from fault_rng at all.
+        """
+        faults = world.rules.get("faults", {})
+        drop = faults.get("drop_actions") if isinstance(faults, dict) else None
+        if not drop or drop.get("faction") != faction:
+            return False
+        rng = self.context.fault_rng or random.Random("faults")
+        self.context.fault_rng = rng
+        return rng.random() < float(drop.get("rate", 0.0))
 
 
 def apply_consequence(

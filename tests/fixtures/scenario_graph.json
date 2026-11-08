@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5",
+  "schema_version": "0.6",
   "scenario_id": "fixture_graph_001",
   "scenario_version": "v0.1",
   "world_contract": {
@@ -58,7 +58,8 @@
     },
     "rule_set": {
       "max_convoy_size": 3
-    }
+    },
+    "failure_variables": []
   },
   "entities": [
     {

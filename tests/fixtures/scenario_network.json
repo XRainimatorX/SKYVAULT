@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5",
+  "schema_version": "0.6",
   "scenario_id": "fixture_network_001",
   "scenario_version": "v0.1",
   "world_contract": {
@@ -48,7 +48,8 @@
     "resource_state": {
       "supply": 50.0
     },
-    "rule_set": {}
+    "rule_set": {},
+    "failure_variables": []
   },
   "entities": [
     {

@@ -7,6 +7,7 @@ from pydantic import Field, model_validator
 from .assumption import AssumptionRegistry
 from .base import ContractModel, NonEmptyStr, check
 from .entity import EntityRecord
+from .failure import FailureExplorationSpec
 from .provenance import DataProvenance
 from .world import WorldContract
 
@@ -72,7 +73,7 @@ class Scenario(ContractModel):
     Scenario = Formal Spec section 3.
 
     Important:
-    Version 0.5 keeps the flat layout every scenario already uses. Section 3.3
+    Version 0.6 keeps the flat layout every scenario already uses. Section 3.3
     groups the same information under identity / world_binding /
     initial_conditions; adopting that grouping is a schema version change, not
     a Phase 1 task. See ADR 004.
@@ -82,7 +83,7 @@ class Scenario(ContractModel):
     scenario_version is the content's own version and is unrelated.
     """
 
-    schema_version: Literal["0.5"]
+    schema_version: Literal["0.6"]
     scenario_id: NonEmptyStr
     scenario_version: NonEmptyStr
     world_contract: WorldContract
@@ -97,7 +98,7 @@ class Scenario(ContractModel):
     data_provenance: DataProvenance | None = None
     participants: dict[str, Any] | None = None
     allowed_actions: dict[str, Any] | None = None
-    failure_exploration: dict[str, Any] | None = None
+    failure_exploration: FailureExplorationSpec | None = None
     output: dict[str, Any] | None = None
     version_control: VersionControl | None = None
 
@@ -108,6 +109,20 @@ class Scenario(ContractModel):
             if entity.entity_id in seen:
                 raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
             seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _explores_only_declared_failures(self) -> "Scenario":
+        exploration = self.failure_exploration
+        if exploration is None:
+            return self
+        declared = set(self.world_contract.failure_variables)
+        undeclared = sorted(set(exploration.failure_variables) - declared)
+        if undeclared:
+            raise ValueError(
+                f"failure_exploration names {undeclared}, which the world contract "
+                "does not list in failure_variables"
+            )
         return self
 
     @model_validator(mode="after")

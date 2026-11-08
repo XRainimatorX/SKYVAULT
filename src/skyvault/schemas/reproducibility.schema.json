@@ -33,7 +33,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/reproducibility.schema.json",
+  "$id": "skyvault/0.6/reproducibility.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nEvery result package carries this from Phase 8 on. input_hash covers the\nscenario and the evaluation profile; output_hash covers the whole result\npackage except this block, which records when the run happened and so can\nnever repeat. Two runs with the same output_hash produced the same result.\n\nrandom_seed is null for a stochastic run, which cannot be replayed.",

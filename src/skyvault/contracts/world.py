@@ -5,6 +5,7 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from .base import ContractModel, NonEmptyStr, NonNegative, check
+from .failure import FailureVariableName
 from .provenance import DataProvenance
 
 
@@ -90,10 +91,11 @@ class WorldContract(ContractModel):
     empty, but a world has to say so. resource_state maps a resource id to a
     non-negative amount.
 
-    The remaining optional elements become required with their phase.
+    Schema 0.6 makes failure_variables required too (Phase 9): the ways this
+    world can be deliberately made worse, from the eight the failure engine
+    knows. It may be empty.
 
-    actor_slots          Phase 6
-    failure_variables    Phase 9
+    actor_slots becomes required with Phase 6.
     """
 
     world_id: NonEmptyStr
@@ -107,11 +109,11 @@ class WorldContract(ContractModel):
     environment_state: dict[str, Any]
     resource_state: dict[NonEmptyStr, NonNegative]
     rule_set: dict[str, Any]
+    failure_variables: list[FailureVariableName]
 
     actor_slots: list[str] | None = None
     event_memory: dict[str, Any] | None = None
     data_provenance: DataProvenance | None = None
-    failure_variables: list[str] | None = None
 
 
 def validate_world_contract(data: dict[str, Any]) -> dict[str, Any]:

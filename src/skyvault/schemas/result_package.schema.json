@@ -1064,7 +1064,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/result_package.schema.json",
+  "$id": "skyvault/0.6/result_package.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility is required from schema 0.5 (Phase 8): a result that\ncannot say where it came from cannot be audited.\n\nSchema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report\nand tradeoff_report. The development plan requires the trade-off report\nin every result package, so all three are mandatory.",

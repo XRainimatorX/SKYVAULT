@@ -219,6 +219,7 @@ def test_world_contract_requires_its_core_elements():
         "environment_state",
         "resource_state",
         "rule_set",
+        "failure_variables",
     }
 
 

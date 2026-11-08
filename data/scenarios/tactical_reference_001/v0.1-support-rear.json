@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.5",
+  "schema_version": "0.6",
   "scenario_id": "tactical_reference_001",
   "scenario_version": "v0.1-support-rear",
   "version_control": {
@@ -50,7 +50,15 @@
     "entity_model": {},
     "environment_state": {},
     "resource_state": {},
-    "rule_set": {}
+    "rule_set": {},
+    "failure_variables": [
+      "sensor_failure",
+      "communication_failure",
+      "weather_degradation",
+      "enemy_reaction_speed",
+      "equipment_overheat",
+      "civilian_pressure"
+    ]
   },
   "entities": [
     {

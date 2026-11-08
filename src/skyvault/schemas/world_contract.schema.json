@@ -281,10 +281,10 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/world_contract.schema.json",
+  "$id": "skyvault/0.6/world_contract.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nThe remaining optional elements become required with their phase.\n\nactor_slots          Phase 6\nfailure_variables    Phase 9",
+  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nSchema 0.6 makes failure_variables required too (Phase 9): the ways this\nworld can be deliberately made worse, from the eight the failure engine\nknows. It may be empty.\n\nactor_slots becomes required with Phase 6.",
   "properties": {
     "actor_slots": {
       "anyOf": [
@@ -348,19 +348,21 @@
       "title": "Event Memory"
     },
     "failure_variables": {
-      "anyOf": [
-        {
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Failure Variables"
+      "items": {
+        "enum": [
+          "supply_delay",
+          "sensor_failure",
+          "communication_failure",
+          "weather_degradation",
+          "enemy_reaction_speed",
+          "equipment_overheat",
+          "civilian_pressure",
+          "resource_shortage"
+        ],
+        "type": "string"
+      },
+      "title": "Failure Variables",
+      "type": "array"
     },
     "purpose": {
       "items": {
@@ -413,7 +415,8 @@
     "entity_model",
     "environment_state",
     "resource_state",
-    "rule_set"
+    "rule_set",
+    "failure_variables"
   ],
   "title": "WorldContract",
   "type": "object"

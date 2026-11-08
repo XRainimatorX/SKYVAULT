@@ -75,7 +75,7 @@ def test_each_kind_of_change_lands_in_its_spec_category():
     new["world_contract"]["rule_set"] = {"max_squad": 3}
     new["runtime"]["random_seed"] = 7
     new["evaluation"]["failure_thresholds"] = []
-    new["world_contract"]["failure_variables"] = ["fog"]
+    new["world_contract"]["failure_variables"] = ["sensor_failure"]
 
     changes = compare_scenarios(old, new)
 
@@ -91,7 +91,9 @@ def test_each_kind_of_change_lands_in_its_spec_category():
         "evaluation.failure_thresholds: ['all_entities_destroyed'] -> []"
     ]
     assert changes["failure_variables_changed"] == [
-        "world_contract.failure_variables: absent -> ['fog']"
+        "world_contract.failure_variables: ['sensor_failure', "
+        "'communication_failure', 'weather_degradation', 'enemy_reaction_speed', "
+        "'equipment_overheat', 'civilian_pressure'] -> ['sensor_failure']"
     ]
     assert set(changes) == set(CHANGE_CATEGORIES)
 

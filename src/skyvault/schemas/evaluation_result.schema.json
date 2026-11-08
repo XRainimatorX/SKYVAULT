@@ -80,7 +80,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/evaluation_result.schema.json",
+  "$id": "skyvault/0.6/evaluation_result.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe first eight fields are the run-end summary the engine records in\nSCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR\n004 promised, and adds what the verdict was reached under (profile_id,\nperspective), the overall score, and the anti-gaming summary that shows\nwhether a high score was earned by gaming.\n\nscores holds every axis that had data, each in [0, 1], higher better.",

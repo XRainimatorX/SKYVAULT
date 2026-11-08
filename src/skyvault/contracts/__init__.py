@@ -24,6 +24,13 @@ from .evaluation_profile import (
     validate_evaluation_profile,
 )
 from .event import EVENT_TYPES, EventRecord, validate_event
+from .failure import (
+    FAILURE_VARIABLE_NAMES,
+    FailureExplorationSpec,
+    FailureMap,
+    validate_failure_exploration,
+    validate_failure_map,
+)
 from .json_schema import CONTRACTS, build_json_schemas
 from .provenance import DataProvenance, validate_data_provenance
 from .reproducibility import ReproducibilityMetadata, validate_reproducibility
@@ -38,6 +45,7 @@ __all__ = [
     "METRIC_NAMES",
     "ContractError",
     "EVENT_TYPES",
+    "FAILURE_VARIABLE_NAMES",
     "ActionRecord",
     "AssumptionRegistry",
     "ConsequenceRecord",
@@ -46,6 +54,8 @@ __all__ = [
     "EvaluationProfile",
     "EvaluationResult",
     "EventRecord",
+    "FailureExplorationSpec",
+    "FailureMap",
     "ReproducibilityMetadata",
     "ResultPackage",
     "Scenario",
@@ -59,6 +69,8 @@ __all__ = [
     "validate_evaluation_profile",
     "validate_evaluation_result",
     "validate_event",
+    "validate_failure_exploration",
+    "validate_failure_map",
     "validate_reproducibility",
     "validate_result_package",
     "validate_scenario",

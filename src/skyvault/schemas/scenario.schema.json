@@ -266,6 +266,88 @@
       "title": "EntityRecord",
       "type": "object"
     },
+    "FailureExplorationSpec": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 14 failure_exploration, as a scenario declares it.\n\nImportant:\nstress_levels lists which of the four fixed levels to run; their strength\nper variable is defined by the failure engine, not by the scenario.\nalternatives names other versions of the same scenario to stress the same\nway. A run survives unless its verdict is fail; a level breaks the plan\nwhen fewer than survival_threshold of its repeats survive. output keeps\nthe section 14 placeholder and is ignored.",
+      "properties": {
+        "alternatives": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "failure_variables": {
+          "items": {
+            "enum": [
+              "supply_delay",
+              "sensor_failure",
+              "communication_failure",
+              "weather_degradation",
+              "enemy_reaction_speed",
+              "equipment_overheat",
+              "civilian_pressure",
+              "resource_shortage"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Failure Variables",
+          "type": "array"
+        },
+        "objective": {
+          "default": "find_weakness",
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output"
+        },
+        "run_policy": {
+          "$ref": "#/$defs/RunPolicy"
+        },
+        "stress_levels": {
+          "items": {
+            "enum": [
+              "mild",
+              "moderate",
+              "severe",
+              "collapse"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Stress Levels",
+          "type": "array"
+        },
+        "survival_threshold": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Survival Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "failure_variables",
+        "stress_levels",
+        "run_policy"
+      ],
+      "title": "FailureExplorationSpec",
+      "type": "object"
+    },
     "ProvenanceSource": {
       "additionalProperties": false,
       "description": "One source of scenario data.",
@@ -314,6 +396,37 @@
         "confidence"
       ],
       "title": "ProvenanceSource",
+      "type": "object"
+    },
+    "RunPolicy": {
+      "additionalProperties": false,
+      "description": "How many times each stressed plan runs, and with which seeds.",
+      "properties": {
+        "branch_comparison": {
+          "default": false,
+          "title": "Branch Comparison",
+          "type": "boolean"
+        },
+        "random_seed_policy": {
+          "enum": [
+            "fixed",
+            "controlled_random",
+            "stochastic"
+          ],
+          "title": "Random Seed Policy",
+          "type": "string"
+        },
+        "repeat_count": {
+          "minimum": 1,
+          "title": "Repeat Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "repeat_count",
+        "random_seed_policy"
+      ],
+      "title": "RunPolicy",
       "type": "object"
     },
     "RuntimeSettings": {
@@ -684,7 +797,7 @@
     },
     "WorldContract": {
       "additionalProperties": false,
-      "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nThe remaining optional elements become required with their phase.\n\nactor_slots          Phase 6\nfailure_variables    Phase 9",
+      "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nSchema 0.6 makes failure_variables required too (Phase 9): the ways this\nworld can be deliberately made worse, from the eight the failure engine\nknows. It may be empty.\n\nactor_slots becomes required with Phase 6.",
       "properties": {
         "actor_slots": {
           "anyOf": [
@@ -748,19 +861,21 @@
           "title": "Event Memory"
         },
         "failure_variables": {
-          "anyOf": [
-            {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Failure Variables"
+          "items": {
+            "enum": [
+              "supply_delay",
+              "sensor_failure",
+              "communication_failure",
+              "weather_degradation",
+              "enemy_reaction_speed",
+              "equipment_overheat",
+              "civilian_pressure",
+              "resource_shortage"
+            ],
+            "type": "string"
+          },
+          "title": "Failure Variables",
+          "type": "array"
         },
         "purpose": {
           "items": {
@@ -813,16 +928,17 @@
         "entity_model",
         "environment_state",
         "resource_state",
-        "rule_set"
+        "rule_set",
+        "failure_variables"
       ],
       "title": "WorldContract",
       "type": "object"
     }
   },
-  "$id": "skyvault/0.5/scenario.schema.json",
+  "$id": "skyvault/0.6/scenario.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.5 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
+  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.6 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
   "properties": {
     "allowed_actions": {
       "anyOf": [
@@ -885,15 +1001,13 @@
     "failure_exploration": {
       "anyOf": [
         {
-          "additionalProperties": true,
-          "type": "object"
+          "$ref": "#/$defs/FailureExplorationSpec"
         },
         {
           "type": "null"
         }
       ],
-      "default": null,
-      "title": "Failure Exploration"
+      "default": null
     },
     "output": {
       "anyOf": [
@@ -959,7 +1073,7 @@
       "type": "string"
     },
     "schema_version": {
-      "const": "0.5",
+      "const": "0.6",
       "title": "Schema Version",
       "type": "string"
     },

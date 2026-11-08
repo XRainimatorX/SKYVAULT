@@ -34,10 +34,9 @@ CHANGE_CATEGORIES: dict[str, tuple[str, ...]] = {
         "evaluation",
         "world_contract.evaluation_targets",
     ),
-    "failure_variables_changed": (
-        "world_contract.failure_variables",
-        "failure_exploration",
-    ),
+    # failure_exploration is a request to stress the scenario, not part of
+    # the world it describes, so it is not compared
+    "failure_variables_changed": ("world_contract.failure_variables",),
 }
 
 
