@@ -3,6 +3,7 @@
 import ast
 import copy
 import json
+import sys
 from functools import cache
 from pathlib import Path
 
@@ -26,6 +27,9 @@ from skyvault.domains.city.reference import (
 from skyvault.domains.city.scenario import build_city_scenario
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.scenario_loader import load_scenario
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # tests/
+from layers import imported, modules_below  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "skyvault"
@@ -330,13 +334,11 @@ def test_only_actors_off_the_road_decide():
 
 
 def test_the_core_imports_no_domain_pack():
-    for path in SRC.rglob("*.py"):
-        # editions (Phase 19) is the top layer: its products run the packs
-        if "domains" in path.parts or "editions" in path.parts:
-            continue
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ImportFrom):
-                assert "city" not in (node.module or ""), path
+    # every module below the domains layer (tests/layers.py: a positive list)
+    below = modules_below("domains")
+    assert below
+    for module in below:
+        assert not any("city" in m for m in imported(module)), module
 
 
 def test_the_city_model_and_score_run_no_simulation():

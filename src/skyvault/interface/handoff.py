@@ -24,6 +24,7 @@ import json
 from typing import Any
 
 from ..contracts import TRIGGERS, validate_authority_handoff
+from ..contracts.base import is_skyvault
 
 AUTHORITIES = ("NEXUS", "SOVEREIGN")
 HIGH_RISK = "extreme_high_risk_optimization"
@@ -191,7 +192,14 @@ def authority_handoff(
 
 
 def decide(handoff: dict[str, Any], decided_by: str, decision: str) -> dict[str, Any]:
-    """Record an authority's decision; anyone else is refused (PermissionError)."""
+    """
+    Record an authority's decision; anyone else is refused (PermissionError),
+    and SKYVAULT always is, even named in the list (Final Authority Boundary).
+    """
+    if is_skyvault(decided_by):
+        raise PermissionError(
+            f"{decided_by} never decides: SKYVAULT simulates, recommends and warns"
+        )
     if decided_by not in handoff["decision_authority"]:
         raise PermissionError(
             f"{decided_by} is not a decision authority for {handoff['handoff_id']}"

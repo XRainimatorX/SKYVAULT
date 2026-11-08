@@ -18,6 +18,7 @@ from typing import Annotated, Any
 
 from fastapi import Body, FastAPI, HTTPException
 
+from ..boundary import declaration
 from ..contracts import ContractError
 from ..interface.api import add_external_routes
 from .governance import Rejected
@@ -108,6 +109,11 @@ def create_world_service(
     @app.get("/api/health")
     def health() -> dict[str, Any]:
         return {"status": "ok"}
+
+    @app.get("/api/boundary")
+    def boundary() -> dict[str, Any]:
+        """The Final Authority Boundary (Phase 20): role, may, may_not."""
+        return declaration()
 
     @app.get("/api/status")
     def status() -> dict[str, Any]:

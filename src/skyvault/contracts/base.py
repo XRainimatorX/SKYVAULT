@@ -1,8 +1,9 @@
 """Shared machinery for every contract: one base model and one validation path."""
 
+import re
 from typing import Annotated, Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationError
 
 from .errors import ContractError
 
@@ -14,6 +15,24 @@ Position = Annotated[list[int], Field(min_length=2, max_length=2)]
 Location = Position | NonEmptyStr
 NonNegative = Annotated[float, Field(ge=0.0)]
 Probability = Annotated[float, Field(ge=0.0, le=1.0)]
+
+
+def is_skyvault(name: str) -> bool:
+    """Whether name is SKYVAULT, however written (Sky Vault, sky_vault, SKY-VAULT…)."""
+    return re.sub(r"[\s_\-.]+", "", str(name)).lower() == "skyvault"
+
+
+def _not_skyvault(name: str) -> str:
+    if is_skyvault(name):
+        raise ValueError(
+            f"{name!r} cannot be a decision authority: SKYVAULT is a world-environment "
+            "engine, never the one who decides (Final Authority Boundary)"
+        )
+    return name
+
+
+# A decision authority: anyone but SKYVAULT (Phase 20, Formal Spec section 17)
+Authority = Annotated[str, Field(min_length=1), AfterValidator(_not_skyvault)]
 
 
 class ContractModel(BaseModel):

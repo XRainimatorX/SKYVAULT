@@ -19,6 +19,7 @@ from typing import Any
 
 from ..batch.conflicts import branch_id, detect_conflicts
 from ..batch.run import run_branches
+from ..contracts.base import is_skyvault
 from ..contracts.batch import Proposal
 from .handoff import AUTHORITIES, authority_handoff, decide, handoff_triggers
 
@@ -137,6 +138,10 @@ def resolve(
     first, with PermissionError; then a decided conflict with ValueError and
     an unknown branch with KeyError.
     """
+    if is_skyvault(decided_by):
+        raise PermissionError(
+            f"{decided_by} never decides: SKYVAULT simulates, recommends and warns"
+        )
     if decided_by not in record["handoff"]["decision_authority"]:
         raise PermissionError(
             f"{decided_by} is not a decision authority; "

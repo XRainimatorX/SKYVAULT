@@ -1,7 +1,7 @@
 """Phase 16: the virtual test rules: physics, engineering, solver, stress, judgement."""
 
-import ast
 import copy
+import sys
 from pathlib import Path
 
 import pytest
@@ -31,6 +31,9 @@ from skyvault.virtualtest.profile import (
 from skyvault.virtualtest.run import virtual_test
 from skyvault.virtualtest.solver import mass_limit, redesign_triggers, solve
 from skyvault.virtualtest.stress import explore_equipment, stressed
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # tests/
+from layers import imported, modules_below  # noqa: E402
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "skyvault"
 RULES = load_rules()
@@ -545,12 +548,11 @@ def test_a_profile_of_nothing_but_an_id_cannot_be_judged_and_needs_simulation():
 
 
 def test_the_core_imports_no_virtual_test():
-    for path in SRC.rglob("*.py"):
-        if {"virtualtest", "interface", "editions"} & set(path.parts):
-            continue
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ImportFrom):
-                assert "virtualtest" not in (node.module or ""), path
+    # every module below the virtualtest layer (tests/layers.py: a positive list)
+    below = modules_below("virtualtest")
+    assert below
+    for module in below:
+        assert not any("virtualtest" in m for m in imported(module)), module
 
 
 @pytest.mark.parametrize(
@@ -565,8 +567,7 @@ def test_the_core_imports_no_virtual_test():
     ],
 )
 def test_the_rules_run_no_simulation(name):
-    tree = ast.parse((SRC / "virtualtest" / name).read_text(encoding="utf-8"))
-    modules = {n.module or "" for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
+    modules = imported(SRC / "virtualtest" / name)
     assert not any(
         m.endswith(("engine", "tactical", "batch", "surrogate")) for m in modules
     ), modules

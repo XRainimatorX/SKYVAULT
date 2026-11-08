@@ -13,7 +13,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
-from .base import ContractModel, NonEmptyStr, check
+from .base import Authority, ContractModel, NonEmptyStr, check
 from .job import JobKind
 
 System = Literal[
@@ -37,7 +37,7 @@ class Edition(ContractModel):
     domains: list[NonEmptyStr] = Field(default_factory=list)
     job_kinds: list[JobKind] = Field(default_factory=list)
     products: list[NonEmptyStr] = Field(default_factory=list)
-    decision_authorities: list[NonEmptyStr] = Field(min_length=1)
+    decision_authorities: list[Authority] = Field(min_length=1)
     redact: dict[NonEmptyStr, NonEmptyStr] = Field(default_factory=dict)
 
 

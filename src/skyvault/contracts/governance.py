@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 from pydantic import Field
 
-from .base import ContractModel, NonEmptyStr, check
+from .base import Authority, ContractModel, NonEmptyStr, check
 
 Priority = Literal["low", "normal", "high", "critical"]
 StopReason = Literal[
@@ -73,7 +73,7 @@ class ResourceComputeGovernance(ContractModel):
     partial_result_export: bool = True
     # who decides a handoff (Phase 19: an edition names its own); unset means
     # the interface's default authorities
-    decision_authorities: list[NonEmptyStr] | None = Field(default=None, min_length=1)
+    decision_authorities: list[Authority] | None = Field(default=None, min_length=1)
 
 
 class Usage(ContractModel):

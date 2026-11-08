@@ -4,6 +4,7 @@ import ast
 import copy
 import json
 import random
+import sys
 from functools import cache
 from pathlib import Path
 
@@ -32,6 +33,9 @@ from skyvault.domains.airspace.scenario import build_airspace_scenario
 from skyvault.engine import SkyVaultTacticalReferenceEngine
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # tests/
+from layers import imported, modules_below  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
 SRC = ROOT / "src" / "skyvault"
@@ -273,12 +277,11 @@ def test_the_airspace_pack_is_loaded_by_name_and_says_what_it_supports():
 
 
 def test_the_core_imports_no_domain_pack():
-    for path in SRC.rglob("*.py"):
-        if "domains" in path.parts:
-            continue
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ImportFrom):
-                assert "airspace" not in (node.module or ""), path
+    # every module below the domains layer (tests/layers.py: a positive list)
+    below = modules_below("domains")
+    assert below
+    for module in below:
+        assert not any("airspace" in m for m in imported(module)), module
 
 
 def test_the_airspace_model_and_metrics_run_no_simulation():

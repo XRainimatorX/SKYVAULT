@@ -379,6 +379,22 @@ jobs:
           print("editions verified:", names)
           EOF
 
+      # Phase 20: Full SKYVAULT v2.0 — every acceptance criterion and the authority boundary, on one service
+      - name: Full v2 acceptance
+        run: |
+          python scripts/run_v2_acceptance.py
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          result = json.loads(Path("output/v2/acceptance.json").read_text())
+          counts = result["counts"]
+          assert result["passed"], counts
+          assert counts["acceptance"] == {"passed": 15, "of": 15}, counts
+          assert counts["may_not"] == {"passed": 5, "of": 5}, counts
+          print("v2 accepted:", counts)
+          EOF
+
       # Phase 18: training data from the sources file, filtered for score gaming
       - name: Training data pipeline
         run: |

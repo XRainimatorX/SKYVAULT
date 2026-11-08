@@ -12,7 +12,7 @@ from typing import Any, Literal
 
 from pydantic import Field, model_validator
 
-from .base import ContractModel, NonEmptyStr, check
+from .base import Authority, ContractModel, NonEmptyStr, check
 
 SYSTEMS = (
     "NEXUS",
@@ -95,9 +95,9 @@ class AuthorityHandoff(ContractModel):
     skyvault_position: SkyvaultPosition
     may_recommend: Literal[True] = True
     may_execute_final_decision: Literal[False] = False
-    decision_authority: list[NonEmptyStr] = Field(min_length=1)
+    decision_authority: list[Authority] = Field(min_length=1)
     status: Literal["awaiting_decision", "decided"] = "awaiting_decision"
-    decided_by: NonEmptyStr | None = None
+    decided_by: Authority | None = None
     decision: NonEmptyStr | None = None
 
     @model_validator(mode="after")

@@ -28,6 +28,9 @@ from skyvault.worldservice.api import create_world_service, in_process_queue
 from skyvault.worldservice.governance import load_governance
 from skyvault.worldservice.store import SQLiteStore
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # tests/
+from layers import imported, modules_below  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "src" / "skyvault"
 INTERNAL = load_edition("internal")
@@ -198,12 +201,11 @@ def test_an_edition_service_runs_the_same_core_to_the_same_hash():
 
 
 def test_the_core_imports_no_edition():
-    for path in SRC.rglob("*.py"):
-        if "editions" in path.parts:
-            continue
-        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
-            if isinstance(node, ast.ImportFrom):
-                assert "editions" not in (node.module or ""), path
+    # every module below the editions layer (tests/layers.py: a positive list)
+    below = modules_below("editions")
+    assert below
+    for module in below:
+        assert not any("editions" in m for m in imported(module)), module
 
 
 def test_products_bring_no_simulation_of_their_own():
