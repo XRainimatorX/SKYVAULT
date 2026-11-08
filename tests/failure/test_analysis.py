@@ -113,22 +113,24 @@ def test_the_breaking_level_is_the_first_below_the_threshold():
 
 
 def test_the_crushing_variable_has_the_largest_drop_and_ties_go_to_the_sooner_break():
+    # Equal drops. Alphabetically civilian_pressure comes first, but weather
+    # breaks sooner, so only the breaking-level rule can pick weather
     data = exploration(
         {
-            "weather_degradation": sweep(4, 4, 4, 0),  # drop 1.0, breaks at collapse
-            "equipment_overheat": sweep(4, 1, 0, 0),  # drop 1.0, breaks at moderate
+            "civilian_pressure": sweep(4, 4, 4, 0),  # drop 1.0, breaks at collapse
+            "weather_degradation": sweep(4, 1, 0, 0),  # drop 1.0, breaks at moderate
             "sensor_failure": sweep(4, 3, 3, 3),  # drop 0.25, never breaks
         }
     )
 
     result = validate_failure_map(build_failure_map(data))
 
-    assert result["crushing_variable"] == "equipment_overheat"
+    assert result["crushing_variable"] == "weather_degradation"
     assert result["crushing_assumption"] == "combat_resolution"
     breaks = {v["variable"]: v["breaking_level"] for v in result["variables"]}
     assert breaks == {
-        "weather_degradation": "collapse",
-        "equipment_overheat": "moderate",
+        "civilian_pressure": "collapse",
+        "weather_degradation": "moderate",
         "sensor_failure": None,
     }
 
@@ -199,6 +201,10 @@ def test_an_alternative_is_judged_against_the_plan(
         exploration({"weather_degradation": plan_levels}, alternatives=[alternative])
     )
 
+    check_alternative(result, verdict, longer, sooner)
+
+
+def check_alternative(result, verdict, longer, sooner):
     [judged] = result["alternatives"]
     assert judged["verdict"] == verdict
     assert judged["holds_longer_on"] == longer
@@ -206,6 +212,27 @@ def test_an_alternative_is_judged_against_the_plan(
     assert result["best_alternative"] == (
         "v1-alt" if verdict == "holds_longer" else None
     )
+
+
+def test_an_alternative_that_survives_more_unstressed_holds_longer():
+    # The plan survives half its unstressed runs; the alternative all of them
+    alternative = {
+        "scenario_version": "v1-alt",
+        "baseline": runs(4, 0),
+        "variables": exploration({"weather_degradation": sweep(4, 4, 1, 0)})[
+            "variables"
+        ],
+    }
+
+    result = build_failure_map(
+        exploration(
+            {"weather_degradation": sweep(4, 4, 1, 0)},
+            baseline=runs(2, 2),
+            alternatives=[alternative],
+        )
+    )
+
+    check_alternative(result, "holds_longer", ["baseline"], [])
 
 
 def test_the_best_alternative_is_the_one_that_survives_most():
