@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 19 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，與 Phase 6 的 order）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 21 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，與 Phase 11 的 resource_compute_governance、job）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)。
 
 ---
 
@@ -65,6 +65,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.6 | 10 | 只有新增，不調升：optional 的 runtime.scheduled_actions；新增 batch_spec、batch_result、conflict_package 契約 |
 | 0.6 | 13 | 只有新增，不調升：optional 的 runtime.policy {name, params}（已註冊的 policy 名稱） |
 | 0.6 | 5 | 只有新增，不調升：observer_profile、observation 契約 |
+| 0.6 | 11 | 只有新增，不調升：resource_compute_governance、job 契約；run_metadata 多 resource_compute_governance |
 | 0.6 | 6 | 只有新增，不調升：order 契約；optional 的 runtime.participants；observation 的己方單位多 state；scheduled action 的 target 可只寫一欄 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
@@ -295,6 +296,39 @@ runtime.participants   [{participant_id, policy {name, params}, controls {factio
                        participant_id 不重複；controls 至少一項；一個單位不能被兩個 participant 控制（engine 檢查）
 ```
 
+### Governance 與 job（Phase 11）
+
+```python
+ResourceComputeGovernance
+policy_id, description = ""
+run_priority                    low | normal | high | critical = normal
+compute_budget                  {max_decisions, max_events}（null = 無上限）
+max_scenario_duration           tick | null      入口把 max_ticks 夾到這裡
+max_runtime_seconds             > 0 | null
+max_parallel_runs               ≥ 1 = 1
+max_batch_count                 ≥ 1 | null
+max_queue_length                ≥ 1 | null
+queue_policy                    priority_then_fifo | fifo
+persistent_world_resource_cap   {max_ticks, max_events, max_checkpoints}
+auto_stop                       {no_new_state_change_ticks = 10, infinite_loop_repeats = 3, failure_loss_ratio = null}
+partial_result_export           bool = true
+
+GovernanceRecord（run_metadata.resource_compute_governance）
+policy_id、run_priority、limits | null、usage {runs = 1, ticks | null, decisions | null, events, runtime_seconds}、
+estimated_cost | null、stopped、stop_reason（七種之一 | null）、partial、duration_clamped_from | null
+
+JobRequest
+kind                    scenario_run | batch | failure_exploration | replay | persistent_world
+source_system = "user", priority | null, required_result_package = true
+scenario / batch / profile   名稱（"<id>/<version>"），解析後必須在 data/ 底下；kind 決定哪一個必填
+runtime                 覆寫 max_ticks、random_seed、random_seed_policy、policy、participants、scheduled_actions
+repeat_count | null, replay（job id）| null
+
+Job
+job_id, request, priority, lifecycle_state（Spec §10 的九種）, world_instance | null, governance | null,
+estimated_cost | null, summary {}, error | null, created_at, updated_at
+```
+
 ### Batch 與衝突
 
 `runtime.scheduled_actions`（optional，預設 `[]`）：外部系統的命令，在指定 tick 取代該 actor 的 policy。
@@ -354,7 +388,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    19 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    21 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 

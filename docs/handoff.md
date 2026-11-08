@@ -11,7 +11,7 @@
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow pytest httpx pypdf
+python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow rq redis "psycopg[binary]" pytest httpx pypdf
 python3 scripts/run_tactical_reference.py
 python3 -m pytest tests/ -q
 ```
@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-881 passed
+974 passed, 49 skipped        （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1023 passed）
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -153,6 +153,8 @@ Phase 5 再發現：**跑得完不等於用得對。** TAC ANGEL 範例把 known
 
 Phase 6 再發現：**要證明「只能」，先寫一個違反它的程式。** 「actor 只能透過 Action 提交意圖」看起來早已成立，直到一個 policy 在 decide_action 裡把敵人全設成 destroyed、4 筆 event 就贏了。另外：**效能比較用牆鐘時間、兩個版本交替跑**；cProfile 看不到 `__getattr__` 內部被丟出又接住的 AttributeError，曾讓兩個差 45% 的版本在 profiler 裡看起來一樣快。
 
+Phase 11 再發現：**限制必須和它限制的東西用同一個函式計數。** max_batch_count 的估計第一版自己數 batch 的 run，少了衝突分支 —— 擋的是 30、放進來的是 45。另外：**不要新增 conftest.py**：軍事測試在執行期 `from conftest import`，第二個 conftest 會蓋掉它（world service 的 fixture 在 `tests/worldservice/service_fixtures.py`，以 `pytest_plugins` 載入）。SQLite 的 spec 是 SQLAlchemy 慣例：三個斜線是相對路徑。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -251,7 +253,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -293,16 +295,16 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 11 — Background World Service**：把 SKYVAULT 從手動 script 變成後台服務 —— 七種模式（standby、triggered scenario、persistent world、batch、monitoring、replay、failure exploration），加上 Resource & Compute Governance（預算、優先序、平行上限、auto-stop、partial result）。規格見 [`plan/phase11_background_world_service.md`](plan/phase11_background_world_service.md)。
+依 roadmap，下一個是 **Phase 12 — External System Interface**：讓 NEXUS、STARTX、TAC ANGEL、EIDEN-01、AEROGRID、SKYFOX、HADES、CYBERHOUND、星衞計劃正式接入 —— 各系統的 adapter、`/scenario/submit`、`/world/create`、`/action/submit`、`/run/{id}`（events、result）、failure exploration 與 branch compare 的 API；Conflict Package Return（衝突的 action 標記、分支模擬、回傳給 NEXUS）；Authority Handoff（高風險結果、策略取捨、衝突分支、failure threshold 觸發 handoff，SKYVAULT 只建議、不做最終決策）。規格見 [`plan/phase12_external_system_interface.md`](plan/phase12_external_system_interface.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-service/（Phase 17）           FastAPI 已在：讀 workspace 的 API 與 replay WebSocket；任務提交是新的
-batch/（Phase 10）             ProcessPoolExecutor 的平行、workers 上限；沒有預算與排隊（§15）
-run registry（Phase 8）        JSON Lines；run status 與歷史 run 的重播可以從它出發
-actors/ActionQueue（Phase 6）  外部提交的機制（執行緒安全、逾時）
-SnapshotStore（Phase 2）       in-memory；checkpointing 要從它出發
+worldservice/（Phase 11）      job API、queue、store、persistent world：Phase 12 的路徑多半是它的外部名稱
+actors/（Phase 6）             五個 adapter（TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX）、ActionQueue、participants
+batch/conflicts（Phase 10）    衝突偵測、相容集合、conflict package —— 已經不替任何人選
+evaluation（Phase 7）          verdict risky / fail 與 failure_causes：high_risk_outcome 的依據
+failure/（Phase 9）            failure map：failure_threshold_crossed 的依據
 ```
 
-技術欄點名的 Redis、PostgreSQL、Celery / RQ / Dramatiq、Docker 需要外部服務：依決策規則，先找文件寫的「first」版本（例如 in-memory、SQLite），做不到的記為已知限制。開工前先讀 [`phases/phase6_actor_agent_layer.md`](phases/phase6_actor_agent_layer.md) 的第 4 節與 [`postmortems/phase6.md`](postmortems/phase6.md)。
+開工前先讀 [`phases/phase11_background_world_service.md`](phases/phase11_background_world_service.md) 的第 4 節與 [`postmortems/phase11.md`](postmortems/phase11.md)。

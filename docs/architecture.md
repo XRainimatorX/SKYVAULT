@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              19 份契約：Pydantic model + validate_<x>()
+              21 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -309,6 +309,14 @@ core 的任何模組（engine 透過 load_domain 除外）都不 import pack —
 ```
 
 world policy 透過 `WorldView` 讀世界：任何寫入 raise `ReadOnlyWorldError`。其他 actor 只拿到 observation、只交出 order。engine 不 import tactical_reference_policy —— 它和其他 policy 一樣以名稱取得，可以被拔掉。
+
+## World service（在 engine 之上，與 batch / failure 同層）
+
+```text
+   src/skyvault/worldservice/   governance、store、queues、jobs、worlds、api
+                                跑模擬（engine、batch、failure）；不 import service/（Phase 17 的 UI 後端）
+   engine.py                    不 import worldservice：只認得 governor 的三個方法（start、after_tick、record）
+```
 
 ## Views、report、service（在階層之外，讀輸出檔）
 
@@ -856,6 +864,8 @@ Phase 3 前的 `resolve_move` / `resolve_attack` 已移除；它們一邊驗證�
 
 **外部命令（Phase 10）。** `runtime.scheduled_actions` 中指定 tick、指定 actor 的命令取代 policy 的選擇；action id 仍由 `world.ids` 產生，`ACTION_SELECTED` 與結果 event 的 `source.system_id` 是提案系統。沒有 scheduled_actions 時一次都不會被查到 —— reference trace 不變。
 
+**begin / step / stop / finish（Phase 11）。** `run()` = `begin()`、`step()` 直到回傳 False、`finish()`。每個 `step()` 是一個 tick；有 governor 時在「本來就會結束」的檢查之後問 `after_tick()`，回傳原因就 `stop()`。persistent world 自己呼叫這四個方法。`governance_record()` 寫進 run_metadata（沒有 governor 時 policy_id "ungoverned"）。
+
 **誰決定（Phase 5、6）。** `decider(actor)` 回傳控制這個單位的 participant 的 policy 與 system_id，沒有 participant 時是預設 policy。`decide(policy, actor)`：world policy 拿到 `self.world_view`（一場 run 一個 `WorldView`）與單位的 `EntityView`，寫入 raise；observing policy 拿到 `engine.observed` 加上現在的單位產生的 observation（一個或多個），回傳的 order 通過 order 契約後走 `scheduled_action()` 拿到 action id。world 從不交給它。`engine.observers` 記每個 observing policy 的 profile；沒有時 `engine.observed` 永遠是空的 —— reference trace 不變。NO_ACTION 記決定者的 system_id。
 
 `evaluate()` 的 `event_count` 由 `run()` 明確傳入 `len(event_memory) + 1`，因為 evaluation 在 `SCENARIO_END` 寫入之前計算，必須把那個即將寫入的事件算進去。
@@ -1066,6 +1076,36 @@ observations_for_run(package, scenario, profile, viewpoint)   每 tick 一份
 | coverage | AEROGRID | 覆蓋格數、比例、缺口數 |
 
 engine 只在 observing policy 時記 `engine.observed`（tick 0 與每 tick 結束時的單位）；它與 `history_from_package` 逐 tick 相同（測試）。
+
+## `worldservice/`
+
+Phase 11 建立。開發計劃 Phase 11、Formal Spec §10、§15。
+
+```python
+load_governance(name_or_path)              data/service/<name>.json；通過契約、補齊預設值
+estimate_run(scenario) / scale(e, runs)    單位數 × tick 個決定、0.7 ms / 決定
+clamp_duration(scenario, policy)           max_ticks 夾到 max_scenario_duration；回傳原本的值
+admit(estimate, policy, queue_length)      Rejected：batch_too_large、budget_exceeded、queue_full
+Governor(policy, perspective, cap, estimated_cost, duration_clamped_from, cancel_check)
+    .after_tick(snapshot, decisions, events, ticks) -> 原因 | None    .record(usage, stop_reason)
+open_store(spec) -> SQLiteStore | PostgresStore         sqlite:///相對、sqlite:////絕對、sqlite://、postgresql://
+InProcessQueue(executor, max_parallel_runs, queue_policy) / RQQueue(redis_url, store_spec, governance)
+plan(request, policy, queue_length, store) / new_job(...) / execute_job(job_id, store, policy)
+PersistentWorld(world_id, request, policy, store).advance(ticks) / finish() / delete()
+create_world_service(store, queue, policy) -> FastAPI
+```
+
+| auto-stop | 條件 |
+|---|---|
+| cancelled | store 的 cancel_requested（API 設定；每 tick 讀） |
+| max_runtime_exceeded | 牆鐘時間 > max_runtime_seconds |
+| budget_exceeded | 決定數 > max_decisions 或 event 數 > max_events |
+| resource_cap_reached | persistent world 的 tick / event cap（checkpoint cap 在 world 裡） |
+| failure_threshold_reached | 視角陣營損失 ≥ failure_loss_ratio（預設關閉） |
+| no_new_state_change | 單位與資源的指紋連續 N tick 相同（預設 10；正常 run 最多 4） |
+| infinite_loop_detected | 同一個指紋不連續地第 k 次出現（預設 3） |
+
+被停下的 run 照常結束：termination_reason `auto_stop:<原因>`、結果 `no_winner_stopped_early`（沒有分出勝負時）、run_metadata 標 partial。
 
 ## `actors/`
 
@@ -1747,9 +1787,12 @@ Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 �
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
 執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005）、pandas>=2（ADR 010）、
-                 fastapi、uvicorn、websockets、python-docx、reportlab（ADR 011）、pyarrow（ADR 013），
+                 fastapi、uvicorn、websockets、python-docx、reportlab（ADR 011）、pyarrow（ADR 013）、
+                 rq、redis、psycopg（ADR 016），
                  宣告在 pyproject.toml
 UI build         Node 22；ui/package.json 釘死版本、commit lockfile；只在 build 與 e2e 時需要
+world service    Redis 與 PostgreSQL 為選用：預設 SQLite + in-process queue；測試以 SKYVAULT_TEST_REDIS /
+                 SKYVAULT_TEST_POSTGRES 打開這兩種 backend（CI 一定提供）
 ```
 
 ```bash
@@ -1769,6 +1812,8 @@ python3 scripts/export_dataset.py [--runs N]              # state-action-outcome
 python3 scripts/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
 python3 scripts/observe_run.py [--scenario F] [--faction F] [--actor ID]   # 五個 observer 各自看到什麼
 python3 scripts/run_tactical_reference.py --participants F                # 每個 participant 決定自己的單位
+python3 scripts/serve_world.py [--queue rq --redis URL --store SPEC]      # world service（/api/docs）
+python3 scripts/world_worker.py --redis URL --store SPEC [--burst]       # RQ worker
 (cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
 python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
@@ -1790,7 +1835,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 19 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 21 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
@@ -1813,6 +1858,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase5_observation_contract.md`](phases/phase5_observation_contract.md) | Phase 5 完成報告 |
 | [`decisions/015_actor_agent_layer.md`](decisions/015_actor_agent_layer.md) | 唯讀世界、participant、actor 類型與 adapter 的設計決定 |
 | [`phases/phase6_actor_agent_layer.md`](phases/phase6_actor_agent_layer.md) | Phase 6 完成報告 |
+| [`decisions/016_background_world_service.md`](decisions/016_background_world_service.md) | world service、governance 與 auto-stop 的設計決定 |
+| [`phases/phase11_background_world_service.md`](phases/phase11_background_world_service.md) | Phase 11 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md)、[`phase6.md`](postmortems/phase6.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md)、[`phase6.md`](postmortems/phase6.md)、[`phase11.md`](postmortems/phase11.md) | 各 Phase 回顧 |

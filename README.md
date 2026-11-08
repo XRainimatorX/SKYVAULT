@@ -64,6 +64,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
 
+SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、排隊（優先序、上限）、在 worker 上跑（同一個程序，或 RQ + Redis 的 worker），結果存在 SQLite 或 PostgreSQL，可查、可下載、可重播；persistent world 可以一次推進幾個 tick。每個 run 都受 Resource & Compute Governance 約束：失控的 run 被自動停下並交出 partial result，過大的 batch 在門口被拒。
+
 模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
 
 結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
@@ -137,6 +139,8 @@ python3 scripts/build_training_data.py --workers 4                         # out
 python3 scripts/observe_run.py                                             # output/observations/：五個系統各自看到什麼
 python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
     --participants tests/fixtures/actors/participants_squad.json            # RED 由 TAC ANGEL / HADES、BLUE 由 baseline
+python3 scripts/serve_world.py                                             # world service：http://127.0.0.1:8100/api/docs
+docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
 用另一個 profile 評同一場：
@@ -214,7 +218,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        19 份資料契約（Pydantic，schema 0.6）
+  contracts/        21 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
@@ -229,6 +233,7 @@ src/skyvault/       引擎與 exporter
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
+  worldservice/     後台服務：governance、store、queue、jobs、persistent world、HTTP API
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
@@ -238,6 +243,7 @@ data/batches/       batch 請求
 data/domains/       domain pack 的 profile 與 scenario spec
 data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
+data/service/       world service 的 governance 政策
 examples/           外部 policy 範例（TAC ANGEL 的介面）
 tests/              測試
 output/             執行產物
@@ -261,6 +267,9 @@ docs/               文件
 | 訓練資料的 observation 不是觀測層產生 | 軍事用 pack 的感測，其他是整個世界的狀態 | Phase 6 / 12 |
 | 觀測只支援 grid | 與 tactical engine 相同 | 對應的 engine 出現時 |
 | 讀世界的 policy 慢約 18%（軍事） | 唯讀代理的成本 | 有需要時 |
+| persistent world 不能跨程序恢復 | engine 不能序列化；checkpoint 與結果留在 store | 需要時 |
+| batch 內的每個 run 不受 auto-stop | 受 max_batch_count 與 scenario 時限約束 | 需要時 |
+| Docker 只做靜態驗證 | 此環境沒有 daemon；CI 跑 `docker compose config` | — |
 | adapter 用內建替身 | 真正的 TAC ANGEL 等以 callable 接入；沒有 LLM SDK、沒有網路傳輸 | Phase 12 |
 | 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
@@ -273,7 +282,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase6_actor_agent_layer.md`](docs/phases/phase6_actor_agent_layer.md)。
+完整清單見 [`docs/phases/phase11_background_world_service.md`](docs/phases/phase11_background_world_service.md)。
 
 ---
 
