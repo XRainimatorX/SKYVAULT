@@ -70,6 +70,17 @@ scripts/run_batch.py
               └─ conflict package    每個分支相對基準的差；不選邊
 ```
 
+UI 與 briefing（Phase 17）只讀上面三個腳本寫出的檔案：
+
+```text
+output/（workspace）
+  └─ views.load_workspace()        result_package 必要；failure、batch 的檔 optional
+        ├─ views（純函式）          每個畫面的 view model：總覽、時間線、地圖 frame、因果鏈、失敗地圖、比較、package
+        │     └─ report.build_briefing()  → render_markdown / render_docx / render_pdf（回傳 bytes，可重現）
+        └─ service.create_app()     FastAPI：/api/*、/api/report.*、/ws/replay；ui/out 掛在 /
+              └─ ui/（Next.js 靜態匯出） 八個頁面 fetch /api；Replay 頁經 WebSocket 逐 tick 取 frame
+```
+
 ## 六個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
@@ -234,6 +245,17 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
 ```
 
 與 failure 相同的切法：轉換與統計不認識 engine，所以衝突規則與彙整規則都能用手造的資料測試。engine 唯一的配合是 `runtime.scheduled_actions`，沒有它時什麼都不做。
+
+## Views、report、service（在階層之外，讀輸出檔）
+
+```text
+   src/skyvault/views/     只 import 標準函式庫與四個 exporter
+   src/skyvault/report/    briefing 只 import views；渲染器只 import docx / reportlab
+   src/skyvault/service/   只 import views、report 與 fastapi
+                           三者都不 import engine（測試逐檔檢查）
+```
+
+與 exporter 同樣的道理：畫面只能顯示 run 記錄下來的東西。server 從不跑模擬。
 
 ## Reproducibility 與 verification
 
@@ -939,6 +961,55 @@ run_batch(batch, scenarios_dir, profile_dir, repeats=None, workers=None)
 
 請求通過 batch_spec 契約後補上預設值（Phase 9 回顧改法 1）。perspective：請求 → profile → scenario。
 
+## `views/`
+
+Phase 17 建立。
+
+```python
+load_workspace(directory)      result_package 必要（缺就 FileNotFoundError）；其他 JSON / Markdown 缺的為 None
+overview_view(package)         結果、判斷、分數、軸分數、findings、失敗原因、下一步測試、損失
+losses(package)                每個陣營：單位數、被摧毀者（名字、tick、被誰）
+timeline_view(package)         逐 tick：timeline.write_event 的句子 + 被摧毀的單位
+map_view(package)              空間（grid 或圓上的節點）+ 每個 tick 一個 frame：單位位置、hp（< 0 顯示為 0）、狀態、句子
+causal_view(package)           每個 action：tick、actor、target 的名字、event 型別
+failure_view(workspace)        變量 × 等級的存活率（依 mild → collapse）、崩潰等級、sensitivity、替代方案、建議；沒有則 None
+comparison_view(workspace)     變體統計（不含每個 run）、各指標最佳、ranking、conflict package；沒有則 None
+package_view(package)          每個頂層欄位：label、summary、raw
+```
+
+## `report/`
+
+```python
+build_briefing(workspace)      {title, created, sections}；節：Summary、What happened、Losses、Evaluation、Trade-offs、
+                               [Failure exploration]、[Plan comparison]、Reproducibility
+render_markdown(briefing)      str
+render_docx(briefing, created=None)  bytes；日期固定為 run 的 ended_at（含 zip 內的時間）
+render_pdf(briefing)           bytes；reportlab invariant 模式
+```
+
+同一 workspace → 逐位元相同的三個檔，跨 PYTHONHASHSEED 也相同。
+
+## `service/`
+
+```python
+create_app(workspace_dir, ui_dir=None) -> FastAPI
+```
+
+```text
+GET  /api/health                         workspace 有哪些輸出
+GET  /api/{overview,timeline,map,causal,package}
+GET  /api/{failure,comparison}           缺對應檔時 404，detail 說明用哪個腳本產生
+GET  /api/report.{md,pdf,docx}           briefing 下載（Content-Disposition: attachment）
+WS   /ws/replay                          ready → seek / play / pause → frame / end / paused / error
+/                                         ui_dir 有 index.html 時的靜態 UI
+```
+
+每個 request 重讀 workspace，所以重新跑腳本後不必重啟。播放時另一個 task 讀訊息，讓 pause 能在串流中途生效。
+
+## `ui/`
+
+Next.js 16（App Router、`output: "export"`、`trailingSlash`）、React 19、ECharts 6。八個頁面：Overview、Timeline、Replay、Causal chain、Failure map、Compare、Result package、Briefing。`npm run build` 寫到 `ui/out/`；`npm run e2e` 用 Playwright 驅動每個頁面（`SKYVAULT_URL` 指向 server）。
+
 ## `verification.py`
 
 ```python
@@ -1328,6 +1399,13 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `conflict_package.json` | 哪些命令互相衝突、每個相容分支相對基準的結果、需要決定（第 16 份契約；只有請求含衝突時寫出） |
 | `comparative_report.md` | 上面三者給人讀的版本 |
 
+## Briefing 與 UI（`scripts/export_briefing.py`、`scripts/serve_ui.py`）
+
+| 檔案 / 位址 | 回答什麼 |
+|---|---|
+| `briefing.md`、`briefing.pdf`、`briefing.docx` | 這次 run、它的失敗地圖與方案比較，一份可以帶進會議的文件 |
+| `http://127.0.0.1:8000` | 同樣的內容，加上逐 tick 的地圖 replay、可篩選的因果鏈、圖表 |
+
 ## Evaluation output
 
 | 檔案 | 回答什麼 | 內容來源 |
@@ -1397,6 +1475,9 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 27. batch 的平行與循序結果相同（workers 欄位除外）
 28. batch/aggregate 與 batch/conflicts 不 import engine；conflict package 永不選邊
 29. 寫進輸出的清單排序明確，不依賴 set 的迭代順序：不同 PYTHONHASHSEED 下輸出逐位元相同
+30. views、report、service 不 import engine；server 不跑模擬
+31. 畫面、timeline.txt 與 briefing 由同一組純函式推導，說的是同一件事
+32. 同一 workspace 的 briefing 三個檔逐位元相同
 ```
 
 ---
@@ -1439,7 +1520,9 @@ Phase 4 記錄的 `timeline.txt` 致命一擊傷害數字缺陷已在 Phase 1 �
 ```text
 Python 3.10+     程式碼用到 X | None 聯集語法（PEP 604）
 開發環境          3.11
-執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005）、pandas>=2（ADR 010），宣告在 pyproject.toml
+執行時期相依       pydantic>=2、PyYAML（ADR 004）、networkx>=3（ADR 005）、pandas>=2（ADR 010）、
+                 fastapi、uvicorn、websockets、python-docx、reportlab（ADR 011），宣告在 pyproject.toml
+UI build         Node 22；ui/package.json 釘死版本、commit lockfile；只在 build 與 e2e 時需要
 ```
 
 ```bash
@@ -1453,6 +1536,9 @@ python3 scripts/export_schemas.py               # 改契約後重新產生 JSON 
 python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 output_hash
 python3 scripts/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
 python3 scripts/run_batch.py [--repeats N] [--workers N]  # 批量與分支比較，寫出四個 batch 輸出
+python3 scripts/export_briefing.py [--workspace DIR]      # briefing.md / .pdf / .docx
+(cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
+python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 
@@ -1485,6 +1571,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase9_failure_exploration.md`](phases/phase9_failure_exploration.md) | Phase 9 完成報告 |
 | [`decisions/010_batch_branch_comparison.md`](decisions/010_batch_branch_comparison.md) | batch、scheduled_actions、衝突分支與 conflict package 的設計決定 |
 | [`phases/phase10_batch_branch_comparison.md`](phases/phase10_batch_branch_comparison.md) | Phase 10 完成報告 |
+| [`decisions/011_ui_replay_report.md`](decisions/011_ui_replay_report.md) | UI、WebSocket replay 與 briefing 的設計決定 |
+| [`phases/phase17_ui_replay_report.md`](phases/phase17_ui_replay_report.md) | Phase 17 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md) | 各 Phase 回顧 |

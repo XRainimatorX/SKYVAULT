@@ -58,6 +58,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 很多方案可以一起比較（Phase 10）：版本、參數掃描、外部系統的命令，各跑上百次、可平行，並排比較勝率、成本、風險與失敗頻率。互相衝突的命令不替任何人選：每組相容的命令各成一個分支跑完，交出一份 conflict package 讓 NEXUS 或使用者決定。
 
+結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
+
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
 
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
@@ -69,11 +71,11 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas
+python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab
 python3 scripts/run_tactical_reference.py
 ```
 
-需要 Python 3.10+。執行時期相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整），宣告在 `pyproject.toml`。
+需要 Python 3.10+。模擬本身的相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整）；介面與 briefing 另用 `fastapi`、`uvicorn`、`websockets`、`python-docx`、`reportlab`。全部宣告在 `pyproject.toml`。建 UI 需要 Node 22。
 
 跑完會在 `output/` 產生十一個檔案，最後一行是評估判斷：
 
@@ -105,6 +107,14 @@ python3 scripts/explore_failures.py
 python3 scripts/run_batch.py
 # Best mean score: support-rear
 # Conflicts: 2; branches: P1, P2+P3; decision required: True
+```
+
+把上面三個腳本的結果寫成 briefing，或打開網頁介面：
+
+```bash
+python3 scripts/export_briefing.py              # output/briefing.md、.pdf、.docx
+(cd ui && npm ci && npm run build)              # 第一次需要
+python3 scripts/serve_ui.py                     # http://127.0.0.1:8000
 ```
 
 用另一個 profile 評同一場：
@@ -155,6 +165,7 @@ python3 -m pytest tests/ -q
 | `branch_comparison.json` | （run_batch）變體並排、各指標誰最好 |
 | `conflict_package.json` | （run_batch）哪些命令衝突、每個分支的結果、等人決定 |
 | `comparative_report.md` | （run_batch）給人讀的比較報告 |
+| `briefing.md`、`.pdf`、`.docx` | （export_briefing）以上全部，一份帶進會議的文件 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
 
@@ -188,6 +199,10 @@ src/skyvault/       引擎與 exporter
   reproducibility/  hash、版本、scenario 比較、run registry
   failure/          failure variables、壓力測試、failure map
   batch/            批量、平行、參數掃描、衝突分支、conflict package
+  views/            每個畫面的內容，從輸出檔推導
+  report/           briefing（Markdown / Word / PDF）
+  service/          網頁介面的後端（FastAPI、replay WebSocket）
+ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
@@ -210,6 +225,7 @@ docs/               文件
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | Phase 12 起 |
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
+| 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
@@ -220,7 +236,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase10_batch_branch_comparison.md`](docs/phases/phase10_batch_branch_comparison.md)。
+完整清單見 [`docs/phases/phase17_ui_replay_report.md`](docs/phases/phase17_ui_replay_report.md)。
 
 ---
 
@@ -237,6 +253,6 @@ python3 -m bandit -c pyproject.toml -r src/       # 安全掃描
 
 所有設定集中在 `pyproject.toml`。
 
-每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證（含由 event memory 重建終局世界）。
+每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證（含由 event memory 重建終局世界）；另一個 job 建 UI、啟動 server，用 Chromium 打開每個頁面驗證。
 
 送 PR 前的檢查清單見 [`docs/handoff.md`](docs/handoff.md)。
