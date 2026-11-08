@@ -6,6 +6,7 @@ from typing import Any
 from ...action import Action, ActionTarget
 from ...actions import ActionHandler
 from ...world_state import WorldState
+from .failures import city_failure_variables
 from .handlers import ACTION_TYPES, MOBILE, city_handlers, districts, rules_of
 from .policy import CityAdministrationPolicy
 from .score import governance_stability, population_order
@@ -27,6 +28,7 @@ class CityPack:
     action_types = ACTION_TYPES
     spaces = ("network", "graph")
     ends_with_last_faction = False
+    end_reasons = ("governance_collapsed",)
 
     def handlers(self) -> dict[str, ActionHandler]:
         return city_handlers()
@@ -104,6 +106,10 @@ class CityPack:
     ) -> dict[str, Any]:
         """The governance stability score of a finished run (score.py)."""
         return governance_stability(package, scenario)
+
+    def failure_variables(self) -> dict[str, Any]:
+        """supply_delay, civilian_pressure and resource_shortage in city terms."""
+        return city_failure_variables()
 
     def mission_goal(self, scenario: dict[str, Any], faction: str) -> dict[str, Any]:
         """What the city administration is asked to do."""

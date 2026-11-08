@@ -48,6 +48,7 @@ class DomainPack(Protocol):
 #   ends_with_last_faction = True   False: one faction left does not end the run
 #   acts(entity) -> bool            which entities decide each tick (all, by default)
 #   finished(world) -> str | None   a reason ends the run early
+#   end_reasons = ()                the reasons finished() can give
 #   outcome_label(world) -> str | None   the result's name instead of <faction>_survived
 
 

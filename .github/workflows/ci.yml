@@ -268,6 +268,36 @@ jobs:
           print("military pack verified:", len(records), "records")
           EOF
 
+      # Phase 14: a city on a road network — order, power cascade, supply delay, governance score
+      - name: City domain pack
+        run: |
+          python scripts/build_city_scenarios.py
+          git diff --exit-code data/scenarios/city_takeover_001 data/scenarios/city_blackout_001
+          python scripts/run_tactical_reference.py --scenario data/scenarios/city_blackout_001/v0.1.json
+          python scripts/run_city.py --seeds 3
+          python scripts/run_batch.py --batch data/batches/city_supply_delay.json --repeats 2 --workers 2
+          python - <<'EOF'
+          import json
+          from pathlib import Path
+
+          out = Path("output")
+          package = json.loads((out / "result_package.json").read_text())
+          assert package["evaluation_result"]["winner_or_result"] == "order_not_restored", package["evaluation_result"]["winner_or_result"]
+          assert package["final_world_state"]["tick"] == 30
+          chain = json.loads((out / "city" / "cascade_city_blackout_001.json").read_text())
+          assert chain["cascade_depth"] == 1 and chain["most_dark"] == 7, chain
+          takeover = json.loads((out / "city" / "governance_city_takeover_001.json").read_text())
+          blackout = json.loads((out / "city" / "governance_city_blackout_001.json").read_text())
+          assert takeover["score"] > blackout["score"], (takeover["score"], blackout["score"])
+          study = json.loads((out / "city" / "supply_delay.json").read_text())
+          orders = [row["mean_end_order"] for row in study["rows"]]
+          assert orders[0] > orders[-1], orders
+          batch = json.loads((out / "batch_result.json").read_text())
+          rates = [variant["win_rate"] for variant in batch["variants"]]
+          assert rates[0] == 1.0 and rates[-1] == 0.0, rates
+          print("city pack verified: score", takeover["score"], "vs", blackout["score"], "; orders", orders)
+          EOF
+
       # Phase 18: training data from the sources file, filtered for score gaming
       - name: Training data pipeline
         run: |

@@ -484,7 +484,7 @@ def _branch_compare(
         seeds,
         policy["max_parallel_runs"],
     )
-    stats = aggregate(records, perspective)
+    stats = aggregate(records, perspective, base["evaluation"].get("success_outcomes"))
     store.save_result(
         job["job_id"],
         {

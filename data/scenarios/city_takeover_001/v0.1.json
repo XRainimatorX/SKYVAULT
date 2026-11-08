@@ -174,7 +174,12 @@
         "incidents": []
       }
     },
-    "failure_variables": []
+    "failure_variables": [
+      "supply_delay",
+      "civilian_pressure",
+      "resource_shortage",
+      "communication_failure"
+    ]
   },
   "entities": [
     {
@@ -683,6 +688,27 @@
   "scenario_type": "governance",
   "domain": "city",
   "purpose": "A city taken over in unrest: restore order across eight districts while food, power and medical care hold — or do not.",
+  "failure_exploration": {
+    "objective": "find_weakness",
+    "failure_variables": [
+      "supply_delay",
+      "civilian_pressure",
+      "resource_shortage",
+      "communication_failure"
+    ],
+    "stress_levels": [
+      "mild",
+      "moderate",
+      "severe",
+      "collapse"
+    ],
+    "run_policy": {
+      "repeat_count": 5,
+      "random_seed_policy": "controlled_random",
+      "branch_comparison": true
+    },
+    "survival_threshold": 0.5
+  },
   "version_control": {
     "version": "v0.1",
     "parent_version": null,

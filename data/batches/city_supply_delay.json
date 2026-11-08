@@ -1,0 +1,13 @@
+{
+  "batch_id": "city_takeover_001_supply_delay",
+  "description": "How late supplies change the takeover: the convoys' delay factor swept from 1 to 3, 20 runs each.",
+  "scenario_id": "city_takeover_001",
+  "base_version": "v0.1",
+  "profile": "balanced",
+  "perspective": "CITY",
+  "run_policy": {"repeat_count": 20, "random_seed_policy": "controlled_random"},
+  "workers": 2,
+  "sweeps": [
+    {"parameter": "world_contract.rule_set.city.supply.delay_factor", "values": [1.0, 1.5, 2.0, 2.5, 3.0]}
+  ]
+}

@@ -197,6 +197,22 @@ def missions(package: dict[str, Any], scenario: dict[str, Any]) -> dict | None:
     return None if hook is None else dict(hook(package, scenario))
 
 
+def domain_outcome(package: dict[str, Any], scenario: dict[str, Any]) -> dict | None:
+    """
+    What the scenario's domain pack judges after the run, through its hooks:
+    the military mission outcome, the city's governance stability score.
+    None without a domain.
+    """
+    if not scenario.get("domain"):
+        return None
+    pack = load_domain(scenario["domain"])
+    judged = {}
+    for hook in ("mission_outcome", "governance_outcome"):
+        if hasattr(pack, hook):
+            judged[hook] = getattr(pack, hook)(package, scenario)
+    return judged
+
+
 def rate(flags: list[bool]) -> float:
     return round(sum(flags) / len(flags), 4) if flags else 0.0
 
@@ -247,7 +263,8 @@ class NEXUSAdapter:
         job, stored = entry["job"], entry["result"]
         briefing = None
         gaps = []
-        if job["request"]["kind"] == "scenario_run" and stored is not None:
+        single = job["request"]["kind"] == "scenario_run" and stored is not None
+        if single:
             if submission["content"].get("report_format", "markdown") == "markdown":
                 briefing = render_markdown(build_briefing({"result_package": stored}))
         elif submission["content"].get("report_format"):
@@ -257,6 +274,9 @@ class NEXUSAdapter:
             "supported": True,
             "result_package": stored,
             "briefing": briefing,
+            "domain_outcome": (
+                domain_outcome(stored, entry["scenario"]) if single else None
+            ),
             "system_status": {
                 "job_id": job["job_id"],
                 "lifecycle_state": job["lifecycle_state"],

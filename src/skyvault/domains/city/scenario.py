@@ -16,6 +16,13 @@ from .model import order_state
 
 DOMAIN = "city"
 FACTION = "CITY"
+# Spec section 14's city takeover failures, in the city's own terms (failures.py)
+FAILURE_VARIABLES = (
+    "supply_delay",
+    "civilian_pressure",
+    "resource_shortage",
+    "communication_failure",
+)
 
 
 def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
@@ -110,7 +117,18 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             "environment_state": {},
             "resource_state": {},
             "rule_set": {"city": city_rules},
-            "failure_variables": [],
+            "failure_variables": list(FAILURE_VARIABLES),
+        },
+        "failure_exploration": {
+            "objective": "find_weakness",
+            "failure_variables": list(FAILURE_VARIABLES),
+            "stress_levels": ["mild", "moderate", "severe", "collapse"],
+            "run_policy": {
+                "repeat_count": 5,
+                "random_seed_policy": "controlled_random",
+                "branch_comparison": True,
+            },
+            "survival_threshold": 0.5,
         },
         "entities": entities,
         "runtime": {

@@ -533,6 +533,7 @@ class SkyVaultTacticalReferenceEngine:
             self._max_ticks,
             self.scenario["evaluation"].get("failure_thresholds", []),
             self.scenario["evaluation"].get("success_outcomes"),
+            tuple(getattr(self.domain, "end_reasons", ())),
         )
 
         package = {

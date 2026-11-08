@@ -36,17 +36,27 @@ def wilson_interval(successes: int, trials: int) -> list[float]:
     return [round(max(0.0, centre - spread), 4), round(min(1.0, centre + spread), 4)]
 
 
-def aggregate(records: list[dict[str, Any]], perspective: str) -> list[dict[str, Any]]:
+def aggregate(
+    records: list[dict[str, Any]],
+    perspective: str,
+    success_outcomes: list[str] | None = None,
+) -> list[dict[str, Any]]:
     """
     One summary per variant, in the order variants first appear.
 
     A run is a win when the perspective faction is the one that survived, a
-    loss when another faction did, and a draw otherwise. The score standard
+    loss when another faction did, and a draw otherwise. A scenario that
+    names its success_outcomes (a city: order_restored, order_held) wins
+    with those and loses with every other outcome. The score standard
     deviation is the sample one, and 0 for a single run.
     """
     frame = pd.DataFrame(records)
-    frame["win"] = frame["outcome"] == f"{perspective}_survived"
-    frame["loss"] = frame["outcome"].str.endswith("_survived") & ~frame["win"]
+    if success_outcomes:
+        frame["win"] = frame["outcome"].isin(success_outcomes)
+        frame["loss"] = ~frame["win"]
+    else:
+        frame["win"] = frame["outcome"] == f"{perspective}_survived"
+        frame["loss"] = frame["outcome"].str.endswith("_survived") & ~frame["win"]
     frame["fail"] = frame["status"] == "fail"
 
     summaries = []

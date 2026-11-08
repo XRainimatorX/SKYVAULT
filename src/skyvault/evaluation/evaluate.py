@@ -22,6 +22,7 @@ def evaluate_run(
     max_ticks: int | None,
     failure_thresholds: list[str] | None = None,
     success_outcomes: list[str] | None = None,
+    end_reasons: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """
     Judge one finished run under one profile.
@@ -49,7 +50,9 @@ def evaluate_run(
     mission_success to measure; when the scenario names its success_outcomes,
     mission_success is 1 for a run whose winner_or_result is one of them and
     0 otherwise (Phase 14). A failure threshold is also reached when the run
-    ended on a domain reason of that name (termination_condition_met:<name>).
+    ended on a domain reason of that name (termination_condition_met:<name>);
+    end_reasons are the reasons the domain can end a run for, so such a
+    threshold is evaluated even when it was not reached.
     """
     perspective = profile["perspective"]
     if perspective is None:
@@ -91,7 +94,7 @@ def evaluate_run(
     overall = max(0.0, min(1.0, base - anti_gaming["penalty_total"]))
 
     reached, unevaluated = _failure_thresholds(
-        context, failure_thresholds or [], summary["termination_reason"]
+        context, failure_thresholds or [], summary["termination_reason"], end_reasons
     )
     status = _status(values, overall, profile, anti_gaming, reached)
 
@@ -154,7 +157,10 @@ def _score_breakdown(
 
 
 def _failure_thresholds(
-    context: EvaluationContext, names: list[str], termination_reason: str = ""
+    context: EvaluationContext,
+    names: list[str],
+    termination_reason: str = "",
+    end_reasons: tuple[str, ...] = (),
 ) -> tuple[list[str], list[str]]:
     """
     (thresholds the run reached, thresholds this engine cannot evaluate).
@@ -165,6 +171,8 @@ def _failure_thresholds(
     for name in names:
         if termination_reason == f"termination_condition_met:{name}":
             reached.append(name)
+        elif name in end_reasons:
+            continue  # the domain checks it every tick; not reached
         elif name == "all_entities_destroyed":
             everyone = list(context.initial)
             if everyone and len(context.destroyed_at_end(everyone)) == len(everyone):

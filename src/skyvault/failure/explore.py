@@ -15,7 +15,7 @@ from ..engine import SkyVaultTacticalReferenceEngine
 from ..scenario_loader import load_scenario, scenario_perspective
 from ..verification import SCENARIO_DIR
 from .analysis import sensitivity, survival_rate
-from .variables import FAILURE_VARIABLES, apply_stress
+from .variables import apply_stress, variable_for
 
 BRANCH_LEVEL = "moderate"
 
@@ -53,7 +53,7 @@ def explore_failures(
     def sweep(plan: dict[str, Any]) -> dict[str, Any]:
         result: dict[str, Any] = {}
         for name in config["failure_variables"]:
-            variable = FAILURE_VARIABLES[name]
+            variable = variable_for(plan, name)
             applicable, reason = variable.applies(plan, perspective)
             levels = (
                 {

@@ -226,6 +226,26 @@ FAILURE_VARIABLES: dict[str, FailureVariable] = {
 }
 
 
+def variable_for(scenario: Scenario, name: str) -> FailureVariable:
+    """
+    The failure variable name means in this scenario: the domain pack's own
+    version when it offers one (failure_variables()), else the core one.
+
+    Important:
+    A city's supply_delay makes supplies arrive late; the core one only
+    shrinks stock. The name, the levels and the place in a failure map stay
+    the same (Phase 14).
+    """
+    if scenario.get("domain"):
+        from ..domains import load_domain
+
+        offered = getattr(load_domain(scenario["domain"]), "failure_variables", None)
+        if offered is not None and name in offered():
+            variable: FailureVariable = offered()[name]
+            return variable
+    return FAILURE_VARIABLES[name]
+
+
 def apply_stress(
     scenario: Scenario, variables: dict[str, str], perspective: str
 ) -> Scenario:
@@ -243,7 +263,7 @@ def apply_stress(
     """
     stressed = copy.deepcopy(scenario)
     for name, level in variables.items():
-        variable = FAILURE_VARIABLES[name]
+        variable = variable_for(stressed, name)
         if level not in STRESS_LEVELS:
             raise ValueError(f"unknown stress level {level!r}")
         applicable, reason = variable.applies(stressed, perspective)

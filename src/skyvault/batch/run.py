@@ -69,7 +69,8 @@ def run_batch(
     conflicts = detect_conflicts(base, proposals)
     sets = compatible_sets(proposals, conflicts)
     records = run_jobs(variants, profile, seeds, request["workers"])
-    stats = aggregate(records, perspective) if records else []
+    success = base["evaluation"].get("success_outcomes")
+    stats = aggregate(records, perspective, success) if records else []
 
     batch_result = validate_batch_result(
         {
@@ -131,7 +132,7 @@ def run_branches(
         for chosen in [*sets, []]
     ]
     records = run_jobs(variants, dict(profile, perspective=perspective), seeds, workers)
-    stats = aggregate(records, perspective)
+    stats = aggregate(records, perspective, base["evaluation"].get("success_outcomes"))
     by_variant = {entry["variant_id"]: entry for entry in stats}
     package = validate_conflict_package(
         build_conflict_package(
