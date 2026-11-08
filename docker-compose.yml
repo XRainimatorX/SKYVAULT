@@ -1,0 +1,26 @@
+# The world service with its job queue and store (development plan Phase 11).
+#   docker compose up --build        API on http://localhost:8100/api/docs
+services:
+  api:
+    build: .
+    command: >
+      python scripts/serve_world.py --host 0.0.0.0 --queue rq
+      --redis redis://redis:6379/0
+      --store postgresql://skyvault:skyvault@postgres:5432/skyvault
+    ports: ["8100:8100"]
+    depends_on: [redis, postgres]
+  worker:
+    build: .
+    command: >
+      python scripts/world_worker.py
+      --redis redis://redis:6379/0
+      --store postgresql://skyvault:skyvault@postgres:5432/skyvault
+    depends_on: [redis, postgres]
+  redis:
+    image: redis:7
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: skyvault
+      POSTGRES_PASSWORD: skyvault
+      POSTGRES_DB: skyvault

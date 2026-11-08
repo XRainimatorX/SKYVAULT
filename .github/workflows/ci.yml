@@ -16,6 +16,27 @@ jobs:
       matrix:
         python-version: ["3.10", "3.11"]
 
+    # Phase 11: the world service's job queue and store run against real
+    # services here; the tests that need them skip only where these are absent
+    services:
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: skyvault
+          POSTGRES_PASSWORD: skyvault
+          POSTGRES_DB: skyvault
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U skyvault" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+
+    env:
+      SKYVAULT_TEST_REDIS: redis://localhost:6379/0
+      SKYVAULT_TEST_POSTGRES: postgresql://skyvault:skyvault@localhost:5432/skyvault
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +45,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install runtime and development dependencies
-        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs
+        run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs rq redis "psycopg[binary]"
 
       - name: Lint
         run: ruff check .
@@ -327,6 +348,55 @@ jobs:
           python scripts/run_tactical_reference.py --participants tests/fixtures/actors/participants_reference.json
           python scripts/run_tactical_reference.py | tee /tmp/reference.txt
           grep -q "Events: 97" /tmp/reference.txt
+
+      # Phase 11: the world service, served for real, with both queues and stores
+      - name: World service
+        run: |
+          docker compose config -q
+          # servers log to files: a background process holding the step's output
+          # keeps the step from ever finishing
+          python scripts/serve_world.py --store sqlite:////tmp/service.sqlite --port 8100 \
+            > /tmp/serve_inprocess.log 2>&1 &
+          python scripts/serve_world.py --queue rq --redis "$SKYVAULT_TEST_REDIS" \
+            --store "$SKYVAULT_TEST_POSTGRES" --port 8101 > /tmp/serve_rq.log 2>&1 &
+          sleep 5
+          python - <<'EOF'
+          import json, time, urllib.request
+
+          def call(port, path, body=None):
+              data = None if body is None else json.dumps(body).encode()
+              request = urllib.request.Request(f"http://127.0.0.1:{port}{path}", data, {"Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(request) as response:
+                      return response.status, json.loads(response.read())
+              except urllib.error.HTTPError as error:
+                  return error.code, json.loads(error.read())
+
+          status, job = call(8100, "/api/jobs", {"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1"})
+          assert status == 202, job
+          status, refused = call(8100, "/api/jobs", {"kind": "batch", "batch": "tactical_reference_001", "repeat_count": 1000000})
+          assert (status, refused["detail"]["reason"]) == (422, "batch_too_large"), refused
+          for _ in range(100):
+              if call(8100, f"/api/jobs/{job['job_id']}")[1]["lifecycle_state"] == "completed":
+                  break
+              time.sleep(0.2)
+          status, result = call(8100, f"/api/jobs/{job['job_id']}/result")
+          assert result["reproducibility"]["output_hash"].startswith("63090026e137"), result["reproducibility"]
+          status, queued = call(8101, "/api/jobs", {"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1", "priority": "high"})
+          assert status == 202, queued
+          open("/tmp/rq_job.txt", "w").write(queued["job_id"])
+          print("world service verified:", job["job_id"], "completed; rq job", queued["job_id"], "queued")
+          EOF
+          python scripts/world_worker.py --redis "$SKYVAULT_TEST_REDIS" --store "$SKYVAULT_TEST_POSTGRES" --burst
+          python - <<'EOF'
+          import json, urllib.request
+          job_id = open("/tmp/rq_job.txt").read()
+          with urllib.request.urlopen(f"http://127.0.0.1:8101/api/jobs/{job_id}") as response:
+              job = json.loads(response.read())
+          assert job["lifecycle_state"] == "completed", job
+          assert job["summary"]["output_hash"].startswith("63090026e137"), job["summary"]
+          print("rq worker verified:", job["summary"]["result"])
+          EOF
 
   # Phase 17: build the UI, serve it with the reference workspace, and drive
   # every page in a real browser

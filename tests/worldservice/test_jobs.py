@@ -77,12 +77,23 @@ def test_results_checkpoints_and_events_are_kept_in_order(store):
     assert store.events("job_000009") == []
 
 
+def test_three_slashes_name_a_file_relative_to_where_the_service_runs(
+    tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+
+    store = open_store("sqlite:///relative.sqlite")
+
+    assert store.path == "relative.sqlite" and (tmp_path / "relative.sqlite").exists()
+
+
 def test_a_store_is_opened_from_its_spec(tmp_path):
     on_disk = open_store(f"sqlite:///{tmp_path / 's.sqlite'}")
     on_disk.log("job_000001", "kept")
 
     assert open_store(on_disk.spec).events("job_000001")[0]["message"] == "kept"
     assert isinstance(open_store("sqlite://"), SQLiteStore)
+    assert on_disk.spec.startswith("sqlite:////")  # an absolute path: four slashes
     with pytest.raises(ValueError, match="unknown store"):
         open_store("mysql://nope")
 

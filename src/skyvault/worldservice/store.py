@@ -6,7 +6,8 @@ file or memory) and PostgreSQL (psycopg). The SQL is written once, with ?
 placeholders that the PostgreSQL store turns into %s. Records are JSON
 text: the service reads them back exactly as it wrote them. A store is
 named by a spec string, so a worker in another process opens the same one:
-"sqlite:///path/to/file", "sqlite://" (memory) or "postgresql://...".
+"sqlite:///relative/file", "sqlite:////absolute/file" (four slashes, as in
+SQLAlchemy), "sqlite://" (memory) or "postgresql://...".
 """
 
 import json
