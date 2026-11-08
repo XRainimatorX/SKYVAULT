@@ -10,10 +10,16 @@ and a test walks this file to make sure nothing here does.
 from typing import Any, Protocol
 
 from ..action import Action, location_to_json
-from ..consequence import ChainReaction, Consequence, DirectEffect, EvaluationImpact
+from ..consequence import (
+    ChainReaction,
+    Consequence,
+    DirectEffect,
+    EvaluationImpact,
+    SecondaryEffects,
+)
 from ..world_state import WorldState
 from .resolver import ActionContext
-from .validation import ActionValidation
+from .validation import ActionValidation, action_cost
 
 
 class ActionHandler(Protocol):
@@ -32,6 +38,11 @@ class ActionHandler(Protocol):
 
 def _capability(entity: Any, name: str, default: float) -> float:
     return float(entity.capabilities.get(name, default))
+
+
+def _number(value: float) -> float | int:
+    """A distance or range as a message shows it: 2, not 2.0."""
+    return int(value) if float(value).is_integer() else value
 
 
 class MoveHandler:
@@ -61,7 +72,8 @@ class MoveHandler:
             distance = world.space.distance(actor.position, destination)
             if distance > move_range:
                 return ActionValidation.reject(
-                    f"Move target out of range: distance={distance}, range={move_range}"
+                    f"Move target out of range: distance={_number(distance)}, "
+                    f"range={move_range}"
                 )
         return ActionValidation.ok()
 
@@ -128,7 +140,8 @@ class AttackHandler:
         distance = world.space.distance(actor.position, target.position)
         if distance > attack_range:
             return ActionValidation.reject(
-                f"Target out of range: distance={distance}, range={attack_range}"
+                f"Target out of range: distance={_number(distance)}, "
+                f"range={attack_range}"
             )
         return ActionValidation.ok()
 
@@ -222,8 +235,454 @@ class AttackHandler:
         )
 
 
+def _within(
+    world: WorldState, a: Any, b: Any, limit: float, what: str
+) -> ActionValidation:
+    """Refuse unless both have a position and are at most limit apart."""
+    if a.position is None or b.position is None:
+        return ActionValidation.reject("Actor or target has no position")
+    distance = world.space.distance(a.position, b.position)
+    if distance > limit:
+        return ActionValidation.reject(
+            f"{what} out of range: distance={_number(distance)}, "
+            f"range={_number(limit)}"
+        )
+    return ActionValidation.ok()
+
+
+def _record_only(
+    action: Action,
+    reason: str,
+    event_type: str,
+    entity_id: str,
+    **event: Any,
+) -> Consequence:
+    """An accepted action whose one event changes nothing."""
+    return Consequence(
+        action_id=action.action_id,
+        accepted=True,
+        reason=reason,
+        effects=[
+            DirectEffect(
+                group="entity", event_type=event_type, entity_id=entity_id, **event
+            )
+        ],
+    )
+
+
+class ObserveHandler:
+    """
+    observe: look at target.entity_id.
+
+    Allowed within observe_range (default 1). Changes nothing; the OBSERVE
+    event carries a copy of the target's state as it was seen.
+    """
+
+    action_type = "observe"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if action.target.entity_id is None:
+            return ActionValidation.reject("Observe action missing target_entity_id")
+        actor = world.get_entity(action.actor_id)
+        target = world.get_entity(action.target.entity_id)
+        limit = _capability(actor, "observe_range", 1)
+        return _within(world, actor, target, limit, "Observe target")
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        actor = world.get_entity(action.actor_id)
+        target = world.get_entity(str(action.target.entity_id))
+        return _record_only(
+            action,
+            "Observation resolved",
+            "OBSERVE",
+            target.entity_id,
+            target_entity_id=target.entity_id,
+            affected_entities=[actor.entity_id, target.entity_id],
+            affected_locations=[location_to_json(target.position)],
+            data={
+                "observed_entity": target.entity_id,
+                "distance": world.space.distance(actor.position, target.position),
+                "observed_state": dict(target.state),
+            },
+            tags=["observation"],
+        )
+
+
+class ScanHandler:
+    """
+    scan: sweep the area around the actor.
+
+    Allowed when the actor has a position. Changes nothing; the SCAN event
+    lists every other living entity within scan_range (default 1).
+    """
+
+    action_type = "scan"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if world.get_entity(action.actor_id).position is None:
+            return ActionValidation.reject("Actor has no position")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        actor = world.get_entity(action.actor_id)
+        scan_range = _capability(actor, "scan_range", 1)
+        detected = sorted(
+            entity.entity_id
+            for entity in world.active_entities()
+            if entity.entity_id != actor.entity_id
+            and entity.position is not None
+            and world.space.distance(actor.position, entity.position) <= scan_range
+        )
+        return _record_only(
+            action,
+            "Scan resolved",
+            "SCAN",
+            actor.entity_id,
+            affected_entities=[actor.entity_id, *detected],
+            affected_locations=[location_to_json(actor.position)],
+            data={"detected": detected, "scan_range": scan_range},
+            tags=["observation", "scan"],
+        )
+
+
+class WaitHandler:
+    """wait: do nothing this turn. Always allowed; the WAIT event changes nothing."""
+
+    action_type = "wait"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        return _record_only(
+            action,
+            "Wait resolved",
+            "WAIT",
+            action.actor_id,
+            affected_entities=[action.actor_id],
+            tags=["wait"],
+        )
+
+
+class RepairHandler:
+    """
+    repair: restore hp to target.entity_id, or to the actor when no target.
+
+    Allowed when the actor has repair_amount > 0, the target is alive, has hp,
+    is not already at max_hp, and (if it is someone else) is within
+    repair_range (default 1). hp rises by repair_amount, capped at max_hp.
+    """
+
+    action_type = "repair"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        actor = world.get_entity(action.actor_id)
+        if _capability(actor, "repair_amount", 0) <= 0:
+            return ActionValidation.reject("Actor cannot repair")
+
+        target = world.get_entity(action.target.entity_id or actor.entity_id)
+        if not target.is_active():
+            return ActionValidation.reject("Repair target is not active")
+        if "hp" not in target.state:
+            return ActionValidation.reject("Repair target has no hp")
+        if "max_hp" in target.state and target.state["hp"] >= target.state["max_hp"]:
+            return ActionValidation.reject("Repair target already at full health")
+        if target is not actor:
+            limit = _capability(actor, "repair_range", 1)
+            return _within(world, actor, target, limit, "Repair target")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        actor = world.get_entity(action.actor_id)
+        target = world.get_entity(action.target.entity_id or actor.entity_id)
+        hp_before = target.state["hp"]
+        hp_after = hp_before + int(_capability(actor, "repair_amount", 0))
+        if "max_hp" in target.state:
+            hp_after = min(hp_after, target.state["max_hp"])
+
+        return Consequence(
+            action_id=action.action_id,
+            accepted=True,
+            reason="Repair resolved",
+            effects=[
+                DirectEffect(
+                    group="entity",
+                    event_type="REPAIR",
+                    entity_id=target.entity_id,
+                    changes={
+                        "state": {"hp": hp_after, "last_repaired_by": actor.entity_id}
+                    },
+                    target_entity_id=target.entity_id,
+                    affected_entities=[target.entity_id],
+                    data={
+                        "hp_before": hp_before,
+                        "hp_after": hp_after,
+                        "repaired_by": actor.entity_id,
+                    },
+                    tags=["repair", "world_state_mutation", "state_change"],
+                )
+            ],
+        )
+
+
+class SupplyHandler:
+    """
+    supply: deliver resources to target.entity_id.
+
+    What is delivered is what the world charges for the action
+    (validation.action_cost): the world's stock goes down by it, before this
+    effect, and the target's state goes up by it. Allowed when that is not
+    empty, the target is alive and within supply_range (default 1).
+    """
+
+    action_type = "supply"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if action.target.entity_id is None:
+            return ActionValidation.reject("Supply action missing target_entity_id")
+        if not action_cost(world, action):
+            return ActionValidation.reject("Supply action carries no resources")
+        actor = world.get_entity(action.actor_id)
+        target = world.get_entity(action.target.entity_id)
+        if not target.is_active():
+            return ActionValidation.reject("Supply target is not active")
+        limit = _capability(actor, "supply_range", 1)
+        return _within(world, actor, target, limit, "Supply target")
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        target = world.get_entity(str(action.target.entity_id))
+        cargo = action_cost(world, action)
+        stocked = {
+            resource_id: float(target.state.get(resource_id, 0)) + amount
+            for resource_id, amount in sorted(cargo.items())
+        }
+        return Consequence(
+            action_id=action.action_id,
+            accepted=True,
+            reason="Supply resolved",
+            effects=[
+                DirectEffect(
+                    group="entity",
+                    event_type="SUPPLY",
+                    entity_id=target.entity_id,
+                    changes={"state": stocked},
+                    target_entity_id=target.entity_id,
+                    affected_entities=[action.actor_id, target.entity_id],
+                    data={"delivered": cargo},
+                    tags=["supply", "world_state_mutation", "state_change"],
+                )
+            ],
+            secondary_effects=SecondaryEffects(
+                logistical_changes=[
+                    {"entity_id": target.entity_id, "delivered": dict(cargo)}
+                ]
+            ),
+        )
+
+
+class DeployHandler:
+    """
+    deploy: bring a reserve unit (target.entity_id) onto target.location.
+
+    Allowed when the unit is in reserve and on the actor's side, and the
+    location is inside the space, free, and within deploy_range (default 1)
+    of the actor. The unit takes the location and becomes active.
+    """
+
+    action_type = "deploy"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if action.target.entity_id is None:
+            return ActionValidation.reject("Deploy action missing target_entity_id")
+        destination = action.target.location
+        if destination is None:
+            return ActionValidation.reject("Deploy action missing target location")
+
+        actor = world.get_entity(action.actor_id)
+        unit = world.get_entity(action.target.entity_id)
+        if unit.state.get("status") != "reserve":
+            return ActionValidation.reject("Deploy target is not in reserve")
+        if unit.faction != actor.faction:
+            return ActionValidation.reject("Deploy target belongs to another faction")
+        if not world.space.is_inside(destination):
+            return ActionValidation.reject("Deploy location outside world boundary")
+        if world.is_occupied(destination):
+            return ActionValidation.reject("Deploy location occupied")
+        if actor.position is None:
+            return ActionValidation.reject("Actor has no position")
+
+        deploy_range = _capability(actor, "deploy_range", 1)
+        distance = world.space.distance(actor.position, destination)
+        if distance > deploy_range:
+            return ActionValidation.reject(
+                f"Deploy location out of range: distance={_number(distance)}, "
+                f"range={_number(deploy_range)}"
+            )
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        unit = world.get_entity(str(action.target.entity_id))
+        destination = action.target.location
+        return Consequence(
+            action_id=action.action_id,
+            accepted=True,
+            reason="Deploy resolved",
+            effects=[
+                DirectEffect(
+                    group="entity",
+                    event_type="DEPLOY",
+                    entity_id=unit.entity_id,
+                    changes={"position": destination, "state": {"status": "active"}},
+                    target_entity_id=unit.entity_id,
+                    affected_entities=[action.actor_id, unit.entity_id],
+                    affected_locations=[location_to_json(destination)],
+                    data={"to": location_to_json(destination)},
+                    tags=["deployment", "world_state_mutation"],
+                )
+            ],
+        )
+
+
+class WithdrawHandler:
+    """
+    withdraw: take target.entity_id, or the actor, off the field.
+
+    Allowed when the unit is alive and on the actor's side. It loses its
+    position and its status becomes withdrawn; it stays in the registry.
+    """
+
+    action_type = "withdraw"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        actor = world.get_entity(action.actor_id)
+        unit = world.get_entity(action.target.entity_id or actor.entity_id)
+        if not unit.is_active():
+            return ActionValidation.reject("Withdraw target is not active")
+        if unit.faction != actor.faction:
+            return ActionValidation.reject("Withdraw target belongs to another faction")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        unit = world.get_entity(action.target.entity_id or action.actor_id)
+        origin = location_to_json(unit.position)
+        return Consequence(
+            action_id=action.action_id,
+            accepted=True,
+            reason="Withdraw resolved",
+            effects=[
+                DirectEffect(
+                    group="entity",
+                    event_type="WITHDRAW",
+                    entity_id=unit.entity_id,
+                    changes={"position": None, "state": {"status": "withdrawn"}},
+                    target_entity_id=unit.entity_id,
+                    affected_entities=[unit.entity_id],
+                    affected_locations=[origin] if origin is not None else [],
+                    data={"from": origin},
+                    tags=["withdrawal", "world_state_mutation"],
+                )
+            ],
+        )
+
+
+class CommunicateHandler:
+    """
+    communicate: send a message to target.entity_id.
+
+    Allowed when the target is alive and, if the actor has comm_range, within
+    it. The message is metadata["message"], or the intent when there is none;
+    the target's state records it and who sent it.
+    """
+
+    action_type = "communicate"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if action.target.entity_id is None:
+            return ActionValidation.reject(
+                "Communicate action missing target_entity_id"
+            )
+        actor = world.get_entity(action.actor_id)
+        target = world.get_entity(action.target.entity_id)
+        if not target.is_active():
+            return ActionValidation.reject("Communicate target is not active")
+        if "comm_range" in actor.capabilities:
+            limit = _capability(actor, "comm_range", 0)
+            return _within(world, actor, target, limit, "Communicate target")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        target = world.get_entity(str(action.target.entity_id))
+        message = str(action.metadata.get("message", action.intent))
+        return Consequence(
+            action_id=action.action_id,
+            accepted=True,
+            reason="Communicate resolved",
+            effects=[
+                DirectEffect(
+                    group="entity",
+                    event_type="COMMUNICATE",
+                    entity_id=target.entity_id,
+                    changes={
+                        "state": {
+                            "last_message": message,
+                            "last_message_from": action.actor_id,
+                        }
+                    },
+                    target_entity_id=target.entity_id,
+                    affected_entities=[action.actor_id, target.entity_id],
+                    data={"message": message},
+                    tags=["communication", "state_change"],
+                )
+            ],
+        )
+
+
 CORE_HANDLERS: dict[str, ActionHandler] = {
-    handler.action_type: handler for handler in (MoveHandler(), AttackHandler())
+    handler.action_type: handler
+    for handler in (
+        MoveHandler(),
+        AttackHandler(),
+        ObserveHandler(),
+        WaitHandler(),
+        RepairHandler(),
+        SupplyHandler(),
+        DeployHandler(),
+        WithdrawHandler(),
+        ScanHandler(),
+        CommunicateHandler(),
+    )
 }
 
 # The action types the military line keeps from the start (development plan)

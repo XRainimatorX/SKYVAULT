@@ -237,3 +237,16 @@ def test_runtime_never_imports_the_engine_a_policy_or_an_exporter(path):
                 names.update(alias.name.split("."))
 
     assert not names & FORBIDDEN
+
+
+def test_events_at_the_starting_tick_are_replayed():
+    with (FIXTURES / "scenario_graph.json").open(encoding="utf-8") as file:
+        world = create_world(validate_scenario(json.load(file)))
+    initial = world.snapshot()
+
+    world.update_entity_state("convoy_1", {"status": "loading"})
+    world.change_resource("fuel", -10)
+    events = [event.to_dict() for event in world.event_memory]
+
+    assert {event["time"] for event in events} == {0}
+    assert rebuild_world(initial, events) == world.snapshot()

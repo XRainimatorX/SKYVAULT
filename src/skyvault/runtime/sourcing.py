@@ -16,10 +16,12 @@ def rebuild_world(
     This is a pure function. It reads plain dicts, imports nothing from the
     rest of the project and never mutates its inputs.
 
-    start_state is a snapshot taken at the end of its tick: the initial world
-    state, or one kept by a SnapshotStore. Only events after that tick are
-    applied, so a rebuild from a mid-run snapshot and a rebuild from time zero
-    arrive at the same world.
+    start_state is the initial world state or one kept by a SnapshotStore.
+    Events from its tick onwards are applied. The initial state is taken
+    before any tick-0 event happens, while a stored snapshot already holds
+    every event of its tick; replaying those again is harmless, because
+    applying an after_state is idempotent. So a rebuild from a mid-run
+    snapshot and a rebuild from time zero arrive at the same world.
 
     Each event is applied by its after_state:
 
@@ -28,8 +30,6 @@ def rebuild_world(
     anything else       nothing to apply (SCENARIO_END holds a whole-world
                         summary, not a change)
 
-    Applying an after_state is idempotent, so replaying an event the starting
-    snapshot already contains would do no harm; skipping them is only speed.
 
     at_time None means "after the last event". The rebuilt tick is at_time, or
     the time of the last event applied.
@@ -42,7 +42,7 @@ def rebuild_world(
     for event in event_memory:
         time = event["time"]
 
-        if time <= start_tick:
+        if time < start_tick:
             continue
         if at_time is not None and time > at_time:
             break
