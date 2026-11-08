@@ -25,6 +25,8 @@ SCHEMA = (
     """CREATE TABLE IF NOT EXISTS checkpoints (
         world_id TEXT NOT NULL, n INTEGER NOT NULL, checkpoint TEXT NOT NULL,
         PRIMARY KEY (world_id, n))""",
+    """CREATE TABLE IF NOT EXISTS conflicts (
+        conflict_id TEXT PRIMARY KEY, seq INTEGER NOT NULL, record TEXT NOT NULL)""",
     """CREATE TABLE IF NOT EXISTS job_events (
         job_id TEXT NOT NULL, n INTEGER NOT NULL, at TEXT NOT NULL,
         message TEXT NOT NULL, PRIMARY KEY (job_id, n))""",
@@ -48,6 +50,9 @@ class JobStore(Protocol):
     def add_checkpoint(self, world_id: str, checkpoint: dict[str, Any]) -> int: ...
     def checkpoints(self, world_id: str) -> list[dict[str, Any]]: ...
     def log(self, job_id: str, message: str) -> None: ...
+    def save_conflict(self, record: dict[str, Any]) -> dict[str, Any]: ...
+    def get_conflict(self, conflict_id: str) -> dict[str, Any]: ...
+    def update_conflict(self, conflict_id: str, **fields: Any) -> dict[str, Any]: ...
     def events(self, job_id: str) -> list[dict[str, Any]]: ...
 
 
@@ -138,6 +143,34 @@ class _SQLStore:
             (world_id,),
         )
         return [json.loads(row[0]) for row in rows]
+
+    def save_conflict(self, record: dict[str, Any]) -> dict[str, Any]:
+        """Keep a new conflict as conflict_<next n>; return it with that id."""
+        rows = self._run("SELECT COALESCE(MAX(seq), 0) FROM conflicts")
+        seq = int(rows[0][0]) + 1
+        saved = {**record, "conflict_id": f"conflict_{seq:06d}"}
+        self._run(
+            "INSERT INTO conflicts (conflict_id, seq, record) VALUES (?, ?, ?)",
+            (saved["conflict_id"], seq, json.dumps(saved, sort_keys=True)),
+        )
+        return saved
+
+    def get_conflict(self, conflict_id: str) -> dict[str, Any]:
+        rows = self._run(
+            "SELECT record FROM conflicts WHERE conflict_id = ?", (conflict_id,)
+        )
+        if not rows:
+            raise KeyError(f"no conflict {conflict_id}")
+        record: dict[str, Any] = json.loads(rows[0][0])
+        return record
+
+    def update_conflict(self, conflict_id: str, **fields: Any) -> dict[str, Any]:
+        record = {**self.get_conflict(conflict_id), **fields}
+        self._run(
+            "UPDATE conflicts SET record = ? WHERE conflict_id = ?",
+            (json.dumps(record, sort_keys=True), conflict_id),
+        )
+        return record
 
     def log(self, job_id: str, message: str) -> None:
         rows = self._run(

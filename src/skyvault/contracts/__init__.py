@@ -32,6 +32,14 @@ from .evaluation_profile import (
     validate_evaluation_profile,
 )
 from .event import EVENT_TYPES, EventRecord, validate_event
+from .external import (
+    SYSTEMS,
+    TRIGGERS,
+    AuthorityHandoff,
+    ExternalSubmission,
+    validate_authority_handoff,
+    validate_external_submission,
+)
 from .failure import (
     FAILURE_VARIABLE_NAMES,
     FailureExplorationSpec,
@@ -71,11 +79,14 @@ __all__ = [
     "METRIC_NAMES",
     "PRIORITIES",
     "STOP_REASONS",
+    "SYSTEMS",
+    "TRIGGERS",
     "VIEWS",
     "ContractError",
     "EVENT_TYPES",
     "FAILURE_VARIABLE_NAMES",
     "ActionRecord",
+    "AuthorityHandoff",
     "AssumptionRegistry",
     "BatchResult",
     "BatchSpec",
@@ -85,6 +96,7 @@ __all__ = [
     "EntityRecord",
     "EvaluationProfile",
     "EvaluationResult",
+    "ExternalSubmission",
     "EventRecord",
     "FailureExplorationSpec",
     "FailureMap",
@@ -103,6 +115,7 @@ __all__ = [
     "ungoverned_record",
     "validate_action",
     "validate_assumption_registry",
+    "validate_authority_handoff",
     "validate_batch_result",
     "validate_batch_spec",
     "validate_conflict_package",
@@ -112,6 +125,7 @@ __all__ = [
     "validate_evaluation_profile",
     "validate_evaluation_result",
     "validate_event",
+    "validate_external_submission",
     "validate_failure_exploration",
     "validate_failure_map",
     "validate_governance",

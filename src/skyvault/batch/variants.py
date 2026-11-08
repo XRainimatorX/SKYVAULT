@@ -106,13 +106,17 @@ def branch_variant(
     The base with these outside orders scheduled, as a child version.
 
     Important:
+    Orders the base already schedules are kept and the proposals added after
+    them (Phase 12: a conflict in a running world branches from everything
+    already done).
     Each proposal becomes a runtime.scheduled_actions entry; its proposal_id
     is kept in metadata so a branch's events can be traced back to the order.
     An empty proposal list is the baseline branch: the base run unchanged
     apart from its version label.
     """
     branched = copy.deepcopy(base)
-    scheduled = []
+    # orders the base already carries (actions applied before the conflict) stay
+    scheduled = list(branched["runtime"].get("scheduled_actions", []))
     for proposal in proposals:
         order = {key: value for key, value in proposal.items() if key != "proposal_id"}
         order["metadata"] = {

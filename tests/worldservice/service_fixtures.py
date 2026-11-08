@@ -17,7 +17,7 @@ from skyvault.worldservice.store import PostgresStore, SQLiteStore
 
 def fresh_postgres() -> PostgresStore:
     store = PostgresStore(POSTGRES or "")
-    store._run("DROP TABLE IF EXISTS jobs, results, checkpoints, job_events")
+    store._run("DROP TABLE IF EXISTS jobs, results, checkpoints, job_events, conflicts")
     store.setup()
     return store
 

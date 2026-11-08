@@ -1,0 +1,62 @@
+{
+  "$id": "skyvault/0.6/external_submission.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One submission from an outside system, in that system's own terms.\n\nImportant:\nkind says what it is; content is the system's own payload, which its\nadapter reads. The scenario is named, never a path.",
+  "properties": {
+    "content": {
+      "additionalProperties": true,
+      "title": "Content",
+      "type": "object"
+    },
+    "kind": {
+      "enum": [
+        "task",
+        "actions",
+        "branches",
+        "intel",
+        "environment",
+        "equipment",
+        "mission",
+        "defence",
+        "airspace"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "scenario": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario"
+    },
+    "system": {
+      "enum": [
+        "NEXUS",
+        "STARTX",
+        "TAC_ANGEL",
+        "EIDEN_01",
+        "AEROGRID",
+        "SKYFOX",
+        "HADES",
+        "CYBERHOUND",
+        "STAR_GUARD"
+      ],
+      "title": "System",
+      "type": "string"
+    }
+  },
+  "required": [
+    "system",
+    "kind"
+  ],
+  "title": "ExternalSubmission",
+  "type": "object"
+}

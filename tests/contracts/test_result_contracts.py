@@ -235,6 +235,8 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "order",
     "resource_compute_governance",
     "job",
+    "external_submission",
+    "authority_handoff",
 }
 
 

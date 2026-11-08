@@ -15,7 +15,12 @@ from .base import ContractModel, NonEmptyStr, check
 from .governance import GovernanceRecord, Priority
 
 JobKind = Literal[
-    "scenario_run", "batch", "failure_exploration", "replay", "persistent_world"
+    "scenario_run",
+    "batch",
+    "failure_exploration",
+    "replay",
+    "persistent_world",
+    "branch_compare",
 ]
 Lifecycle = Literal[
     "created",
@@ -37,7 +42,8 @@ class JobRequest(ContractModel):
 
     Important:
     runtime overrides the scenario's runtime block (max_ticks, random_seed,
-    policy, participants); replay names the job whose run to replay.
+    policy, participants); replay names the job whose run to replay;
+    branches are a branch_compare's named action sets (Phase 12).
     """
 
     kind: JobKind
@@ -50,6 +56,7 @@ class JobRequest(ContractModel):
     runtime: dict[str, Any] = Field(default_factory=dict)
     repeat_count: int | None = Field(default=None, ge=1)
     replay: NonEmptyStr | None = None
+    branches: list[dict[str, Any]] | None = None
 
     @model_validator(mode="after")
     def _names_what_it_needs(self) -> "JobRequest":
@@ -59,7 +66,10 @@ class JobRequest(ContractModel):
             "persistent_world": "scenario",
             "batch": "batch",
             "replay": "replay",
+            "branch_compare": "branches",
         }[self.kind]
+        if self.kind == "branch_compare" and self.scenario is None:
+            raise ValueError("a branch_compare job needs scenario")
         if getattr(self, needs) is None:
             raise ValueError(f"a {self.kind} job needs {needs}")
         return self

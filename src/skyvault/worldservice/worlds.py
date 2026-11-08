@@ -11,10 +11,19 @@ in this process's memory: a restarted service cannot resume a world (the
 engine does not serialise); its checkpoints and result remain in the store.
 """
 
+import copy
 import threading
 from typing import Any
 
 from ..engine import SkyVaultTacticalReferenceEngine
+from ..interface.conflicts import (
+    SubmissionWindow,
+    find_conflicts,
+    open_conflict,
+    play_out,
+    resolve,
+    scheduled,
+)
 from ..scenario_loader import scenario_perspective
 from .governance import Governor, estimate_run
 from .jobs import profile_for, scenario_for
@@ -24,8 +33,16 @@ from .store import JobStore
 UNCAPPED_TICKS = 10**9
 
 
+# Runs per branch when a conflict is played out (Phase 12)
+BRANCH_REPEATS = 5
+
+
 class WorldClosed(RuntimeError):
     """The world has stopped or been deleted; it cannot advance."""
+
+
+class WorldAwaiting(RuntimeError):
+    """The world waits at a conflict for an authority's decision."""
 
 
 class PersistentWorld:
@@ -43,6 +60,14 @@ class PersistentWorld:
         self.policy = policy
         self.cap = policy["persistent_world_resource_cap"]
         scenario = scenario_for(request)
+        # The scenario as written: branches of a conflict play out to its end
+        self.base = copy.deepcopy(scenario)
+        self.horizon = int(scenario["runtime"].get("max_ticks", 10))
+        self.window = SubmissionWindow()
+        self.applied: list[dict[str, Any]] = []
+        self.awaiting: str | None = None
+        self.profile = profile_for(request, scenario)
+        self.perspective = scenario_perspective(scenario) or ""
         # The cap, not the scenario's duration, decides how long the world lives
         scenario["runtime"]["max_ticks"] = (self.cap["max_ticks"] or UNCAPPED_TICKS) + 1
         self.scenario_id = scenario["scenario_id"]
@@ -54,7 +79,7 @@ class PersistentWorld:
         )
         self.engine = SkyVaultTacticalReferenceEngine(
             scenario,
-            evaluation_profile=profile_for(request, scenario),
+            evaluation_profile=self.profile,
             governor=self.governor,
         )
         self.engine.begin()
@@ -90,6 +115,8 @@ class PersistentWorld:
             "over": self.engine.over,
             "stop_reason": self.engine.stop_reason,
             "checkpoints": len(self.store.checkpoints(self.world_id)),
+            "awaiting_decision": self.awaiting,
+            "pending_actions": sum(len(v) for v in self.window.pending.values()),
             "cap": dict(self.cap),
         }
 
@@ -103,8 +130,14 @@ class PersistentWorld:
         with self.lock:
             if self.lifecycle in ("completed", "archived", "deleted"):
                 raise WorldClosed(f"world {self.world_id} is {self.lifecycle}")
+            if self.awaiting is not None:
+                raise WorldAwaiting(
+                    f"world {self.world_id} waits for a decision on {self.awaiting}"
+                )
             self.lifecycle = "running"
             for _ in range(ticks):
+                if not self._before_tick(self.engine.world.tick + 1):
+                    break
                 if not self.engine.step():
                     break
             snapshot = self.engine.world.snapshot()
@@ -133,6 +166,98 @@ class PersistentWorld:
                 self.world_id, f"advanced to tick {snapshot['tick']} ({self.lifecycle})"
             )
             return self.state()
+
+    def submit(
+        self, system: str, tick: int, actor_id: str, order: dict[str, Any]
+    ) -> dict[str, Any]:
+        """
+        Queue an outside system's action for a coming tick of this world.
+
+        Important:
+        Only a tick still to come, a unit the world has, and not the tick a
+        conflict is waiting on. The action is carried out when the world
+        reaches the tick — unless it conflicts with another (play_out).
+        """
+        with self.lock:
+            if self.lifecycle in ("completed", "archived", "deleted"):
+                raise WorldClosed(f"world {self.world_id} is {self.lifecycle}")
+            if tick <= self.engine.world.tick:
+                raise ValueError(
+                    f"tick {tick} has been played; the world is at tick "
+                    f"{self.engine.world.tick}"
+                )
+            if actor_id not in self.engine.world.entities:
+                raise KeyError(f"world {self.world_id} has no unit {actor_id}")
+            proposal = self.window.submit(tick, system, actor_id, order)
+            self.store.log(
+                self.world_id,
+                f"{system} submitted {proposal['proposal_id']} "
+                f"for {actor_id} at tick {tick}",
+            )
+            return proposal
+
+    def _before_tick(self, tick: int) -> bool:
+        """
+        Carry out the actions submitted for tick, or — if they conflict —
+        play out the branches, open the conflict and stop here (False).
+        """
+        proposals = self.window.take(tick)
+        if not proposals:
+            return True
+        if not find_conflicts(self.base, proposals):
+            self._apply(tick, proposals)
+            return True
+        played = play_out(
+            self.base,
+            self.applied,
+            proposals,
+            self.profile,
+            self.perspective,
+            BRANCH_REPEATS,
+            max(self.horizon, tick),
+        )
+        record = self.store.save_conflict(
+            open_conflict(self.world_id, tick, proposals, played)
+        )
+        self.awaiting = record["conflict_id"]
+        self.store.log(
+            self.world_id,
+            f"conflict {record['conflict_id']} at tick {tick}: waiting for a decision",
+        )
+        return False
+
+    def _apply(self, tick: int, proposals: list[dict[str, Any]]) -> None:
+        for proposal in proposals:
+            order = scheduled(proposal)
+            self.engine.scheduled[(tick, proposal["actor_id"])] = order
+            self.applied.append(order)
+            self.store.log(
+                self.world_id,
+                f"carrying out {proposal['proposal_id']} at tick {tick}",
+            )
+
+    def decide(self, conflict_id: str, branch: str, decided_by: str) -> dict[str, Any]:
+        """
+        An authority picks a branch of the conflict this world waits on; its
+        actions are carried out at that tick and the world may advance again.
+        """
+        with self.lock:
+            if conflict_id != self.awaiting:
+                raise KeyError(f"world {self.world_id} is not waiting on {conflict_id}")
+            record, kept = resolve(
+                self.store.get_conflict(conflict_id), branch, decided_by
+            )
+            self.store.update_conflict(
+                conflict_id,
+                **{k: v for k, v in record.items() if k != "conflict_id"},
+            )
+            self._apply(record["tick"], kept)
+            self.awaiting = None
+            self.store.log(
+                self.world_id,
+                f"{decided_by} decided {conflict_id}: branch {branch}",
+            )
+            return record
 
     def finish(self) -> dict[str, Any]:
         """Close the world now and export its result (partial if it was still going)."""

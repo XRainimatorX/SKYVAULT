@@ -105,6 +105,51 @@ def run_batch(
     }
 
 
+def run_branches(
+    base: dict[str, Any],
+    proposals: list[dict[str, Any]],
+    profile: dict[str, Any],
+    perspective: str,
+    seeds: list[int],
+    workers: int = 1,
+) -> dict[str, Any]:
+    """
+    Play out conflicting proposals on base: one branch per compatible set and
+    one with none, each run once per seed. Returns the conflict package
+    (which never chooses), the branches' statistics and their comparison.
+
+    Important:
+    base may already schedule orders (a running world's earlier actions):
+    every branch keeps them, so each branch is the same history forked at
+    the conflict.
+    """
+    conflicts = detect_conflicts(base, proposals)
+    sets = compatible_sets(proposals, conflicts)
+    by_id = {p["proposal_id"]: p for p in proposals}
+    variants = [
+        branch_variant(base, branch_id(chosen), [by_id[p] for p in chosen])
+        for chosen in [*sets, []]
+    ]
+    records = run_jobs(variants, dict(profile, perspective=perspective), seeds, workers)
+    stats = aggregate(records, perspective)
+    by_variant = {entry["variant_id"]: entry for entry in stats}
+    package = validate_conflict_package(
+        build_conflict_package(
+            base,
+            proposals,
+            conflicts,
+            [by_variant[f"branch:{branch_id(chosen)}"] for chosen in sets],
+            by_variant["branch:none"],
+        )
+    )
+    return {
+        "conflict_package": package,
+        "branch_comparison": compare_branches(stats),
+        "variants": stats,
+        "sets": [list(chosen) for chosen in sets],
+    }
+
+
 def planned_variants(
     request: dict[str, Any], base: dict[str, Any], scenarios_dir: Path = SCENARIO_DIR
 ) -> list[Variant]:

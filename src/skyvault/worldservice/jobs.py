@@ -15,7 +15,10 @@ import time
 from pathlib import Path
 from typing import Any
 
+from ..batch.aggregate import aggregate, compare_branches
 from ..batch.run import planned_variants, run_batch
+from ..batch.runner import run_jobs
+from ..batch.variants import Variant, branch_variant
 from ..contracts import (
     JobRequest,
     validate_failure_map,
@@ -24,6 +27,7 @@ from ..contracts import (
 )
 from ..engine import SkyVaultTacticalReferenceEngine
 from ..failure import build_failure_map, explore_failures
+from ..interface.handoff import authority_handoff, handoff_triggers
 from ..replay import build_replay_state_at_tick
 from ..scenario_loader import (
     default_evaluation_profile,
@@ -115,6 +119,32 @@ def exploration_runs(scenario: dict[str, Any], repeats: int | None) -> int:
     return runs_once * (repeats or config["run_policy"]["repeat_count"])
 
 
+def compare_variants(
+    request: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
+) -> list[Variant]:
+    """
+    A branch_compare's variants: one per named branch and the baseline with
+    none. Each branch's scenario passes the scenario contract, so a branch
+    that orders one unit twice at one tick is refused at the door.
+    """
+    base = scenario_for(request, scenarios_dir)
+    variants = []
+    for branch in request["branches"]:
+        proposals = [
+            {
+                **action,
+                "system_id": action.get("system_id", request["source_system"]),
+                "proposal_id": f"{branch['branch_id']}:{n}",
+            }
+            for n, action in enumerate(branch["actions"], 1)
+        ]
+        variant = branch_variant(base, branch["branch_id"], proposals)
+        validate_scenario(variant.scenario)
+        variants.append(variant)
+    variants.append(branch_variant(base, "none", []))
+    return variants
+
+
 def full_request(request: dict[str, Any]) -> dict[str, Any]:
     """A request checked against its contract, every default filled in."""
     validate_job_request(request)
@@ -146,6 +176,12 @@ def plan(
             estimate = scale(
                 estimate, exploration_runs(scenario, request.get("repeat_count"))
             )
+    elif kind == "branch_compare":
+        variants = compare_variants(request, scenarios_dir)
+        estimate = scale(
+            estimate_run(variants[0].scenario),
+            len(variants) * (request.get("repeat_count") or 1),
+        )
     elif kind == "batch":
         spec = batch_for(request, batches_dir)
         base = json.loads(
@@ -196,6 +232,7 @@ def execute_job(
             "batch": _batch,
             "failure_exploration": _failure_exploration,
             "replay": _replay,
+            "branch_compare": _branch_compare,
         }[job["request"]["kind"]]
         runner(job, store, governed, scenarios_dir, batches_dir)
     except Exception as error:  # a failed job is recorded, never raised on the worker
@@ -265,6 +302,9 @@ def _finish_run(
             "output_hash": package["reproducibility"]["output_hash"],
             "partial": record["partial"],
             "result_kept": keep,
+            "handoff": authority_handoff(
+                handoff_triggers(result=package), result=package
+            ),
             **summary,
         },
     )
@@ -336,6 +376,11 @@ def _batch(
             "runs": len(runs),
             "workers": workers,
             "variants": len(out["batch_result"]["variants"]),
+            "handoff": authority_handoff(
+                handoff_triggers(conflict_package=out["conflict_package"]),
+                branch_comparison=out["branch_comparison"],
+                conflict_package=out["conflict_package"],
+            ),
         },
     )
     store.log(job["job_id"], f"completed: {len(runs)} runs on {workers} workers")
@@ -367,11 +412,64 @@ def _failure_exploration(
             **job["summary"],
             "crushing_variable": failure_map["crushing_variable"],
             "survival_rate": failure_map["baseline"]["survival_rate"],
+            "handoff": authority_handoff(
+                handoff_triggers(failure_map=failure_map), failure_map=failure_map
+            ),
         },
     )
     store.log(
         job["job_id"], f"completed: crushed by {failure_map['crushing_variable']}"
     )
+
+
+def _branch_compare(
+    job: dict[str, Any],
+    store: JobStore,
+    policy: dict[str, Any],
+    scenarios_dir: Path,
+    batches_dir: Path,
+) -> None:
+    """STARTX's branches, each run repeat_count times, compared with the baseline."""
+    request = job["request"]
+    variants = compare_variants(request, scenarios_dir)
+    base = variants[-1].scenario
+    profile = profile_for(request, base)
+    perspective = profile.get("perspective") or scenario_perspective(base) or ""
+    seed = int(base["runtime"]["random_seed"])
+    seeds = [seed + n for n in range(request.get("repeat_count") or 1)]
+    started = time.monotonic()
+    records = run_jobs(
+        variants,
+        dict(profile, perspective=perspective),
+        seeds,
+        policy["max_parallel_runs"],
+    )
+    stats = aggregate(records, perspective)
+    store.save_result(
+        job["job_id"],
+        {
+            "variants": stats,
+            "branch_comparison": compare_branches(stats),
+            "runs": records,
+        },
+    )
+    store.update_job(
+        job["job_id"],
+        lifecycle_state="completed",
+        governance=_many_runs_record(
+            policy,
+            job,
+            len(records),
+            sum(r["event_count"] for r in records),
+            time.monotonic() - started,
+        ),
+        summary={
+            **job["summary"],
+            "runs": len(records),
+            "branches": [v.variant_id for v in variants],
+        },
+    )
+    store.log(job["job_id"], f"completed: {len(variants)} branches x {len(seeds)} runs")
 
 
 def _replay(
