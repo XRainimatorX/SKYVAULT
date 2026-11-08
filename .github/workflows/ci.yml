@@ -176,3 +176,28 @@ jobs:
           assert text.startswith("# Recommended modifications — tactical_reference_001 v0.1")
           print("failure exploration verified")
           EOF
+
+      # Phase 10: run the reference batch in parallel and check the four outputs
+      - name: Batch simulation and conflict branches
+        run: |
+          python scripts/run_batch.py --repeats 10 --workers 2
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.contracts import validate_batch_result, validate_conflict_package
+
+          out = Path("output")
+          result = validate_batch_result(json.loads((out / "batch_result.json").read_text()))
+          assert result["total_runs"] == 90 and result["workers"] == 2
+          comparison = json.loads((out / "branch_comparison.json").read_text())
+          assert comparison["variants"][-3:] == ["branch:P1", "branch:P2+P3", "branch:none"]
+          package = validate_conflict_package(json.loads((out / "conflict_package.json").read_text()))
+          assert [c["proposals"] for c in package["conflicts"]] == [["P1", "P2"], ["P1", "P3"]]
+          assert package["recommendation_to_nexus"]["required_decision"] is True
+          text = (out / "comparative_report.md").read_text()
+          assert text.startswith("# Comparative report — tactical_reference_001_doctrine")
+          print("batch verified")
+          EOF

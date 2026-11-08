@@ -125,3 +125,69 @@ def compare_branches(stats: list[dict[str, Any]]) -> dict[str, Any]:
             for v in order
         },
     }
+
+
+def render_comparative_report(
+    batch_result: dict[str, Any],
+    comparison: dict[str, Any],
+    conflict_package: dict[str, Any] | None = None,
+) -> str:
+    """
+    comparative_report.md: the batch for a person to read.
+
+    The variants side by side with a win-rate bar each, the best variant per
+    metric, and, when there were conflicting orders, every branch next to
+    the baseline with the decision left open.
+    """
+    lines = [
+        f"# Comparative report — {batch_result['batch_id']}",
+        "",
+        f"Scenario `{batch_result['scenario_id']}` {batch_result['base_version']}, "
+        f"profile `{batch_result['profile_id']}`, seen from "
+        f"{batch_result['perspective']}; {batch_result['repeat_count']} runs per "
+        f"variant, {batch_result['total_runs']} runs in all.",
+        "",
+        "## Variants",
+        "",
+        "| Variant | Kind | Win rate | 95% CI | Fail | HP lost | Risk events "
+        "| Score | |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for stats in batch_result["variants"]:
+        low, high = stats["win_rate_ci"]
+        bar = "█" * round(stats["win_rate"] * 20)
+        lines.append(
+            f"| {stats['variant_id']} | {stats['kind']} | {stats['win_rate']:.0%} "
+            f"| {low:.0%}–{high:.0%} | {stats['failure_frequency']:.0%} "
+            f"| {stats['mean_hp_lost']:g} | {stats['mean_risk_events']:g} "
+            f"| {stats['mean_score']:.3f} | `{bar or '·'}` |"
+        )
+    lines += ["", "## Best per metric", ""]
+    for metric, rule in comparison["metrics"].items():
+        lines.append(f"- **{metric}** ({rule}): {comparison['best'][metric]}")
+    lines += ["", "Ranking by mean score: " + " > ".join(comparison["ranking"])]
+
+    if conflict_package is not None:
+        lines += ["", "## Conflicting orders", ""]
+        for conflict in conflict_package["conflicts"]:
+            lines.append(
+                f"- {conflict['conflict_id']}: {conflict['reason']} "
+                f"({', '.join(conflict['conflict_types'])})"
+            )
+        lines += ["", "| Branch | Orders | Result | Δ score vs baseline |"]
+        lines.append("|---|---|---|---|")
+        for branch in [*conflict_package["branch_runs"], conflict_package["baseline"]]:
+            lines.append(
+                f"| {branch['branch_id']} | {', '.join(branch['action_set']) or '—'} "
+                f"| {branch['result_summary']} "
+                f"| {branch['evaluation_delta']['mean_score']:+.4f} |"
+            )
+        recommendation = conflict_package["recommendation_to_nexus"]
+        required = "yes" if recommendation["required_decision"] else "no"
+        lines += [
+            "",
+            f"Decision required: **{required}**",
+            "",
+            recommendation["decision_reason"],
+        ]
+    return "\n".join(lines) + "\n"

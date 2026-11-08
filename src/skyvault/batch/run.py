@@ -10,7 +10,11 @@ import copy
 from pathlib import Path
 from typing import Any
 
-from ..contracts import validate_batch_result, validate_batch_spec
+from ..contracts import (
+    validate_batch_result,
+    validate_batch_spec,
+    validate_conflict_package,
+)
 from ..scenario_loader import (
     PROFILE_DIR,
     load_evaluation_profile,
@@ -19,8 +23,14 @@ from ..scenario_loader import (
 )
 from ..verification import SCENARIO_DIR
 from .aggregate import aggregate, compare_branches
+from .conflicts import (
+    branch_id,
+    build_conflict_package,
+    compatible_sets,
+    detect_conflicts,
+)
 from .runner import run_jobs
-from .variants import Variant, build_variants
+from .variants import Variant, branch_variant, build_variants
 
 
 def run_batch(
@@ -55,6 +65,15 @@ def run_batch(
     seeds = _seeds(base, request)
 
     variants: list[Variant] = build_variants(request, scenarios_dir)
+    proposals = (request["conflicts"] or {}).get("proposals", [])
+    conflicts = detect_conflicts(base, proposals)
+    sets = compatible_sets(proposals, conflicts)
+    if request["conflicts"] is not None:
+        by_id = {p["proposal_id"]: p for p in proposals}
+        for chosen in [*sets, []]:
+            variants.append(
+                branch_variant(base, branch_id(chosen), [by_id[p] for p in chosen])
+            )
     records = run_jobs(variants, profile, seeds, request["workers"])
     stats = aggregate(records, perspective) if records else []
 
@@ -73,10 +92,22 @@ def run_batch(
             "runs": records,
         }
     )
+    package = None
+    if request["conflicts"] is not None:
+        by_variant = {entry["variant_id"]: entry for entry in stats}
+        package = validate_conflict_package(
+            build_conflict_package(
+                base,
+                proposals,
+                conflicts,
+                [by_variant[f"branch:{branch_id(chosen)}"] for chosen in sets],
+                by_variant["branch:none"],
+            )
+        )
     return {
         "batch_result": batch_result,
         "branch_comparison": compare_branches(stats),
-        "conflict_package": None,
+        "conflict_package": package,
     }
 
 
