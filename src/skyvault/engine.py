@@ -580,6 +580,7 @@ class SkyVaultTacticalReferenceEngine:
         was not stopped hashes exactly as before.
         """
         usage = {
+            "runs": 1,
             "ticks": self.world.tick,
             "decisions": self.decisions,
             "events": len(self.world.event_memory),

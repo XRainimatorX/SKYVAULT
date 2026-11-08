@@ -409,6 +409,7 @@ def test_every_run_records_its_governance_even_without_a_policy():
         None,
         False,
     )
+    assert rec["usage"]["runs"] == 1
     assert rec["usage"]["ticks"] == 10 and rec["usage"]["decisions"] == 46
     assert rec["usage"]["events"] == len(package["event_memory"]) == 97
 
