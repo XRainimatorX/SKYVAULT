@@ -66,6 +66,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 裝備在造出來之前先測（Phase 16）：一份 EXO / PAX / MSX / ERX 的 profile 經過 physics-lite 規則（穩定、關節負載、接地壓力、能量、散熱、尺度）、工程可行性（材料、維修、零件、供應鏈、修復環境）與軍事任務裡和原單位的比較，得到三個分數；壓力條件下列出它在哪一級、按什麼順序垮掉，constraint solver 算出要改到多少，太接近邊線時標明需要真正的工程仿真；最後判斷 continue、redesign、reject 或 require_external_simulation。
 
+一顆核心、兩個版本（Phase 19）：版本是一個 JSON 檔。內部版是核心原樣、一個能力都不少；商業版（SKYVAULT Studio）不掛內部系統的介面、回應裡沒有任何內部系統名稱，提供六個產品 —— 危機規劃、城市韌性、AI 情境測試、裝備概念篩查、訓練與事後回顧、風險模擬 —— 每個都從核心的一次真實 run 讀出 KPI 與結論。客戶做出來的場景帶著來源回到核心。
+
 每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
 
 誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
@@ -153,6 +155,8 @@ python3 scripts/run_tactical_reference.py --scenario data/scenarios/city_blackou
 python3 scripts/run_city.py                                                # output/city/：governance score、連鎖、補給延遲
 python3 scripts/run_airspace.py                                            # output/airspace/：偵測缺口、反應、漏過原因、規則與雷達配置比較
 python3 scripts/run_virtual_test.py                                        # output/virtual_test/：四份裝備的三重篩查與判斷
+python3 scripts/run_products.py --edition commercial                       # output/products/：商業版六個產品的 KPI 與結論
+python3 scripts/serve_world.py --edition commercial                        # 商業版的 world service
 docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
@@ -208,6 +212,7 @@ python3 -m pytest tests/ -q
 | `city/` | （run_city）每座城市的 governance stability score、停電連鎖、補給延遲研究與 city_report.md |
 | `airspace/` | （run_airspace）reference 空域的 detection gap、response time、failure points；HADES 規則與 AEROGRID 配置的比較；airspace_report.md |
 | `virtual_test/` | （run_virtual_test）每份裝備的 equipment_test_result 與 virtual_test_report.md |
+| `products/` | （run_products）一個版本的每個產品：問題、KPI、結論（redact 後）與 products.md |
 | `external/<system>.json` | （run_external）九個系統各自拿回什麼；`conflict_*.json`：一個衝突的 package、handoff 與決定 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
@@ -235,7 +240,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        25 份資料契約（Pydantic，schema 0.6）
+  contracts/        26 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
@@ -250,6 +255,7 @@ src/skyvault/       引擎與 exporter
   domains/city/     第二個 domain pack：道路網上的城市、治安、電力連鎖、補給、governance score
   domains/airspace/ 第三個 domain pack：空域、機率偵測、航跡、攔截、HADES / SKYFOX / AEROGRID
   virtualtest/      裝備的三重篩查：physics-lite、工程、戰術、壓力、solver、surrogate、外部仿真、判斷
+  editions/         一顆核心兩個版本：manifest、redact、edition 服務、六個產品、反哺
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
@@ -263,6 +269,7 @@ data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
 data/domains/       domain pack 的 profile、rules 與 scenario spec（military、city、airspace）
 data/virtualtest/   virtual test 的規則與四份裝備 profile
+data/editions/      版本（internal、commercial）與產品目錄
 data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
 data/service/       world service 的 governance 政策
@@ -286,6 +293,7 @@ docs/               文件
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
 | 權威名單不能由政策擴充 | 固定 NEXUS、SOVEREIGN（authorities 是參數） | Phase 19 |
 | CYBERHOUND、EIDEN 的世界參數 | 回報為缺口，不模擬（AEROGRID 的空域、星衞的裝備參數已有模型） | 需要時 |
+| 商業版的 redact 是字串層級 | 新增內部名稱要加進 data/editions/commercial.json；CI 掃描外洩 | 需要時 |
 | 裝備篩查的係數是假設 | physics-lite 門檻、一個軍事 tick = 10 分鐘、hp 係數代表防護；FMI / FMU 尚未接上 | 有真實資料時 |
 | 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
 | 空域只有 2D、兩種高度，威脅只會直線飛 | 沒有閃避、改目標；HADES 不能指定攔截器、AEROGRID 不能新增感測器 | 計劃寫 3D later |
@@ -311,7 +319,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase16_star_guard_virtual_test.md`](docs/phases/phase16_star_guard_virtual_test.md)。
+完整清單見 [`docs/phases/phase19_editions.md`](docs/phases/phase19_editions.md)。
 
 ---
 

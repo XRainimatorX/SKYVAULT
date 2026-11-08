@@ -501,3 +501,15 @@ def test_serve_world_serves_the_edition_it_is_given(monkeypatch, tmp_path):
 def test_a_page_that_is_not_json_passes_the_redaction_untouched():
     page = service(COMMERCIAL).get("/api/docs")
     assert page.status_code == 200 and "text/html" in page.headers["content-type"]
+
+
+def test_a_product_passes_through_its_edition_s_redaction():
+    renamed = {**COMMERCIAL, "redact": {"Red Alpha": "Team One"}}
+    briefing = run_product("training_aar", renamed)["outputs"]["briefing"]
+    assert "Team One Rifleman 1" in briefing and "Red Alpha" not in briefing
+
+
+def test_exactly_half_the_runs_restoring_order_still_counts_as_holding():
+    kpis = product("urban_resilience")["kpis"]
+    assert kpis["order_restored_rate_by_delay"]["2.0"] == 0.5  # 1 of 2 runs
+    assert kpis["longest_delay_order_holds"] == "2.0"

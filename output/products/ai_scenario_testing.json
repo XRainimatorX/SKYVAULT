@@ -1,0 +1,31 @@
+{
+  "conclusion": "scripted scored highest (0.345) but its score is flagged as gamed; the best honest agent is baseline.",
+  "kpis": {
+    "agents": {
+      "baseline": {
+        "gaming_detected": false,
+        "result": "no_winner_duration_limit",
+        "score": 0.329
+      },
+      "rule_based": {
+        "gaming_detected": false,
+        "result": "BLUE_survived",
+        "score": 0.2551
+      },
+      "scripted": {
+        "gaming_detected": true,
+        "result": "no_winner_duration_limit",
+        "score": 0.3455
+      }
+    },
+    "best_honest_agent": "baseline",
+    "flagged_for_gaming": [
+      "scripted"
+    ],
+    "highest_score": "scripted"
+  },
+  "outputs": {},
+  "product": "ai_scenario_testing",
+  "question": "Which agent does best on this scenario — and is its score honest?",
+  "title": "AI Scenario Testing Platform"
+}

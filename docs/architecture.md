@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              25 份契約：Pydantic model + validate_<x>()
+              26 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -1122,6 +1122,26 @@ physics、engineering、solver、stress、external、judgement 不 import engine
 | 有用 | Δscore ≥ 0.05 且任務不少，或任務更多且分數沒掉 0.05 以上 |
 | 外部仿真 | margin 在 ±0.1 內、scale 超出、類別不認識、缺參數 |
 
+## `editions/`
+
+Phase 19 建立。一顆核心、兩個版本：最上層（與 interface 同層），core 不 import 它，它不改寫核心，只選擇與包裝。
+
+```text
+manifest.py   data/editions/<id>.json（edition 契約）：load_edition、allows、public
+redact.py     內部名稱 → 別名（整個比對、大小寫與分隔符都算、識別碼用 snake_case、鍵也換）；leaks 找殘留
+service.py    create_edition_service：world service（gate、external_routes）+ 允許的系統 + /api/edition、/api/products；
+              商業版的每個 JSON 回應經過 redact；handoff 的決定者來自 edition
+products.py   六個產品，每個一條核心流程 + 問題、KPI、結論
+feedback.py   contribute（帶來源、結果、transitions）、import_contribution（別名還原、scenario 契約）
+```
+
+| 版本 | 內容 |
+|---|---|
+| internal（SKYVAULT Core） | world service 的全部路由 + 3 條 edition 路由；九個系統；redact 為恆等；決定者 NEXUS、SOVEREIGN |
+| commercial（SKYVAULT Studio） | 不掛外部介面（加一個系統就只掛回那個）；四種 job kind；六個產品；決定者 customer；回應 redact |
+
+world service 的掛鉤：`create_world_service(..., external_routes=True, gate=None)`、`add_external_routes(..., systems=None)`；預設一步都不變。
+
 ## `training/`
 
 Phase 18 建立。開發計劃 Phase 18、Formal Spec §16。
@@ -1473,7 +1493,7 @@ needs_more_test  其餘
 ```text
 25 份契約（開發計劃的 11 份 + evaluation_profile + failure_map + batch_spec、batch_result、conflict_package
   + observer_profile、observation + order + resource_compute_governance、job + external_submission、authority_handoff
-  + equipment_profile、equipment_test_result），
+  + equipment_profile、equipment_test_result + edition），
   各一個 Pydantic model + validate_<x>()
 ContractError
 SCHEMA_VERSION = "0.6"
@@ -1983,7 +2003,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 25 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 26 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |

@@ -1,0 +1,18 @@
+{
+  "conclusion": "Order is restored in at least half the runs up to a supply delay of ×1.5; beyond it, in fewer than half.",
+  "kpis": {
+    "longest_delay_order_holds": "1.5",
+    "order_restored_rate_by_delay": {
+      "1.0": 1.0,
+      "1.5": 1.0,
+      "2.0": 0.3333,
+      "2.5": 0.0,
+      "3.0": 0.0
+    },
+    "runs": 15
+  },
+  "outputs": {},
+  "product": "urban_resilience",
+  "question": "How late can supplies arrive before order breaks down?",
+  "title": "Urban Resilience Simulator"
+}
