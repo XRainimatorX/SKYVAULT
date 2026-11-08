@@ -68,6 +68,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 一顆核心、兩個版本（Phase 19）：版本是一個 JSON 檔。內部版是核心原樣、一個能力都不少；商業版（SKYVAULT Studio）不掛內部系統的介面、回應裡沒有任何內部系統名稱，提供六個產品 —— 危機規劃、城市韌性、AI 情境測試、裝備概念篩查、訓練與事後回顧、風險模擬 —— 每個都從核心的一次真實 run 讀出 KPI 與結論。客戶做出來的場景帶著來源回到核心。
 
+完整的 v2.0（Phase 20）：一個指令在同一個服務上跑完開發計劃的十五條最終驗收、十四項必備能力與 Final Authority Boundary 的十一條，交出一份每條附證據的驗收報告。SKYVAULT 可以模擬、建議、警告、返回 failure map 與 conflict package、拒絕 invalid scenario；它不可以做主權決定、推翻 NEXUS 或 STARTX、取代人類權威、自行決定最終戰略 —— 而且這在契約層強制：任何設定、任何寫法都不能讓 SKYVAULT 成為決定者。
+
 每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
 
 誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
@@ -157,6 +159,7 @@ python3 scripts/run_airspace.py                                            # out
 python3 scripts/run_virtual_test.py                                        # output/virtual_test/：四份裝備的三重篩查與判斷
 python3 scripts/run_products.py --edition commercial                       # output/products/：商業版六個產品的 KPI 與結論
 python3 scripts/serve_world.py --edition commercial                        # 商業版的 world service
+python3 scripts/run_v2_acceptance.py                                       # output/v2/：完整 v2.0 的驗收與證據
 docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
@@ -213,6 +216,7 @@ python3 -m pytest tests/ -q
 | `airspace/` | （run_airspace）reference 空域的 detection gap、response time、failure points；HADES 規則與 AEROGRID 配置的比較；airspace_report.md |
 | `virtual_test/` | （run_virtual_test）每份裝備的 equipment_test_result 與 virtual_test_report.md |
 | `products/` | （run_products）一個版本的每個產品：問題、KPI、結論（redact 後）與 products.md |
+| `v2/` | （run_v2_acceptance）acceptance.json（每條檢查與證據）與 acceptance.md |
 | `external/<system>.json` | （run_external）九個系統各自拿回什麼；`conflict_*.json`：一個衝突的 package、handoff 與決定 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
@@ -256,6 +260,8 @@ src/skyvault/       引擎與 exporter
   domains/airspace/ 第三個 domain pack：空域、機率偵測、航跡、攔截、HADES / SKYFOX / AEROGRID
   virtualtest/      裝備的三重篩查：physics-lite、工程、戰術、壓力、solver、surrogate、外部仿真、判斷
   editions/         一顆核心兩個版本：manifest、redact、edition 服務、六個產品、反哺
+  acceptance/       完整 v2.0 的驗收：十五條、十四項、十一條邊界，在同一個服務上
+  boundary.py       Final Authority Boundary：role、may、may not
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
@@ -270,6 +276,7 @@ data/batches/       batch 請求
 data/domains/       domain pack 的 profile、rules 與 scenario spec（military、city、airspace）
 data/virtualtest/   virtual test 的規則與四份裝備 profile
 data/editions/      版本（internal、commercial）與產品目錄
+data/v2/            完整 v2.0 的驗收清單
 data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
 data/service/       world service 的 governance 政策
@@ -319,7 +326,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase19_editions.md`](docs/phases/phase19_editions.md)。
+完整清單見 [`docs/phases/phase20_full_skyvault_v2.md`](docs/phases/phase20_full_skyvault_v2.md)。
 
 ---
 

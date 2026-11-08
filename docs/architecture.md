@@ -1142,6 +1142,21 @@ feedback.py   contribute（帶來源、結果、transitions）、import_contribu
 
 world service 的掛鉤：`create_world_service(..., external_routes=True, gate=None)`、`add_external_routes(..., systems=None)`；預設一步都不變。
 
+## Final Authority Boundary 與 `acceptance/`
+
+Phase 20 建立。
+
+```text
+boundary.py       ROLE = world_environment_engine；MAY（模擬、建議、警告、failure map、conflict package、拒絕 invalid scenario）；
+                  MAY_NOT（主權決定、override NEXUS、override STARTX 的戰略意圖、取代人類權威、自行決定最終戰略方案）
+強制在哪裡        contracts/base.py 的 Authority 型別（handoff、governance、edition 的決定者不得是 SKYVAULT）；
+                  interface.handoff.decide 與 interface.conflicts.resolve 最先拒絕 SKYVAULT；world service 的 /api/boundary 宣告
+acceptance/       最上層（rank 5）：service（同一個 in-process 內部版 world service）、checks（十五條與十四項）、
+                  boundary_checks（may 與 may not）、run（run_acceptance）、report（acceptance.md）
+```
+
+分層：tests/layers.py 是一份正面清單（domains 1、virtualtest 2、interface 與 worldservice 3、editions 4、acceptance 5，其餘是 core 0）；每個模組只可以 import 同層或更低的。
+
 ## `training/`
 
 Phase 18 建立。開發計劃 Phase 18、Formal Spec §16。

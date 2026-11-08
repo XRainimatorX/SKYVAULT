@@ -97,7 +97,7 @@ class AuthorityHandoff(ContractModel):
     may_execute_final_decision: Literal[False] = False
     decision_authority: list[Authority] = Field(min_length=1)
     status: Literal["awaiting_decision", "decided"] = "awaiting_decision"
-    decided_by: Authority | None = None
+    decided_by: NonEmptyStr | None = None
     decision: NonEmptyStr | None = None
 
     @model_validator(mode="after")

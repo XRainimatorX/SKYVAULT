@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-1414 passed, 69 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1483 passed）
+1447 passed, 69 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1516 passed）
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -165,6 +165,8 @@ Phase 16 再發現：**和 baseline 比較時，每條規則先問 baseline 在�
 
 Phase 19 再發現：**一層會改寫輸出的程式，會讓沒生效的設定看起來生效了。** 商業版第一次回傳的決定者是被 redact 改了名的 NEXUS —— 佇列在套用 edition 之前就建好了。驗證會被改寫的設定時，用改寫不到的值（customer）斷言。另外：結論裡的「most」「at least」是判斷詞，要測邊上的情況；分層測試用負面清單定義 core，加了上層就漏。
 
+Phase 20 再發現：**每加一個可設定的值，同時寫下它不能是什麼。** Phase 19 讓決定者可以設定，卻沒有規定 SKYVAULT 不能是決定者 —— 一份設定檔就能抹掉 Final Authority Boundary。現在它在契約層強制。另外：每個驗收檢查先看它失敗一次（一個寫死為通過的檢查只在反向驗證時被看見）；改寫程式碼不用字串切割（一個帶裝飾器的測試被刪掉過）。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -263,7 +265,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）、[#32](https://github.com/XRainimatorX/SKYVAULT/issues/32)（Phase 14，16 條）、[#33](https://github.com/XRainimatorX/SKYVAULT/issues/33)（Phase 15，16 條）、[#34](https://github.com/XRainimatorX/SKYVAULT/issues/34)（Phase 16，16 條）、[#35](https://github.com/XRainimatorX/SKYVAULT/issues/35)（Phase 19，16 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）、[#32](https://github.com/XRainimatorX/SKYVAULT/issues/32)（Phase 14，16 條）、[#33](https://github.com/XRainimatorX/SKYVAULT/issues/33)（Phase 15，16 條）、[#34](https://github.com/XRainimatorX/SKYVAULT/issues/34)（Phase 16，16 條）、[#35](https://github.com/XRainimatorX/SKYVAULT/issues/35)（Phase 19，16 條）、[#36](https://github.com/XRainimatorX/SKYVAULT/issues/36)（Phase 20，16 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -305,22 +307,13 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個也是最後一個是 **Phase 20 — Full SKYVAULT v2.0**：所有核心、接口、多 domain、失敗探索、報告、後台服務整合成完整系統，加上 **Final Authority Boundary** —— SKYVAULT 可以模擬、建議、警告、返回 failure map 與 conflict package、拒絕 invalid scenario，但不可以做主權決定、override NEXUS、override STARTX 的戰略意圖、取代人類權威或自行決定最終戰略方案。最終驗收十五條（NEXUS 提交任務、STARTX 提交 branch、TAC ANGEL 提交 tactical action、空域 scenario、星衞 virtual test、normal simulation、failure exploration、result package、replay、人類可讀報告、高風險 → authority_handoff、conflict → required_decision、failure exploration 交回 NEXUS / 陛下、role 永遠是 world-environment engine）。規格見 [`plan/phase20_full_skyvault_v2.md`](plan/phase20_full_skyvault_v2.md)。
+**roadmap 的二十一個 Phase 已全部完成**（Phase 0–20）。`python3 scripts/run_v2_acceptance.py` 在同一個服務上跑完開發計劃的十五條最終驗收、十四項必備與 Final Authority Boundary，output/v2/acceptance.md 是目前系統的驗收報告 —— 之後任何變更都應該讓它保持 ACCEPTED（CI 的 Full v2 acceptance 步驟會擋）。
 
-開設時要先做與先回答的：
-
-```text
-分層測試改用正面清單      Phase 19 回顧改法 3：「core 的模組」列成一份清單，各上層的「不被 import」測試共用
-core 的 11 軸與 domain 的軸  Phase 14 起四次的未決項（city、airspace、virtual test、editions 的產品都在 core 之外判斷成功）
-```
-
-前面的 Phase 留下與它直接相關的東西：
+之後的變更先讀：
 
 ```text
-interface/（Phase 12）        九個系統的提交、conflict 的分支與權威決定、authority handoff；SKYVAULT 自己不是權威（已有測試）
-editions/（Phase 19）         內部版 = 完整系統；商業版不得削弱 Final Authority Boundary
-worldservice/（Phase 11）     背景服務、governance、auto-stop
-domains/（13、14、15）        三個 domain pack；virtualtest/（16）
+docs/phases/phase20_full_skyvault_v2.md   第 4 節（這一輪發現的問題）與第 6 節（已知限制）
+docs/postmortems/phase20.md               第 6 節：可設定的值寫下禁止值、檢查先看它失敗、改寫程式碼不用字串切割、多層防禦各一個反例
+docs/decisions/022_full_v2.md             Final Authority Boundary 在哪裡強制；11 軸不開放給 domain 的決定
+tests/layers.py                           新的套件要不要給它一個 rank
 ```
-
-開工前先讀 [`phases/phase19_editions.md`](phases/phase19_editions.md) 的第 4 節與 [`postmortems/phase19.md`](postmortems/phase19.md)。

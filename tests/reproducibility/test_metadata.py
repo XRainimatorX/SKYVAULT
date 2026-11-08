@@ -104,7 +104,8 @@ def test_the_runtime_version_is_the_package_version():
     # One version, kept in two files, recorded in every package
     assert RUNTIME_VERSION == skyvault.__version__ == declared
     assert run()["reproducibility"]["runtime_version"] == declared
-    assert re.fullmatch(r"0\.\d+\.0", declared)
+    # 0.N.0 for each phase until Full SKYVAULT v2.0 (Phase 20, ADR 022)
+    assert re.fullmatch(r"\d+\.\d+\.0", declared)
 
 
 def test_the_ruleset_version_moves_with_rules_not_with_data():

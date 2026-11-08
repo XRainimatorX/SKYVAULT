@@ -1,5 +1,5 @@
 {
-  "briefing": "# SKYVAULT briefing \u2014 tactical_reference_001 v0.1\n\n## Summary\n\nScenario tactical_reference_001 v0.1: 97 events over 10 ticks.\n\n- Result: RED_survived\n- Verdict: risky (confidence 0.92)\n- Score: 0.50\n- Profile: balanced, seen from RED\n\n## What happened\n\nEach tick: what was done, and who was destroyed by whom.\n\n- Tick 1: 6 moves\n- Tick 2: 6 moves\n- Tick 3: 6 moves\n- Tick 4: 1 miss; 5 moves\n- Tick 5: 4 attacks; 2 misses\n- Tick 6: 4 attacks; 1 move; Blue Commander destroyed by Red Rifleman; Red Commander destroyed by Blue Support\n- Tick 7: 1 attack; 2 moves; Blue Support destroyed by Red Support\n- Tick 8: 2 attacks; 1 miss\n- Tick 9: 1 attack; 2 misses\n- Tick 10: 2 attacks; Blue Rifleman destroyed by Red Support\n\n## Losses\n\n- BLUE lost 3 of 3: Blue Commander at tick 6, Blue Support at tick 7, Blue Rifleman at tick 10\n- RED lost 1 of 3: Red Commander at tick 6\n\n## Evaluation\n\nScenario ended because: termination_condition_met\n\nEvents recorded: 97\n\nDestroyed entities: 4\n\nOverall score 0.50 under profile balanced: risky (confidence 0.92)\n\nStrongest axis: mission_success 1.00\n\nWeakest axis: recovery_ability 0.00\n\n- failure_resistance 0.60\n- mission_success 1.00\n- recovery_ability 0.00\n- resource_cost 0.59\n- risk_growth 0.67\n- stability_impact 0.33\n- strategic_value 0.67\n- system_robustness 1.00\n- tactical_value 1.00\n- time_cost 0.00\n- Failure cause: red_003 destroyed at tick 6 by blue_002\n- Failure cause: time_cost 0.00: ended at tick 10 of 10\n- Failure cause: recovery_ability 0.00: 0 hp restored against 40 hp still lost\n- Failure cause: Anti-gaming: sacrifice_long_term_stability_for_short_term_success\n- Next test: Exercise logistics_burden: the world holds no resources to spend\n- Next test: Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order\n- Flagged: sacrifice_long_term_stability_for_short_term_success\n\n## Trade-offs\n\n- tactical_value 1.00 against strategic_value 0.67: both strong\n- mission_success 1.00 against resource_cost 0.59: balanced\n- time_cost 0.00 against risk_growth 0.67: risk_growth kept at the expense of time_cost\n- mission_success 1.00 against stability_impact 0.33: mission_success bought at the expense of stability_impact\n\n## Reproducibility\n\n- Run: run_20261108T223044312004Z_5e71d369\n- Random: seed 42 (fixed)\n- Runtime 0.21.0, rules rules-2438b4a50419\n- Input hash: 5e71d369a6d87f35faf23d1c6f3289da60bede8b1a43de0d843402f6420fd14e\n- Output hash: 63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09\n",
+  "briefing": "# SKYVAULT briefing \u2014 tactical_reference_001 v0.1\n\n## Summary\n\nScenario tactical_reference_001 v0.1: 97 events over 10 ticks.\n\n- Result: RED_survived\n- Verdict: risky (confidence 0.92)\n- Score: 0.50\n- Profile: balanced, seen from RED\n\n## What happened\n\nEach tick: what was done, and who was destroyed by whom.\n\n- Tick 1: 6 moves\n- Tick 2: 6 moves\n- Tick 3: 6 moves\n- Tick 4: 1 miss; 5 moves\n- Tick 5: 4 attacks; 2 misses\n- Tick 6: 4 attacks; 1 move; Blue Commander destroyed by Red Rifleman; Red Commander destroyed by Blue Support\n- Tick 7: 1 attack; 2 moves; Blue Support destroyed by Red Support\n- Tick 8: 2 attacks; 1 miss\n- Tick 9: 1 attack; 2 misses\n- Tick 10: 2 attacks; Blue Rifleman destroyed by Red Support\n\n## Losses\n\n- BLUE lost 3 of 3: Blue Commander at tick 6, Blue Support at tick 7, Blue Rifleman at tick 10\n- RED lost 1 of 3: Red Commander at tick 6\n\n## Evaluation\n\nScenario ended because: termination_condition_met\n\nEvents recorded: 97\n\nDestroyed entities: 4\n\nOverall score 0.50 under profile balanced: risky (confidence 0.92)\n\nStrongest axis: mission_success 1.00\n\nWeakest axis: recovery_ability 0.00\n\n- failure_resistance 0.60\n- mission_success 1.00\n- recovery_ability 0.00\n- resource_cost 0.59\n- risk_growth 0.67\n- stability_impact 0.33\n- strategic_value 0.67\n- system_robustness 1.00\n- tactical_value 1.00\n- time_cost 0.00\n- Failure cause: red_003 destroyed at tick 6 by blue_002\n- Failure cause: time_cost 0.00: ended at tick 10 of 10\n- Failure cause: recovery_ability 0.00: 0 hp restored against 40 hp still lost\n- Failure cause: Anti-gaming: sacrifice_long_term_stability_for_short_term_success\n- Next test: Exercise logistics_burden: the world holds no resources to spend\n- Next test: Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order\n- Flagged: sacrifice_long_term_stability_for_short_term_success\n\n## Trade-offs\n\n- tactical_value 1.00 against strategic_value 0.67: both strong\n- mission_success 1.00 against resource_cost 0.59: balanced\n- time_cost 0.00 against risk_growth 0.67: risk_growth kept at the expense of time_cost\n- mission_success 1.00 against stability_impact 0.33: mission_success bought at the expense of stability_impact\n\n## Reproducibility\n\n- Run: run_20261108T232708274237Z_5e71d369\n- Random: seed 42 (fixed)\n- Runtime 2.0.0, rules rules-2438b4a50419\n- Input hash: 5e71d369a6d87f35faf23d1c6f3289da60bede8b1a43de0d843402f6420fd14e\n- Output hash: 63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09\n",
   "domain_outcome": null,
   "gaps": [],
   "result_package": {
@@ -9909,10 +9909,10 @@
       "random_seed": 42,
       "random_seed_policy": "fixed",
       "ruleset_version": "rules-2438b4a50419",
-      "run_id": "run_20261108T223044312004Z_5e71d369",
+      "run_id": "run_20261108T232708274237Z_5e71d369",
       "run_metadata": {
         "compute_profile": "python 3.11.18",
-        "ended_at": "2026-11-08T22:30:44.327761+00:00",
+        "ended_at": "2026-11-08T23:27:08.288586+00:00",
         "operator_system": "Linux-6.18.44-fc-v310-x86_64-with-glibc2.39",
         "resource_compute_governance": {
           "duration_clamped_from": null,
@@ -9943,13 +9943,13 @@
             "decisions": 46,
             "events": 97,
             "runs": 1,
-            "runtime_seconds": 0.015757,
+            "runtime_seconds": 0.014349,
             "ticks": 10
           }
         },
-        "started_at": "2026-11-08T22:30:44.312004+00:00"
+        "started_at": "2026-11-08T23:27:08.274237+00:00"
       },
-      "runtime_version": "0.21.0",
+      "runtime_version": "2.0.0",
       "scenario_id": "tactical_reference_001",
       "scenario_version": "v0.1"
     },
@@ -10168,7 +10168,7 @@
         "decisions": 46,
         "events": 97,
         "runs": 1,
-        "runtime_seconds": 0.015757,
+        "runtime_seconds": 0.014349,
         "ticks": 10
       }
     },

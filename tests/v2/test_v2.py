@@ -304,3 +304,51 @@ def test_the_acceptance_service_says_what_it_was_refused():
     service.queue = Stuck()
     with pytest.raises(TimeoutError):
         service.wait(0.01)
+
+
+def test_skyvault_is_refused_before_anything_else_about_a_conflict():
+    record = {
+        "conflict_id": "conflict_000001",
+        "status": "decided",
+        "decided_by": "NEXUS",
+        "branches": {"none": []},
+        "handoff": {"decision_authority": ["SKYVAULT", "NEXUS"]},
+    }
+    # an already decided conflict would say ValueError; SKYVAULT is refused first
+    with pytest.raises(PermissionError, match="never decides"):
+        decide_conflict(record, "none", "SKYVAULT")
+
+
+class Answers:
+    """A service whose jobs end as the test says."""
+
+    def __init__(self, summary):
+        self.summary = summary
+
+    def job(self, request):
+        return {
+            "job_id": "job_x",
+            "lifecycle_state": "completed",
+            "summary": self.summary,
+        }
+
+
+def test_a_simulation_that_drifts_from_the_reference_hash_is_not_accepted():
+    from skyvault.acceptance.checks import normal_simulation
+
+    drifted = {"output_hash": "deadbeef0000", "result": "RED_survived", "events": 97}
+    assert normal_simulation(Answers(drifted), {})["passed"] is False
+    pinned = {**drifted, "output_hash": "63090026e137ffff"}
+    assert normal_simulation(Answers(pinned), {})["passed"] is True
+
+
+def test_an_adapter_check_needs_every_system_carried_through():
+    from skyvault.acceptance.checks import SYSTEMS, external_adapter
+
+    assert external_adapter(None, {"systems": set(SYSTEMS)})["passed"] is True
+    missing = set(SYSTEMS) - {"STARTX"}
+    outcome = external_adapter(None, {"systems": missing})
+    assert (
+        outcome["passed"] is False
+        and "STARTX" not in outcome["evidence"]["systems_carried_out"]
+    )
