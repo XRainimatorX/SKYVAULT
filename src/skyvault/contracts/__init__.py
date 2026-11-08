@@ -17,6 +17,12 @@ from .consequence import ConsequenceRecord, validate_consequence
 from .entity import EntityRecord, validate_entity
 from .errors import ContractError
 from .evaluation import EvaluationResult, validate_evaluation_result
+from .evaluation_profile import (
+    ANTI_GAMING_BEHAVIORS,
+    METRIC_NAMES,
+    EvaluationProfile,
+    validate_evaluation_profile,
+)
 from .event import EVENT_TYPES, EventRecord, validate_event
 from .json_schema import CONTRACTS, build_json_schemas
 from .provenance import DataProvenance, validate_data_provenance
@@ -27,7 +33,9 @@ from .world import WorldContract, validate_world_contract
 
 __all__ = [
     "SCHEMA_VERSION",
+    "ANTI_GAMING_BEHAVIORS",
     "CONTRACTS",
+    "METRIC_NAMES",
     "ContractError",
     "EVENT_TYPES",
     "ActionRecord",
@@ -35,6 +43,7 @@ __all__ = [
     "ConsequenceRecord",
     "DataProvenance",
     "EntityRecord",
+    "EvaluationProfile",
     "EvaluationResult",
     "EventRecord",
     "ReproducibilityMetadata",
@@ -47,6 +56,7 @@ __all__ = [
     "validate_consequence",
     "validate_data_provenance",
     "validate_entity",
+    "validate_evaluation_profile",
     "validate_evaluation_result",
     "validate_event",
     "validate_reproducibility",

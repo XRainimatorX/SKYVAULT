@@ -180,15 +180,19 @@ def test_result_package_accepts_reproducibility_once_phase_8_fills_it():
 # ── JSON Schema ──────────────────────────────────────────────────────────────
 
 
-def test_the_eleven_plan_contracts_are_exported():
-    assert set(CONTRACTS) == PLAN_CONTRACTS
-    assert set(build_json_schemas()) == PLAN_CONTRACTS
+# Phase 7 adds the evaluation profile to the eleven plan contracts
+EXPORTED_CONTRACTS = PLAN_CONTRACTS | {"evaluation_profile"}
+
+
+def test_the_eleven_plan_contracts_and_the_profile_are_exported():
+    assert set(CONTRACTS) == EXPORTED_CONTRACTS
+    assert set(build_json_schemas()) == EXPORTED_CONTRACTS
 
 
 def test_committed_schema_files_match_the_contracts():
     committed = {path.name for path in SCHEMA_DIR.glob("*.schema.json")}
 
-    assert committed == {f"{name}.schema.json" for name in PLAN_CONTRACTS}
+    assert committed == {f"{name}.schema.json" for name in EXPORTED_CONTRACTS}
 
     for name, schema in build_json_schemas().items():
         with (SCHEMA_DIR / f"{name}.schema.json").open(encoding="utf-8") as file:

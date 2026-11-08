@@ -35,6 +35,8 @@ def check(model: type[ContractModel], contract: str, data: Any) -> dict[str, Any
     Important:
     Only fields the caller actually supplied come back. Optional fields left out
     of the input are not filled in, so validating data never changes its shape.
+    A field with an alias (thresholds.pass, a Python keyword) comes back under
+    the alias it arrived with.
     """
     try:
         instance = model.model_validate(data)
@@ -44,7 +46,7 @@ def check(model: type[ContractModel], contract: str, data: Any) -> dict[str, Any
             [_describe(item) for item in error.errors()],
         ) from None
 
-    return instance.model_dump(mode="json", exclude_unset=True)
+    return instance.model_dump(mode="json", exclude_unset=True, by_alias=True)
 
 
 def _describe(item: Any) -> str:

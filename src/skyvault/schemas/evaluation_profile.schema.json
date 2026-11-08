@@ -1,0 +1,149 @@
+{
+  "$defs": {
+    "AntiGamingMetric": {
+      "additionalProperties": false,
+      "description": "One anti-gaming check, Formal Spec section 16, with its trigger and cost.",
+      "properties": {
+        "metric": {
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "penalty": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Penalty",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "threshold": {
+          "minimum": 0.0,
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric",
+        "reason",
+        "threshold",
+        "penalty"
+      ],
+      "title": "AntiGamingMetric",
+      "type": "object"
+    },
+    "Thresholds": {
+      "additionalProperties": false,
+      "description": "Overall score at or above pass passes; below fail fails.",
+      "properties": {
+        "fail": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Fail",
+          "type": "number"
+        },
+        "pass": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Pass",
+          "type": "number"
+        }
+      },
+      "required": [
+        "pass",
+        "fail"
+      ],
+      "title": "Thresholds",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.3/evaluation_profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Evaluation Profile = which axes count, how much, and what counts as gaming.\n\nImportant:\nThe same run can be judged under different profiles; the profile never\nchanges what happened, only the verdict. perspective is the faction whose\nplan is judged; null means \"decide from the scenario\".\n\nThe section 16 fields keep their spec names. A triggered check only costs\nscore, and only counts as gaming, when its behaviour is listed in\nforbidden_optimization_behaviors.",
+  "properties": {
+    "anti_gaming_metrics": {
+      "items": {
+        "$ref": "#/$defs/AntiGamingMetric"
+      },
+      "title": "Anti Gaming Metrics",
+      "type": "array"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "forbidden_optimization_behaviors": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Forbidden Optimization Behaviors",
+      "type": "array"
+    },
+    "perspective": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Perspective"
+    },
+    "primary_metric": {
+      "minLength": 1,
+      "title": "Primary Metric",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "secondary_metrics": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Secondary Metrics",
+      "type": "array"
+    },
+    "thresholds": {
+      "$ref": "#/$defs/Thresholds"
+    },
+    "tradeoff_report_required": {
+      "title": "Tradeoff Report Required",
+      "type": "boolean"
+    },
+    "weights": {
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Weights",
+      "type": "object"
+    }
+  },
+  "required": [
+    "profile_id",
+    "perspective",
+    "primary_metric",
+    "secondary_metrics",
+    "weights",
+    "thresholds",
+    "anti_gaming_metrics",
+    "forbidden_optimization_behaviors",
+    "tradeoff_report_required"
+  ],
+  "title": "EvaluationProfile",
+  "type": "object"
+}
