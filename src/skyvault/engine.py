@@ -8,11 +8,15 @@ from .action import Action
 from .consequence import Consequence
 from .contracts import validate_action, validate_result_package
 from .evaluator import build_evaluation_summary
+from .runtime.snapshots import SnapshotStore
 from .runtime.world import create_world
 from .tactical_reference_policy import TacticalReferencePolicy
 from .world_state import WorldState
 
 ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
+
+# Keep a world snapshot every this many ticks, so a rebuild can start late
+SNAPSHOT_INTERVAL = 5
 
 
 class SkyVaultTacticalReferenceEngine:
@@ -43,6 +47,7 @@ class SkyVaultTacticalReferenceEngine:
         self.rng = random.Random(random_seed)
         self.world = self.build_world(scenario)
         self.policy = TacticalReferencePolicy(self.rng)
+        self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
 
         assumptions = scenario["world_contract"].get("assumption_registry", {})
 
@@ -89,6 +94,7 @@ class SkyVaultTacticalReferenceEngine:
         termination_reason = "duration_limit_reached"
 
         initial_world_state = self.world.snapshot()
+        self.snapshots.record(initial_world_state)
 
         for _ in range(max_ticks):
             self.world.advance_time()
@@ -172,6 +178,9 @@ class SkyVaultTacticalReferenceEngine:
                 if len(self.world.active_factions()) <= 1:
                     termination_reason = "termination_condition_met"
                     break
+
+            # Snapshots are taken at the end of a tick, after all its events
+            self.snapshots.record(self.world.snapshot())
 
             if termination_reason == "termination_condition_met":
                 break

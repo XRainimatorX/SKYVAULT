@@ -45,9 +45,7 @@ class SpaceModelSpec(ContractModel):
         known = set(self.nodes)
         for edge in self.edges:
             if len(edge) != size:
-                raise ValueError(
-                    f"a {self.type} edge has {size} items, got {edge!r}"
-                )
+                raise ValueError(f"a {self.type} edge has {size} items, got {edge!r}")
             for endpoint in edge[:2]:
                 if not isinstance(endpoint, str) or endpoint not in known:
                     raise ValueError(f"edge {edge!r} names an unknown node")

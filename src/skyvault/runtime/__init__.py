@@ -16,6 +16,8 @@ from .clock import Clock, EventDrivenClock, PhaseClock, TickClock, build_clock
 from .registry import EntityRegistry
 from .resources import ResourceState
 from .rules import RuleSet
+from .snapshots import SnapshotStore
+from .sourcing import rebuild_world
 from .space import GraphSpace, GridSpace, NetworkSpace, Space, build_space
 
 __all__ = [
@@ -28,8 +30,10 @@ __all__ = [
     "PhaseClock",
     "ResourceState",
     "RuleSet",
+    "SnapshotStore",
     "Space",
     "TickClock",
     "build_clock",
     "build_space",
+    "rebuild_world",
 ]
