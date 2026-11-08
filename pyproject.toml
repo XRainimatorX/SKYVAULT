@@ -1,6 +1,6 @@
 # Declares what SKYVAULT needs to run. The package is not installable yet (no
 # build-system table): scripts and tests still put src/ on sys.path. Install
-# the dependencies with: python3 -m pip install pydantic pyyaml
+# the dependencies with: python3 -m pip install pydantic pyyaml networkx
 [project]
 name = "skyvault"
 version = "0.1.0"
@@ -10,6 +10,8 @@ dependencies = [
     "pydantic>=2,<3",
     # YAML scenario files (Phase 1, ADR 004).
     "PyYAML>=6",
+    # Graph and network spaces (Phase 2).
+    "networkx>=3",
 ]
 
 [project.optional-dependencies]
@@ -21,6 +23,7 @@ dev = [
     "mypy",
     "bandit",
     "types-PyYAML",
+    "types-networkx",
 ]
 
 [tool.black]

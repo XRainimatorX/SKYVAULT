@@ -11,44 +11,7 @@ from .event_memory import (
     build_evaluation_relevance,
     new_event_id,
 )
-
-
-@dataclass
-class SpaceModel:
-    """
-    Minimal space model.
-
-    This is currently a simple grid because we are starting from the tactical side.
-    Later this can evolve into city network, road graph, airspace, facility map, etc.
-    """
-
-    width: int
-    height: int
-    distance_model: str = "chebyshev"
-
-    def is_inside(self, position: Position) -> bool:
-        """True when the position falls within the grid bounds."""
-        x, y = position
-        return 0 <= x < self.width and 0 <= y < self.height
-
-    def distance(self, a: Position, b: Position) -> int:
-        """
-        Distance between two positions under this world's distance_model.
-
-        Important:
-        Chebyshev is the default, so a diagonal step costs the same as a
-        straight one. Movement and attack range are both measured with this.
-        """
-        ax, ay = a
-        bx, by = b
-
-        if self.distance_model == "manhattan":
-            return abs(ax - bx) + abs(ay - by)
-
-        if self.distance_model == "euclidean_floor":
-            return int(((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5)
-
-        return max(abs(ax - bx), abs(ay - by))
+from .runtime.space import Space
 
 
 @dataclass
@@ -62,7 +25,7 @@ class WorldState:
     world_id: str
     scenario_id: str
     tick: int
-    space: SpaceModel
+    space: Space
     entities: dict[str, Entity]
     assumptions: dict[str, Any] = field(default_factory=dict)
     event_memory: list[Event] = field(default_factory=list)
@@ -185,11 +148,7 @@ class WorldState:
             "world_id": self.world_id,
             "scenario_id": self.scenario_id,
             "tick": self.tick,
-            "space": {
-                "width": self.space.width,
-                "height": self.space.height,
-                "distance_model": self.space.distance_model,
-            },
+            "space": self.space.describe(),
             "entities": {
                 entity_id: entity.snapshot()
                 for entity_id, entity in self.entities.items()

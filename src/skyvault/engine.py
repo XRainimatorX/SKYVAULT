@@ -9,8 +9,9 @@ from .consequence import Consequence
 from .contracts import validate_action, validate_result_package
 from .entity import Entity
 from .evaluator import build_evaluation_summary
+from .runtime.space import GridSpace
 from .tactical_reference_policy import TacticalReferencePolicy
-from .world_state import SpaceModel, WorldState
+from .world_state import WorldState
 
 ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
 
@@ -62,7 +63,7 @@ class SkyVaultTacticalReferenceEngine:
         world_contract = scenario["world_contract"]
         space_model = world_contract["space_model"]
 
-        space = SpaceModel(
+        space = GridSpace(
             width=int(space_model["width"]),
             height=int(space_model["height"]),
             distance_model=space_model.get("distance_model", "chebyshev"),
