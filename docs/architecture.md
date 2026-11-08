@@ -215,7 +215,7 @@ output/（workspace）
 
 ```text
    src/skyvault/contracts/
-              13 份契約：Pydantic model + validate_<x>()
+              18 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -290,6 +290,15 @@ core 的任何模組（engine 透過 load_domain 除外）都不 import pack —
 ```
 
 需要 domain 的部分（感測、任務判定）經由 `load_domain` 取得 pack 的 `observe`、`mission_outcome`，與 engine 取得 handler 的路徑相同。
+
+## Observation（在 engine 之下，與 actions 同層）
+
+```text
+   src/skyvault/observation/   observe、sensing、profiles 是純函式；history 讀 replay exporter 與 load_domain
+                               不 import engine（測試逐檔檢查）；engine 只在 policy 有 observer_profile 時呼叫它
+```
+
+需要 domain 的部分（concealment、各陣營的任務）經由 `load_domain` 取得 pack 的 `concealment`、`mission_goal`；沒有 pack 或沒有這兩個方法時，concealment 為 0、任務是 world 的 purpose。
 
 ## Views、report、service（在階層之外，讀輸出檔）
 
@@ -837,6 +846,8 @@ Phase 3 前的 `resolve_move` / `resolve_attack` 已移除；它們一邊驗證�
 
 **外部命令（Phase 10）。** `runtime.scheduled_actions` 中指定 tick、指定 actor 的命令取代 policy 的選擇；action id 仍由 `world.ids` 產生，`ACTION_SELECTED` 與結果 event 的 `source.system_id` 是提案系統。沒有 scheduled_actions 時一次都不會被查到 —— reference trace 不變。
 
+**只看 observation 的 policy（Phase 5）。** policy 有 `observer_profile` 時，`observed_decision()` 用 `engine.observed` 加上現在的單位呼叫 `observe()`，把 observation 交給 `decide_from_observation`，回傳的命令走 `scheduled_action()` 拿到 action id。world 從不交給它。沒有 observer_profile 時 `engine.observed` 永遠是空的 —— reference trace 不變。
+
 `evaluate()` 的 `event_count` 由 `run()` 明確傳入 `len(event_memory) + 1`，因為 evaluation 在 `SCENARIO_END` 寫入之前計算，必須把那個即將寫入的事件算進去。
 
 ## `evaluator.py`
@@ -954,6 +965,8 @@ import_policy_module(spec)           import 會註冊 policy 的模組或 .py �
 
 engine 選 policy 的順序：`engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 時，它決定的 event 都記這個 id。scenario 檔只能選已註冊的名稱，不能載入程式。
 
+**ObservingPolicy（Phase 5）。** 有 `observer_profile` 屬性的 policy 不會拿到 world：engine 呼叫 `decide_from_observation(observation)`，它回傳 `{action_type, target, intent, …}` 或 None，action id 由 engine 產生（與 scheduled_actions 同一條路）。`AnyPolicy = Policy | ObservingPolicy`；registry 的 factory 可以回傳任一種。
+
 ## `domains/military/`
 
 Phase 13 建立。第一個 domain pack，不是 core。
@@ -1008,6 +1021,39 @@ build_training_data(sources, scenarios_dir, batches_dir)
 | 違規 | profile flagged 的行為；strategic_misalignment 一律是 |
 | 集合 | rejected：有違規；risky：無違規但 verdict risky；clean：其餘（含真失敗） |
 | success_type | genuine_success / false_success / failure |
+
+## `observation/`
+
+Phase 5 建立。開發計劃 Phase 5、Formal Spec §5。
+
+```python
+load_observer_profile(name_or_path)   data/observers/<id>.json 或路徑；通過契約、補齊預設值
+visible_contacts(units, faction, profile, concealment, space=None)   {敵人 id: confidence}
+observe(history, tick, profile, viewpoint, context)   通過 observation 契約
+history_from_package(package)         {tick: units}，0 到最後一個 tick；沒事發生的 tick 沿用前一個
+context_for(scenario, faction, resources=None)        max_ticks、available_actions、mission、constraints、
+                                                      concealment、space
+observations_for_run(package, scenario, profile, viewpoint)   每 tick 一份
+```
+
+| 規則 | 內容 |
+|---|---|
+| 看得到 | 任一存活己方單位：距離 ≤ sensor_range（capability，否則 profile 預設）× (1 − 目標格 concealment) |
+| confidence | 1 − 0.5 × 距離 / 有效範圍，取最高者，四位 |
+| fog of war | 看不到的敵人不出現；hidden_state 只有 exists / reason（以觀測的 tick 計算） |
+| delay | tick t 顯示 tick max(0, t − delay_ticks) |
+| stale | stale_after_ticks 內最後一次被看到的位置與狀態，confidence × (1 − age / (stale_after + 1))；殘骸不被記得 |
+| partial | 敵人 hp：exact / banded（以起始 hp 的三分之一切）/ hidden；己方精確且帶 capabilities |
+
+| view | 系統 | 內容 |
+|---|---|---|
+| local | TAC ANGEL | 自己、己方全體、已知敵人；known_risks = in_range / can_close；local_area |
+| aggregate | STARTX | 己方與已知敵方的數量、hp 比例、趨勢（窗口 = stale_after_ticks）；沒有位置或敵方 id |
+| mission | NEXUS | 進度、各方存活 / 損失 / hp 比例；無霧 |
+| threat | HADES | 已知敵人、最近的己方單位、ticks_to_strike、defense_window |
+| coverage | AEROGRID | 覆蓋格數、比例、缺口數 |
+
+engine 只在 observing policy 時記 `engine.observed`（tick 0 與每 tick 結束時的單位）；它與 `history_from_package` 逐 tick 相同（測試）。
 
 ## `batch/`
 
@@ -1683,6 +1729,7 @@ python3 scripts/export_briefing.py [--workspace DIR]      # briefing.md / .pdf /
 python3 scripts/build_military_scenarios.py               # 改 profile 或 spec 後重建軍事 scenario
 python3 scripts/export_dataset.py [--runs N]              # state-action-outcome dataset
 python3 scripts/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
+python3 scripts/observe_run.py [--scenario F] [--faction F] [--actor ID]   # 五個 observer 各自看到什麼
 (cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
 python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
@@ -1704,7 +1751,7 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`decisions/002_event_shape.md`](decisions/002_event_shape.md) | Phase 4 為什麼 event 是攤平的 |
 | [`decisions/003_event_nesting.md`](decisions/003_event_nesting.md) | Phase 1 為什麼收回巢狀 |
 | [`decisions/004_contract_scope.md`](decisions/004_contract_scope.md) | 契約 v0.1 的範圍與取捨 |
-| [`spec/contracts.md`](spec/contracts.md) | 16 份契約的現行規格 |
+| [`spec/contracts.md`](spec/contracts.md) | 18 份契約的現行規格 |
 | [`plan/`](plan/) | 每個 Phase 的原文規格與開發順序 |
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
@@ -1723,6 +1770,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase13_military_domain_pack.md`](phases/phase13_military_domain_pack.md) | Phase 13 完成報告 |
 | [`decisions/013_training_pipeline.md`](decisions/013_training_pipeline.md) | 訓練資料、anti-gaming training filter 的設計決定 |
 | [`phases/phase18_training_pipeline.md`](phases/phase18_training_pipeline.md) | Phase 18 完成報告 |
+| [`decisions/014_observation_contract.md`](decisions/014_observation_contract.md) | observer profile、fog of war 與五種 view 的設計決定 |
+| [`phases/phase5_observation_contract.md`](phases/phase5_observation_contract.md) | Phase 5 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md) | 各 Phase 回顧 |

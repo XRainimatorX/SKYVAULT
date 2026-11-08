@@ -60,6 +60,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 第一個 domain pack（Phase 13）：軍事 / 戰術 —— 單位、編隊、地形、感測、武器、後勤、士氣、指揮延遲、任務九種 profile，小隊、城市、山地、交通節點四個 reference scenario，doctrine 比較；TAC ANGEL 或任何外部 policy 可以取代 baseline，每個決定都能匯出成 state-action-outcome 訓練資料。domain pack 不是 core：同一個 engine 照跑。
 
+每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
+
 模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
 
 結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
@@ -130,6 +132,7 @@ python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squ
 python3 scripts/run_batch.py --batch data/batches/military_doctrine.json   # 三種 doctrine 並排
 python3 scripts/export_dataset.py                                          # output/tac_angel_dataset.jsonl
 python3 scripts/build_training_data.py --workers 4                         # output/training/：三個集合與報告
+python3 scripts/observe_run.py                                             # output/observations/：五個系統各自看到什麼
 ```
 
 用另一個 profile 評同一場：
@@ -207,7 +210,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        16 份資料契約（Pydantic，schema 0.6）
+  contracts/        18 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
   evaluation/       多軸評估、防刷分、trade-off report
@@ -220,6 +223,7 @@ src/skyvault/       引擎與 exporter
   policies.py       policy registry：外部 policy 從這裡接入
   domains/military/ 第一個 domain pack（不是 core）
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
+  observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
@@ -228,6 +232,7 @@ data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
 data/domains/       domain pack 的 profile 與 scenario spec
 data/training/      訓練資料要匯出哪些 run
+data/observers/     五個系統的 observer profile
 examples/           外部 policy 範例（TAC ANGEL 的介面）
 tests/              測試
 output/             執行產物
@@ -246,9 +251,10 @@ docs/               文件
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | Phase 12 起 |
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
-| 軍事 pack 的感測在 policy 內 | 外部 policy 直接讀 world，看得到所有單位；沒有視線 | Phase 5 |
+| 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | Phase 6 |
 | 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
-| 訓練資料的 observation 不是真正的觀測 | 軍事用 pack 的感測，其他是整個世界的狀態 | Phase 5 |
+| 訓練資料的 observation 不是觀測層產生 | 軍事用 pack 的感測，其他是整個世界的狀態 | Phase 6 / 12 |
+| 觀測只支援 grid | 與 tactical engine 相同 | 對應的 engine 出現時 |
 | 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
@@ -260,7 +266,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase18_training_pipeline.md`](docs/phases/phase18_training_pipeline.md)。
+完整清單見 [`docs/phases/phase5_observation_contract.md`](docs/phases/phase5_observation_contract.md)。
 
 ---
 

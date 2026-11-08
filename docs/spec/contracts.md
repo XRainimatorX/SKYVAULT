@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 16 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map，與 Phase 10 的 batch_spec、batch_result、conflict_package）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 18 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，與 Phase 5 的 observer_profile、observation）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)。
 
 ---
 
@@ -40,6 +40,8 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 | `ActionResolver.execute()` 套用之前 | `validate_consequence` | raise —— handler 產生了壞 consequence，世界不會被改 |
 | `world_state.record_event()` | `validate_event` | raise，event 不會進 event_memory |
 | `engine.run()` 回傳之前 | `validate_result_package` | raise |
+| `load_observer_profile()` | `validate_observer_profile` | raise |
+| `observe()` 回傳之前 | `validate_observation` | raise —— 觀測層產生了壞 observation |
 
 ## 3. 版本
 
@@ -61,6 +63,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.6 | 9 | World Contract 的 failure_variables 必填（八個變量名之一）；scenario.failure_exploration 有正式形狀；新增 failure_map 契約 |
 | 0.6 | 10 | 只有新增，不調升：optional 的 runtime.scheduled_actions；新增 batch_spec、batch_result、conflict_package 契約 |
 | 0.6 | 13 | 只有新增，不調升：optional 的 runtime.policy {name, params}（已註冊的 policy 名稱） |
+| 0.6 | 5 | 只有新增，不調升：observer_profile、observation 契約 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -74,7 +77,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 
 ---
 
-## 4. 十一份契約
+## 4. 契約
 
 ### 紀錄類
 
@@ -242,6 +245,34 @@ output               dict                    Spec 的佔位，忽略
 
 variables 的每一項：variable、applicable、reason、assumption、levels（每級 survival_rate、mean_score、mean_first_loss_tick、most_common_failure）、breaking_level、sensitivity。alternatives 的每一項：scenario_version、baseline_survival_rate、breaking_levels、holds_longer_on、breaks_sooner_on、verdict（holds_longer / breaks_sooner / mixed / same）。
 
+### Observation（Phase 5）
+
+Formal Spec §5。observer profile 說明一個系統怎麼看；observation 是它在某一 tick 得到的東西 —— 永遠不是 world 本身。
+
+```python
+ObserverProfile
+observer_id            str
+description            str = ""
+view                   local | aggregate | mission | threat | coverage
+delay_ticks            int ≥ 0 = 0          tick t 顯示 tick t − delay
+stale_after_ticks      int ≥ 0 = 0          失去視野後記得幾 tick
+default_sensor_range   float ≥ 0 = 5        單位沒有 sensor_range capability 時
+local_radius           int ≥ 0 = 0          local view 的範圍
+enemy_detail           exact | banded | hidden = exact
+source_quality         low | medium | high = medium
+
+Observation
+observer_id, time, view
+viewpoint              {faction, actor_id | null}
+visible_world_state    {local_area | null, known_entities, known_risks, resources_visible, summary}
+hidden_state           {exists, reason | null}       reason 恰好在 exists 時給；不給數量或 id
+uncertainty            {confidence_level ∈ [0,1], stale_after, source_quality, delay_ticks, observed_at}
+                       observed_at = max(0, time − delay_ticks)
+decision_context       {mission_goal, constraints, available_actions}
+```
+
+known_entities 的每一項：entity_id、faction、relation（self / ally / enemy）、status（己方 active / destroyed；敵方 visible / destroyed / stale）、position、hp、hp_band（intact / damaged / critical）、confidence、last_seen、age（恰好在 stale 時給）、capabilities（只有己方）。
+
 ### Batch 與衝突
 
 `runtime.scheduled_actions`（optional，預設 `[]`）：外部系統的命令，在指定 tick 取代該 actor 的 policy。
@@ -301,7 +332,7 @@ change_reason          str
 ## 5. JSON Schema
 
 ```text
-src/skyvault/schemas/<name>.schema.json    16 份，由契約產生，已 commit
+src/skyvault/schemas/<name>.schema.json    18 份，由契約產生，已 commit
 scripts/export_schemas.py                  重新產生
 ```
 

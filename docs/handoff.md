@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-718 passed
+793 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -149,6 +149,8 @@ Phase 13 再發現：**只被一種輸入測過的輸出，只證明了那一種
 
 Phase 18 再發現：**過濾器正確不代表過濾的結果正確。** 軍事 run 100% 被判刷分，原因是 Phase 13 的 handler 把每一發都標成風險；filter 的邏輯完全對。寫任何「分類」之前，先量真實資料的分布，任何 0% 或 100% 都要問為什麼。
 
+Phase 5 再發現：**跑得完不等於用得對。** TAC ANGEL 範例把 known_risks 的 in_range（敵人打得到我）當成「我打得到敵人」，在每個 scenario 都跑得完、測試全綠。新介面的第一個使用者要逐欄讀過：它讀的每個欄位是什麼意思、它拿來做什麼。另外：policy registry 是 process 層級的狀態，同一個 .py 檔載入兩次會撞名 —— 單一測試檔綠、全套紅；推送前一定跑全套。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -247,7 +249,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -289,14 +291,15 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 5 — Observation Contract**：不同系統看到不同的世界（TAC ANGEL 看局部、STARTX 看大局），不再全部上帝視角。規格見 [`plan/phase5_observation_contract.md`](plan/phase5_observation_contract.md)。
+依 roadmap，下一個是 **Phase 6 — Actor Policy / External Agent Layer**：把「誰來決定行動」完全拆出 core —— SKYVAULT 只決定能不能做、做了會怎樣、怎麼記錄、怎麼評估；各種 actor（規則、腳本、人、外部系統、TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX adapter）只透過 Action 提交意圖。規格見 [`plan/phase6_actor_agent_layer.md`](plan/phase6_actor_agent_layer.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-軍事 pack 的感測            policy.seen_enemies、dataset.sensor_contacts、pack.observe —— 都應改由觀測層產生
-外部 policy 直接讀 world    TAC ANGEL 範例看得到所有單位；觀測層要在交給 policy 前過濾
-訓練資料的 observation      full_state / military_sensor 兩種 observation_model，之後改用觀測契約
+ObservingPolicy（Phase 5）     外部 policy 已能只拿 observation 決定；agent 的協定可以建在它上面
+軍事 baseline 的感測            每個單位自己看；觀測層是整個陣營共享 —— 要不要統一、是否讓 profile 指定（Phase 5 回顧第 7 節）
+訓練資料的 observation          full_state / military_sensor，之後改由觀測層產生
+scheduled_actions（Phase 10）  外部系統的命令；agent 的決定可能走同一條路
 ```
 
-開工前先讀 [`phases/phase18_training_pipeline.md`](phases/phase18_training_pipeline.md) 的第 4 節與 [`postmortems/phase18.md`](postmortems/phase18.md)。
+開工前先讀 [`phases/phase5_observation_contract.md`](phases/phase5_observation_contract.md) 的第 4 節與 [`postmortems/phase5.md`](postmortems/phase5.md)。
