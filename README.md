@@ -50,6 +50,8 @@ scenario → world state → actor policy → action → validation
 
 世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。tactical reference 只用其中的 grid + tick。
 
+actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
+
 各階段的實際進度與交付紀錄在 [`docs/phases/`](docs/phases/)，開發順序見 roadmap。
 
 ---
@@ -120,8 +122,9 @@ python3 -m pytest tests/ -q
 
 ```text
 src/skyvault/       引擎與 exporter
-  contracts/        11 份資料契約（Pydantic，schema 0.2）
+  contracts/        11 份資料契約（Pydantic，schema 0.3）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
+  actions/          action 的驗證、結算與套用；十種 action type
   schemas/          由契約產生的 JSON Schema
 scripts/            執行入口
 data/scenarios/     scenario 輸入
@@ -139,12 +142,14 @@ docs/               文件
 | 項目 | 影響 | 留待 |
 |---|---|---|
 | `event_id` / `action_id` 用 `uuid4()`，不受 seed 控制 | 行為可重現，但輸出檔無法跨 run 逐位元比對 | Phase 8 |
-| tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；還沒有 policy 會在圖上行動 | Phase 3 起 |
-| tactical engine 的 MOVE / ATTACK 不經過 `update_entity_state()` | 結果相同（after_state 都是完整快照），但改世界的路徑還有兩條 | Phase 3 |
+| tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
+| `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
+| `state_changes`（環境變動）一律 raise | WorldState 沒有建模 environment_state | 需要它的 domain |
+| secondary_effects / evaluation_impact 只記錄不使用 | 風險、穩定、評分模型尚不存在 | Phase 7 / 9 |
 | event 的 `affected.risks` 恆為空 | 風險模型尚未存在 | Phase 7 / 9 |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase2_world_runtime_core.md`](docs/phases/phase2_world_runtime_core.md)。
+完整清單見 [`docs/phases/phase3_action_consequence_engine.md`](docs/phases/phase3_action_consequence_engine.md)。
 
 ---
 

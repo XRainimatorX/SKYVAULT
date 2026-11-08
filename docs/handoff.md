@@ -21,7 +21,7 @@ python3 -m pytest tests/ -q
 ```text
 Result: RED_survived
 Events: 97
-182 passed
+289 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。
@@ -70,9 +70,11 @@ python3 -c "import skyvault.your_module"
 
 最常犯的：在 `world_state.py` 裡 import policy，或在 exporter 裡 import 任何專案模組。`runtime/` 也不得 import engine、policy、exporter，`tests/runtime/test_event_sourcing.py` 逐檔檢查。
 
-### 規則 5：改世界要記 event
+### 規則 5：改世界只有一條路
 
-改 entity 用 `world.update_entity_state()`，改資源用 `world.change_resource()`，或自己 `record_event()` 並把完整快照放進 `after_state`。
+actor 的 action 一律交給 `ActionResolver.execute()`。新增一種 action 就寫一個 handler：`validate()` 與 `resolve()` **只讀**世界，把改變寫成 `DirectEffect` 放進 Consequence，由 `apply_consequence()` 套用。handler 裡任何 `.state[...] =`、`.position =`、`record_event()` 都會被 AST 測試擋下。
+
+不屬於任何 action 的改變（腳本事件、測試）用 `world.mutate_entity()`、`world.update_entity_state()` 或 `world.change_resource()` —— 它們都會記 event。
 
 **`rebuild_world(initial_world_state, event_memory) == final_world_state` 是不變量**，CI 每次都驗。偷偷改世界不記 event，重建就對不上。
 
@@ -127,7 +129,11 @@ assert f"HP {hp_before} -> {shown_after} (damage = {damage})" in text
 
 其餘三個 exporter 的測試仍以結構為主；Phase 1 的契約測試補上了形狀的部分。Phase 2 的 `rebuild_world()` 測試則逐 tick 對照 replay exporter 的 entity 狀態，等於替 replay 補上了數值對照。
 
-Phase 2 又發現：**守護不變量的測試也要反向驗證。** 分層測試第一版看不到 `from .. import engine`，放回去跑才發現。變異存活時先判斷是不是等價變異 —— 是的話該刪的是程式碼，不是補測試。
+Phase 3 又發現 Phase 2 留下兩個全綠的缺陷：節點位置被 `Event.to_dict()` 拆成字元（測試用的是手寫 dict），tick 0 的事件不被重放（測試資料從 tick 1 開始）。**新能力要用觸發它的資料、走過真正產生資料的程式碼來測。**
+
+Phase 2 也發現：**守護不變量的測試也要反向驗證。** 分層測試第一版看不到 `from .. import engine`，放回去跑才發現。變異存活時先判斷是不是等價變異 —— 判斷方法是**找一個讓兩者結果不同的輸入**，找得到就是測試缺口；找不到且說得出原因，才是等價、該刪程式碼。Phase 2 曾把「現有測試分不出來」當成等價，結果是一個 Phase 3 才發現的缺陷。
+
+**reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
 
@@ -140,6 +146,11 @@ Phase 2 又發現：**守護不變量的測試也要反向驗證。** 分層測�
 | `EntityRegistry.get()` | Mapping 原生語意，找不到回傳 None。要 raise 用 `require()` 或 `world.get_entity()` |
 | `ResourceState.change()` | 扣到負數 raise，不夾 0。行動前自己檢查夠不夠 |
 | `PhaseClock` | 每次 `advance()` 前進一整個 `phase_length`，不是 1 |
+| `Action.target` | Phase 3 起是 `ActionTarget(entity_id, location, system_id)`，沒有 `target_entity_id` / `target_position` 屬性了 |
+| handler | 只讀。要改世界就回傳 `DirectEffect`；連 `target.state.update(...)` 都會被 AST 測試擋 |
+| 致命一擊 | 是 ATTACK effect 加一個 ENTITY_DESTROYED chain reaction，兩筆 event 的 before / after 相同 |
+| `rule_set.action_costs` | 有定義的 action type 以它收費，actor 的 `required_resources` 被忽略；supply 運送的就是收的費 |
+| `git stash` 切版本比對 | 同大小、同一秒改寫的檔案會讓 Python 沿用舊 `.pyc`。切換後先 `find . -name __pycache__ -prune -exec rm -rf {} +` |
 | tactical engine | 只接受 grid + tick；其他世界在 `build_world()` 就 raise。要跑別的世界用 `create_world()` |
 | `runtime/__init__.py` | 不匯出 `create_world`（會循環 import），從 `skyvault.runtime.world` 取 |
 | scenario 的 `schema_version` | 必須是 `"0.2"`。0.1 檔案被拒，遷移方式見 `spec/contracts.md` 第 3 節 |
@@ -186,9 +197,9 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）。
 
-第 6 節開頭先列規格矛盾與決定（Phase 1 回顧改法 3）；Frozen Interface 的每個函式附一行行為，不只寫簽名（Phase 2 回顧改法 2）。每個步驟 commit 前，對照第 6 節檢查這一步新增的公開函式。
+第 6 節開頭先列規格矛盾與決定（Phase 1 回顧改法 3）；Frozen Interface 的每個函式附一行行為，不只寫簽名（Phase 2 回顧改法 2）。每個步驟 commit 前，對照第 6 節檢查這一步新增的公開函式 —— **簽名與語意分開對照**（Phase 3 回顧改法 3）。拆步驟時寫下每一步結束時哪些測試是綠的；寫不出來就和下一步合併（Phase 3 回顧改法 4）。
 
 **多人平行開發時**，每個 section 一份 issue，另開一份共同基準 issue，**同時凍結資料形狀與函式簽名** —— Phase 4 的 [#9](https://github.com/XRainimatorX/SKYVAULT/issues/9) 只凍了資料形狀，結果三組的介面對不上。範例：[#7](https://github.com/XRainimatorX/SKYVAULT/issues/7)、[#8](https://github.com/XRainimatorX/SKYVAULT/issues/8)。
 
@@ -226,20 +237,20 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 3 — Action & Consequence Engine**：一般化的 action 驗證與後果結算，含直接效果、次級效果、連鎖反應。規格見 [`plan/phase3_action_consequence_engine.md`](plan/phase3_action_consequence_engine.md)。
+依 roadmap，下一個是 **Phase 7 — Evaluation Engine**：多軸評估（成功、成本、風險、穩定……）、失敗原因、建議下一步測試。規格見 [`plan/phase7_evaluation_engine.md`](plan/phase7_evaluation_engine.md)。
 
-Phase 2 留下與它直接相關的事：
+Phase 3 留下與它直接相關的事：
 
 ```text
-改世界有兩條路徑
-    tactical 的 MOVE / ATTACK 直接改 entity；runtime 有 update_entity_state / change_resource
-    Phase 3 的框架應該讓所有改動走同一條路
-Action 契約的 required_resources 等六欄仍是 optional
-    ADR 004 列為 Phase 3；資源帳已經存在，可以開始扣
-Consequence 的 secondary_effects / chain_reactions 仍是 optional
-    ADR 004 列為 Phase 3
-RuleSet 只存參數
-    規則本身（什麼 action 合法、造成什麼）是 Phase 3
+Consequence.evaluation_impact 已經有五個數值 delta
+    cost / risk / stability / tactical_value / strategic_value，每個 accepted action 都有一份
+    目前沒有任何程式讀它們 —— 它們不在 result package 裡
+Consequence.secondary_effects 只有 supply 會寫
+    風險、穩定的模型要從這裡開始
+Evaluation Result 契約的 overall_judgement / scores / failure_causes /
+recommended_next_tests / comparison 仍是 optional
+    ADR 004 列為 Phase 7
+event 的 affected.risks 仍恆為空
 ```
 
-開工前先讀 [`phases/phase2_world_runtime_core.md`](phases/phase2_world_runtime_core.md) 的第 5 節與 [`postmortems/phase2.md`](postmortems/phase2.md)。
+開工前先讀 [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) 的第 5 節與 [`postmortems/phase3.md`](postmortems/phase3.md)。

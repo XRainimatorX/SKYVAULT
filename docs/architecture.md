@@ -25,9 +25,13 @@ scenario JSON
   │        policy.decide_action()      產生 Action（意圖）
   │        validate_action()           壞 action 直接 raise
   │        world.record_event()        記錄 ACTION_SELECTED（通過 event 契約才寫入）
-  │        engine.resolve_action()     驗證並結算 → Consequence
-  │        （若 accepted）改變 WorldState
-  │        world.record_event()        記錄結果事件
+  │        resolver.execute()          actions/ 套件：
+  │          handler.validate()          只讀；不通過 → rejected Consequence
+  │          check_resources()           世界的收費（rule_set.action_costs）付得起嗎
+  │          handler.resolve()           只讀；算出 Consequence（effect 清單）
+  │          validate_consequence()      通過 consequence 契約
+  │          apply_consequence()         唯一改世界的地方：每個 effect 一筆 event
+  │        （若 rejected）記錄 ACTION_REJECTED
   │
   ├─ evaluator.build_evaluation_summary()
   ├─ world.record_event()  記錄 SCENARIO_END
@@ -38,7 +42,7 @@ scenario JSON
 
 ## 四個關鍵設計
 
-**只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。Action 要先通過 validation 變成 accepted 的 Consequence，engine 才會動 WorldState。這條線讓「決策」與「生效」分開，policy 換掉不會影響世界規則。
+**只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
 
 **事件是快照，不是參照。** `record_event()` 存進去的 `before_state` / `after_state` 都是 `snapshot()` 的深拷貝。事件寫入後，世界再怎麼變都不會改到它。回放能成立完全靠這一點。
 
@@ -60,8 +64,8 @@ scenario JSON
                  ② engine.py
         流程總管 / simulation runtime
 ────────────────────────────────────
-  ③ scenario_loader.py   tactical_reference_policy.py   evaluator.py
-       讀 scenario          臨時 actor policy          結果計算
+  ③ scenario_loader.py   tactical_reference_policy.py   evaluator.py   actions/
+       讀 scenario          臨時 actor policy          結果計算     驗證 / 結算 / 套用
 ────────────────────────────────────
      ④ world_state.py   action.py   consequence.py
         世界狀態        行動嘗試      行動後果
@@ -92,8 +96,8 @@ scenario JSON
 原因：scripts 只負責啟動流程。
 
 ② engine.py
-需要 ③ scenario_loader.py / tactical_reference_policy.py / evaluator.py
-需要 ④ world_state.py / action.py / consequence.py
+需要 ③ scenario_loader.py / tactical_reference_policy.py / evaluator.py / actions/
+需要 ④ world_state.py / action.py
 需要 ⑤ entity.py / event_memory.py
 原因：engine 要把 scenario、world、policy、action、event、evaluation 串起來。
 
@@ -106,6 +110,11 @@ scenario JSON
 需要 ⑤ entity.py
 原因：policy 要看世界與 actor 狀態，然後產生 Action。
 
+③ actions/
+需要 ④ world_state.py / action.py / consequence.py
+需要 ⑤ event_memory.py
+原因：它驗證 action、算出 Consequence、經 world_state 套用並記錄 event。
+
 ③ evaluator.py
 需要 ④ world_state.py
 需要 ⑤ entity.py / event_memory.py
@@ -116,8 +125,8 @@ scenario JSON
 原因：WorldState 由 Entity 組成，並記錄 Event。
 
 ④ action.py
-需要 ⑤ entity.py 的 Position 型別
-原因：Action 需要 target_position 格式。
+需要 ⑤ entity.py 的 Location 型別
+原因：ActionTarget.location 是格子或節點 id。
 
 ④ consequence.py
 不應依賴上層
@@ -156,6 +165,17 @@ scenario JSON
 世界由哪些積木組成（空間、時間、實體登記、資源、規則），與 tactical engine 怎麼用它們無關。runtime 不認識 tactics，所以同一套積木能建 grid、graph、network 任一種世界。
 
 唯一例外是 `runtime/world.py` 的 `create_world()`：它要回傳 `WorldState`，所以 import ④。它因此**不從 `runtime/__init__.py` 匯出**，否則 world_state ↔ runtime 會循環 import。`sourcing.py` 與 `snapshots.py` 更嚴格：只 import 標準函式庫，跟 exporter 一樣。
+
+## Actions（在 ③，與 policy 同層但互不依賴）
+
+```text
+   src/skyvault/actions/
+              validation / handlers / resolver
+              依賴 ④ world_state、action、consequence，⑤ event_memory 與 contracts
+              不 import engine、policy、exporter（測試逐檔檢查）
+```
+
+policy 決定「想做什麼」，actions 決定「世界接不接受、接受了會怎樣」。兩者在同一層但互不認識：policy 換掉，世界規則不變；規則改了，policy 不用知道。
 
 ## Exporter（在階層之外）
 
@@ -348,8 +368,10 @@ active_entities()              還活著的 entity
 active_factions()              還有存活單位的陣營
 is_occupied(position)          該位置有沒有活著的單位
 advance_time()                 推進 clock 一次，回傳新的 tick
+mutate_entity(id, changes, event_type, ...)   改 position / state 並記一筆 event（前後完整快照）
+record_transition(event_type, before, after, ...)  記一筆不改世界的 event（chain reaction 用）
 change_resource(id, delta)     改資源並記一筆 RESOURCE_CHANGED（affected.resources 有值）
-update_entity_state(id, ...)   合併 state 並記一筆 ENTITY_STATE_CHANGED（前後完整快照）
+update_entity_state(id, ...)   不屬於任何 action 的 state 變動；記 ENTITY_STATE_CHANGED
 record_event(...)              記錄一個事件
 link_causal_predecessor(event) 把事件接到同 action 的前一個事件
 snapshot()                     整個世界的深拷貝
@@ -379,29 +401,38 @@ WorldState 不可以決定攻擊目標。
 
 ```text
 new_action_id()
-Action
+location_to_json(location)       格子轉 list，節點 id 保持字串
+ActionTarget
+Action（= ActionAttempt）
 ```
 
-`Action` 是**意圖**，還沒生效。
+`Action` 是**意圖**，還沒生效。Formal Spec §6.2 的完整形狀（schema 0.3）。
 
 欄位：
 
 ```python
-action_id           str
-actor_id            str
-action_type         str          "move" / "attack"
-target_entity_id    str | None
-target_position     Position | None
-intent              str
-metadata            dict
+action_id            str
+actor_id             str
+action_type          str            十種之一，見 actions/handlers.py
+target               ActionTarget   {entity_id, location, system_id}，皆可為 None
+intent               str
+required_resources   dict[str, float]   actor 預期花費；rule_set 有定價時以定價為準
+expected_duration    str            宣告，不強制
+expected_effect      str            宣告
+risk_profile         dict           宣告
+priority             str            宣告
+confidence           float          0–1；tactical 攻擊用 accuracy
+metadata             dict
 ```
+
+`to_dict()` 產生契約形狀。
 
 規則：
 
 ```text
 Action 只描述想做什麼。
 Action 不改變世界。
-Action 不判斷合不合法 —— 那是 engine 的事。
+Action 不判斷合不合法 —— 那是 actions/ 的事。
 ```
 
 `new_action_id()` 用 `uuid4()`，**不受 scenario 的 random_seed 控制**。
@@ -411,30 +442,79 @@ Action 不判斷合不合法 —— 那是 engine 的事。
 定義：
 
 ```text
+DirectEffect     一個改變 + 記錄它的 event（group：entity / resource / state）
+ChainReaction    某個 effect 引發的後續 event（與成因同一組 before / after）
+SecondaryEffects risk / stability / public_order / logistical —— 只是描述
+EvaluationImpact 五個數值 delta —— Phase 7 才拿來打分
 Consequence
 ```
 
-Action 結算後的結果資料。
-
-欄位：
+Consequence 是**計畫，不是紀錄**：handler 讀世界算出它，`apply_consequence()` 執行它。
 
 ```python
 action_id          str
 accepted           bool
-reason             str          被拒絕時說明原因
-direct_effects     list         這個 action 造成的直接改變
-evaluation_impact  dict
+reason             str                被拒絕時說明原因
+effects            list[DirectEffect] 有順序：套用順序 = event 順序
+secondary_effects  SecondaryEffects
+chain_reactions    list[ChainReaction]
+evaluation_impact  EvaluationImpact
 ```
+
+`to_dict()` 依 Spec §6.3 分組成 `direct_effects{state_changes, resource_changes, entity_changes}`，組內保持順序。`Consequence.rejected(action_id, reason)` 是全空的拒絕。
 
 規則：
 
 ```text
-只有 accepted=True 的 Consequence 能改變世界。
-Consequence 只是資料，不含邏輯。
-Consequence 不依賴上層任何模組。
+只有 accepted=True 的 Consequence 能被套用；套用 rejected 的會 raise。
+entity effect 的 changes 只能有 position 與 state；可以是 {}（記錄但不改，例如 MISS）。
+state effect（環境）目前一律 raise —— WorldState 沒有建模環境。
 ```
 
-被拒絕不是錯誤 —— 它會被記成 `ACTION_REJECTED` 事件，模擬照常繼續。
+被拒絕不是錯誤 —— engine 把它記成 `ACTION_REJECTED` 事件，模擬照常繼續。
+
+## `actions/`
+
+Phase 3 建立。Action Attempt → Validation → Resolution → Consequence → World Mutation → Event Memory。
+
+### `validation.py`
+
+```python
+ActionValidation(valid, reason)；.ok() / .reject(reason)
+action_cost(world, action)      rule_set.action_costs[type] 有定義就用它，否則 action.required_resources
+check_resources(world, cost)    任一不足 → reject "Insufficient <id>: have X, need Y"
+```
+
+### `handlers.py`
+
+每種 action 一個 handler，`validate()` 與 `resolve()` 都**只讀**世界。
+
+| type | 需要 | 改變 | event |
+|---|---|---|---|
+| move | target.location 界內、未佔、距離 ≤ move_range(1) | position、last_action | MOVE |
+| attack | target.entity_id、距離 ≤ attack_range(1) | miss：無；hit：hp、last_damage_taken、可能 destroyed | MISS / ATTACK + chain ENTITY_DESTROYED |
+| observe | target.entity_id、距離 ≤ observe_range(1) | 無 | OBSERVE（帶目標 state 副本） |
+| scan | actor 有位置 | 無 | SCAN（data.detected） |
+| wait | — | 無 | WAIT |
+| repair | repair_amount > 0、目標活著有 hp 未滿、距離 ≤ repair_range(1) | hp（上限 max_hp） | REPAIR |
+| supply | 收費不為空、目標活著、距離 ≤ supply_range(1) | 世界扣、目標 state 加 | RESOURCE_CHANGED… + SUPPLY |
+| deploy | 同陣營 reserve 單位、地點界內未佔、距離 ≤ deploy_range(1) | position、status active | DEPLOY |
+| withdraw | 同陣營、活著 | position None、status withdrawn | WITHDRAW |
+| communicate | 目標活著；有 comm_range 時距離 ≤ 它 | last_message、last_message_from | COMMUNICATE |
+
+`CORE_HANDLERS` 有十種；`MILITARY_ACTION_TYPES = ("move", "attack", "observe", "supply", "repair")`；`handlers_for(types)` 取子集。
+
+### `resolver.py`
+
+```python
+ActionContext(rng, system_id)
+ActionResolver(handlers, context).execute(world, action) -> Consequence
+apply_consequence(world, consequence, action, system_id=None) -> list[Event]
+```
+
+`execute()` 的順序：未登記 → rejected；actor 不活躍 → rejected；`validate` → 資源檢查 → `resolve` → 把收費插在最前面（每個資源一個 resource effect）→ `validate_consequence` → `apply_consequence`。任何一步拒絕，世界與 event memory 都不變。
+
+`apply_consequence()` 依序套用 effect（entity → `world.mutate_entity()`，resource → `world.change_resource()`），每個 chain reaction 緊接在它的成因之後用 `world.record_transition()` 記錄，並回填 `event_id`。
 
 ## `event_memory.py`
 
@@ -515,7 +595,7 @@ load_scenario(path)
 
 ```text
 只負責讀取與契約驗證。
-缺 scenario_id、帶未知的鍵、schema_version 不是 0.2、entity 不在空間內 → raise ContractError。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.3、entity 不在空間內 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -573,20 +653,21 @@ SkyVaultTacticalReferenceEngine
 ```python
 build_world(scenario)                    呼叫 create_world；只接受 grid + tick，其他 raise ValueError
 run()                                    跑完整場，回傳 result_package
-resolve_action(action)                   依 action_type 分派
-resolve_move(action)                     驗證並結算移動
-resolve_attack(action)                   驗證並結算攻擊
 evaluate(termination_reason, event_count)  產生 evaluation summary
+self.resolver                            ActionResolver(軍事線五種, ActionContext(self.rng, actor_policy))
 ```
 
 規則：
 
 ```text
-engine 負責驗證與結算。
+engine 負責流程：時間、輪到誰、何時結束。
+engine 不驗證、不結算 action —— 交給 self.resolver。
 engine 不做輸出格式化。
 engine 不含 replay / timeline / causal chain 邏輯。
-engine 不直接改 entity —— 透過 Consequence 生效。
+engine 不直接改 entity。
 ```
+
+Phase 3 前的 `resolve_move` / `resolve_attack` 已移除；它們一邊驗證、一邊改 entity、一邊記 event，最後才回傳 Consequence。
 
 **tactical engine 刻意維持 grid + tick 專用。** 它的 policy 在格子間一步一步走，給它 graph 或 phase clock 會在 `build_world()` 直接 raise，而不是跑出沒意義的結果。runtime 本身支援全部三種空間與時間。
 
@@ -634,7 +715,7 @@ evaluator 不決定行動。
 ```text
 11 份契約，各一個 Pydantic model + validate_<x>()
 ContractError
-SCHEMA_VERSION = "0.2"
+SCHEMA_VERSION = "0.3"
 build_json_schemas()
 ```
 
@@ -796,9 +877,8 @@ runner 不含格式化邏輯。
 4. 對每個 active actor：
    4.1 policy 決定 action
    4.2 記錄 ACTION_SELECTED
-   4.3 結算 action
-   4.4 若 accepted，world state 改變
-   4.5 記錄結果事件
+   4.3 resolver.execute()：驗證 → 結算 → 套用（套用時記錄結果事件）
+   4.4 若 rejected，記錄 ACTION_REJECTED
 5. 若只剩一個 faction，停止
 6. 計算 evaluation
 7. 記錄 SCENARIO_END
@@ -807,59 +887,11 @@ runner 不含格式化邏輯。
 
 `initial_world_state` 在**步驟 1 之前**擷取，所以 result package 同時帶著起點與終點。
 
-## Move resolution
+## Action resolution
 
-Action 必須包含 `target_position`。
+每種 action 的驗證與後果見第 3 節 `actions/handlers.py` 的表格。tactical engine 只登記軍事線五種，tactical policy 只產生 move 與 attack。
 
-驗證：
-
-```text
-target_position 存在
-target_position 在 world 內
-target_position 未被佔用
-```
-
-若通過：
-
-```text
-actor.position 改變
-actor.state["last_action"] = "move"
-記錄 MOVE event
-Consequence accepted=True
-```
-
-若不通過：
-
-```text
-Consequence accepted=False
-記錄 ACTION_REJECTED event
-```
-
-## Attack resolution
-
-Action 必須包含 `target_entity_id`。
-
-驗證：
-
-```text
-target 存在
-actor 有 position
-target 有 position
-target 在 attack_range 內
-```
-
-結算：
-
-```text
-用 accuracy 做命中判定（engine 的 seeded rng）
-
-miss  → 記錄 MISS event
-hit   → target hp 扣 attack_damage
-        記錄 ATTACK event
-        若 hp <= 0：
-            target status 改為 "destroyed"
-            記錄 ENTITY_DESTROYED event
-```
+attack 的命中判定從 `ActionContext.rng` 抽 —— 那就是 engine 的 `self.rng`，所以同一個 seed 得到同樣的命中與失誤。致命一擊記成兩筆 event：ATTACK（hp 歸零、status destroyed），以及它的 chain reaction ENTITY_DESTROYED，兩者的 before / after 相同。
 
 被摧毀的 entity **不會從 `world.entities` 移除**，只是標記。事件記憶還在引用它，所以它必須保持可用 id 定址。
 
@@ -975,7 +1007,7 @@ scenario 宣告 `random_seed`，engine 建立**唯一**的 `random.Random(seed)`
 隨機只用在三個地方：
 
 ```text
-engine.resolve_attack()          命中判定
+AttackHandler.resolve()          命中判定（ActionContext.rng 就是 engine.rng）
 policy.choose_target()           多個目標同分時挑一個
 policy.next_step_toward()        多個移動格同分時挑一個
 ```
@@ -1008,6 +1040,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 13. rebuild_world(initial_world_state, event_memory) == final_world_state
 14. 資源存量永不為負；變動一律記成 RESOURCE_CHANGED
 15. runtime 不 import engine、policy、exporter
+16. handler 只讀世界；action 的改變只經過 apply_consequence()
+17. action 造成的每筆 event 的 source.action_id 都是該 action；NO_ACTION 與 SCENARIO_END 為 null
+18. reference run 與 tests/fixtures/reference_trace.json 一致（除非 Phase 刻意改變模擬，並重新產生）
 ```
 
 ---
@@ -1022,6 +1057,9 @@ policy.next_step_toward()        多個移動格同分時挑一個
 | 某個 tick 狀態不對 | `replay_state_at_tick.json` 的該 tick；或 `rebuild_world(..., at_time=N)` |
 | 重建結果 ≠ final_world_state | 有人改了世界卻沒記 event，或 event 的 after_state 不是完整快照 |
 | tactical engine 拒絕 scenario | 它只跑 grid + tick；其他空間與時間要用 `create_world()` 直接建 |
+| action 被拒但不知道為什麼 | `ACTION_REJECTED` 的 `data.reason`；或直接 `resolver.execute()` 看回傳的 `reason` |
+| `reference_trace` 測試失敗 | 模擬行為變了。刻意的就重新產生並在完成報告記錄新舊數字；不是刻意的就是 bug |
+| 改了 handler 後 AST 測試失敗 | handler 改了世界或記了 event。把改變寫成 DirectEffect 交給 apply_consequence |
 | 某個 entity 行為奇怪 | `entity_history.json` 的該 entity |
 | 不知道某個結果從哪來 | `causal_chain.json` 找 `source_action_id` |
 | 想快速看懂整場 | `timeline.txt` |
@@ -1075,4 +1113,6 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase1_contract_pack.md`](phases/phase1_contract_pack.md) | Phase 1 完成報告 |
 | [`decisions/005_world_runtime.md`](decisions/005_world_runtime.md) | schema 0.2 與 runtime 的設計決定 |
 | [`phases/phase2_world_runtime_core.md`](phases/phase2_world_runtime_core.md) | Phase 2 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`postmortems/phase2.md`](postmortems/phase2.md) | Phase 1、2 回顧 |
+| [`decisions/006_action_consequence.md`](decisions/006_action_consequence.md) | schema 0.3 與 action framework 的設計決定 |
+| [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) | Phase 3 完成報告 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md) | Phase 1–3 回顧 |

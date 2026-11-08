@@ -2,7 +2,7 @@
 
 SKYVAULT 11 份契約的現行規格。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)。
 
 ---
 
@@ -37,15 +37,16 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 |---|---|---|
 | `scenario_loader.load_scenario()` | `validate_scenario` | raise，world 不會被建立 |
 | engine 結算 action 之前 | `validate_action` | raise —— 壞 action 是 policy 的程式錯誤，不是 `ACTION_REJECTED` |
+| `ActionResolver.execute()` 套用之前 | `validate_consequence` | raise —— handler 產生了壞 consequence，世界不會被改 |
 | `world_state.record_event()` | `validate_event` | raise，event 不會進 event_memory |
 | `engine.run()` 回傳之前 | `validate_result_package` | raise |
 
 ## 3. 版本
 
 ```text
-SCHEMA_VERSION      "0.2"（contracts/base.py）
-scenario            必須帶 schema_version: "0.2"，其他版本（含 0.1）直接被拒
-JSON Schema $id     skyvault/0.2/<name>.schema.json
+SCHEMA_VERSION      "0.3"（contracts/base.py）
+scenario            必須帶 schema_version: "0.3"，其他版本（含 0.1、0.2）直接被拒
+JSON Schema $id     skyvault/0.3/<name>.schema.json
 ```
 
 optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本。
@@ -54,8 +55,11 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 |---|---|---|
 | 0.1 | 1 | 初版 11 份契約 |
 | 0.2 | 2 | World Contract 四欄必填；space / time 型別封閉；位置可為節點 id；snapshot 加 resources；兩種新事件型別 |
+| 0.3 | 3 | Action 採 Spec §6.2 全形狀（巢狀 target、六欄必填）；Consequence 採 §6.3 分組（四部分必填）；八種新事件型別 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
+
+0.2 → 0.3 的遷移：scenario 只改 `schema_version: "0.3"`。action 與 consequence 不寫在 scenario 檔裡；直接產生它們的程式（policy、測試）要改成下面的新形狀。
 
 ---
 
@@ -66,11 +70,44 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 契約 | model | 必填 | optional（留待） |
 |---|---|---|---|
 | Entity | `EntityRecord` | entity_id、name、entity_type、faction、position | state、capabilities、tags（預設空） |
-| Action | `ActionRecord` | action_id、**actor_id**、action_type | target_entity_id、target_position、intent、metadata；Spec §6.2 的 required_resources 等六欄（Phase 3） |
-| Consequence | `ConsequenceRecord` | action_id、accepted、reason | direct_effects、evaluation_impact；secondary_effects、chain_reactions（Phase 3） |
+| Action | `ActionRecord` | action_id、**actor_id**、action_type、target、intent、required_resources、expected_duration、expected_effect、risk_profile、priority、confidence | metadata（預設 `{}`） |
+| Consequence | `ConsequenceRecord` | action_id、accepted、reason、direct_effects、secondary_effects、chain_reactions、evaluation_impact | — |
 | Event | `EventRecord` | 見下 | — |
 
 `position` 是 `[x, y]` 兩個整數（grid），或非空字串的節點 id（graph / network）。
+
+### Action 的形狀
+
+```python
+action_id            str                非空
+actor_id             str                非空（驗收 2）
+action_type          str                非空；十種見 architecture.md 的 actions/handlers.py
+target               {entity_id, location, system_id}   三者皆可為 null；location 與 position 同型
+intent               str
+required_resources   {資源 id: 數量 ≥ 0}
+expected_duration    str                宣告，不強制
+expected_effect      str
+risk_profile         dict
+priority             str
+confidence           float              0–1
+metadata             dict               optional
+```
+
+### Consequence 的形狀
+
+```python
+action_id          str
+accepted           bool
+reason             str
+direct_effects     {state_changes:    list[dict]                         環境；套用時一律 raise（尚未建模）
+                    resource_changes: list[{resource_id, delta, event_type}]
+                    entity_changes:   list[{entity_id, event_type, changes}]}   changes 只含 position / state，可為 {}
+secondary_effects  {risk_changes, stability_changes, public_order_changes, logistical_changes}   皆為描述性 list
+chain_reactions    list[{event_id, cause, effect}]   event_id 套用前為 null；cause 為 "<event_type>:<id>"
+evaluation_impact  {cost_delta, risk_delta, stability_delta, tactical_value_delta, strategic_value_delta}
+```
+
+rejected 的 consequence 各部分皆為空。consequence 不寫進 result package；它在 `ActionResolver.execute()` 裡、套用之前通過契約。
 
 ### Event 的形狀
 
@@ -79,7 +116,7 @@ Spec §7.2 的巢狀形狀，頂層恰為 12 個鍵（[ADR 003](../decisions/003
 ```python
 event_id              str                非空
 time                  int                ≥ 0
-event_type            str                十種之一，見下
+event_type            str                十八種之一，見下
 source                {actor_id, system_id, action_id}
 target_entity_id      str | None         ADR 002 的增補欄位
 affected              {entities, locations, resources, risks}
@@ -95,6 +132,8 @@ tags                  list[str]
 ACTION_SELECTED   ACTION_REJECTED   MOVE      ATTACK
 MISS              ENTITY_DESTROYED  NO_ACTION SCENARIO_END
 RESOURCE_CHANGED  ENTITY_STATE_CHANGED                         （0.2 新增）
+OBSERVE   WAIT    REPAIR    SUPPLY                              （0.3 新增）
+DEPLOY    WITHDRAW  SCAN    COMMUNICATE                         （0.3 新增）
 ```
 
 `affected.locations` 的元素與 position 同型：`[x, y]` 或節點 id。
