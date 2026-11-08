@@ -48,6 +48,16 @@ scenario JSON
        └─ runner 把這次 run 追加到 runs/registry.jsonl
 ```
 
+Failure exploration（Phase 9）是許多次上面的 run：
+
+```text
+scripts/explore_failures.py
+  ├─ failure.explore_failures()   基線 + 每個變量 × 每個壓力等級 + 分支 + 每個替代方案，
+  │                               每個都跑 repeat_count 次（seed = 原 seed + i）
+  │     └─ 每個惡化版本 = failure.apply_stress() 產生的子版本 scenario，交給同一個 engine
+  └─ failure.analysis（純函式）    failure map、collapse sequence、survival conditions、建議
+```
+
 ## 六個關鍵設計
 
 **只有 Consequence 能改變世界。** Policy 產生的是 Action，那只是「想做什麼」。handler 只讀世界、算出 Consequence；`apply_consequence()` 是唯一把它套用到世界的地方，每個 effect 一筆帶 `source.action_id` 的 event。handler 不能改世界這件事有 AST 測試把關。這條線讓「決策」「結算」「生效」三者分開，policy 換掉不會影響世界規則。
@@ -157,7 +167,7 @@ scenario JSON
 
 ```text
    src/skyvault/contracts/
-              12 份契約：Pydantic model + validate_<x>()
+              13 份契約：Pydantic model + validate_<x>()
               不 import 專案內任何模組
               ② ③ ④ 都可以依賴它；exporter 不依賴它
 ```
@@ -188,6 +198,17 @@ scenario JSON
 ```
 
 policy 決定「想做什麼」，actions 決定「世界接不接受、接受了會怎樣」。兩者在同一層但互不認識：policy 換掉，世界規則不變；規則改了，policy 不用知道。
+
+## Failure（在 engine 之上，與 verification 同層）
+
+```text
+   src/skyvault/failure/
+              variables   scenario 轉換；只依賴 reproducibility（compare_scenarios）
+              analysis    純函式，不 import 專案模組
+              explore     建 engine 跑每個惡化版本 —— 在 engine 之上
+```
+
+惡化是 scenario 層的事：每個變量把 scenario 改成一個新版本，再交給完全沒改過的 engine。engine 唯一的配合是 `rule_set.faults`（通訊失效的 fault injection），沒有 faults 時它什麼都不做。
 
 ## Reproducibility 與 verification
 
@@ -556,7 +577,7 @@ ActionResolver(handlers, context).execute(world, action) -> Consequence
 apply_consequence(world, consequence, action, system_id=None) -> list[Event]
 ```
 
-`execute()` 的順序：未登記 → rejected；actor 不活躍 → rejected；`validate` → 資源檢查 → `resolve` → 把收費插在最前面（每個資源一個 resource effect）→ `validate_consequence` → `apply_consequence`。任何一步拒絕，世界與 event memory 都不變。
+`execute()` 的順序：未登記 → rejected；actor 不活躍 → rejected；通訊失效（`rule_set.faults.drop_actions`，用 `ActionContext.fault_rng`）→ rejected；`validate` → 資源檢查 → `resolve` → 把收費插在最前面（每個資源一個 resource effect）→ `validate_consequence` → `apply_consequence`。任何一步拒絕，世界與 event memory 都不變。
 
 `apply_consequence()` 依序套用 effect（entity → `world.mutate_entity()`，resource → `world.change_resource()`），每個 chain reaction 緊接在它的成因之後用 `world.record_transition()` 記錄，並回填 `event_id`。
 
@@ -641,7 +662,7 @@ scenario_perspective(scenario)          evaluation.perspective，否則第一個
 
 ```text
 只負責讀取與契約驗證。
-缺 scenario_id、帶未知的鍵、schema_version 不是 0.5、entity 不在空間內、version_control.version 與 scenario_version 不符 → raise ContractError。
+缺 scenario_id、帶未知的鍵、schema_version 不是 0.6、entity 不在空間內、version_control.version 與 scenario_version 不符 → raise ContractError。
 不建立 WorldState —— 那是 engine.build_world() 的事。
 不驗證戰術合理性。
 ```
@@ -774,6 +795,58 @@ RunRegistry(path)                      JSON Lines；record / all / get / by_inpu
 
 scenario 的版本放在 `data/scenarios/<scenario_id>/<version>.json`，檔內 `version_control` 記錄 parent 與變更；`compare_scenarios(parent, child)` 的結果應與 child 的 `changed_from_previous` 相同（測試檢查 v0.1 → v0.2）。
 
+## `failure/`
+
+Phase 9 建立。Formal Spec §14。
+
+### `variables.py`
+
+```python
+STRESS_LEVELS = ("mild", "moderate", "severe", "collapse")
+FailureVariable(name, description, assumption, magnitudes, applies, apply)
+FAILURE_VARIABLES      八個
+apply_stress(scenario, {variable: level}, perspective) -> 子版本 scenario
+```
+
+| 變量 | 作用（mild / moderate / severe / collapse） | 攻擊的假設 |
+|---|---|---|
+| supply_delay | 世界資源 × 0.9 / 0.75 / 0.5 / 0.25 | resource_model |
+| sensor_failure | 己方 accuracy × 0.9 / 0.75 / 0.6 / 0.4 | combat_resolution |
+| communication_failure | 己方 action 失效率 0.1 / 0.25 / 0.5 / 0.8 | actor_policy |
+| weather_degradation | 全體 accuracy × 0.9 / 0.75 / 0.6 / 0.4 | combat_resolution |
+| enemy_reaction_speed | 敵方 accuracy + 0.05 / 0.1 / 0.2 / 0.35（上限 1） | combat_resolution |
+| equipment_overheat | 己方 attack_damage × 0.9 / 0.75 / 0.5 / 0.25（取整） | combat_resolution |
+| civilian_pressure | 己方起始 hp × 0.9 / 0.75 / 0.6 / 0.4（取整，至少 1） | force_availability |
+| resource_shortage | 世界資源 × 0.75 / 0.5 / 0.25 / 0 | resource_model |
+
+沒有對應目標的變量（沒有資源的世界裡的資源變量）`applies()` 回傳 `(False, 原因)`，exploration 只報告不跑。惡化後的 scenario_version 是 `<原版>+<變量>:<等級>`，version_control 指回原版，changed_from_previous 由 `compare_scenarios` 算出。
+
+### `explore.py`
+
+```python
+explore_failures(scenario, profile, config=None, scenarios_dir=None) -> dict
+```
+
+config 預設是 scenario 的 `failure_exploration`。回傳每個 run 的摘要（seed、verdict、分數、己方損失序列、output_hash）：基線、每個適用變量 × 每個等級、分支（兩個最敏感的變量在 moderate 一起施加）、每個替代方案的同樣掃描。
+
+### `analysis.py`
+
+```python
+build_failure_map(exploration)            → failure map（第 13 份契約）
+build_collapse_sequence(exploration)      → 壓垮變量在崩潰等級的第一個失敗 run 的損失序列
+build_survival_conditions(failure_map)    → 每個變量撐到哪一級
+render_recommended_modifications(map, conditions) → Markdown
+```
+
+```text
+存活           verdict 不是 fail
+存活率         非 fail 的比例
+breaking_level 第一個存活率 < survival_threshold 的等級
+sensitivity    基線存活率 − 最差等級的存活率（可為負：壓力反而有利）
+crushing       sensitivity 最大者；同分取較早崩潰者，再同分取名稱
+替代方案       依各變量的崩潰等級與基線存活率比較：holds_longer / breaks_sooner / mixed / same
+```
+
 ## `verification.py`
 
 ```python
@@ -854,9 +927,9 @@ needs_more_test  其餘
 定義：
 
 ```text
-12 份契約（開發計劃的 11 份 + evaluation_profile），各一個 Pydantic model + validate_<x>()
+13 份契約（開發計劃的 11 份 + evaluation_profile + failure_map），各一個 Pydantic model + validate_<x>()
 ContractError
-SCHEMA_VERSION = "0.5"
+SCHEMA_VERSION = "0.6"
 build_json_schemas()
 ```
 
@@ -1102,7 +1175,7 @@ ACTION_SELECTED  ←caused_by─  ATTACK  ←caused_by─  ENTITY_DESTROYED
 
 # 6. 輸出
 
-執行一次產生十一個檔案。
+執行一次產生十一個檔案；`scripts/explore_failures.py` 另外寫四個。
 
 ## Truth source
 
@@ -1144,6 +1217,15 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `causal_chain.json` | 哪個 action 造成哪些 event | `build_causal_chain()` |
 
 四個都是純推導 —— 刪掉重跑會得到相同內容。
+
+## Failure output（`scripts/explore_failures.py`）
+
+| 檔案 | 回答什麼 |
+|---|---|
+| `failure_map.json` | 在哪裡失敗、為什麼、多快、哪個變量壓垮、哪個假設、哪個替代方案撐更久（第 13 份契約） |
+| `collapse_sequence.json` | 壓垮變量在崩潰等級的一個失敗 run：己方單位依序在哪個 tick 被誰摧毀 |
+| `survival_conditions.json` | 每個變量撐到哪一級、在哪一級崩潰；不適用的變量與原因 |
+| `recommended_modifications.md` | 現實行動前必須改什麼 |
 
 ## Evaluation output
 
@@ -1208,6 +1290,8 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 21. 同一 scenario + profile + seed + 規則 → 同一個 output_hash
 22. output_hash = 驗證過的 result package 去掉 reproducibility 後的 canonical JSON 的 SHA-256
 23. hashing / versioning / registry 不 import engine
+24. 沒有 rule_set.faults 時，fault_rng 一次都不會被抽；有 faults 時也不擾動主 rng
+25. failure/analysis 不 import 專案模組；variables 不 import engine
 ```
 
 ---
@@ -1232,6 +1316,8 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 | 某一軸分數看不懂 | `score_breakdown.json` 的 `raw`、`explanation`；`applicable: false` 表示沒有資料 |
 | 換 profile 後 event 也變了 | 不該發生 —— 評估不能改模擬；檢查有沒有人在 evaluation/ 裡 import 了專案模組 |
 | verify_run 說沒有重現 | 看 `input_hash_matches`：false 是輸入變了（scenario 或 profile 被改）；true 但 hash 不同是程式行為變了，或 package 被改過 |
+| failure map 說某變量「壓力反而有利」 | sensitivity 為負是真的結果：例如壞天氣讓雙方都打不中，守方反而活下來 |
+| exploration 太慢 | 每次 run 約 20 ms；runs = repeat × [(1 + 變量 × 等級 + 分支) + 替代方案數 × (1 + 變量 × 等級)]，reference 是 760。用 `--repeats` 調小 |
 | 兩次 run 的 output_hash 不同 | 有隨機來源沒走 engine.rng，或有東西用了時間 / uuid；`tests/reproducibility/test_determinism.py` 會抓 |
 | 結果每次不同 | 檢查 `random_seed`；檢查有沒有人另外建了 `Random()` |
 | 輸出檔內容是錯的 | 確認 runner 有呼叫 exporter，而不是寫入別的東西 |
@@ -1260,6 +1346,7 @@ black --check src/ tests/ scripts/              # 排版
 python3 -m mypy src/                            # 型別（要用能 import pydantic 的直譯器）
 python3 scripts/export_schemas.py               # 改契約後重新產生 JSON Schema
 python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 output_hash
+python3 scripts/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 
@@ -1288,6 +1375,8 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase3_action_consequence_engine.md`](phases/phase3_action_consequence_engine.md) | Phase 3 完成報告 |
 | [`decisions/007_evaluation_engine.md`](decisions/007_evaluation_engine.md) | schema 0.4 與 evaluation engine 的設計決定 |
 | [`decisions/008_reproducibility.md`](decisions/008_reproducibility.md) | schema 0.5、決定性 id、hash 與版本的設計決定 |
+| [`decisions/009_failure_exploration.md`](decisions/009_failure_exploration.md) | schema 0.6 與 failure exploration 的設計決定 |
+| [`phases/phase9_failure_exploration.md`](phases/phase9_failure_exploration.md) | Phase 9 完成報告 |
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
-| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md) | 各 Phase 回顧 |
+| [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md) | 各 Phase 回顧 |

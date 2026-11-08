@@ -22,8 +22,8 @@ python3 -m pytest tests/ -q
 Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
-Run: run_<時間>_c9314004 (output 63090026e137)
-393 passed
+Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
+467 passed
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -139,6 +139,8 @@ Phase 7 再發現：**設定值也會沉默。** profile 的 hidden_risk 門檻�
 
 Phase 8 再發現：**指紋要在資料交出去的那一刻算，驗證要用獨立的證據。** output_hash 一度取自驗證前的 dict，兩次 run 仍然相同（同樣地錯），只有「從呼叫端拿到的 package 重算」的測試抓得到。
 
+Phase 9 再發現：**規則的測試資料要能區分有無這條規則。** crushing 同分規則的測試用了兩個名稱順序剛好等於崩潰順序的變量，拿掉規則照樣綠。寫測試前先問：拿掉這條規則，結果會不同嗎？
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -156,6 +158,10 @@ Phase 8 再發現：**指紋要在資料交出去的那一刻算，驗證要用�
 | handler | 只讀。要改世界就回傳 `DirectEffect`；連 `target.state.update(...)` 都會被 AST 測試擋 |
 | 致命一擊 | 是 ATTACK effect 加一個 ENTITY_DESTROYED chain reaction，兩筆 event 的 before / after 相同 |
 | `rule_set.action_costs` | 有定義的 action type 以它收費，actor 的 `required_resources` 被忽略；supply 運送的就是收的費 |
+| failure variable | 是 scenario 轉換，不碰執行中的世界。新增一個要同時加進 `failure/variables.py`、`contracts/failure.py` 的名稱清單與 `failure/analysis.py` 的 RECOMMENDATIONS（有測試比對） |
+| `rule_set.faults` | 只有 failure exploration 會設。它用 `ActionContext.fault_rng`，不碰主 rng；沒有 faults 時 fault_rng 一次都不抽 |
+| 驗證過的設定少了欄位 | `check()` 只回傳提供的欄位，預設值不會被填。讀設定的地方要自己補（`failure/explore.py` 的 `_with_defaults`） |
+| sensitivity 為負 | 不是 bug：壓力讓方案更常存活（例如壞天氣保護守方） |
 | reference scenario 的位置 | Phase 8 起在 `data/scenarios/tactical_reference_001/v0.1.json`（版本資料夾），不是 `data/scenarios/tactical_reference_001.json` |
 | event / action id | 每個 world 自己的計數器（`event_0000000001`）。policy 要從 `world.ids.action()` 取 id；不要再用 uuid（有測試擋） |
 | output_hash | 在**驗證過的** package 上算。驗證會把 int 正規化成 float；在驗證前算的 hash 對不上呼叫端拿到的 package |
@@ -214,7 +220,9 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）。
+
+設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
 第 6 節開頭先列規格矛盾與決定（Phase 1 回顧改法 3）；Frozen Interface 的每個函式附一行行為，不只寫簽名（Phase 2 回顧改法 2）。每個步驟 commit 前，對照第 6 節檢查這一步新增的公開函式 —— **簽名與語意分開對照**（Phase 3 回顧改法 3）。拆步驟時寫下每一步結束時哪些測試是綠的；寫不出來就和下一步合併（Phase 3 回顧改法 4）。
 
@@ -254,19 +262,20 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 9 — Failure Exploration**：故意惡化指定變量，測試方案如何失敗。規格見 [`plan/phase9_failure_exploration.md`](plan/phase9_failure_exploration.md)。
+依 roadmap，下一個是 **Phase 10 — Batch Simulation + Branch Comparison**：大量 run 的排程、平行、彙整與分支比較。規格見 [`plan/phase10_batch_branch_comparison.md`](plan/phase10_batch_branch_comparison.md)。
 
-Phase 8 留下與它直接相關的事：
+Phase 9 留下與它直接相關的事：
 
 ```text
-同一輸入 → 同一 output_hash
-    惡化後的 run 與正常 run 可以用 compare_runs 精確比較；input_hash 不同、ruleset 相同
-scenario 版本資料夾與 compare_scenarios
-    一個惡化變體可以是一個新版本（parent_version 指回原版），changed_from_previous 自動算
-World Contract 的 failure_variables 仍是 optional
-    ADR 004 列為 Phase 9
-evaluation 的 failure_resistance / recovery_ability
-    目前只看單次 run；Phase 9 才有「故意惡化條件下」的資料
+explore_failures 循序執行
+    reference 設定 760 次 run 約 12 秒；Spec 範例的 repeat_count 100 會是 7600 次
+    每個 run 都是獨立的 (scenario, profile, seed)，天生適合平行
+run 的摘要已有 output_hash
+    批量時可以用 input_hash 去重、用 output_hash 驗證
+random_seed_policy controlled_random
+    目前是 seed + i；批量的 seed 分配規則在 Phase 10 定案
+evaluation 的 comparison 仍為空
+    Phase 10 / 12 才有可比較的 run 集合
 ```
 
-開工前先讀 [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) 的第 4 節與 [`postmortems/phase8.md`](postmortems/phase8.md)。
+開工前先讀 [`phases/phase9_failure_exploration.md`](phases/phase9_failure_exploration.md) 的第 4 節與 [`postmortems/phase9.md`](postmortems/phase9.md)。

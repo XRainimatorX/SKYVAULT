@@ -1,8 +1,8 @@
 # 契約參考
 
-SKYVAULT 12 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile）。描述**現在的樣子**，隨程式碼改動而更新。
+SKYVAULT 13 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile 與 Phase 9 的 failure map）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)。
 
 ---
 
@@ -44,9 +44,9 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 ## 3. 版本
 
 ```text
-SCHEMA_VERSION      "0.5"（contracts/base.py）
-scenario            必須帶 schema_version: "0.5"，其他版本（含 0.1–0.4）直接被拒
-JSON Schema $id     skyvault/0.5/<name>.schema.json
+SCHEMA_VERSION      "0.6"（contracts/base.py）
+scenario            必須帶 schema_version: "0.6"，其他版本（含 0.1–0.5）直接被拒
+JSON Schema $id     skyvault/0.6/<name>.schema.json
 ```
 
 optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本。
@@ -58,10 +58,13 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.3 | 3 | Action 採 Spec §6.2 全形狀（巢狀 target、六欄必填）；Consequence 採 §6.3 分組（四部分必填）；八種新事件型別 |
 | 0.4 | 7 | Evaluation Result 的 §8.3 欄位必填並加 profile_id / perspective / overall_score / anti_gaming；Result Package 加三份評估輸出；新增 evaluation_profile 契約；scenario.evaluation 加 optional perspective |
 | 0.5 | 8 | Result Package 的 reproducibility 必填，hash 必須是 64 個 hex；scenario 新增 optional version_control |
+| 0.6 | 9 | World Contract 的 failure_variables 必填（八個變量名之一）；scenario.failure_exploration 有正式形狀；新增 failure_map 契約 |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
 0.2 → 0.3 的遷移：scenario 只改 `schema_version: "0.3"`。action 與 consequence 不寫在 scenario 檔裡；直接產生它們的程式（policy、測試）要改成下面的新形狀。
+
+0.5 → 0.6 的遷移：scenario 改 `schema_version: "0.6"`，`world_contract` 補上 `failure_variables`（沒有就寫 `[]`）。
 
 0.4 → 0.5 的遷移：scenario 只改 `schema_version: "0.5"`（可選擇加 `version_control`）。手寫的 result package 要補 reproducibility 區塊，output_hash 用 `output_hash()` 算。
 
@@ -155,7 +158,7 @@ DEPLOY    WITHDRAW  SCAN    COMMUNICATE                         （0.3 新增）
 
 | 契約 | model | 必填 | optional（留待） |
 |---|---|---|---|
-| World Contract | `WorldContract` | world_id、world_scope、purpose、space_model、time_model、assumption_registry、evaluation_targets、entity_model、environment_state、resource_state、rule_set | actor_slots（Phase 6）、failure_variables（Phase 9）、event_memory、data_provenance |
+| World Contract | `WorldContract` | world_id、world_scope、purpose、space_model、time_model、assumption_registry、evaluation_targets、entity_model、environment_state、resource_state、rule_set、failure_variables | actor_slots（Phase 6）、event_memory、data_provenance |
 | Scenario | `Scenario` | schema_version、**scenario_id**、scenario_version、world_contract、entities（≥ 1）、runtime、evaluation | scenario_type、domain、purpose、assumption_registry、data_provenance、participants、allowed_actions、failure_exploration、output |
 | Assumption Registry | `AssumptionRegistry` | — | scenario_id、assumptions、critical_assumptions、assumption_risks、assumption_confidence |
 | Data Provenance | `DataProvenance` | — | scenario_id、sources、reliability_notes、missing_data |
@@ -214,6 +217,28 @@ perspective 為 null 時由 scenario 決定（evaluation.perspective，否則第
 ```
 
 `data/evaluation_profiles/` 有 balanced 與 tactical 兩份。
+
+### Failure exploration
+
+`world_contract.failure_variables`：這個世界能被惡化的方式，只能是 supply_delay、sensor_failure、communication_failure、weather_degradation、enemy_reaction_speed、equipment_overheat、civilian_pressure、resource_shortage。
+
+`scenario.failure_exploration`（Spec §14，optional）：
+
+```python
+objective            str                     預設 "find_weakness"
+failure_variables    list[變量名]            至少一個、不重複；必須都列在 world_contract.failure_variables
+stress_levels        list[mild / moderate / severe / collapse]   至少一個、不重複
+run_policy           {repeat_count ≥ 1, random_seed_policy, branch_comparison（預設 false）}
+alternatives         list[str]               同一 scenario 的其他版本號，預設 []
+survival_threshold   0–1                     預設 0.5
+output               dict                    Spec 的佔位，忽略
+```
+
+| 契約 | model | 必填 |
+|---|---|---|
+| Failure Map | `FailureMap` | scenario_id、scenario_version、perspective、profile_id、objective、repeat_count、seeds、survival_threshold、baseline、variables、crushing_variable、crushing_assumption、failure_points、failure_causes、how_fast、branches、alternatives、best_alternative |
+
+variables 的每一項：variable、applicable、reason、assumption、levels（每級 survival_rate、mean_score、mean_first_loss_tick、most_common_failure）、breaking_level、sensitivity。alternatives 的每一項：scenario_version、baseline_survival_rate、breaking_levels、holds_longer_on、breaks_sooner_on、verdict（holds_longer / breaks_sooner / mixed / same）。
 
 `initial_world_state` / `final_world_state`（`WorldSnapshot`）的必填欄位：world_id、scenario_id、tick、space、entities、resources。`space` 由 `Space.describe()` 寫入，帶 `type`；`resources` 是名稱 → 數量，數量 ≥ 0。
 
