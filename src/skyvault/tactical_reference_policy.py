@@ -4,6 +4,7 @@ import random
 
 from .action import Action, ActionTarget
 from .entity import Entity, Position
+from .policies import register_policy
 from .world_state import WorldState
 
 
@@ -202,3 +203,6 @@ class TacticalReferencePolicy:
         ]
 
         return self.rng.choice(best_candidates)
+
+
+register_policy("tactical_reference", lambda rng, params: TacticalReferencePolicy(rng))

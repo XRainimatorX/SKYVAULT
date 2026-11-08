@@ -12,8 +12,10 @@ from .contracts import (
     validate_evaluation_profile,
     validate_result_package,
 )
+from .domains import DomainPack, load_domain
 from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
+from .policies import Policy, build_policy
 from .reproducibility import (
     RUNTIME_VERSION,
     input_hash,
@@ -56,6 +58,7 @@ class SkyVaultTacticalReferenceEngine:
         self,
         scenario: dict[str, Any],
         evaluation_profile: dict[str, Any] | None = None,
+        policy: Policy | None = None,
     ):
         self.scenario = scenario
         self.evaluation_profile = self.resolve_profile(evaluation_profile)
@@ -67,7 +70,12 @@ class SkyVaultTacticalReferenceEngine:
         )
         self.rng = random.Random(self.random_seed)
         self.world = self.build_world(scenario)
-        self.policy = TacticalReferencePolicy(self.rng)
+        # A scenario that names a domain runs with that pack's handlers,
+        # default policy and upkeep; without one nothing below changes
+        self.domain: DomainPack | None = (
+            load_domain(scenario["domain"]) if scenario.get("domain") else None
+        )
+        self.policy = policy or self.choose_policy(scenario)
         self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
         self.scheduled = {
             (item["tick"], item["actor_id"]): item
@@ -76,9 +84,9 @@ class SkyVaultTacticalReferenceEngine:
 
         assumptions = scenario["world_contract"].get("assumption_registry", {})
 
-        self.actor_system_id = assumptions.get(
-            "actor_policy",
-            type(self.policy).__name__,
+        # A policy that names itself (an outside system) is recorded as such
+        self.actor_system_id = getattr(self.policy, "system_id", None) or (
+            assumptions.get("actor_policy", type(self.policy).__name__)
         )
 
         # Every action goes through the resolver; the military line keeps
@@ -87,13 +95,43 @@ class SkyVaultTacticalReferenceEngine:
         # never shifts the draws the battle itself makes
         fault_seed = None if self.random_seed is None else f"faults:{self.random_seed}"
         self.resolver = ActionResolver(
-            handlers_for(MILITARY_ACTION_TYPES),
+            (
+                self.domain.handlers()
+                if self.domain
+                else handlers_for(MILITARY_ACTION_TYPES)
+            ),
             ActionContext(
                 rng=self.rng,
                 system_id=self.actor_system_id,
                 fault_rng=random.Random(fault_seed),
             ),
         )
+
+    def choose_policy(self, scenario: dict[str, Any]) -> Policy:
+        """
+        The policy when none was handed in: runtime.policy by registered
+        name, else the domain's default, else the tactical reference.
+        """
+        choice = scenario["runtime"].get("policy")
+        if choice:
+            return build_policy(choice["name"], self.rng, choice.get("params"))
+        if self.domain:
+            return self.domain.default_policy(scenario, self.rng)
+        return TacticalReferencePolicy(self.rng)
+
+    def upkeep(self) -> None:
+        """
+        The domain's start-of-tick actions (recovery and the like).
+
+        Important:
+        They go through the resolver like any action, so the world still
+        changes only through consequences and every change is an event with
+        the action's id. One the world refuses is simply not applied.
+        """
+        if self.domain is None:
+            return
+        for action in self.domain.upkeep(self.world):
+            self.resolver.execute(self.world, action, f"{self.domain.name}_upkeep")
 
     def scheduled_action(self, actor_id: str, scheduled: dict[str, Any]) -> Action:
         """
@@ -189,6 +227,7 @@ class SkyVaultTacticalReferenceEngine:
                 termination_reason = "termination_condition_met"
                 break
 
+            self.upkeep()
             actors = list(self.world.active_entities())
 
             for actor in actors:

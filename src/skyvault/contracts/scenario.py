@@ -38,6 +38,19 @@ class ScheduledAction(ContractModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
+class PolicyChoice(ContractModel):
+    """
+    The registered policy a run uses, by name, with its parameters.
+
+    Important:
+    Only names registered with skyvault.policies can be chosen here, so a
+    scenario file can pick a policy but never load arbitrary code.
+    """
+
+    name: NonEmptyStr
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
 class RuntimeSettings(ContractModel):
     """How the run executes. Formal Spec section 3.3 calls this execution_settings."""
 
@@ -49,6 +62,7 @@ class RuntimeSettings(ContractModel):
     )
     repeat_count: int | None = Field(default=None, ge=1)
     scheduled_actions: list[ScheduledAction] = Field(default_factory=list)
+    policy: PolicyChoice | None = None
 
 
 class ScenarioEvaluation(ContractModel):

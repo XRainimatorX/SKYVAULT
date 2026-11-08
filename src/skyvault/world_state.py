@@ -32,6 +32,10 @@ class WorldState:
     Every change to the world goes through a method that records an event:
     mutate_entity() and change_resource(). An action's changes reach them
     only through actions.resolver.apply_consequence().
+
+    environment is world_contract.environment_state: the static world a
+    domain pack describes (terrain, for one). It is read, never changed,
+    and is not part of a snapshot.
     """
 
     world_id: str
@@ -45,6 +49,7 @@ class WorldState:
     rules: RuleSet = field(default_factory=RuleSet)
     clock: Clock = field(default_factory=TickClock)
     ids: RunIds = field(default_factory=RunIds)
+    environment: dict[str, Any] = field(default_factory=dict)
 
     def get_entity(self, entity_id: str) -> Entity:
         """

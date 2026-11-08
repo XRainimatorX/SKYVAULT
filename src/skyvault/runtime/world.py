@@ -71,4 +71,5 @@ def create_world(scenario: dict[str, Any]) -> WorldState:
         resources=ResourceState(world_contract.get("resource_state", {})),
         rules=RuleSet(world_contract.get("rule_set", {})),
         clock=build_clock(world_contract["time_model"]),
+        environment=dict(world_contract.get("environment_state", {})),
     )

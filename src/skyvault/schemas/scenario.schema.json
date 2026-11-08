@@ -403,6 +403,27 @@
       "title": "FailureExplorationSpec",
       "type": "object"
     },
+    "PolicyChoice": {
+      "additionalProperties": false,
+      "description": "The registered policy a run uses, by name, with its parameters.\n\nImportant:\nOnly names registered with skyvault.policies can be chosen here, so a\nscenario file can pick a policy but never load arbitrary code.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PolicyChoice",
+      "type": "object"
+    },
     "ProvenanceSource": {
       "additionalProperties": false,
       "description": "One source of scenario data.",
@@ -497,6 +518,17 @@
           "exclusiveMinimum": 0,
           "title": "Max Ticks",
           "type": "integer"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PolicyChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "random_seed": {
           "title": "Random Seed",
