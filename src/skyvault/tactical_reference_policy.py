@@ -2,7 +2,7 @@
 
 import random
 
-from .action import Action, ActionTarget, new_action_id
+from .action import Action, ActionTarget
 from .entity import Entity, Position
 from .world_state import WorldState
 
@@ -53,7 +53,7 @@ class TacticalReferencePolicy:
 
         if distance <= attack_range:
             return Action(
-                action_id=new_action_id(),
+                action_id=world.ids.action(),
                 actor_id=actor.entity_id,
                 action_type="attack",
                 target=ActionTarget(entity_id=target.entity_id),
@@ -68,7 +68,7 @@ class TacticalReferencePolicy:
             return None
 
         return Action(
-            action_id=new_action_id(),
+            action_id=world.ids.action(),
             actor_id=actor.entity_id,
             action_type="move",
             target=ActionTarget(location=next_position),

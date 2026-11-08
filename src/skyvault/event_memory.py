@@ -2,18 +2,6 @@
 
 from dataclasses import dataclass, field
 from typing import Any
-from uuid import uuid4
-
-
-def new_event_id() -> str:
-    """
-    A fresh event id.
-
-    Important:
-    This uses uuid4 and is therefore not controlled by the scenario
-    random_seed. Behaviour repeats across runs; these ids do not.
-    """
-    return f"event_{uuid4().hex[:10]}"
 
 
 def build_causal_links(

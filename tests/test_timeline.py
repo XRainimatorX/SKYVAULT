@@ -14,7 +14,9 @@ from skyvault.timeline import render_timeline
 
 
 def render_reference_timeline() -> str:
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    scenario_path = (
+        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
     engine = SkyVaultTacticalReferenceEngine(scenario)
@@ -92,7 +94,9 @@ def test_timeline_damage_matches_event_memory():
     # "HP a -> b (damage = d)" sentence. Matching "(damage = d)" alone is not
     # enough: another attack with the same damage value would satisfy it, which
     # is how the Phase 4 fatal-blow defect could hide behind a passing test.
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    scenario_path = (
+        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    )
     result_package = SkyVaultTacticalReferenceEngine(load_scenario(scenario_path)).run()
 
     text = render_timeline(

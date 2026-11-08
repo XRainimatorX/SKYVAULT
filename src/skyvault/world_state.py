@@ -9,9 +9,9 @@ from .event_memory import (
     Event,
     build_causal_links,
     build_evaluation_relevance,
-    new_event_id,
 )
 from .runtime.clock import Clock, TickClock
+from .runtime.ids import RunIds
 from .runtime.registry import EntityRegistry
 from .runtime.resources import ResourceState
 from .runtime.rules import RuleSet
@@ -44,6 +44,7 @@ class WorldState:
     resources: ResourceState = field(default_factory=ResourceState)
     rules: RuleSet = field(default_factory=RuleSet)
     clock: Clock = field(default_factory=TickClock)
+    ids: RunIds = field(default_factory=RunIds)
 
     def get_entity(self, entity_id: str) -> Entity:
         """
@@ -267,7 +268,7 @@ class WorldState:
         event memory.
         """
         event = Event(
-            event_id=new_event_id(),
+            event_id=self.ids.event(),
             time=self.tick,
             event_type=event_type,
             actor_id=actor_id,

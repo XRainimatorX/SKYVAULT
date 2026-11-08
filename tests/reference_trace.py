@@ -2,9 +2,10 @@
 
 Important:
 trace() keeps, per event, the time, type, actor, target and data. digest()
-hashes the whole result package after replacing every uuid event or action id
-with its order of first appearance, so two runs of the same behaviour hash the
-same.
+hashes the whole result package after replacing every event or action id with
+its order of first appearance. Ids were uuid4 until Phase 8 and are a per-run
+counter since; the renumbering makes both hash the same, so the digest pins
+behaviour across that change.
 
 If a phase changes the simulation on purpose, regenerate the committed file
 and record old and new numbers in that phase's completion report:

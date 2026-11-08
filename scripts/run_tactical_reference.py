@@ -5,6 +5,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
+SCENARIO_DIR = REPO_ROOT / "data" / "scenarios"
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
@@ -43,7 +44,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    scenario_path = SCENARIO_DIR / "tactical_reference_001" / "v0.1.json"
     output_dir = REPO_ROOT / "output"
 
     scenario = load_scenario(scenario_path)
