@@ -40,6 +40,13 @@ from .failure import (
     validate_failure_map,
 )
 from .json_schema import CONTRACTS, build_json_schemas
+from .observation import (
+    VIEWS,
+    Observation,
+    ObserverProfile,
+    validate_observation,
+    validate_observer_profile,
+)
 from .provenance import DataProvenance, validate_data_provenance
 from .reproducibility import ReproducibilityMetadata, validate_reproducibility
 from .result_package import ResultPackage, validate_result_package
@@ -51,6 +58,7 @@ __all__ = [
     "ANTI_GAMING_BEHAVIORS",
     "CONTRACTS",
     "METRIC_NAMES",
+    "VIEWS",
     "ContractError",
     "EVENT_TYPES",
     "FAILURE_VARIABLE_NAMES",
@@ -67,6 +75,8 @@ __all__ = [
     "EventRecord",
     "FailureExplorationSpec",
     "FailureMap",
+    "Observation",
+    "ObserverProfile",
     "ReproducibilityMetadata",
     "ResultPackage",
     "Scenario",
@@ -85,6 +95,8 @@ __all__ = [
     "validate_event",
     "validate_failure_exploration",
     "validate_failure_map",
+    "validate_observation",
+    "validate_observer_profile",
     "validate_reproducibility",
     "validate_result_package",
     "validate_scenario",

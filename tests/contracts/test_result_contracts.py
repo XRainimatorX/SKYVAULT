@@ -230,6 +230,8 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "batch_spec",
     "batch_result",
     "conflict_package",
+    "observer_profile",
+    "observation",
 }
 
 

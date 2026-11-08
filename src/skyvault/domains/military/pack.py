@@ -52,6 +52,21 @@ class MilitaryPack:
         """Each faction's mission judged after the run (mission.py)."""
         return mission_outcome(package, scenario)
 
+    def concealment(self, scenario: dict[str, Any], cell: Any) -> float:
+        """How much the ground at cell hides a unit (0 without a map)."""
+        terrain = scenario["world_contract"]["environment_state"].get("terrain")
+        if terrain is None or not isinstance(cell, (list, tuple)):
+            return 0.0
+        x, y = cell
+        name = terrain["legend"][terrain["rows"][y][x]]
+        table = scenario["world_contract"]["rule_set"]["military"]["terrain"]
+        return float(table[name]["concealment"])
+
+    def mission_goal(self, scenario: dict[str, Any], faction: str) -> dict[str, Any]:
+        """The faction's mission as the scenario states it (empty when none)."""
+        factions = scenario["world_contract"]["rule_set"]["military"]["factions"]
+        return dict(factions.get(faction, {}).get("mission", {}))
+
     def observe(
         self, actor: dict[str, Any], units: dict[str, Any], scenario: dict[str, Any]
     ) -> dict[str, Any]:

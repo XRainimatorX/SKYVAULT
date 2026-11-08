@@ -1,0 +1,79 @@
+{
+  "$id": "skyvault/0.6/observer_profile.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "How one system observes (data/observers/).\n\nImportant:\ndelay_ticks: the observation at tick t shows tick t - delay_ticks.\nstale_after_ticks: how long a contact lost from sight is remembered.\ndefault_sensor_range: for units without a sensor_range capability.\nlocal_radius: the area around the deciding unit in the local view.\nenemy_detail: how much of an enemy's health is shown.",
+  "properties": {
+    "default_sensor_range": {
+      "default": 5.0,
+      "minimum": 0.0,
+      "title": "Default Sensor Range",
+      "type": "number"
+    },
+    "delay_ticks": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Delay Ticks",
+      "type": "integer"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "enemy_detail": {
+      "default": "exact",
+      "enum": [
+        "exact",
+        "banded",
+        "hidden"
+      ],
+      "title": "Enemy Detail",
+      "type": "string"
+    },
+    "local_radius": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Local Radius",
+      "type": "integer"
+    },
+    "observer_id": {
+      "minLength": 1,
+      "title": "Observer Id",
+      "type": "string"
+    },
+    "source_quality": {
+      "default": "medium",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "Source Quality",
+      "type": "string"
+    },
+    "stale_after_ticks": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Stale After Ticks",
+      "type": "integer"
+    },
+    "view": {
+      "enum": [
+        "local",
+        "aggregate",
+        "mission",
+        "threat",
+        "coverage"
+      ],
+      "title": "View",
+      "type": "string"
+    }
+  },
+  "required": [
+    "observer_id",
+    "view"
+  ],
+  "title": "ObserverProfile",
+  "type": "object"
+}
