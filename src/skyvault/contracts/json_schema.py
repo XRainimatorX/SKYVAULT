@@ -7,6 +7,7 @@ from .assumption import AssumptionRegistry
 from .base import SCHEMA_VERSION, ContractModel
 from .batch import BatchResult, BatchSpec, ConflictPackage
 from .consequence import ConsequenceRecord
+from .edition import Edition
 from .entity import EntityRecord
 from .equipment import EquipmentProfile, EquipmentTestResult
 from .evaluation import EvaluationResult
@@ -29,7 +30,7 @@ from .world import WorldContract
 # Phase 10 adds, the observer profile and observation Phase 5 adds, the order
 # Phase 6 adds, the governance policy and job Phase 11 adds and the external
 # submission and authority handoff Phase 12 adds and the equipment profile and
-# test result Phase 16 adds, by file name.
+# test result Phase 16 adds and the edition Phase 19 adds, by file name.
 CONTRACTS: dict[str, type[ContractModel]] = {
     "world_contract": WorldContract,
     "scenario": Scenario,
@@ -56,6 +57,7 @@ CONTRACTS: dict[str, type[ContractModel]] = {
     "authority_handoff": AuthorityHandoff,
     "equipment_profile": EquipmentProfile,
     "equipment_test_result": EquipmentTestResult,
+    "edition": Edition,
 }
 
 

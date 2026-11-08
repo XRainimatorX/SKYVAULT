@@ -546,7 +546,7 @@ def test_a_profile_of_nothing_but_an_id_cannot_be_judged_and_needs_simulation():
 
 def test_the_core_imports_no_virtual_test():
     for path in SRC.rglob("*.py"):
-        if "virtualtest" in path.parts or "interface" in path.parts:
+        if {"virtualtest", "interface", "editions"} & set(path.parts):
             continue
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom):

@@ -27,7 +27,7 @@ from ..contracts import (
 )
 from ..engine import SkyVaultTacticalReferenceEngine
 from ..failure import build_failure_map, explore_failures
-from ..interface.handoff import authority_handoff, handoff_triggers
+from ..interface.handoff import AUTHORITIES, authority_handoff, handoff_triggers
 from ..replay import build_replay_state_at_tick
 from ..scenario_loader import (
     default_evaluation_profile,
@@ -248,6 +248,11 @@ def plan(
     return {"estimated_cost": estimate, "duration_clamped_from": clamped}
 
 
+def authorities_of(policy: dict[str, Any]) -> tuple[str, ...]:
+    """Who decides this service's handoffs: the policy's, else the default."""
+    return tuple(policy.get("decision_authorities") or AUTHORITIES)
+
+
 def execute_job(
     job_id: str,
     store: JobStore,
@@ -343,7 +348,9 @@ def _finish_run(
             "partial": record["partial"],
             "result_kept": keep,
             "handoff": authority_handoff(
-                handoff_triggers(result=package), result=package
+                handoff_triggers(result=package),
+                result=package,
+                authorities=authorities_of(policy),
             ),
             **summary,
         },
@@ -420,6 +427,7 @@ def _batch(
                 handoff_triggers(conflict_package=out["conflict_package"]),
                 branch_comparison=out["branch_comparison"],
                 conflict_package=out["conflict_package"],
+                authorities=authorities_of(policy),
             ),
         },
     )
@@ -453,7 +461,9 @@ def _failure_exploration(
             "crushing_variable": failure_map["crushing_variable"],
             "survival_rate": failure_map["baseline"]["survival_rate"],
             "handoff": authority_handoff(
-                handoff_triggers(failure_map=failure_map), failure_map=failure_map
+                handoff_triggers(failure_map=failure_map),
+                failure_map=failure_map,
+                authorities=authorities_of(policy),
             ),
         },
     )

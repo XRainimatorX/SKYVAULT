@@ -71,6 +71,9 @@ class ResourceComputeGovernance(ContractModel):
     )
     auto_stop: AutoStop = Field(default_factory=AutoStop)
     partial_result_export: bool = True
+    # who decides a handoff (Phase 19: an edition names its own); unset means
+    # the interface's default authorities
+    decision_authorities: list[NonEmptyStr] | None = Field(default=None, min_length=1)
 
 
 class Usage(ContractModel):

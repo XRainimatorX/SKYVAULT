@@ -13,6 +13,7 @@ malformed request or one governance refuses, 429 when the queue is full,
 """
 
 import threading
+from collections.abc import Callable
 from typing import Annotated, Any
 
 from fastapi import Body, FastAPI, HTTPException
@@ -46,9 +47,20 @@ def in_process_queue(store: JobStore, policy: dict[str, Any]) -> InProcessQueue:
 
 
 def create_world_service(
-    store: JobStore, queue: JobQueue, policy: dict[str, Any]
+    store: JobStore,
+    queue: JobQueue,
+    policy: dict[str, Any],
+    external_routes: bool = True,
+    gate: Callable[[dict[str, Any]], None] | None = None,
 ) -> FastAPI:
-    """The world service app over one store, one queue and one policy."""
+    """
+    The world service app over one store, one queue and one policy.
+
+    external_routes=False leaves the external interface (Phase 12) off;
+    gate(request) is asked about every job before it is planned and raises
+    PermissionError (403 not_licensed) for one it does not allow (Phase 19:
+    an edition's job kinds and domains). The defaults change nothing.
+    """
     app = FastAPI(
         title="SKYVAULT world service",
         docs_url="/api/docs",
@@ -58,6 +70,8 @@ def create_world_service(
     worlds_lock = threading.Lock()
 
     def refuse(error: Exception) -> HTTPException:
+        if isinstance(error, PermissionError):
+            return HTTPException(403, {"reason": "not_licensed", "detail": str(error)})
         if isinstance(error, Rejected):
             status = 429 if error.reason == "queue_full" else 422
             return HTTPException(
@@ -77,9 +91,18 @@ def create_world_service(
 
     def admit(request: dict[str, Any]) -> dict[str, Any]:
         try:
+            if gate is not None:
+                gate(request)
             planned = plan(request, policy, queue.depth(), store)
             return new_job(store, request, planned, policy)
-        except (Rejected, NotFound, KeyError, ContractError, ValueError) as error:
+        except (
+            PermissionError,
+            Rejected,
+            NotFound,
+            KeyError,
+            ContractError,
+            ValueError,
+        ) as error:
             raise refuse(error) from None
 
     @app.get("/api/health")
@@ -271,5 +294,6 @@ def create_world_service(
     app.state.admit = admit
     app.state.refuse = refuse
     app.state.create_world = create_world
-    add_external_routes(app, store, queue, policy)
+    if external_routes:
+        add_external_routes(app, store, queue, policy)
     return app

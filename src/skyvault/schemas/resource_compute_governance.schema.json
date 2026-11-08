@@ -139,6 +139,23 @@
     "compute_budget": {
       "$ref": "#/$defs/ComputeBudget"
     },
+    "decision_authorities": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Authorities"
+    },
     "description": {
       "default": "",
       "title": "Description",

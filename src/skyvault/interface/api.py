@@ -15,6 +15,7 @@ else, deciding a conflict or a handoff is refused with 403; a world waiting
 on a conflict does not advance (409).
 """
 
+from collections.abc import Collection
 from typing import Annotated, Any
 
 from fastapi import Body, FastAPI, HTTPException
@@ -70,9 +71,18 @@ def problem(status: int, reason: str, detail: str) -> HTTPException:
 
 
 def add_external_routes(
-    app: FastAPI, store: JobStore, queue: JobQueue, policy: dict[str, Any]
+    app: FastAPI,
+    store: JobStore,
+    queue: JobQueue,
+    policy: dict[str, Any],
+    systems: Collection[str] | None = None,
 ) -> None:
-    """Add the external interface to a world service app (create_world_service)."""
+    """
+    Add the external interface to a world service app (create_world_service).
+
+    systems: the only systems whose submissions are taken (Phase 19: an
+    edition's); others get 403 not_licensed. None takes every system.
+    """
     worlds: dict[str, PersistentWorld] = app.state.worlds
 
     def refuse(error: Exception) -> HTTPException:
@@ -160,6 +170,12 @@ def add_external_routes(
         its world actions go into the world's window, and what has no model
         comes back as gaps without anything running.
         """
+        if systems is not None and submission.get("system") not in systems:
+            raise problem(
+                403,
+                "not_licensed",
+                f"this service takes submissions from {', '.join(sorted(systems))}",
+            )
         try:
             planned = to_request(submission)
         except (ContractError, ValueError) as error:

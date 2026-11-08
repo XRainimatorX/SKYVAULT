@@ -331,7 +331,8 @@ def test_only_actors_off_the_road_decide():
 
 def test_the_core_imports_no_domain_pack():
     for path in SRC.rglob("*.py"):
-        if "domains" in path.parts:
+        # editions (Phase 19) is the top layer: its products run the packs
+        if "domains" in path.parts or "editions" in path.parts:
             continue
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.ImportFrom):

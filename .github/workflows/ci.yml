@@ -354,6 +354,31 @@ jobs:
           print("virtual test verified:", status)
           EOF
 
+      # Phase 19: two editions on one core — the commercial shell shows no internal name
+      - name: Editions
+        run: |
+          python scripts/run_products.py --edition commercial --repeats 1
+          python - <<'EOF'
+          import json
+          import sys
+          from pathlib import Path
+
+          sys.path.insert(0, "src")
+          from skyvault.editions.manifest import load_edition
+          from skyvault.editions.redact import leaks
+
+          commercial = load_edition("commercial")
+          out = Path("output/products")
+          names = sorted(p.stem for p in out.glob("*.json"))
+          assert names == sorted(commercial["products"]), names
+          for path in out.glob("*.json"):
+              product = json.loads(path.read_text())
+              assert product["kpis"] and product["conclusion"], path
+              assert leaks(product, commercial) == [], (path, leaks(product, commercial))
+          assert leaks((out / "products.md").read_text(), commercial) == []
+          print("editions verified:", names)
+          EOF
+
       # Phase 18: training data from the sources file, filtered for score gaming
       - name: Training data pipeline
         run: |

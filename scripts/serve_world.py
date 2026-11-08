@@ -10,6 +10,13 @@ at /api/docs. Outside systems use the external interface on the same app
 (Phase 12): /scenario/submit, /world/create, /action/submit, /run/{run_id},
 /branch_compare/run, /failure_exploration/run, /conflict/{id} and
 /branch_conflict/resolve.
+
+    python3 scripts/serve_world.py --edition commercial
+
+serves one edition (Phase 19, data/editions/): the commercial shell mounts
+no internal system adapter, runs only its job kinds and domains, offers its
+products at /api/products and redacts every internal name from what it
+returns. Without --edition the service is the internal core as before.
 """
 
 import argparse
@@ -23,6 +30,8 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
+from skyvault.editions.manifest import load_edition
+from skyvault.editions.service import create_edition_service, edition_policy
 from skyvault.worldservice.api import create_world_service, in_process_queue
 from skyvault.worldservice.governance import load_governance
 from skyvault.worldservice.queues import RQQueue
@@ -41,6 +50,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8100)
+    parser.add_argument("--edition", default=None, help="data/editions/<name>.json")
     args = parser.parse_args(argv)
 
     import uvicorn
@@ -49,14 +59,24 @@ def main(argv: list[str] | None = None) -> None:
         Path(args.store[len("sqlite:///") :]).parent.mkdir(parents=True, exist_ok=True)
     store = open_store(args.store)
     policy = load_governance(args.governance)
-    queue = (
-        RQQueue(args.redis, store.spec, args.governance, policy)
-        if args.queue == "rq"
-        else in_process_queue(store, policy)
-    )
-    uvicorn.run(
-        create_world_service(store, queue, policy), host=args.host, port=args.port
-    )
+    if args.edition is not None:
+        edition = load_edition(args.edition)
+        rq = (
+            RQQueue(
+                args.redis, store.spec, args.governance, edition_policy(edition, policy)
+            )
+            if args.queue == "rq"
+            else None
+        )
+        app = create_edition_service(edition, store, rq, policy)
+    else:
+        queue = (
+            RQQueue(args.redis, store.spec, args.governance, policy)
+            if args.queue == "rq"
+            else in_process_queue(store, policy)
+        )
+        app = create_world_service(store, queue, policy)
+    uvicorn.run(app, host=args.host, port=args.port)
 
 
 if __name__ == "__main__":

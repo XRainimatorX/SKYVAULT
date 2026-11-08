@@ -24,6 +24,7 @@ from ..interface.conflicts import (
     resolve,
     scheduled,
 )
+from ..interface.handoff import AUTHORITIES
 from ..scenario_loader import scenario_perspective
 from .governance import Governor, estimate_run
 from .jobs import profile_for, scenario_for
@@ -222,7 +223,15 @@ class PersistentWorld:
             max(self.horizon, tick),
         )
         record = self.store.save_conflict(
-            open_conflict(self.world_id, tick, proposals, played)
+            open_conflict(
+                self.world_id,
+                tick,
+                proposals,
+                played,
+                authorities=tuple(
+                    self.policy.get("decision_authorities") or AUTHORITIES
+                ),
+            )
         )
         self.awaiting = record["conflict_id"]
         self.store.log(

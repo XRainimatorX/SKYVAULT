@@ -22,6 +22,7 @@ from .batch import (
     validate_conflict_package,
 )
 from .consequence import ConsequenceRecord, validate_consequence
+from .edition import Edition, validate_edition
 from .entity import EntityRecord, validate_entity
 from .equipment import (
     EquipmentProfile,
@@ -99,6 +100,7 @@ __all__ = [
     "ConflictPackage",
     "ConsequenceRecord",
     "DataProvenance",
+    "Edition",
     "EntityRecord",
     "EquipmentProfile",
     "EquipmentTestResult",
@@ -129,6 +131,7 @@ __all__ = [
     "validate_conflict_package",
     "validate_consequence",
     "validate_data_provenance",
+    "validate_edition",
     "validate_entity",
     "validate_equipment_profile",
     "validate_equipment_test_result",
