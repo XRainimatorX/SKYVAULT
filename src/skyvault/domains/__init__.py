@@ -18,7 +18,10 @@ from ..policies import Policy
 from ..world_state import WorldState
 
 # domain name -> "module:attribute" of its pack
-KNOWN_DOMAINS = {"military": "skyvault.domains.military.pack:MILITARY"}
+KNOWN_DOMAINS = {
+    "military": "skyvault.domains.military.pack:MILITARY",
+    "city": "skyvault.domains.city.pack:CITY",
+}
 
 
 class DomainPack(Protocol):
@@ -38,6 +41,14 @@ class DomainPack(Protocol):
     def upkeep(self, world: WorldState) -> list[Action]:
         """Actions the world itself takes at the start of every tick."""
         ...
+
+
+# What a pack may also say, read with getattr and these defaults (Phase 14):
+#   spaces = ("grid",)              the space types its policy and handlers work on
+#   ends_with_last_faction = True   False: one faction left does not end the run
+#   acts(entity) -> bool            which entities decide each tick (all, by default)
+#   finished(world) -> str | None   a reason ends the run early
+#   outcome_label(world) -> str | None   the result's name instead of <faction>_survived
 
 
 def load_domain(name: str) -> DomainPack:

@@ -120,8 +120,8 @@ def write_event(
         elif event["event_type"] == "MOVE":
 
             # Record positions before and after to write into sentence
-            pos_before = tuple(event["data"]["from"])
-            pos_after = tuple(event["data"]["to"])
+            pos_before = _place(event["data"]["from"])
+            pos_after = _place(event["data"]["to"])
 
             # Write sentence for MOVE
             sentence = f"- {actor_name} moved from {pos_before} to {pos_after}."
@@ -254,3 +254,8 @@ def render_timeline(
             lines.append(sentence + "\n")
 
     return "".join(lines)
+
+
+def _place(position: Any) -> Any:
+    """A grid cell as (x, y); a place on a graph by its name."""
+    return tuple(position) if isinstance(position, list) else position

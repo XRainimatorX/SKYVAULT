@@ -21,6 +21,7 @@ def evaluate_run(
     profile: dict[str, Any],
     max_ticks: int | None,
     failure_thresholds: list[str] | None = None,
+    success_outcomes: list[str] | None = None,
 ) -> dict[str, Any]:
     """
     Judge one finished run under one profile.
@@ -43,6 +44,12 @@ def evaluate_run(
     needs_more_test  anything else
 
     confidence is the weight of the axes that had data over all weight.
+
+    A world with no opposing faction (a city) has nothing for
+    mission_success to measure; when the scenario names its success_outcomes,
+    mission_success is 1 for a run whose winner_or_result is one of them and
+    0 otherwise (Phase 14). A failure threshold is also reached when the run
+    ended on a domain reason of that name (termination_condition_met:<name>).
     """
     perspective = profile["perspective"]
     if perspective is None:
@@ -56,6 +63,18 @@ def evaluate_run(
         initial_world_state, event_memory, final_world_state, perspective, max_ticks
     )
     values = {name: metric.compute(context) for name, metric in METRIC_REGISTRY.items()}
+    if success_outcomes and not context.enemies:
+        outcome = summary["winner_or_result"]
+        achieved = 1.0 if outcome in success_outcomes else 0.0
+        values["mission_success"] = MetricValue(
+            raw=achieved,
+            score=achieved,
+            applicable=True,
+            explanation=(
+                f"outcome {outcome}; the scenario counts "
+                f"{', '.join(success_outcomes)} as success"
+            ),
+        )
     weights = {name: float(profile["weights"].get(name, 0.0)) for name in values}
     breakdown = _score_breakdown(values, weights)
 
@@ -71,7 +90,9 @@ def evaluate_run(
     anti_gaming = detect_gaming(context, values, profile)
     overall = max(0.0, min(1.0, base - anti_gaming["penalty_total"]))
 
-    reached, unevaluated = _failure_thresholds(context, failure_thresholds or [])
+    reached, unevaluated = _failure_thresholds(
+        context, failure_thresholds or [], summary["termination_reason"]
+    )
     status = _status(values, overall, profile, anti_gaming, reached)
 
     judgement = {
@@ -133,12 +154,18 @@ def _score_breakdown(
 
 
 def _failure_thresholds(
-    context: EvaluationContext, names: list[str]
+    context: EvaluationContext, names: list[str], termination_reason: str = ""
 ) -> tuple[list[str], list[str]]:
-    """(thresholds the run reached, thresholds this engine cannot evaluate)."""
+    """
+    (thresholds the run reached, thresholds this engine cannot evaluate).
+    A domain pack that ends a run for a reason (termination_condition_met:
+    <reason>) reaches the threshold of that name.
+    """
     reached, unevaluated = [], []
     for name in names:
-        if name == "all_entities_destroyed":
+        if termination_reason == f"termination_condition_met:{name}":
+            reached.append(name)
+        elif name == "all_entities_destroyed":
             everyone = list(context.initial)
             if everyone and len(context.destroyed_at_end(everyone)) == len(everyone):
                 reached.append(name)

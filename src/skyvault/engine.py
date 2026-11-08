@@ -90,12 +90,12 @@ class SkyVaultTacticalReferenceEngine:
             scenario["runtime"]
         )
         self.rng = random.Random(self.random_seed)
-        self.world = self.build_world(scenario)
         # A scenario that names a domain runs with that pack's handlers,
         # default policy and upkeep; without one nothing below changes
         self.domain: DomainPack | None = (
             load_domain(scenario["domain"]) if scenario.get("domain") else None
         )
+        self.world = self.build_world(scenario)
         self.policy = policy or self.choose_policy(scenario)
         # Each participant decides for the units it controls; the rest keep
         # the policy above (Formal Spec section 4, step 4)
@@ -161,6 +161,13 @@ class SkyVaultTacticalReferenceEngine:
         if self.domain:
             return self.domain.default_policy(scenario, self.rng)
         return build_policy("tactical_reference", self.rng)
+
+    def decided_by_factions(self) -> bool:
+        """
+        Whether the run ends when one faction is left: always, unless the
+        domain pack says otherwise (a city has one faction from the start).
+        """
+        return bool(getattr(self.domain, "ends_with_last_faction", True))
 
     def upkeep(self) -> None:
         """
@@ -291,10 +298,12 @@ class SkyVaultTacticalReferenceEngine:
         world_contract = scenario["world_contract"]
         space_type = world_contract["space_model"]["type"]
         time_type = world_contract["time_model"]["type"]
+        # A domain pack whose policy and handlers work on other spaces says so
+        spaces = getattr(getattr(self, "domain", None), "spaces", ("grid",))
 
-        if space_type != "grid" or time_type != "tick":
+        if space_type not in spaces or time_type != "tick":
             raise ValueError(
-                "the tactical reference engine needs a grid space and a tick "
+                f"this engine needs a {' or '.join(spaces)} space and a tick "
                 f"clock, got {space_type!r} space and {time_type!r} time"
             )
 
@@ -352,13 +361,18 @@ class SkyVaultTacticalReferenceEngine:
         self._ticks_run += 1
         self.world.advance_time()
 
-        if len(self.world.active_factions()) <= 1:
+        if self.decided_by_factions() and len(self.world.active_factions()) <= 1:
             self._termination = "termination_condition_met"
             self._over = True
             return False
 
         self.upkeep()
-        actors = list(self.world.active_entities())
+        acts = getattr(self.domain, "acts", None)
+        actors = [
+            entity
+            for entity in self.world.active_entities()
+            if acts is None or acts(entity)
+        ]
 
         for actor in actors:
             if not actor.is_active():
@@ -439,7 +453,7 @@ class SkyVaultTacticalReferenceEngine:
                     tags=["action_rejected"],
                 )
 
-            if len(self.world.active_factions()) <= 1:
+            if self.decided_by_factions() and len(self.world.active_factions()) <= 1:
                 self._termination = "termination_condition_met"
                 break
 
@@ -449,6 +463,12 @@ class SkyVaultTacticalReferenceEngine:
         if self.observers:
             self.observed[self.world.tick] = end_of_tick["entities"]
 
+        finished = getattr(self.domain, "finished", None)
+        reason = finished(self.world) if finished is not None else None
+        if reason is not None:
+            self._termination = f"termination_condition_met:{reason}"
+            self._over = True
+            return False
         if self._termination == "termination_condition_met":
             self._over = True
             return False
@@ -512,6 +532,7 @@ class SkyVaultTacticalReferenceEngine:
             self.evaluation_profile,
             self._max_ticks,
             self.scenario["evaluation"].get("failure_thresholds", []),
+            self.scenario["evaluation"].get("success_outcomes"),
         )
 
         package = {
@@ -598,9 +619,16 @@ class SkyVaultTacticalReferenceEngine:
         Important:
         event_count is passed in rather than read from event memory, because
         this summary is built before SCENARIO_END is recorded and has to count
-        that event too.
+        that event too. A domain pack that names its own outcomes (a city
+        has one faction, so "CITY_survived" says nothing) gives the result
+        its name through outcome_label.
         """
-        return build_evaluation_summary(self.world, termination_reason, event_count)
+        summary = build_evaluation_summary(self.world, termination_reason, event_count)
+        label = getattr(self.domain, "outcome_label", None)
+        named = label(self.world) if label is not None else None
+        if named is not None:
+            summary["winner_or_result"] = named
+        return summary
 
 
 def utc_now() -> datetime:

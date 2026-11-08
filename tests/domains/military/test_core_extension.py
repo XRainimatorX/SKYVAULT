@@ -91,8 +91,9 @@ def test_without_a_domain_the_engine_is_the_tactical_reference():
 
 def test_domains_are_loaded_by_name():
     assert load_domain("military") is MILITARY
-    with pytest.raises(ValueError, match="unknown domain 'city'"):
-        load_domain("city")
+    # "city" became a real pack in Phase 14
+    with pytest.raises(ValueError, match="unknown domain 'airspace'"):
+        load_domain("airspace")
 
 
 def test_the_world_reads_the_environment_but_never_snapshots_it():

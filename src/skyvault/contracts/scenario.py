@@ -98,10 +98,13 @@ class ScenarioEvaluation(ContractModel):
     winner_or_result...). How the run is scored is the evaluation profile's
     business. perspective is the faction whose plan is judged when the
     profile does not say; without it, the first entity's faction is used.
+    success_outcomes names the results (winner_or_result) that count as the
+    mission achieved in a world with no opposing faction (Phase 14).
     """
 
     primary_metrics: list[str]
     failure_thresholds: list[str] = Field(default_factory=list)
+    success_outcomes: list[NonEmptyStr] | None = None
     secondary_metrics: list[str] | None = None
     anti_gaming_metrics: list[str] | None = None
     comparison_targets: list[str] | None = None

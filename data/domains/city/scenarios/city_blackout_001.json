@@ -161,7 +161,7 @@
       {
         "id": "sub_center",
         "at": "center",
-        "capacity": 30,
+        "capacity": 9,
         "serves": [
           "center",
           "market"
@@ -174,7 +174,7 @@
       {
         "id": "sub_north",
         "at": "north",
-        "capacity": 28,
+        "capacity": 11,
         "serves": [
           "north",
           "east",
@@ -187,7 +187,7 @@
       {
         "id": "sub_south",
         "at": "south",
-        "capacity": 26,
+        "capacity": 8,
         "serves": [
           "south",
           "harbor"
@@ -199,7 +199,7 @@
       {
         "id": "sub_works",
         "at": "works",
-        "capacity": 20,
+        "capacity": 2,
         "serves": [
           "works"
         ],
@@ -211,7 +211,7 @@
     {
       "id": "depot_harbor",
       "at": "harbor",
-      "food": 60
+      "food": 120
     }
   ],
   "forces": {
@@ -237,12 +237,17 @@
       {
         "id": "convoy_1",
         "at": "harbor",
-        "capacity": 4
+        "capacity": 6
       },
       {
         "id": "convoy_2",
         "at": "harbor",
-        "capacity": 4
+        "capacity": 6
+      },
+      {
+        "id": "convoy_3",
+        "at": "harbor",
+        "capacity": 6
       }
     ],
     "repair_crews": [

@@ -634,7 +634,7 @@
     },
     "ScenarioEvaluation": {
       "additionalProperties": false,
-      "description": "What the run reports, and whose plan it is.\n\nImportant:\nprimary_metrics names the summary fields the run reports (event_count,\nwinner_or_result...). How the run is scored is the evaluation profile's\nbusiness. perspective is the faction whose plan is judged when the\nprofile does not say; without it, the first entity's faction is used.",
+      "description": "What the run reports, and whose plan it is.\n\nImportant:\nprimary_metrics names the summary fields the run reports (event_count,\nwinner_or_result...). How the run is scored is the evaluation profile's\nbusiness. perspective is the faction whose plan is judged when the\nprofile does not say; without it, the first entity's faction is used.\nsuccess_outcomes names the results (winner_or_result) that count as the\nmission achieved in a world with no opposing faction (Phase 14).",
       "properties": {
         "anti_gaming_metrics": {
           "anyOf": [
@@ -707,6 +707,22 @@
           ],
           "default": null,
           "title": "Secondary Metrics"
+        },
+        "success_outcomes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Success Outcomes"
         }
       },
       "required": [

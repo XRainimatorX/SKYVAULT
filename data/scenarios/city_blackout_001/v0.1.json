@@ -1,0 +1,704 @@
+{
+  "schema_version": "0.6",
+  "scenario_id": "city_blackout_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "city_blackout_001_world",
+    "world_scope": "city_governance",
+    "purpose": [
+      "The same city, and at tick 4 the Old Center substation fails: does the load it sheds trip the others, and what does the dark do to order?"
+    ],
+    "space_model": {
+      "type": "network",
+      "nodes": [
+        "center",
+        "market",
+        "harbor",
+        "north",
+        "east",
+        "south",
+        "west",
+        "works"
+      ],
+      "edges": [
+        [
+          "center",
+          "market",
+          1.0
+        ],
+        [
+          "center",
+          "north",
+          2.0
+        ],
+        [
+          "center",
+          "east",
+          2.0
+        ],
+        [
+          "center",
+          "west",
+          2.0
+        ],
+        [
+          "market",
+          "harbor",
+          1.0
+        ],
+        [
+          "market",
+          "south",
+          2.0
+        ],
+        [
+          "harbor",
+          "south",
+          2.0
+        ],
+        [
+          "harbor",
+          "works",
+          3.0
+        ],
+        [
+          "north",
+          "east",
+          2.0
+        ],
+        [
+          "east",
+          "works",
+          2.0
+        ],
+        [
+          "south",
+          "west",
+          3.0
+        ],
+        [
+          "west",
+          "north",
+          3.0
+        ]
+      ]
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 30
+    },
+    "assumption_registry": {
+      "movement_model": "road_network_travel_ticks",
+      "public_order": "banded_state_machine",
+      "power": "substation_backup_with_overload_trip",
+      "supply": "convoys_on_shortest_road",
+      "actor_policy": "city_administration_baseline",
+      "distance_model": "travel_ticks"
+    },
+    "evaluation_targets": [
+      "world_state_changed",
+      "event_memory_created",
+      "result_package_created"
+    ],
+    "entity_model": {
+      "entity_types": [
+        "city_office",
+        "convoy",
+        "depot",
+        "district",
+        "police",
+        "power_plant",
+        "repair_crew",
+        "substation"
+      ]
+    },
+    "environment_state": {},
+    "resource_state": {},
+    "rule_set": {
+      "city": {
+        "pack_id": "city",
+        "version": "0.1",
+        "order": {
+          "stable": 70,
+          "tense": 50,
+          "unrest": 30,
+          "hunger": -6.0,
+          "short_food": -2.0,
+          "dark": -2.5,
+          "medical_par": 0.5,
+          "medical_weight": 4.0,
+          "administration_par": 0.4,
+          "administration_weight": 6.0,
+          "recovery": 2.0,
+          "riot_neighbour": -1.0,
+          "pressure_per_100k": 1.0,
+          "noise": 3.0,
+          "patrol": [
+            4.0,
+            8.0
+          ]
+        },
+        "food": {
+          "per_10k": 0.08,
+          "short_ticks": 2
+        },
+        "power": {
+          "demand_per_10k": 1.0,
+          "dark_medical": 0.5,
+          "dark_communication": 0.6
+        },
+        "supply": {
+          "delay_factor": 1.0
+        },
+        "repair": {
+          "failure_ticks": 3,
+          "trip_ticks": 1
+        },
+        "recovery": {
+          "industry_up": 0.02,
+          "industry_down": 0.03,
+          "administration_up": 0.01,
+          "administration_down": 0.02,
+          "administer": 0.05
+        },
+        "score": {
+          "weights": {
+            "order": 0.4,
+            "services": 0.3,
+            "administration": 0.15,
+            "trend": 0.15
+          },
+          "window": 0.33,
+          "trend_span": 5
+        },
+        "incidents": [
+          {
+            "tick": 4,
+            "type": "substation_failure",
+            "target": "sub_center"
+          }
+        ]
+      }
+    },
+    "failure_variables": []
+  },
+  "entities": [
+    {
+      "entity_id": "center",
+      "name": "Old Center",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "center",
+      "state": {
+        "status": "active",
+        "population": 42000.0,
+        "public_order": 35.0,
+        "order_state": "unrest",
+        "food": 3.0,
+        "medical": 0.7,
+        "industry": 0.4,
+        "administration": 0.5,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "market",
+      "name": "Market Quarter",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "market",
+      "state": {
+        "status": "active",
+        "population": 30000.0,
+        "public_order": 30.0,
+        "order_state": "unrest",
+        "food": 2.0,
+        "medical": 0.5,
+        "industry": 0.5,
+        "administration": 0.4,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "harbor",
+      "name": "Harbor",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "harbor",
+      "state": {
+        "status": "active",
+        "population": 18000.0,
+        "public_order": 25.0,
+        "order_state": "riot",
+        "food": 4.0,
+        "medical": 0.3,
+        "industry": 0.6,
+        "administration": 0.3,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "north",
+      "name": "North Residential",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "north",
+      "state": {
+        "status": "active",
+        "population": 36000.0,
+        "public_order": 45.0,
+        "order_state": "unrest",
+        "food": 2.0,
+        "medical": 0.6,
+        "industry": 0.2,
+        "administration": 0.5,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "east",
+      "name": "East Residential",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "east",
+      "state": {
+        "status": "active",
+        "population": 33000.0,
+        "public_order": 40.0,
+        "order_state": "unrest",
+        "food": 2.0,
+        "medical": 0.4,
+        "industry": 0.2,
+        "administration": 0.4,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "south",
+      "name": "South Slums",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "south",
+      "state": {
+        "status": "active",
+        "population": 51000.0,
+        "public_order": 20.0,
+        "order_state": "riot",
+        "food": 1.0,
+        "medical": 0.2,
+        "industry": 0.1,
+        "administration": 0.2,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "west",
+      "name": "West Suburbs",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "west",
+      "state": {
+        "status": "active",
+        "population": 24000.0,
+        "public_order": 55.0,
+        "order_state": "tense",
+        "food": 3.0,
+        "medical": 0.5,
+        "industry": 0.3,
+        "administration": 0.6,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "works",
+      "name": "Industrial Works",
+      "entity_type": "district",
+      "faction": "CITY",
+      "position": "works",
+      "state": {
+        "status": "active",
+        "population": 12000.0,
+        "public_order": 40.0,
+        "order_state": "unrest",
+        "food": 2.0,
+        "medical": 0.3,
+        "industry": 0.8,
+        "administration": 0.3,
+        "power": 1,
+        "communication": 1.0,
+        "substation": null
+      },
+      "capabilities": {},
+      "tags": [
+        "DISTRICT"
+      ]
+    },
+    {
+      "entity_id": "plant_works",
+      "name": "Plant Works",
+      "entity_type": "power_plant",
+      "faction": "CITY",
+      "position": "works",
+      "state": {
+        "status": "active",
+        "online": true
+      },
+      "capabilities": {
+        "output": 100.0
+      },
+      "tags": [
+        "POWER_PLANT"
+      ]
+    },
+    {
+      "entity_id": "sub_center",
+      "name": "Sub Center",
+      "entity_type": "substation",
+      "faction": "CITY",
+      "position": "center",
+      "state": {
+        "status": "active",
+        "online": true,
+        "load": 0.0,
+        "overloaded": false,
+        "outage": null,
+        "repair_needed": 0,
+        "repair_done": 0
+      },
+      "capabilities": {
+        "capacity": 9.0,
+        "serves": [
+          "center",
+          "market"
+        ],
+        "backup": [
+          "sub_north",
+          "sub_south"
+        ]
+      },
+      "tags": [
+        "SUBSTATION"
+      ]
+    },
+    {
+      "entity_id": "sub_north",
+      "name": "Sub North",
+      "entity_type": "substation",
+      "faction": "CITY",
+      "position": "north",
+      "state": {
+        "status": "active",
+        "online": true,
+        "load": 0.0,
+        "overloaded": false,
+        "outage": null,
+        "repair_needed": 0,
+        "repair_done": 0
+      },
+      "capabilities": {
+        "capacity": 11.0,
+        "serves": [
+          "north",
+          "east",
+          "west"
+        ],
+        "backup": [
+          "sub_center"
+        ]
+      },
+      "tags": [
+        "SUBSTATION"
+      ]
+    },
+    {
+      "entity_id": "sub_south",
+      "name": "Sub South",
+      "entity_type": "substation",
+      "faction": "CITY",
+      "position": "south",
+      "state": {
+        "status": "active",
+        "online": true,
+        "load": 0.0,
+        "overloaded": false,
+        "outage": null,
+        "repair_needed": 0,
+        "repair_done": 0
+      },
+      "capabilities": {
+        "capacity": 8.0,
+        "serves": [
+          "south",
+          "harbor"
+        ],
+        "backup": [
+          "sub_center"
+        ]
+      },
+      "tags": [
+        "SUBSTATION"
+      ]
+    },
+    {
+      "entity_id": "sub_works",
+      "name": "Sub Works",
+      "entity_type": "substation",
+      "faction": "CITY",
+      "position": "works",
+      "state": {
+        "status": "active",
+        "online": true,
+        "load": 0.0,
+        "overloaded": false,
+        "outage": null,
+        "repair_needed": 0,
+        "repair_done": 0
+      },
+      "capabilities": {
+        "capacity": 2.0,
+        "serves": [
+          "works"
+        ],
+        "backup": []
+      },
+      "tags": [
+        "SUBSTATION"
+      ]
+    },
+    {
+      "entity_id": "depot_harbor",
+      "name": "Depot Harbor",
+      "entity_type": "depot",
+      "faction": "CITY",
+      "position": "harbor",
+      "state": {
+        "status": "active",
+        "food": 120.0
+      },
+      "capabilities": {},
+      "tags": [
+        "DEPOT"
+      ]
+    },
+    {
+      "entity_id": "city_office",
+      "name": "City Office",
+      "entity_type": "city_office",
+      "faction": "CITY",
+      "position": "center",
+      "state": {
+        "status": "active"
+      },
+      "capabilities": {},
+      "tags": [
+        "CITY_OFFICE"
+      ]
+    },
+    {
+      "entity_id": "police_1",
+      "name": "Police 1",
+      "entity_type": "police",
+      "faction": "CITY",
+      "position": "center",
+      "state": {
+        "status": "active",
+        "destination": null,
+        "arrives_at": null
+      },
+      "capabilities": {},
+      "tags": [
+        "POLICE"
+      ]
+    },
+    {
+      "entity_id": "police_2",
+      "name": "Police 2",
+      "entity_type": "police",
+      "faction": "CITY",
+      "position": "market",
+      "state": {
+        "status": "active",
+        "destination": null,
+        "arrives_at": null
+      },
+      "capabilities": {},
+      "tags": [
+        "POLICE"
+      ]
+    },
+    {
+      "entity_id": "police_3",
+      "name": "Police 3",
+      "entity_type": "police",
+      "faction": "CITY",
+      "position": "west",
+      "state": {
+        "status": "active",
+        "destination": null,
+        "arrives_at": null
+      },
+      "capabilities": {},
+      "tags": [
+        "POLICE"
+      ]
+    },
+    {
+      "entity_id": "convoy_1",
+      "name": "Convoy 1",
+      "entity_type": "convoy",
+      "faction": "CITY",
+      "position": "harbor",
+      "state": {
+        "status": "active",
+        "home": "harbor",
+        "cargo": 0.0,
+        "destination": null,
+        "arrives_at": null,
+        "dispatched_at": null,
+        "leg": "idle"
+      },
+      "capabilities": {
+        "capacity": 6.0
+      },
+      "tags": [
+        "CONVOY"
+      ]
+    },
+    {
+      "entity_id": "convoy_2",
+      "name": "Convoy 2",
+      "entity_type": "convoy",
+      "faction": "CITY",
+      "position": "harbor",
+      "state": {
+        "status": "active",
+        "home": "harbor",
+        "cargo": 0.0,
+        "destination": null,
+        "arrives_at": null,
+        "dispatched_at": null,
+        "leg": "idle"
+      },
+      "capabilities": {
+        "capacity": 6.0
+      },
+      "tags": [
+        "CONVOY"
+      ]
+    },
+    {
+      "entity_id": "convoy_3",
+      "name": "Convoy 3",
+      "entity_type": "convoy",
+      "faction": "CITY",
+      "position": "harbor",
+      "state": {
+        "status": "active",
+        "home": "harbor",
+        "cargo": 0.0,
+        "destination": null,
+        "arrives_at": null,
+        "dispatched_at": null,
+        "leg": "idle"
+      },
+      "capabilities": {
+        "capacity": 6.0
+      },
+      "tags": [
+        "CONVOY"
+      ]
+    },
+    {
+      "entity_id": "crew_1",
+      "name": "Crew 1",
+      "entity_type": "repair_crew",
+      "faction": "CITY",
+      "position": "works",
+      "state": {
+        "status": "active",
+        "destination": null,
+        "arrives_at": null
+      },
+      "capabilities": {},
+      "tags": [
+        "REPAIR_CREW"
+      ]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 30,
+    "random_seed": 42,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count",
+      "winner_or_result"
+    ],
+    "failure_thresholds": [
+      "governance_collapsed"
+    ],
+    "success_outcomes": [
+      "order_restored",
+      "order_held"
+    ],
+    "perspective": "CITY"
+  },
+  "scenario_type": "governance",
+  "domain": "city",
+  "purpose": "The same city, and at tick 4 the Old Center substation fails: does the load it sheds trip the others, and what does the dark do to order?",
+  "version_control": {
+    "version": "v0.1",
+    "parent_version": null,
+    "changed_from_previous": {
+      "assumptions_changed": [],
+      "data_changed": [],
+      "rules_changed": [],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "Built from the city domain pack spec."
+  }
+}
