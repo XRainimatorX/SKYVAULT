@@ -204,20 +204,28 @@ def mean_survival(sweep: dict[str, Any]) -> float:
 
 
 def _causes(failed: Runs) -> list[str]:
+    """
+    Each cause with the number of failed runs it appeared in, most first.
+
+    Important:
+    Ties are ordered by name. Counting from a set made the order of tied
+    causes follow string hashing, which changes between processes, so the
+    same exploration could write a different failure map (ADR 010).
+    """
     counts: Counter[str] = Counter()
     for run in failed:
-        seen = set()
+        seen: dict[str, None] = {}
         for cause in run["failure_causes"]:
             match = AXIS_LINE.match(cause)
             if match:
-                seen.add(f"{match.group(1)} too low")
+                seen[f"{match.group(1)} too low"] = None
             elif cause.startswith(("Failure threshold reached", "Anti-gaming")):
-                seen.add(cause)
-        counts.update(seen)
+                seen[cause] = None
+        counts.update(seen.keys())
     total = len(failed)
     return [
         f"{cause} in {count} of {total} failed runs"
-        for cause, count in counts.most_common()
+        for cause, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
     ]
 
 

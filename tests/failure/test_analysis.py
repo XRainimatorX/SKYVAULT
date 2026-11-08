@@ -178,6 +178,21 @@ def test_failure_points_and_causes_count_failed_runs():
     assert result["how_fast"]["mean_first_loss_tick"] == 5.0
 
 
+def test_tied_causes_are_ordered_by_name_not_by_when_they_were_seen():
+    # Each run names time_cost first; a tie must not depend on that, nor on
+    # string hashing, which changes from one process to the next
+    failing = [
+        run(False, causes=["time_cost 0.00: x", "mission_success 0.00: y"])
+        for _ in range(2)
+    ]
+    result = build_failure_map(exploration({}, baseline=failing + runs(1, 0)))
+
+    assert result["failure_causes"] == [
+        "mission_success too low in 2 of 2 failed runs",
+        "time_cost too low in 2 of 2 failed runs",
+    ]
+
+
 @pytest.mark.parametrize(
     ("alt_baseline", "alt_levels", "verdict", "longer", "sooner"),
     [

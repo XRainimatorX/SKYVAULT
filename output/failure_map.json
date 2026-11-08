@@ -272,13 +272,13 @@
     "recovery_ability too low in 111 of 112 failed runs",
     "time_cost too low in 110 of 112 failed runs",
     "resource_cost too low in 90 of 112 failed runs",
-    "strategic_value too low in 80 of 112 failed runs",
     "risk_growth too low in 80 of 112 failed runs",
+    "strategic_value too low in 80 of 112 failed runs",
     "tactical_value too low in 60 of 112 failed runs",
     "system_robustness too low in 9 of 112 failed runs",
     "stability_impact too low in 6 of 112 failed runs",
-    "Anti-gaming: sacrifice_strategic_value_for_short_term_tactical_value in 2 of 112 failed runs",
     "Anti-gaming: extreme_high_risk_optimization in 2 of 112 failed runs",
+    "Anti-gaming: sacrifice_strategic_value_for_short_term_tactical_value in 2 of 112 failed runs",
     "Anti-gaming: maximize_score_by_inaction in 1 of 112 failed runs"
   ],
   "how_fast": {
