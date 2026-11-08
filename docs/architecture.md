@@ -278,9 +278,23 @@ policy 決定「想做什麼」，actions 決定「世界接不接受、接受�
    src/skyvault/domains/__init__.py  DomainPack protocol、load_domain；core 只透過名稱字串認識 pack
    src/skyvault/domains/military/    pack：依賴 core（actions、consequence、contracts、reproducibility）；
                                      mission、dataset 不 import engine
+   src/skyvault/domains/city/        pack（Phase 14）：model、score、report 是純函式，不 import engine
 ```
 
-core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查。pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
+core 的任何模組（engine 透過 load_domain 除外）都不 import pack —— 測試逐檔檢查（military 與 city）。
+
+engine 向 pack 讀的可選宣告（Phase 14，getattr 與預設值）：
+
+| 宣告 | 預設 | 作用 |
+|---|---|---|
+| `spaces` | `("grid",)` | engine 接受的空間；沒有 domain 只接受 grid |
+| `ends_with_last_faction` | `True` | False：只剩一方不結束（city 只有一方） |
+| `acts(entity)` | 全部 | 哪些實體每 tick 決定 |
+| `finished(world)` | — | 回傳原因 → run 以 `termination_condition_met:<原因>` 結束 |
+| `end_reasons` | `()` | finished 可能給的原因：同名的 failure threshold 算已評估 |
+| `outcome_label(world)` | — | winner_or_result 的名稱（取代 `<陣營>_survived`） |
+| `failure_variables()` | — | 以 domain 的語言解讀 failure variable（failure.variables.variable_for） |
+| `mission_outcome`、`governance_outcome` | — | run 之後的判斷；NEXUS 的 domain_outcome |pack 的 handler、terrain、policy 通過與 core handler 相同的「只讀世界」AST 檢查。
 
 ## Training（在 engine 之上，與 batch 同層）
 
@@ -1027,6 +1041,31 @@ reference.py   reference_scenarios()：spec + doctrine 變體 → data/scenarios
 | doctrine | aggressive / overwatch（輪流躍進與掩護）/ defensive（看到敵人就找掩蔽） |
 | 後勤 | world resource ammo；logistics 單位補給彈藥低於一半的友軍 |
 | 任務 | destroy / seize / hold / delay，run 之後由終局判定 |
+
+## `domains/city/`
+
+Phase 14 建立。第二個 domain pack：道路網上的城市。
+
+```text
+model.py       order_state、order_delta、power_flow（失效轉移、跳脫隔離）、eta、consumption、demand
+scenario.py    build_city_scenario(spec, rules)：network 空間、CITY 單一陣營、rule_set.city、failure_exploration
+handlers.py    travel、patrol、dispatch、restore_power、administer；upkeep：power_update、arrive、district_update
+policy.py      CityAdministrationPolicy（不抽隨機數）
+pack.py        CITY
+score.py       governance_stability(package, scenario)、population_order
+failures.py    supply_delay（真的晚到）、civilian_pressure、resource_shortage
+report.py      cascade(package)、city_report(summary)
+reference.py   reference_scenarios()：data/domains/city/ → data/scenarios/city_*（漂移測試）
+```
+
+| 規則 | 內容 |
+|---|---|
+| 治安 | 0–100；stable ≥ 70、tense ≥ 50、unrest ≥ 30、riot；每 tick 依糧食、電力、醫療、行政、鄰區 riot 變動 ± noise；patrol 加 4–8 |
+| 糧食 | 每 tick 吃人口 / 10k × 0.08；車隊從 depot 沿最短路送，到達 = 出發 + 路徑 × delay_factor（至少 1 tick） |
+| 電力 | substation 負載 = 服務區的需求；失效 → district 轉給 backup；超載一個 tick 後跳脫並隔離它的 district；caused_by_event 串起連鎖 |
+| 修復 | 維修隊先修腳下的；否則失效優先於跳脫、再依沒電的人口；失效 3 tick、跳脫 1 tick |
+| 結果 | order_restored / order_held / order_not_restored / governance_collapsed（全部 riot 時提早結束） |
+| 分數 | order、services、administration、trend 四成分加權（0.4 / 0.3 / 0.15 / 0.15），取最後三分之一 tick 的平均 |
 
 ## `training/`
 

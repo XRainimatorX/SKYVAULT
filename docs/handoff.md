@@ -23,7 +23,7 @@ Result: RED_survived
 Events: 97
 Verdict: risky (score 0.50, profile balanced)
 Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-1062 passed, 68 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1130 passed）
+1165 passed, 68 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1233 passed）
 ```
 
 **如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
@@ -157,6 +157,8 @@ Phase 11 再發現：**限制必須和它限制的東西用同一個函式計數
 
 Phase 12 再發現：**交給決策者的輸出，要以不看程式的讀者的眼光讀一遍。** 測試全綠之後打開 output/external/：星衞「不可行」的理由是格子被佔、handoff 在平手時點名一個分支、provenance 沒有 scenario —— 測試照程式算出的數字寫，所以都對。每個判斷詞（可行、最高、缺口、成功）先寫定義，測試至少有一個「看起來像但不是」的反例。另外：**用到 Redis / PostgreSQL 的測試套件一次只跑一套**（兩套同時跑會互相 DROP 表）；新的輸入來源先試邊界值（`move_range: 0` 讓軍事 policy 崩潰了好幾個 Phase 才被發現）。
 
+Phase 14 再發現：**新 domain 的第一個 run，逐欄讀 core 給它的評估。** 一座全部陷入暴動的城市第一次被判 pass —— core 的軸是戰鬥的形狀，沒有對手時大多不適用，剩下的「保住多少實體」在城市裡恆為滿分。恆為滿分或恆為零的軸是警訊。另外：**動態的測試要讀「之後」**（連鎖測試都綠時，修好的變電站還會再跳脫）；係數從一輪多 seed 的測量開始，不要先寫「看起來合理」的數字。
+
 **reference run 被釘住了。** `tests/fixtures/reference_trace.json` 記錄 97 筆 event 的 (time, type, actor, target, data) 與整包去 uuid 後的雜湊。模擬行為有任何變化，`test_reference_run_matches_the_committed_trace` 就紅。刻意改變時用 `python3 tests/reference_trace.py > tests/fixtures/reference_trace.json` 重新產生，並在完成報告記錄新舊數字。
 
 ---
@@ -255,7 +257,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）、[#32](https://github.com/XRainimatorX/SKYVAULT/issues/32)（Phase 14，16 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -297,16 +299,16 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-依 roadmap，下一個是 **Phase 14 — Logistics / Governance / City Domain Pack**：城市治理、補給、治安、停電、災害、戰後重建的世界 —— district network、road graph、population pressure、public order、food supply、medical capacity、power grid、communication、industry recovery、administration capacity。驗收：能模擬一座城市的秩序恢復、能看到停電連鎖反應、能測補給延遲對治安的影響、能輸出 governance stability score。規格見 [`plan/phase14_city_governance_logistics_pack.md`](plan/phase14_city_governance_logistics_pack.md)。
+依 roadmap，下一個是 **Phase 15 — Airspace / HADES / SKYFOX / AEROGRID Domain Pack**：低空空域、防空配置、無人機行動、HADES 反無人機測試 —— airspace grid / volume、sensor coverage、drone actor、threat actor、interception window、detection probability、reaction delay、false positive / false negative、coverage gap。驗收：HADES 可提交 defense behavior、SKYFOX 可作為 drone actor、AEROGRID 可提交 airspace config、SKYVAULT 可輸出 detection gap / response time / failure points。規格見 [`plan/phase15_airspace_pack.md`](plan/phase15_airspace_pack.md)。
 
 前面的 Phase 留下與它直接相關的東西：
 
 ```text
-domains/military/（Phase 13）  第一個 domain pack 的形狀：handlers、policy、profiles、mission_outcome hook、scenario spec
-runtime/（Phase 2）            graph / network 空間（networkx）、event-driven 時間、資源帳：城市是圖而不是格子
-actions/（Phase 3）            十種 action type 中 supply、repair、deploy、communicate 軍事線沒用到
-evaluation（Phase 7）          stability_impact 目前是代理指標；governance stability score 需要真的穩定模型
-interface/（Phase 12）         CYBERHOUND 的 public_order_pressure 目前回報為缺口：城市 pack 可能讓它變成可模擬
+domains/city/（Phase 14）     第二個 pack；engine 的可選宣告（spaces、ends_with_last_faction、acts、finished、end_reasons、
+                              outcome_label、failure_variables）、scenario 的 success_outcomes —— 空域不必再改 engine 的這些地方
+observation/（Phase 5）       AEROGRID 的 coverage view、HADES 的 threat view；目前只支援格子
+actors/adapters（Phase 6）    HADES、AEROGRID、SKYFOX 的 adapter 與替身
+interface/systems（Phase 12） AEROGRID 的空域配置、HADES / SKYFOX 的返回 —— 空域配置目前是缺口
 ```
 
-開工前先讀 [`phases/phase12_external_system_interface.md`](phases/phase12_external_system_interface.md) 的第 4 節與 [`postmortems/phase12.md`](postmortems/phase12.md)。
+開工前先讀 [`phases/phase14_city_domain_pack.md`](phases/phase14_city_domain_pack.md) 的第 4 節與 [`postmortems/phase14.md`](postmortems/phase14.md)。

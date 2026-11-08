@@ -2,7 +2,7 @@
 
 SKYVAULT 23 份契約的現行規格（開發計劃 Phase 1 的 11 份，加上 Phase 7 的 evaluation profile、Phase 9 的 failure map、Phase 10 的 batch_spec、batch_result、conflict_package，Phase 5 的 observer_profile、observation，Phase 6 的 order，Phase 11 的 resource_compute_governance、job，與 Phase 12 的 external_submission、authority_handoff）。描述**現在的樣子**，隨程式碼改動而更新。
 
-契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)；Phase 12 的外部提交、authority handoff 與 job 的新欄位見 [`../decisions/017_external_system_interface.md`](../decisions/017_external_system_interface.md)。
+契約的原文出處見 [`../plan/formal_spec.md`](../plan/formal_spec.md)；v0.1 為什麼這樣劃範圍見 [`../decisions/004_contract_scope.md`](../decisions/004_contract_scope.md)；0.2 的變更見 [`../decisions/005_world_runtime.md`](../decisions/005_world_runtime.md)；0.3 的變更見 [`../decisions/006_action_consequence.md`](../decisions/006_action_consequence.md)；0.4 的變更見 [`../decisions/007_evaluation_engine.md`](../decisions/007_evaluation_engine.md)；0.5 的變更見 [`../decisions/008_reproducibility.md`](../decisions/008_reproducibility.md)；0.6 的變更見 [`../decisions/009_failure_exploration.md`](../decisions/009_failure_exploration.md)；Phase 10 在 0.6 之內的新增見 [`../decisions/010_batch_branch_comparison.md`](../decisions/010_batch_branch_comparison.md)；Phase 5 的兩份觀測契約見 [`../decisions/014_observation_contract.md`](../decisions/014_observation_contract.md)；Phase 6 的 order 與 participants 見 [`../decisions/015_actor_agent_layer.md`](../decisions/015_actor_agent_layer.md)；Phase 11 的 governance 與 job 見 [`../decisions/016_background_world_service.md`](../decisions/016_background_world_service.md)；Phase 12 的外部提交、authority handoff 與 job 的新欄位見 [`../decisions/017_external_system_interface.md`](../decisions/017_external_system_interface.md)；Phase 14 的 success_outcomes 見 [`../decisions/018_city_domain_pack.md`](../decisions/018_city_domain_pack.md)。
 
 ---
 
@@ -70,6 +70,7 @@ optional 欄位在它所屬的 Phase 落地時改為必填，同時調升版本�
 | 0.6 | 11 | 只有新增，不調升：resource_compute_governance、job 契約；run_metadata 多 resource_compute_governance |
 | 0.6 | 6 | 只有新增，不調升：order 契約；optional 的 runtime.participants；observation 的己方單位多 state；scheduled action 的 target 可只寫一欄 |
 | 0.6 | 12 | 只有新增，不調升：external_submission、authority_handoff 契約；job 的 branch_compare、branches、entity_changes、data_provenance |
+| 0.6 | 14 | 只有新增，不調升：scenario.evaluation.success_outcomes |
 
 0.1 → 0.2 的遷移：`schema_version` 改 `"0.2"`，`world_contract` 補上 `entity_model`、`environment_state`、`resource_state`、`rule_set`（沒有就寫 `{}`）。
 
@@ -180,6 +181,8 @@ Scenario 的額外規則：
 entity_id 不得重複
 每個 entity 的 position 必須在空間內：grid 是界內的 [x, y]，graph / network 是已知節點
 ```
+
+Scenario 的 evaluation 區塊（`ScenarioEvaluation`）：primary_metrics 必填；optional 的 failure_thresholds、secondary_metrics、anti_gaming_metrics、comparison_targets、perspective，與 **success_outcomes**（Phase 14）：沒有對手的世界裡哪些 winner_or_result 算任務達成 —— mission_success 依它為 1 或 0，batch 依它計勝負。failure_thresholds 的名稱也可以是 domain pack 的結束原因（run 以 `termination_condition_met:<名稱>` 結束時達到）。
 
 World Contract 的形狀規則：
 

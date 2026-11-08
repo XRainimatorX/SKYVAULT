@@ -60,6 +60,8 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 第一個 domain pack（Phase 13）：軍事 / 戰術 —— 單位、編隊、地形、感測、武器、後勤、士氣、指揮延遲、任務九種 profile，小隊、城市、山地、交通節點四個 reference scenario，doctrine 比較；TAC ANGEL 或任何外部 policy 可以取代 baseline，每個決定都能匯出成 state-action-outcome 訓練資料。domain pack 不是 core：同一個 engine 照跑。
 
+第二個 domain pack（Phase 14）：城市 —— 八個城區在道路網上，治安隨糧食、電力、醫療、警力與行政起落；一座變電站倒下時負載轉給備援、超載的跟著跳脫，連鎖可以逐筆追到源頭；補給車隊沿最短路送糧，延遲真的會晚到；每一場都輸出 governance stability score。城市沒有對手、跑滿時限，結果叫 order_restored 而不是「CITY 存活」。
+
 每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
 
 誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
@@ -143,6 +145,8 @@ python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squ
     --participants tests/fixtures/actors/participants_squad.json            # RED 由 TAC ANGEL / HADES、BLUE 由 baseline
 python3 scripts/serve_world.py                                             # world service：http://127.0.0.1:8100/api/docs
 python3 scripts/run_external.py                                            # output/external/：九個系統各自拿回什麼、一個衝突
+python3 scripts/run_tactical_reference.py --scenario data/scenarios/city_blackout_001/v0.1.json   # 一座停電的城市
+python3 scripts/run_city.py                                                # output/city/：governance score、連鎖、補給延遲
 docker compose up --build                                                  # API + worker + Redis + PostgreSQL
 ```
 
@@ -195,6 +199,7 @@ python3 -m pytest tests/ -q
 | `conflict_package.json` | （run_batch）哪些命令衝突、每個分支的結果、等人決定 |
 | `comparative_report.md` | （run_batch）給人讀的比較報告 |
 | `briefing.md`、`.pdf`、`.docx` | （export_briefing）以上全部，一份帶進會議的文件 |
+| `city/` | （run_city）每座城市的 governance stability score、停電連鎖、補給延遲研究與 city_report.md |
 | `external/<system>.json` | （run_external）九個系統各自拿回什麼；`conflict_*.json`：一個衝突的 package、handoff 與決定 |
 
 timeline 到 causal_chain 四個與評估四個，都是從 result package 推導出來的，刪掉重跑會一樣。
@@ -234,6 +239,7 @@ src/skyvault/       引擎與 exporter
   service/          網頁介面的後端（FastAPI、replay WebSocket）
   policies.py       policy registry：外部 policy 從這裡接入
   domains/military/ 第一個 domain pack（不是 core）
+  domains/city/     第二個 domain pack：道路網上的城市、治安、電力連鎖、補給、governance score
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
@@ -245,7 +251,7 @@ scripts/            執行入口
 data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
-data/domains/       domain pack 的 profile 與 scenario spec
+data/domains/       domain pack 的 profile、rules 與 scenario spec（military、city）
 data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
 data/service/       world service 的 governance 政策
@@ -268,7 +274,9 @@ docs/               文件
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | 需要時 |
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
 | 權威名單不能由政策擴充 | 固定 NEXUS、SOVEREIGN（authorities 是參數） | Phase 19 |
-| CYBERHOUND、EIDEN 的世界參數、AEROGRID 的空域、星衞的物理欄位 | 回報為缺口，不模擬 | Phase 14–16 |
+| CYBERHOUND、EIDEN 的世界參數、AEROGRID 的空域、星衞的物理欄位 | 回報為缺口，不模擬 | Phase 15–16 |
+| 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
+| briefing 不敘述城市的狀態變化 | 「What happened」只數行動；NEXUS 拿 domain_outcome，人讀 output/city/city_report.md | 需要時 |
 | 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
 | 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | Phase 6 |
 | 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
@@ -290,7 +298,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase12_external_system_interface.md`](docs/phases/phase12_external_system_interface.md)。
+完整清單見 [`docs/phases/phase14_city_domain_pack.md`](docs/phases/phase14_city_domain_pack.md)。
 
 ---
 
