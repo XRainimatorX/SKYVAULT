@@ -1,0 +1,292 @@
+{
+  "$defs": {
+    "RunRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "event_count": {
+          "minimum": 0,
+          "title": "Event Count",
+          "type": "integer"
+        },
+        "hp_lost": {
+          "minimum": 0.0,
+          "title": "Hp Lost",
+          "type": "number"
+        },
+        "kind": {
+          "enum": [
+            "version",
+            "sweep",
+            "branch"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "outcome": {
+          "minLength": 1,
+          "title": "Outcome",
+          "type": "string"
+        },
+        "output_hash": {
+          "minLength": 1,
+          "title": "Output Hash",
+          "type": "string"
+        },
+        "risk_events": {
+          "minimum": 0.0,
+          "title": "Risk Events",
+          "type": "number"
+        },
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "seed": {
+          "title": "Seed",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "risky",
+            "needs_more_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "variant_id": {
+          "minLength": 1,
+          "title": "Variant Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant_id",
+        "kind",
+        "scenario_version",
+        "seed",
+        "outcome",
+        "status",
+        "score",
+        "hp_lost",
+        "risk_events",
+        "event_count",
+        "output_hash"
+      ],
+      "title": "RunRecord",
+      "type": "object"
+    },
+    "VariantStats": {
+      "additionalProperties": false,
+      "description": "One variant over all its runs.\n\nImportant:\nwin, loss and draw are seen from the perspective faction. cost is own hp\nlost; risk is risk-relevant events against own entities; failure\nfrequency is the share of fail verdicts. win_rate_ci is the Wilson 95%\ninterval.",
+      "properties": {
+        "distinct_outputs": {
+          "minimum": 1,
+          "title": "Distinct Outputs",
+          "type": "integer"
+        },
+        "draw_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Draw Rate",
+          "type": "number"
+        },
+        "failure_frequency": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Failure Frequency",
+          "type": "number"
+        },
+        "kind": {
+          "enum": [
+            "version",
+            "sweep",
+            "branch"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "loss_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Loss Rate",
+          "type": "number"
+        },
+        "mean_event_count": {
+          "minimum": 0.0,
+          "title": "Mean Event Count",
+          "type": "number"
+        },
+        "mean_hp_lost": {
+          "minimum": 0.0,
+          "title": "Mean Hp Lost",
+          "type": "number"
+        },
+        "mean_risk_events": {
+          "minimum": 0.0,
+          "title": "Mean Risk Events",
+          "type": "number"
+        },
+        "mean_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "outcomes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Outcomes",
+          "type": "object"
+        },
+        "runs": {
+          "minimum": 1,
+          "title": "Runs",
+          "type": "integer"
+        },
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        },
+        "score_stdev": {
+          "minimum": 0.0,
+          "title": "Score Stdev",
+          "type": "number"
+        },
+        "variant_id": {
+          "minLength": 1,
+          "title": "Variant Id",
+          "type": "string"
+        },
+        "win_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Win Rate",
+          "type": "number"
+        },
+        "win_rate_ci": {
+          "items": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Win Rate Ci",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variant_id",
+        "kind",
+        "scenario_version",
+        "runs",
+        "win_rate",
+        "win_rate_ci",
+        "loss_rate",
+        "draw_rate",
+        "failure_frequency",
+        "mean_score",
+        "score_stdev",
+        "mean_hp_lost",
+        "mean_risk_events",
+        "mean_event_count",
+        "outcomes",
+        "distinct_outputs"
+      ],
+      "title": "VariantStats",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/batch_result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "base_version": {
+      "minLength": 1,
+      "title": "Base Version",
+      "type": "string"
+    },
+    "batch_id": {
+      "minLength": 1,
+      "title": "Batch Id",
+      "type": "string"
+    },
+    "perspective": {
+      "minLength": 1,
+      "title": "Perspective",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "repeat_count": {
+      "minimum": 1,
+      "title": "Repeat Count",
+      "type": "integer"
+    },
+    "runs": {
+      "items": {
+        "$ref": "#/$defs/RunRecord"
+      },
+      "title": "Runs",
+      "type": "array"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "seeds": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Seeds",
+      "type": "array"
+    },
+    "total_runs": {
+      "minimum": 1,
+      "title": "Total Runs",
+      "type": "integer"
+    },
+    "variants": {
+      "items": {
+        "$ref": "#/$defs/VariantStats"
+      },
+      "title": "Variants",
+      "type": "array"
+    },
+    "workers": {
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "batch_id",
+    "scenario_id",
+    "base_version",
+    "profile_id",
+    "perspective",
+    "repeat_count",
+    "seeds",
+    "workers",
+    "total_runs",
+    "variants",
+    "runs"
+  ],
+  "title": "BatchResult",
+  "type": "object"
+}

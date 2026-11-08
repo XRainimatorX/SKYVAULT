@@ -13,6 +13,14 @@ other module, so any module may depend on them and they depend on none.
 from .action import ActionRecord, validate_action
 from .assumption import AssumptionRegistry, validate_assumption_registry
 from .base import SCHEMA_VERSION
+from .batch import (
+    BatchResult,
+    BatchSpec,
+    ConflictPackage,
+    validate_batch_result,
+    validate_batch_spec,
+    validate_conflict_package,
+)
 from .consequence import ConsequenceRecord, validate_consequence
 from .entity import EntityRecord, validate_entity
 from .errors import ContractError
@@ -48,6 +56,9 @@ __all__ = [
     "FAILURE_VARIABLE_NAMES",
     "ActionRecord",
     "AssumptionRegistry",
+    "BatchResult",
+    "BatchSpec",
+    "ConflictPackage",
     "ConsequenceRecord",
     "DataProvenance",
     "EntityRecord",
@@ -63,6 +74,9 @@ __all__ = [
     "build_json_schemas",
     "validate_action",
     "validate_assumption_registry",
+    "validate_batch_result",
+    "validate_batch_spec",
+    "validate_conflict_package",
     "validate_consequence",
     "validate_data_provenance",
     "validate_entity",

@@ -5,6 +5,7 @@ from typing import Any
 from .action import ActionRecord
 from .assumption import AssumptionRegistry
 from .base import SCHEMA_VERSION, ContractModel
+from .batch import BatchResult, BatchSpec, ConflictPackage
 from .consequence import ConsequenceRecord
 from .entity import EntityRecord
 from .evaluation import EvaluationResult
@@ -18,7 +19,8 @@ from .scenario import Scenario
 from .world import WorldContract
 
 # The eleven contracts of the development plan's Phase 1, plus the evaluation
-# profile Phase 7 adds and the failure map Phase 9 adds, by their file names.
+# profile Phase 7 adds, the failure map Phase 9 adds and the three batch contracts
+# Phase 10 adds, by their file names.
 CONTRACTS: dict[str, type[ContractModel]] = {
     "world_contract": WorldContract,
     "scenario": Scenario,
@@ -33,6 +35,9 @@ CONTRACTS: dict[str, type[ContractModel]] = {
     "reproducibility": ReproducibilityMetadata,
     "evaluation_profile": EvaluationProfile,
     "failure_map": FailureMap,
+    "batch_spec": BatchSpec,
+    "batch_result": BatchResult,
+    "conflict_package": ConflictPackage,
 }
 
 

@@ -1,6 +1,6 @@
 # Declares what SKYVAULT needs to run. The package is not installable yet (no
 # build-system table): scripts and tests still put src/ on sys.path. Install
-# the dependencies with: python3 -m pip install pydantic pyyaml networkx
+# the dependencies with: python3 -m pip install pydantic pyyaml networkx pandas
 [project]
 name = "skyvault"
 version = "0.9.0"
@@ -12,6 +12,8 @@ dependencies = [
     "PyYAML>=6",
     # Graph and network spaces (Phase 2).
     "networkx>=3",
+    # Batch aggregation (Phase 10). pandas 3 needs Python 3.11; pip picks 2.x on 3.10.
+    "pandas>=2",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +26,7 @@ dev = [
     "bandit",
     "types-PyYAML",
     "types-networkx",
+    "pandas-stubs",
 ]
 
 [tool.black]

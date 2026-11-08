@@ -224,7 +224,13 @@ def test_a_hash_must_be_64_hex_characters(field):
 
 
 # Phase 7 adds the evaluation profile and Phase 9 the failure map
-EXPORTED_CONTRACTS = PLAN_CONTRACTS | {"evaluation_profile", "failure_map"}
+EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
+    "evaluation_profile",
+    "failure_map",
+    "batch_spec",
+    "batch_result",
+    "conflict_package",
+}
 
 
 def test_the_eleven_plan_contracts_and_the_later_ones_are_exported():
