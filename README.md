@@ -298,24 +298,25 @@ docs/               文件
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | 需要時 |
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
-| 權威名單不能由政策擴充 | 固定 NEXUS、SOVEREIGN（authorities 是參數） | Phase 19 |
 | CYBERHOUND、EIDEN 的世界參數 | 回報為缺口，不模擬（AEROGRID 的空域、星衞的裝備參數已有模型） | 需要時 |
 | 商業版的 redact 是字串層級 | 新增內部名稱要加進 data/editions/commercial.json；CI 掃描外洩 | 需要時 |
 | 裝備篩查的係數是假設 | physics-lite 門檻、一個軍事 tick = 10 分鐘、hp 係數代表防護；FMI / FMU 尚未接上 | 有真實資料時 |
 | 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
 | 空域只有 2D、兩種高度，威脅只會直線飛 | 沒有閃避、改目標；HADES 不能指定攔截器、AEROGRID 不能新增感測器 | 計劃寫 3D later |
 | briefing 不敘述城市的狀態變化 | 「What happened」只數行動；NEXUS 拿 domain_outcome，人讀 output/city/city_report.md | 需要時 |
-| 沒有算力預算、排隊、自動停止 | 只有 workers 上限；分支數隨衝突數指數成長 | §15 |
-| 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | Phase 6 |
+| 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | 需要時 |
 | 軍事任務不在 core 的評估與 batch 指標裡 | doctrine 比較的 batch 比勝率與失敗頻率，任務達成率另由 mission_outcome 判定 | 未定 |
-| 訓練資料的 observation 不是觀測層產生 | 軍事用 pack 的感測，其他是整個世界的狀態 | Phase 6 / 12 |
+| 訓練資料的 observation 不是觀測層產生 | 軍事用 pack 的感測，其他是整個世界的狀態（標明 observation_model: full_state） | 需要時 |
 | 觀測只支援 grid | 與 tactical engine 相同 | 對應的 engine 出現時 |
 | 讀世界的 policy 慢約 18%（軍事） | 唯讀代理的成本 | 有需要時 |
 | persistent world 不能跨程序恢復 | engine 不能序列化；checkpoint 與結果留在 store | 需要時 |
 | batch 內的每個 run 不受 auto-stop | 受 max_batch_count 與 scenario 時限約束 | 需要時 |
 | Docker 只做靜態驗證 | 此環境沒有 daemon；CI 跑 `docker compose config` | — |
+| RQ worker 用它自己的 governance | edition 的決定者要由呼叫者以 edition_policy 帶進佇列 | 需要時 |
+| v2 驗收是 in-process | 證明系統能做到，不證明某個部署的網路、身分驗證、資料庫設定 | 部署時 |
+| 提交者的身分 | 誰可以自稱 NEXUS 不由 SKYVAULT 驗證 | 部署環境 |
 | adapter 用內建替身 | 真正的 TAC ANGEL 等以 callable 或 HTTP 提交接入；沒有 LLM SDK、沒有真正的外部系統連線 | — |
-| 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario | Phase 11 |
+| 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario（world service 的 API 可查任何 run 的狀態與 result package） | 需要時 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
 | tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
