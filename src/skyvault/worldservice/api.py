@@ -206,6 +206,13 @@ def create_world_service(
                     "detail": f"the job is {job['lifecycle_state']}",
                 },
             )
+        with worlds_lock:
+            world = worlds.get(job_id)
+        if world is not None:
+            # a persistent world runs on request, not on a worker: close it now
+            world.finish()
+            store.log(job_id, "cancelled: the world was finished early")
+            return store.get_job(job_id)
         if queue.cancel(job_id):
             store.log(job_id, "cancelled while waiting")
             return store.update_job(

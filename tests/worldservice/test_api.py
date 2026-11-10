@@ -351,6 +351,41 @@ def test_finishing_a_world_early_exports_its_partial_result_and_delete_closes_it
     assert client.get(f"/api/worlds/{world}").status_code == 404
 
 
+def test_cancelling_a_world_finishes_it_with_its_partial_result(api):
+    """The cancel used to return 200 and change nothing (code review, 2026-11-09)."""
+    client, _ = api
+    world = client.post(
+        "/api/worlds", json={"scenario": "military_squad_001/v0.1"}
+    ).json()["world_id"]
+    client.post(f"/api/worlds/{world}/advance", json={"ticks": 3})
+
+    cancelled = client.post(f"/api/jobs/{world}/cancel")
+    after = client.post(f"/api/worlds/{world}/advance", json={"ticks": 1})
+    result = client.get(f"/api/jobs/{world}/result").json()
+
+    assert cancelled.status_code == 200
+    assert cancelled.json()["lifecycle_state"] == "completed"
+    assert cancelled.json()["summary"]["termination_reason"] == "auto_stop:cancelled"
+    assert after.status_code != 200
+    assert result["final_world_state"]["tick"] == 3
+    assert client.post(f"/api/jobs/{world}/cancel").status_code == 409
+
+
+def test_time_a_world_waits_between_advances_is_not_its_runtime(store, policy):
+    """Idle time used to count toward max_runtime_seconds (code review, 2026-11-09)."""
+    client, queue = service(store, changed(policy, max_runtime_seconds=0.5))
+    world = client.post(
+        "/api/worlds", json={"scenario": "military_squad_001/v0.1"}
+    ).json()["world_id"]
+    time.sleep(0.8)
+
+    state = client.post(f"/api/worlds/{world}/advance", json={"ticks": 1}).json()
+    queue.close()
+
+    assert state["tick"] == 1 and state["lifecycle_state"] == "paused"
+    assert state["stop_reason"] is None
+
+
 def test_deleting_a_world_that_never_finished_keeps_its_result(api):
     client, _ = api
     world = client.post(

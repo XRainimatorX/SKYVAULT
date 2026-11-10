@@ -351,6 +351,30 @@ def test_a_running_job_is_cancelled_at_the_end_of_a_tick(store, policy):
     assert 0 < store.get_result(job["job_id"])["final_world_state"]["tick"] < 100000
 
 
+def test_a_running_job_asks_the_store_about_cancelling_only_now_and_then(
+    store, policy, monkeypatch
+):
+    """Every tick used to read the whole job (code review, 2026-11-09)."""
+    from skyvault.worldservice import jobs as jobs_module
+
+    job = submit(store, policy, "reference_run")
+    asked = []
+    real = store.get_job
+    monkeypatch.setattr(store, "get_job", lambda i: asked.append(i) or real(i))
+    governor = jobs_module._governor(
+        job, store, policy, scenario_for(job["request"]), None
+    )
+    clock = iter([10.0, 10.1, 10.2, 10.6, 10.7, 11.2, 11.3])
+    monkeypatch.setattr(jobs_module.time, "monotonic", lambda: next(clock))
+
+    seen = [governor.cancel_check() for _ in range(3)]  # 10.0, 10.1, 10.2
+    store.merge_summary(job["job_id"], cancel_requested=True)
+    seen += [governor.cancel_check() for _ in range(4)]  # 10.6 asks, then kept
+
+    assert seen == [False, False, False, True, True, True, True]
+    assert len(asked) == 2  # 10.0 and 10.6
+
+
 def test_a_batch_job_runs_exactly_the_runs_it_was_admitted_for(store, policy):
     job = run(store, policy, "reference_batch")
 

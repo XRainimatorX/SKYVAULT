@@ -84,6 +84,7 @@ class PersistentWorld:
             governor=self.governor,
         )
         self.engine.begin()
+        self.governor.pause()  # runtime counts only while advancing
         self.lifecycle = "initialized"
         self.lock = threading.Lock()
         self.result: dict[str, Any] | None = None
@@ -141,11 +142,15 @@ class PersistentWorld:
                     f"world {self.world_id} waits for a decision on {self.awaiting}"
                 )
             self.lifecycle = "running"
-            for _ in range(ticks):
-                if not self._before_tick(self.engine.world.tick + 1):
-                    break
-                if not self.engine.step():
-                    break
+            self.governor.resume()
+            try:
+                for _ in range(ticks):
+                    if not self._before_tick(self.engine.world.tick + 1):
+                        break
+                    if not self.engine.step():
+                        break
+            finally:
+                self.governor.pause()
             snapshot = self.engine.world.snapshot()
             n = self.store.add_checkpoint(
                 self.world_id,

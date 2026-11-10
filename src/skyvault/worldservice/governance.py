@@ -170,13 +170,34 @@ class Governor:
         self.duration_clamped_from = duration_clamped_from
         self.cancel_requested = False
         self.cancel_check = cancel_check
-        self.started = time.monotonic()
+        # max_runtime_seconds counts the time spent stepping: a persistent
+        # world pauses between advances, and waiting is not running
+        self.started: float | None = time.monotonic()
+        self.spent = 0.0
         self.last: str | None = None
         self.unchanged = 0
         self.seen: dict[str, int] = {}
 
     def start(self) -> None:
+        self.spent = 0.0
         self.started = time.monotonic()
+
+    def pause(self) -> None:
+        """Stop counting runtime until resume()."""
+        if self.started is not None:
+            self.spent += time.monotonic() - self.started
+            self.started = None
+
+    def resume(self) -> None:
+        """Count runtime again after pause()."""
+        if self.started is None:
+            self.started = time.monotonic()
+
+    def runtime(self) -> float:
+        """Seconds spent running so far."""
+        if self.started is None:
+            return self.spent
+        return self.spent + time.monotonic() - self.started
 
     def cancel(self) -> None:
         """Ask the run to stop at the end of the current tick."""
@@ -188,7 +209,7 @@ class Governor:
         if self.cancel_requested or (self.cancel_check and self.cancel_check()):
             return "cancelled"
         seconds = self.policy["max_runtime_seconds"]
-        if seconds is not None and time.monotonic() - self.started > seconds:
+        if seconds is not None and self.runtime() > seconds:
             return "max_runtime_exceeded"
         budget = self.policy["compute_budget"]
         if (

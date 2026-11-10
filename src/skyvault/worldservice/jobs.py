@@ -287,6 +287,10 @@ def execute_job(
         store.log(job_id, f"failed: {type(error).__name__}: {error}")
 
 
+# how often a running job looks for a cancel request in the store
+CANCEL_POLL_SECONDS = 0.5
+
+
 def _governor(
     job: dict[str, Any],
     store: JobStore,
@@ -294,8 +298,17 @@ def _governor(
     scenario: dict[str, Any],
     clamped: int | None,
 ) -> Governor:
+    # the store is asked at most every CANCEL_POLL_SECONDS, not every tick
+    asked: dict[str, Any] = {"at": None, "cancelled": False}
+
     def cancelled() -> bool:
-        return bool(store.get_job(job["job_id"])["summary"].get("cancel_requested"))
+        at = time.monotonic()
+        if not asked["cancelled"] and (
+            asked["at"] is None or at - asked["at"] >= CANCEL_POLL_SECONDS
+        ):
+            summary = store.get_job(job["job_id"])["summary"]
+            asked.update(at=at, cancelled=bool(summary.get("cancel_requested")))
+        return bool(asked["cancelled"])
 
     return Governor(
         policy,

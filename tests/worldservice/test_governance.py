@@ -236,6 +236,24 @@ def test_runtime_is_measured_from_the_start(monkeypatch):
     assert governor.after_tick(world([1, 0]), 0, 0, 2) == "max_runtime_exceeded"  # 61 s
 
 
+def test_runtime_counts_only_the_time_the_run_is_stepping(monkeypatch):
+    """A persistent world waits between advances (code review, 2026-11-09)."""
+    clock = iter([100.0, 100.0, 100.5, 101.0, 500.0, 500.5, 559.0, 562.0])
+    monkeypatch.setattr(
+        "skyvault.worldservice.governance.time.monotonic", lambda: next(clock)
+    )
+    governor = Governor(policy())  # 100.0
+    governor.start()  # 100.0
+    assert governor.after_tick(world([0, 0]), 0, 0, 1) is None  # 0.5 s
+    governor.pause()  # 101.0: 1 s spent, then idle for 399 s
+    governor.pause()  # pausing twice changes nothing
+    governor.resume()  # 500.0
+    governor.resume()  # resuming twice changes nothing
+    assert governor.after_tick(world([1, 0]), 0, 0, 2) is None  # 1.5 s
+    assert governor.after_tick(world([2, 0]), 0, 0, 3) is None  # 60 s
+    assert governor.after_tick(world([3, 0]), 0, 0, 4) == "max_runtime_exceeded"
+
+
 def test_a_persistent_world_cap_counts_ticks_and_events():
     cap = {"max_ticks": 3, "max_events": 100, "max_checkpoints": 5}
 
