@@ -423,6 +423,20 @@ def test_the_report_puts_variants_branches_and_the_open_decision_together(branch
     assert "Conflicting orders" not in plain
 
 
+def test_the_report_is_the_same_read_back_from_a_store_that_sorts_keys(branched):
+    """The world service keeps results as sorted JSON (found in Phase 21)."""
+    parts = [
+        branched["batch_result"],
+        branched["branch_comparison"],
+        branched["conflict_package"],
+    ]
+    stored = [json.loads(json.dumps(part, sort_keys=True)) for part in parts]
+
+    assert render_comparative_report(*stored) == render_comparative_report(*parts)
+    best = render_comparative_report(*stored).split("## Best per metric")[1]
+    assert best.index("**win_rate**") < best.index("**mean_score**")
+
+
 def test_conflict_detection_imports_nothing_that_runs_a_simulation():
     path = SRC_PATH / "skyvault" / "batch" / "conflicts.py"
     for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):

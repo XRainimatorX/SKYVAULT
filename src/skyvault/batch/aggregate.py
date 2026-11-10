@@ -137,6 +137,11 @@ def compare_branches(stats: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _metric_order(metric: str) -> tuple[int, str]:
+    order = list(METRICS)
+    return (order.index(metric) if metric in order else len(order), metric)
+
+
 def render_comparative_report(
     batch_result: dict[str, Any],
     comparison: dict[str, Any],
@@ -173,7 +178,10 @@ def render_comparative_report(
             f"| {stats['mean_score']:.3f} | `{bar or '·'}` |"
         )
     lines += ["", "## Best per metric", ""]
-    for metric, rule in comparison["metrics"].items():
+    # METRICS' order, not the dict's: a comparison read back from a store
+    # that sorts its keys renders the same report
+    for metric in sorted(comparison["metrics"], key=_metric_order):
+        rule = comparison["metrics"][metric]
         lines.append(f"- **{metric}** ({rule}): {comparison['best'][metric]}")
     lines += ["", "Ranking by mean score: " + " > ".join(comparison["ranking"])]
 

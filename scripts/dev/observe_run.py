@@ -1,7 +1,7 @@
 """Write what every observer saw of one run, tick by tick.
 
-    python3 scripts/observe_run.py
-    python3 scripts/observe_run.py \
+    python3 scripts/dev/observe_run.py
+    python3 scripts/dev/observe_run.py \
         --scenario data/scenarios/military_urban_001/v0.1.json --faction BLUE
 
 Runs the scenario and writes output/observations/<observer>.json for the
@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 REFERENCE = REPO_ROOT / "data" / "scenarios" / "military_urban_001" / "v0.2.json"
 

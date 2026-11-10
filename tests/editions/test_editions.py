@@ -535,7 +535,7 @@ def test_run_products_writes_every_product_and_the_report(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "run_products.py"),
+            str(ROOT / "scripts" / "dev" / "run_products.py"),
             "--output",
             str(tmp_path),
             "--repeats",
@@ -553,25 +553,23 @@ def test_run_products_writes_every_product_and_the_report(tmp_path):
         assert leaks(json.loads(path.read_text()), COMMERCIAL) == [], path
 
 
-def test_serve_world_serves_the_edition_it_is_given(monkeypatch, tmp_path):
-    import importlib.util
-
+def test_skyvault_serve_serves_the_edition_it_is_given(monkeypatch, tmp_path):
     import uvicorn
+
+    from skyvault.cli import main
 
     served = {}
     monkeypatch.setattr(uvicorn, "run", lambda app, host, port: served.update(app=app))
-    spec = importlib.util.spec_from_file_location(
-        "serve_world", ROOT / "scripts" / "serve_world.py"
-    )
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
     store = f"sqlite:///{tmp_path / 'service.sqlite'}"
-    module.main(["--edition", "commercial", "--store", store])
+    main(["serve", "--edition", "commercial", "--store", store, "--ui", ""])
     commercial = TestClient(served["app"])
     assert commercial.get("/api/edition").json()["edition_id"] == "commercial"
     assert "/scenario/submit" not in {r.path for r in served["app"].routes}
-    module.main(["--store", store])
+    main(["serve", "--store", store, "--ui", ""])
     assert "/scenario/submit" in {r.path for r in served["app"].routes}
+    assert TestClient(served["app"]).get("/api/edition").json()["edition_id"] == (
+        "internal"
+    )
 
 
 def test_a_page_that_is_not_json_passes_the_redaction_untouched():

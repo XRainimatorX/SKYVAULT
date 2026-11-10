@@ -36,6 +36,12 @@ jobs:
     env:
       SKYVAULT_TEST_REDIS: redis://localhost:6379/0
       SKYVAULT_TEST_POSTGRES: postgresql://skyvault:skyvault@localhost:5432/skyvault
+      # Phase 21: the development checks below reach the Phase 0 reference
+      # slice the way a deployment adds its own; SKYVAULT itself has none of
+      # it (the "SKYVAULT on its own" step unsets all three)
+      SKYVAULT_SCENARIO_PATH: ${{ github.workspace }}/tests/fixtures/reference/scenarios
+      SKYVAULT_BATCH_PATH: ${{ github.workspace }}/tests/fixtures/reference/batches
+      SKYVAULT_POLICY_MODULES: ${{ github.workspace }}/tests/fixtures/reference/policy.py
 
     steps:
       - uses: actions/checkout@v4
@@ -46,6 +52,9 @@ jobs:
 
       - name: Install runtime and development dependencies
         run: python -m pip install pydantic pyyaml networkx pandas pytest pytest-cov ruff black mypy bandit types-PyYAML types-networkx pandas-stubs fastapi uvicorn websockets python-docx reportlab pyarrow httpx pypdf types-reportlab pyarrow-stubs rq redis "psycopg[binary]" scipy scipy-stubs
+
+      - name: Install SKYVAULT (the skyvault command)
+        run: python -m pip install -e .
 
       - name: Lint
         run: ruff check .
@@ -74,9 +83,9 @@ jobs:
 
       - name: Committed JSON Schemas match the contracts
         run: |
-          python scripts/export_schemas.py
+          python scripts/dev/export_schemas.py
           git diff --exit-code src/skyvault/schemas/ || {
-            echo "Run python3 scripts/export_schemas.py and commit the result."
+            echo "Run python3 scripts/dev/export_schemas.py and commit the result."
             exit 1
           }
 
@@ -85,7 +94,7 @@ jobs:
       - name: Full pipeline produces correct outputs
         run: |
           rm -f output/*.json output/timeline.txt
-          python scripts/run_tactical_reference.py
+          python scripts/dev/run_scenario.py --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -137,7 +146,8 @@ jobs:
 
       - name: The same run judged under another profile
         run: |
-          python scripts/run_tactical_reference.py --profile data/evaluation_profiles/tactical.json
+          python scripts/dev/run_scenario.py --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json \
+            --profile data/evaluation_profiles/tactical.json
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -153,9 +163,9 @@ jobs:
       # next scenario version must be told apart from it
       - name: Reproducibility and scenario versions
         run: |
-          python scripts/verify_run.py output/result_package.json
-          python scripts/run_tactical_reference.py --scenario data/scenarios/tactical_reference_001/v0.2.json
-          python scripts/verify_run.py output/result_package.json
+          python scripts/dev/verify_run.py output/result_package.json
+          python scripts/dev/run_scenario.py --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.2.json
+          python scripts/dev/verify_run.py output/result_package.json
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -172,7 +182,7 @@ jobs:
       # Phase 9: stress the plan and check the four failure outputs
       - name: Failure exploration
         run: |
-          python scripts/explore_failures.py --repeats 2
+          python scripts/dev/explore_failures.py --repeats 2 --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json
           python - <<'EOF'
           import json
           import sys
@@ -201,7 +211,8 @@ jobs:
       # Phase 10: run the reference batch in parallel and check the four outputs
       - name: Batch simulation and conflict branches
         run: |
-          python scripts/run_batch.py --repeats 10 --workers 2
+          python scripts/dev/run_batch.py --repeats 10 --workers 2 \
+            --batch tests/fixtures/reference/batches/tactical_reference_001.json
           python - <<'EOF'
           import json
           import sys
@@ -226,7 +237,7 @@ jobs:
       # Phase 17: the briefing from the workspace the steps above wrote
       - name: Briefing export
         run: |
-          python scripts/export_briefing.py
+          python scripts/dev/export_briefing.py
           python - <<'EOF'
           from pathlib import Path
 
@@ -242,11 +253,11 @@ jobs:
       # Phase 13: the military domain pack on the same engine
       - name: Military domain pack
         run: |
-          python scripts/run_tactical_reference.py --scenario data/scenarios/military_urban_001/v0.1.json
-          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+          python scripts/dev/run_scenario.py --scenario data/scenarios/military_urban_001/v0.1.json
+          python scripts/dev/run_scenario.py --scenario data/scenarios/military_squad_001/v0.1.json \
             --policy-module examples/tac_angel_policy.py --policy tac_angel_example
-          python scripts/export_dataset.py --runs 1 --output output/tac_angel_dataset.jsonl
-          python scripts/run_batch.py --batch data/batches/military_doctrine.json --repeats 3 --workers 2
+          python scripts/dev/export_dataset.py --runs 1 --output output/tac_angel_dataset.jsonl
+          python scripts/dev/run_batch.py --batch data/batches/military_doctrine.json --repeats 3 --workers 2
           python - <<'EOF'
           import json
           import sys
@@ -271,11 +282,11 @@ jobs:
       # Phase 14: a city on a road network — order, power cascade, supply delay, governance score
       - name: City domain pack
         run: |
-          python scripts/build_city_scenarios.py
+          python scripts/dev/build_city_scenarios.py
           git diff --exit-code data/scenarios/city_takeover_001 data/scenarios/city_blackout_001
-          python scripts/run_tactical_reference.py --scenario data/scenarios/city_blackout_001/v0.1.json
-          python scripts/run_city.py --seeds 3
-          python scripts/run_batch.py --batch data/batches/city_supply_delay.json --repeats 2 --workers 2
+          python scripts/dev/run_scenario.py --scenario data/scenarios/city_blackout_001/v0.1.json
+          python scripts/dev/run_city.py --seeds 3
+          python scripts/dev/run_batch.py --batch data/batches/city_supply_delay.json --repeats 2 --workers 2
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -301,11 +312,11 @@ jobs:
       # Phase 15: the airspace pack — detection gap, response time, failure points
       - name: Airspace domain pack
         run: |
-          python scripts/build_airspace_scenarios.py
+          python scripts/dev/build_airspace_scenarios.py
           git diff --exit-code data/scenarios/airspace_defence_001
-          python scripts/run_tactical_reference.py --scenario data/scenarios/airspace_defence_001/v0.1.json
-          python scripts/run_airspace.py --runs 5
-          python scripts/run_batch.py --batch data/batches/airspace_sensors.json --repeats 10 --workers 2
+          python scripts/dev/run_scenario.py --scenario data/scenarios/airspace_defence_001/v0.1.json
+          python scripts/dev/run_airspace.py --runs 5
+          python scripts/dev/run_batch.py --batch data/batches/airspace_sensors.json --repeats 10 --workers 2
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -330,7 +341,7 @@ jobs:
       # Phase 16: the virtual test — physical, engineering, tactical, failure, judgement
       - name: Virtual test
         run: |
-          python scripts/run_virtual_test.py --seeds 2
+          python scripts/dev/run_virtual_test.py --seeds 2
           python - <<'EOF'
           import json
           import sys
@@ -357,7 +368,7 @@ jobs:
       # Phase 19: two editions on one core — the commercial shell shows no internal name
       - name: Editions
         run: |
-          python scripts/run_products.py --edition commercial --repeats 1
+          python scripts/dev/run_products.py --edition commercial --repeats 1
           python - <<'EOF'
           import json
           import sys
@@ -382,7 +393,7 @@ jobs:
       # Phase 20: Full SKYVAULT v2.0 — every acceptance criterion and the authority boundary, on one service
       - name: Full v2 acceptance
         run: |
-          python scripts/run_v2_acceptance.py
+          python scripts/dev/run_v2_acceptance.py
           python - <<'EOF'
           import json
           from pathlib import Path
@@ -395,10 +406,32 @@ jobs:
           print("v2 accepted:", counts)
           EOF
 
+      # Phase 21: SKYVAULT starts and runs from an empty folder with nothing but
+      # itself: no development script, no output/, no test fixture on any path
+      - name: SKYVAULT on its own
+        run: |
+          mkdir -p /tmp/standalone && cd /tmp/standalone
+          unset SKYVAULT_SCENARIO_PATH SKYVAULT_BATCH_PATH SKYVAULT_POLICY_MODULES
+          skyvault serve --port 8200 --ui "" > /tmp/standalone.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8200/api/health && break; sleep 1; done
+          export SKYVAULT_URL=http://127.0.0.1:8200
+          skyvault run military_urban_001/v0.2 | tee run.txt
+          grep -q "output_hash: 78aa3fe5bbdf" run.txt
+          skyvault explore military_urban_001/v0.2 --repeat 1
+          skyvault batch military_doctrine --repeat 2
+          skyvault runs | grep -q "military_urban_001 v0.2"
+          skyvault briefing latest | grep -q "^# SKYVAULT briefing — military_urban_001 v0.2"
+          curl -sf http://127.0.0.1:8200/api/runs/latest/failure > /dev/null
+          curl -sf http://127.0.0.1:8200/api/runs/latest/comparison > /dev/null
+          if skyvault run tactical_reference_001/v0.1; then echo "SKYVAULT ran the Phase 0 slice"; exit 1; fi
+          skyvault acceptance | tee acceptance.txt
+          tail -1 acceptance.txt | grep -qx ACCEPTED
+          test ! -e output
+
       # Phase 18: training data from the sources file, filtered for score gaming
       - name: Training data pipeline
         run: |
-          python scripts/build_training_data.py --workers 2
+          python scripts/dev/build_training_data.py --workers 2
           python - <<'EOF'
           import json
           import sys
@@ -410,7 +443,7 @@ jobs:
 
           out = Path("output/training")
           report = json.loads((out / "anti_gaming_report.json").read_text())
-          assert report["runs"] == 100 and all(report["buckets"].values()), report["buckets"]
+          assert report["runs"] == 120 and all(report["buckets"].values()), report["buckets"]
           assert report["success_types"]["genuine_success"] and report["success_types"]["false_success"]
           rejected = {e["output_hash"] for e in report["entries"] if e["bucket"] == "rejected"}
           clean = read_jsonl(out / "clean_training_dataset.jsonl")
@@ -418,15 +451,15 @@ jobs:
           assert read_parquet(out / "clean_training_dataset.parquet") == clean
           for record in clean[:200]:
               validate_transition(record)
-          assert len(read_jsonl(out / "branch_evaluation.jsonl")) == 15
+          assert len(read_jsonl(out / "branch_evaluation.jsonl")) == 5  # two batches (Phase 21 sources)
           print("training data verified:", report["buckets"], len(clean), "clean transitions")
           EOF
 
       # Phase 5: what each system sees of one run, under fog of war
       - name: Observation contract
         run: |
-          python scripts/observe_run.py
-          python scripts/observe_run.py --scenario data/scenarios/military_urban_001/v0.1.json \
+          python scripts/dev/observe_run.py
+          python scripts/dev/observe_run.py --scenario data/scenarios/military_urban_001/v0.1.json \
             --output output/observations_urban
           python - <<'EOF'
           import json
@@ -450,13 +483,13 @@ jobs:
               assert not any(o["hidden_state"]["exists"] for o in docs["NEXUS"]["observations"])
               print(folder, "verified:", {n: len(d["observations"]) for n, d in docs.items()})
           EOF
-          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+          python scripts/dev/run_scenario.py --scenario data/scenarios/military_squad_001/v0.1.json \
             --policy-module examples/tac_angel_policy.py --policy tac_angel_example
 
       # Phase 6: participants decide for their own units; nobody touches the world
       - name: Actor layer
         run: |
-          python scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
+          python scripts/dev/run_scenario.py --scenario data/scenarios/military_squad_001/v0.1.json \
             --participants tests/fixtures/actors/participants_squad.json
           python - <<'EOF'
           import json
@@ -472,8 +505,9 @@ jobs:
           assert all(v == {"military_baseline"} for k, v in deciders.items() if k.startswith("blue")), deciders
           print("participants verified:", {k: sorted(v) for k, v in sorted(deciders.items())})
           EOF
-          python scripts/run_tactical_reference.py --participants tests/fixtures/actors/participants_reference.json
-          python scripts/run_tactical_reference.py | tee /tmp/reference.txt
+          python scripts/dev/run_scenario.py --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json \
+            --participants tests/fixtures/actors/participants_reference.json
+          python scripts/dev/run_scenario.py --scenario tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json | tee /tmp/reference.txt
           grep -q "Events: 97" /tmp/reference.txt
 
       # Phase 11: the world service, served for real, with both queues and stores
@@ -482,11 +516,11 @@ jobs:
           docker compose config -q
           # servers log to files: a background process holding the step's output
           # keeps the step from ever finishing
-          python scripts/serve_world.py --store sqlite:////tmp/service.sqlite --port 8100 \
+          skyvault serve --store sqlite:////tmp/service.sqlite --port 8100 --ui "" \
             > /tmp/serve_inprocess.log 2>&1 &
-          python scripts/serve_world.py --queue rq --redis "$SKYVAULT_TEST_REDIS" \
-            --store "$SKYVAULT_TEST_POSTGRES" --port 8101 > /tmp/serve_rq.log 2>&1 &
-          sleep 5
+          skyvault serve --queue rq --redis "$SKYVAULT_TEST_REDIS" \
+            --store "$SKYVAULT_TEST_POSTGRES" --port 8101 --ui "" > /tmp/serve_rq.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8100/api/health && curl -sf http://127.0.0.1:8101/api/health && break; sleep 1; done
           python - <<'EOF'
           import json, time, urllib.request
 
@@ -508,27 +542,27 @@ jobs:
                   break
               time.sleep(0.2)
           status, result = call(8100, f"/api/jobs/{job['job_id']}/result")
-          assert result["reproducibility"]["output_hash"].startswith("63090026e137"), result["reproducibility"]
+          assert result["reproducibility"]["output_hash"].startswith("7debca2af332"), result["reproducibility"]
           status, queued = call(8101, "/api/jobs", {"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1", "priority": "high"})
           assert status == 202, queued
           open("/tmp/rq_job.txt", "w").write(queued["job_id"])
           print("world service verified:", job["job_id"], "completed; rq job", queued["job_id"], "queued")
           EOF
-          python scripts/world_worker.py --redis "$SKYVAULT_TEST_REDIS" --store "$SKYVAULT_TEST_POSTGRES" --burst
+          skyvault worker --redis "$SKYVAULT_TEST_REDIS" --store "$SKYVAULT_TEST_POSTGRES" --burst
           python - <<'EOF'
           import json, urllib.request
           job_id = open("/tmp/rq_job.txt").read()
           with urllib.request.urlopen(f"http://127.0.0.1:8101/api/jobs/{job_id}") as response:
               job = json.loads(response.read())
           assert job["lifecycle_state"] == "completed", job
-          assert job["summary"]["output_hash"].startswith("63090026e137"), job["summary"]
+          assert job["summary"]["output_hash"].startswith("7debca2af332"), job["summary"]
           print("rq worker verified:", job["summary"]["result"])
           EOF
 
       - name: External systems
         run: |
-          python scripts/serve_world.py --store sqlite:// --port 8102 > /tmp/serve_external.log 2>&1 &
-          sleep 5
+          skyvault serve --store sqlite:// --port 8102 --ui "" > /tmp/serve_external.log 2>&1 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8102/api/health && break; sleep 1; done
           python - <<'EOF'
           import json, time, urllib.request
 
@@ -583,13 +617,14 @@ jobs:
               if status == 200:
                   break
               time.sleep(0.2)
-          assert returned["result_package"]["reproducibility"]["output_hash"].startswith("63090026e137"), returned["system_status"]
+          assert returned["result_package"]["reproducibility"]["output_hash"].startswith("7debca2af332"), returned["system_status"]
           assert returned["briefing"].startswith("# SKYVAULT briefing"), returned["briefing"][:80]
           print("external systems verified: state-action-outcome, conflict", conflict, "decided by NEXUS, NEXUS package")
           EOF
 
-  # Phase 17: build the UI, serve it with the reference workspace, and drive
-  # every page in a real browser
+  # Phase 17: build the UI, serve it from SKYVAULT itself (Phase 21: the UI
+  # reads the world service, no workspace folder), and drive every page in a
+  # real browser
   ui:
     runs-on: ubuntu-latest
     steps:
@@ -605,14 +640,8 @@ jobs:
           cache: npm
           cache-dependency-path: ui/package-lock.json
 
-      - name: Install Python dependencies
-        run: python -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab
-
-      - name: Write the reference workspace
-        run: |
-          python scripts/run_tactical_reference.py
-          python scripts/explore_failures.py
-          python scripts/run_batch.py
+      - name: Install SKYVAULT
+        run: python -m pip install -e .
 
       - name: Install and build the UI
         working-directory: ui
@@ -623,6 +652,10 @@ jobs:
 
       - name: Drive every page in a browser
         run: |
-          python scripts/serve_ui.py --port 8000 &
+          skyvault serve --port 8000 > /tmp/serve.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8000/api/health && break; sleep 1; done
-          cd ui && SKYVAULT_URL=http://127.0.0.1:8000 npm run e2e
+          export SKYVAULT_URL=http://127.0.0.1:8000
+          skyvault explore military_urban_001/v0.2 --repeat 2
+          skyvault batch military_doctrine --repeat 5
+          skyvault run military_urban_001/v0.2
+          cd ui && npm run e2e

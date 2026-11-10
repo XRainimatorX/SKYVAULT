@@ -1,7 +1,7 @@
 """Turn SKYVAULT runs into training data for TAC ANGEL / STARTX.
 
-    python3 scripts/build_training_data.py
-    python3 scripts/build_training_data.py --workers 4
+    python3 scripts/dev/build_training_data.py
+    python3 scripts/dev/build_training_data.py --workers 4
 
 Runs every source in the sources file, labels each run for score gaming,
 and writes to output/training/: clean_training_dataset, risky_behavior_dataset
@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

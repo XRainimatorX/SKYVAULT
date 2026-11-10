@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Status from "@/components/Status";
-import { type Chain, useApi } from "@/lib/api";
+import { type Chain, runApi, useApi } from "@/lib/api";
 
 function Chains({ chains }: { chains: Chain[] }) {
   const [onlyLosses, setOnlyLosses] = useState(false);
@@ -51,7 +51,7 @@ function Chains({ chains }: { chains: Chain[] }) {
 }
 
 export default function CausalPage() {
-  const loaded = useApi<{ chains: Chain[] }>("/api/causal");
+  const loaded = useApi<{ chains: Chain[] }>(runApi("causal"));
   return (
     <>
       <h1>Causal chain</h1>

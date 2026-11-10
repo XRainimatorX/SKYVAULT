@@ -372,7 +372,7 @@ def test_run_virtual_test_writes_a_result_per_profile_and_the_report(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "run_virtual_test.py"),
+            str(ROOT / "scripts" / "dev" / "run_virtual_test.py"),
             "--output",
             str(tmp_path),
             "--seeds",

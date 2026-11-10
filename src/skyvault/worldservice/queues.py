@@ -4,7 +4,7 @@ Important:
 Two queues with one interface. InProcessQueue runs jobs on threads of the
 service's own process — for a single machine, for tests, and when there
 is no Redis. RQQueue puts them on Redis for RQ workers in other processes
-(scripts/world_worker.py); a worker opens the same store from its spec
+(skyvault worker); a worker opens the same store from its spec
 string. Either way at most max_parallel_runs jobs run at once and, under
 priority_then_fifo, a higher priority always goes first, equal ones in the
 order they came. Cancelling a waiting job takes it out of the queue; a

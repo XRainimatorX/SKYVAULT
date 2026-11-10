@@ -3,7 +3,7 @@
 import Chart from "@/components/Chart";
 import Markdown from "@/components/Markdown";
 import Status from "@/components/Status";
-import { type Failure, percent, useApi } from "@/lib/api";
+import { type Failure, percent, runApi, useApi } from "@/lib/api";
 
 /** Survival 1 → green, at the threshold → amber, 0 → red. */
 function heat(rate: number, threshold: number): string {
@@ -136,7 +136,7 @@ function FailureMap({ map }: { map: Failure }) {
 }
 
 export default function FailurePage() {
-  const loaded = useApi<Failure>("/api/failure");
+  const loaded = useApi<Failure>(runApi("failure"));
   return (
     <>
       <h1>Failure map</h1>

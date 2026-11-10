@@ -667,7 +667,7 @@ def test_the_script_writes_what_each_system_gets_back(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(SRC.parents[1] / "scripts" / "run_external.py"),
+            str(SRC.parents[1] / "scripts" / "dev" / "run_external.py"),
             "--output",
             str(tmp_path),
         ],

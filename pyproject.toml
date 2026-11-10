@@ -37,6 +37,10 @@ dependencies = [
     "psycopg[binary]>=3.1",
 ]
 
+[project.scripts]
+# The one command SKYVAULT is started and used with (Phase 21).
+skyvault = "skyvault.cli:main"
+
 [project.optional-dependencies]
 dev = [
     "pytest",

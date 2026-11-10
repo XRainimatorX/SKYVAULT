@@ -1,7 +1,7 @@
 """Write the briefing report of a workspace as Markdown, PDF and DOCX.
 
-    python3 scripts/export_briefing.py
-    python3 scripts/export_briefing.py --workspace some/folder
+    python3 scripts/dev/export_briefing.py
+    python3 scripts/dev/export_briefing.py --workspace some/folder
 
 The workspace (default: output/) needs result_package.json; the failure
 exploration and batch outputs, when present, add their sections. The three
@@ -12,7 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

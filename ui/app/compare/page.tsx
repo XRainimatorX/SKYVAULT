@@ -2,7 +2,7 @@
 
 import Chart from "@/components/Chart";
 import Status from "@/components/Status";
-import { type Comparison, percent, useApi } from "@/lib/api";
+import { type Comparison, percent, runApi, useApi } from "@/lib/api";
 
 const LABELS: Record<string, string> = {
   win_rate: "Win rate",
@@ -146,7 +146,7 @@ function Compare({ batch }: { batch: Comparison }) {
 }
 
 export default function ComparePage() {
-  const loaded = useApi<Comparison>("/api/comparison");
+  const loaded = useApi<Comparison>(runApi("comparison"));
   return (
     <>
       <h1>Compare plans</h1>

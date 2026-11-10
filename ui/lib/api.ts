@@ -2,7 +2,9 @@
 
 /**
  * The shapes the FastAPI service returns (src/skyvault/views) and a hook to
- * fetch them. The UI is served from the same origin as the API.
+ * fetch them. The UI is served by SKYVAULT's world service, from the same
+ * origin as the API (Phase 21): every screen shows one run — the one the
+ * page's ?run= names, else the newest — read from the service's store.
  */
 
 import { useEffect, useState } from "react";
@@ -159,6 +161,33 @@ export type Comparison = {
 export type PackageView = {
   sections: { key: string; label: string; summary: string; raw: unknown }[];
 };
+
+export type RunEntry = {
+  run: string;
+  kind: string;
+  scenario_id: string;
+  scenario_version: string;
+  result: string;
+  events: number;
+  output_hash: string;
+  created_at: string;
+};
+
+/** The run this page shows: ?run=<job id>, else "latest". */
+export function currentRun(): string {
+  if (typeof window === "undefined") return "latest";
+  return new URLSearchParams(window.location.search).get("run") ?? "latest";
+}
+
+/** Where the service answers a screen of the current run. */
+export function runApi(screen: string): string {
+  return `/api/runs/${encodeURIComponent(currentRun())}/${screen}`;
+}
+
+/** A link to another page that keeps showing the same run. */
+export function withRun(href: string, run: string): string {
+  return run === "latest" ? href : `${href}?run=${encodeURIComponent(run)}`;
+}
 
 export type Loaded<T> =
   | { state: "loading" }

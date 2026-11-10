@@ -1,10 +1,10 @@
 "use client";
 
 import Status from "@/components/Status";
-import { type PackageView, useApi } from "@/lib/api";
+import { type PackageView, runApi, useApi } from "@/lib/api";
 
 export default function PackagePage() {
-  const loaded = useApi<PackageView>("/api/package");
+  const loaded = useApi<PackageView>(runApi("package"));
   return (
     <>
       <h1>Result package</h1>

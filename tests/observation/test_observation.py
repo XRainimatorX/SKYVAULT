@@ -1009,7 +1009,7 @@ def run_script(output: Path, seed: str, *extra: str) -> None:
     subprocess.run(  # nosec B603 - fixed interpreter and repo script
         [
             sys.executable,
-            str(REPO_ROOT / "scripts" / "observe_run.py"),
+            str(REPO_ROOT / "scripts" / "dev" / "observe_run.py"),
             "--output",
             str(output),
             *extra,

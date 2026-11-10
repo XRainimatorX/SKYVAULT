@@ -1,6 +1,6 @@
 """Run the city reference scenarios and the supply delay study (Phase 14).
 
-    python3 scripts/run_city.py
+    python3 scripts/dev/run_city.py
 
 Writes output/city/: each scenario's governance stability score
 (governance_<scenario>.json), the blackout's cascade (cascade_<scenario>.json),
@@ -14,7 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

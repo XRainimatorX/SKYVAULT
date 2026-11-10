@@ -21,10 +21,12 @@ from fastapi import Body, FastAPI, HTTPException
 from ..boundary import declaration
 from ..contracts import ContractError
 from ..interface.api import add_external_routes
+from ..service import add_view_routes
 from .governance import Rejected
 from .jobs import NotFound, execute_job, full_request, new_job, plan
 from .queues import InProcessQueue, JobQueue
 from .store import JobStore
+from .views import runs, workspace_from_store
 from .worlds import PersistentWorld, WorldAwaiting, WorldClosed
 
 # A request body: any JSON object; the job contract checks it
@@ -314,6 +316,13 @@ def create_world_service(
     app.state.admit = admit
     app.state.refuse = refuse
     app.state.create_world = create_world
+
+    # the UI's screens, read from this store (Phase 21): no workspace folder
+    @app.get("/api/runs")
+    def run_list() -> list[dict[str, Any]]:
+        return runs(store)
+
+    add_view_routes(app, lambda run: workspace_from_store(store, run))
     if external_routes:
         add_external_routes(app, store, queue, policy)
     return app

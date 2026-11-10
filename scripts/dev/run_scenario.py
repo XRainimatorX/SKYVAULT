@@ -1,9 +1,20 @@
+"""Run one scenario and write its outputs (a development script).
+
+    python3 scripts/dev/run_scenario.py                      # military_urban_001 v0.2
+    python3 scripts/dev/run_scenario.py --scenario <path> --profile <path>
+
+Writes output/: the result package, event memory, timeline, replay, entity
+history, causal chain and the evaluation outputs, and records the run in
+runs/registry.jsonl. SKYVAULT itself is used through `skyvault`; this script
+is for regenerating the committed outputs and for development.
+"""
+
 import argparse
 import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIO_DIR = REPO_ROOT / "data" / "scenarios"
 

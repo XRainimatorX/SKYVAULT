@@ -1,7 +1,7 @@
 """Deliberately stress a plan and write where, why and how it fails.
 
-    python3 scripts/explore_failures.py
-    python3 scripts/explore_failures.py --repeats 3
+    python3 scripts/dev/explore_failures.py
+    python3 scripts/dev/explore_failures.py --repeats 3
 
 The plan is a scenario (default: military_urban_001 v0.2) judged under an
 evaluation profile (default: balanced). The stress request is the scenario's
@@ -14,7 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIO_DIR = REPO_ROOT / "data" / "scenarios"
 

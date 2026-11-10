@@ -254,7 +254,7 @@ def test_run_v2_acceptance_writes_the_evidence_and_the_report(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "run_v2_acceptance.py"),
+            str(ROOT / "scripts" / "dev" / "run_v2_acceptance.py"),
             "--output",
             str(tmp_path),
         ],

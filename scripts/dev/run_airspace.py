@@ -1,6 +1,6 @@
 """Run the airspace scenario, HADES behaviours and AEROGRID configurations.
 
-    python3 scripts/run_airspace.py
+    python3 scripts/dev/run_airspace.py
 
 Writes output/airspace/: the reference run's detection gap, response times
 and failure points (outcome_<scenario>.json), the comparison of HADES rules
@@ -14,7 +14,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

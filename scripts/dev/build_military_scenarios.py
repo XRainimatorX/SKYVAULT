@@ -1,6 +1,6 @@
 """Build the military reference scenarios from their specs.
 
-    python3 scripts/build_military_scenarios.py
+    python3 scripts/dev/build_military_scenarios.py
 
 Writes data/scenarios/military_*/<version>.json from the profiles and specs
 in data/domains/military/. Run it after changing a profile or a spec; a
@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

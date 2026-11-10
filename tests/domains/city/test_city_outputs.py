@@ -173,7 +173,7 @@ def test_run_city_writes_the_scores_cascades_study_and_report(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "run_city.py"),
+            str(ROOT / "scripts" / "dev" / "run_city.py"),
             "--output",
             str(tmp_path),
             "--seeds",

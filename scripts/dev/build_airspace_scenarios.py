@@ -1,6 +1,6 @@
 """Build the airspace reference scenarios from their specs.
 
-    python3 scripts/build_airspace_scenarios.py
+    python3 scripts/dev/build_airspace_scenarios.py
 
 Writes data/scenarios/airspace_*/<version>.json from the rules and specs in
 data/domains/airspace/. Run it after changing the rules or a spec; a test fails
@@ -11,7 +11,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

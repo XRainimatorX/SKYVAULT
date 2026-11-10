@@ -2,7 +2,7 @@
 
 Important:
 data/scenarios/military_*/ is generated from data/domains/military/ by
-scripts/build_military_scenarios.py; a test rebuilds them and compares, so
+scripts/dev/build_military_scenarios.py; a test rebuilds them and compares, so
 the committed scenarios can never drift from their specs.
 
 A spec's "revisions" are later versions of the same plan, each a child of

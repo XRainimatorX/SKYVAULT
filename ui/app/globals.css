@@ -342,3 +342,21 @@ pre {
 .markdown h2 {
   font-size: 16px;
 }
+
+/* Phase 21: the run the screens show; it shrinks with the screen */
+.runs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.runs select {
+  font: inherit;
+  min-width: 0;
+  width: 28rem;
+  max-width: 100%;
+}

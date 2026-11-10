@@ -175,7 +175,7 @@ def test_the_export_is_identical_across_hash_seeds(reference_workspace, tmp_path
         subprocess.run(
             [
                 sys.executable,
-                str(REPO_ROOT / "scripts" / "export_briefing.py"),
+                str(REPO_ROOT / "scripts" / "dev" / "export_briefing.py"),
                 "--workspace",
                 str(folder),
             ],

@@ -67,7 +67,7 @@ def build_json_schemas() -> dict[str, dict[str, Any]]:
 
     Important:
     This only builds the schemas. Writing them to src/skyvault/schemas/ is the
-    job of scripts/export_schemas.py, and a test checks the committed files
+    job of scripts/dev/export_schemas.py, and a test checks the committed files
     still match what this returns.
     """
     return {

@@ -3,9 +3,10 @@
 Important:
 Phase 19 change 3: every "the core imports no X" test used to name the
 folders it skipped, so a new upper layer had to be added to each of them.
-Here each top-level package of src/skyvault has a rank; a module may import
-from its own rank or below, never above. Anything not named is core
-(rank 0), so a new package is checked from the day it is added.
+Here each top-level package (or module, like cli) of src/skyvault has a
+rank; a module may import from its own rank or below, never above.
+Anything not named is core (rank 0), so a new package is checked from the
+day it is added.
 
 Not a conftest.py (see tests/worldservice/service_fixtures.py): tests load
 it by putting tests/ on sys.path.
@@ -23,13 +24,16 @@ RANK = {
     "worldservice": 3,
     "editions": 4,
     "acceptance": 5,
+    # the skyvault command (Phase 21): starts and drives everything below
+    "cli": 6,
 }
 
 
 def layer_of(path: Path) -> str:
-    """The layer a source file belongs to: its top-level package, or core."""
+    """The layer a source file belongs to: its top-level package or module, or core."""
     parts = path.relative_to(SRC).parts
-    return parts[0] if len(parts) > 1 and parts[0] in RANK else "core"
+    name = parts[0] if len(parts) > 1 else Path(parts[0]).stem
+    return name if name in RANK else "core"
 
 
 def rank(layer: str) -> int:

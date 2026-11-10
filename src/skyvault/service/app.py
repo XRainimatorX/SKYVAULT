@@ -1,15 +1,18 @@
-"""The UI backend: the workspace's screens over HTTP, the replay over a WebSocket.
+"""The UI's routes: a run's screens over HTTP, its replay over a WebSocket.
 
 Important:
-Reading only. The server never simulates: every response is a view or the
-briefing, built from the workspace folder on each request, so regenerating
-the outputs is reflected without a restart. A workspace with no result
-package is refused when the app is created. The Next.js build, when given,
-is served at / from the same origin as the API.
+Reading only. The routes never simulate: every response is a view or the
+briefing, built on each request from the workspace a run has (its result
+package, and the failure exploration and batch of its scenario when they
+exist). Where a workspace comes from is the caller's: the world service
+reads it from its store (Phase 21; skyvault.worldservice.views). A run
+that is not there is a 404. The Next.js build, when given, is served at /
+from the same origin — mounted last, after every other route.
 """
 
 import asyncio
 import contextlib
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +25,6 @@ from ..views import (
     causal_view,
     comparison_view,
     failure_view,
-    load_workspace,
     map_view,
     overview_view,
     package_view,
@@ -32,100 +34,110 @@ from ..views import (
 DOCX_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 DEFAULT_INTERVAL_MS = 500
 
+Workspaces = Callable[[str], dict[str, Any]]
 
-def create_app(workspace_dir: Path, ui_dir: Path | None = None) -> FastAPI:
+
+def add_view_routes(app: FastAPI, workspace_for: Workspaces) -> None:
     """
-    The FastAPI app for one workspace folder.
+    /api/runs/{run}/<screen> and /ws/replay?run=<run> on app.
 
-    Raises FileNotFoundError at once when the folder has no result package.
-    ui_dir, when it holds an index.html, is served at /.
+    workspace_for(run) returns the run's workspace (keys as load_workspace)
+    and raises LookupError when there is no such run; "latest" names the
+    newest run.
     """
-    workspace_dir = Path(workspace_dir)
-    load_workspace(workspace_dir)
-    app = FastAPI(title="SKYVAULT", docs_url="/api/docs", openapi_url="/api/openapi")
 
-    def workspace() -> dict[str, Any]:
-        return load_workspace(workspace_dir)
+    def workspace(run: str) -> dict[str, Any]:
+        try:
+            return workspace_for(run)
+        except LookupError as error:
+            raise HTTPException(404, str(error).strip("'\"")) from None
 
-    @app.get("/api/health")
-    def health() -> dict[str, Any]:
-        loaded = workspace()
-        return {
-            "status": "ok",
-            "scenario_id": loaded["result_package"]["scenario_id"],
-            "has_failure_exploration": loaded["failure_map"] is not None,
-            "has_batch": loaded["batch_result"] is not None,
-        }
+    @app.get("/api/runs/{run}/overview")
+    def overview(run: str) -> dict[str, Any]:
+        return overview_view(workspace(run)["result_package"])
 
-    @app.get("/api/overview")
-    def overview() -> dict[str, Any]:
-        return overview_view(workspace()["result_package"])
+    @app.get("/api/runs/{run}/timeline")
+    def timeline(run: str) -> dict[str, Any]:
+        return timeline_view(workspace(run)["result_package"])
 
-    @app.get("/api/timeline")
-    def timeline() -> dict[str, Any]:
-        return timeline_view(workspace()["result_package"])
+    @app.get("/api/runs/{run}/map")
+    def world_map(run: str) -> dict[str, Any]:
+        return map_view(workspace(run)["result_package"])
 
-    @app.get("/api/map")
-    def world_map() -> dict[str, Any]:
-        return map_view(workspace()["result_package"])
+    @app.get("/api/runs/{run}/causal")
+    def causal(run: str) -> dict[str, Any]:
+        return causal_view(workspace(run)["result_package"])
 
-    @app.get("/api/causal")
-    def causal() -> dict[str, Any]:
-        return causal_view(workspace()["result_package"])
+    @app.get("/api/runs/{run}/package")
+    def package(run: str) -> dict[str, Any]:
+        return package_view(workspace(run)["result_package"])
 
-    @app.get("/api/package")
-    def package() -> dict[str, Any]:
-        return package_view(workspace()["result_package"])
-
-    @app.get("/api/failure")
-    def failure() -> dict[str, Any]:
-        view = failure_view(workspace())
+    @app.get("/api/runs/{run}/failure")
+    def failure(run: str) -> dict[str, Any]:
+        loaded = workspace(run)
+        view = failure_view(loaded)
         if view is None:
+            scenario = loaded["result_package"]["scenario_id"]
             raise HTTPException(
                 404,
-                "No failure exploration in this workspace: "
-                "run scripts/explore_failures.py",
+                f"No failure exploration of {scenario} yet: "
+                f"skyvault explore {scenario}/<version>",
             )
         return view
 
-    @app.get("/api/comparison")
-    def comparison() -> dict[str, Any]:
-        view = comparison_view(workspace())
+    @app.get("/api/runs/{run}/comparison")
+    def comparison(run: str) -> dict[str, Any]:
+        loaded = workspace(run)
+        view = comparison_view(loaded)
         if view is None:
+            scenario = loaded["result_package"]["scenario_id"]
             raise HTTPException(
-                404, "No batch in this workspace: run scripts/run_batch.py"
+                404, f"No batch on {scenario} yet: skyvault batch <batch name>"
             )
         return view
 
-    @app.get("/api/report.md")
-    def report_markdown() -> Response:
+    @app.get("/api/runs/{run}/report.md")
+    def report_markdown(run: str) -> Response:
         return _download(
-            render_markdown(build_briefing(workspace())).encode("utf-8"),
+            render_markdown(build_briefing(workspace(run))).encode("utf-8"),
             "text/markdown; charset=utf-8",
             "briefing.md",
         )
 
-    @app.get("/api/report.pdf")
-    def report_pdf() -> Response:
+    @app.get("/api/runs/{run}/report.pdf")
+    def report_pdf(run: str) -> Response:
         return _download(
-            render_pdf(build_briefing(workspace())), "application/pdf", "briefing.pdf"
+            render_pdf(build_briefing(workspace(run))),
+            "application/pdf",
+            "briefing.pdf",
         )
 
-    @app.get("/api/report.docx")
-    def report_docx() -> Response:
+    @app.get("/api/runs/{run}/report.docx")
+    def report_docx(run: str) -> Response:
         return _download(
-            render_docx(build_briefing(workspace())), DOCX_TYPE, "briefing.docx"
+            render_docx(build_briefing(workspace(run))), DOCX_TYPE, "briefing.docx"
         )
 
     @app.websocket("/ws/replay")
-    async def replay(socket: WebSocket) -> None:
+    async def replay(socket: WebSocket, run: str = "latest") -> None:
         await socket.accept()
-        frames = map_view(workspace()["result_package"])["frames"]
+        try:
+            frames = map_view(workspace_for(run)["result_package"])["frames"]
+        except LookupError as error:
+            await socket.send_json(
+                {"type": "error", "message": str(error).strip("'\"")}
+            )
+            await socket.close()
+            return
         await _replay(socket, frames)
 
-    if ui_dir is not None and (Path(ui_dir) / "index.html").is_file():
-        app.mount("/", StaticFiles(directory=ui_dir, html=True), name="ui")
-    return app
+
+def mount_ui(app: FastAPI, ui_dir: Path | None) -> bool:
+    """Serve the UI build at / when ui_dir holds one; call it after every route."""
+    if ui_dir is None or not (Path(ui_dir) / "index.html").is_file():
+        return False
+    app.mount("/", StaticFiles(directory=ui_dir, html=True), name="ui")
+    return True
 
 
 def _download(content: bytes, media_type: str, filename: str) -> Response:

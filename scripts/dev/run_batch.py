@@ -1,7 +1,7 @@
 """Run many plans many times, compare them, and branch conflicting orders.
 
-    python3 scripts/run_batch.py
-    python3 scripts/run_batch.py --repeats 10 --workers 2
+    python3 scripts/dev/run_batch.py
+    python3 scripts/dev/run_batch.py --repeats 10 --workers 2
 
 The batch request (default: data/batches/military_doctrine.json) names
 the versions, parameter sweeps and conflicting proposals to run; --repeats
@@ -13,7 +13,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 BATCH_DIR = REPO_ROOT / "data" / "batches"
 

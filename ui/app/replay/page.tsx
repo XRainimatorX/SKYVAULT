@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Status from "@/components/Status";
 import WorldMap, { factionColor } from "@/components/WorldMap";
-import { type Frame, type MapData, useApi } from "@/lib/api";
+import { currentRun, type Frame, type MapData, runApi, useApi } from "@/lib/api";
 
 type Message =
   | { type: "ready"; first: number; last: number }
@@ -22,7 +22,8 @@ function useReplay(first: Frame) {
 
   useEffect(() => {
     const scheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const ws = new WebSocket(`${scheme}://${window.location.host}/ws/replay`);
+    const run = encodeURIComponent(currentRun());
+    const ws = new WebSocket(`${scheme}://${window.location.host}/ws/replay?run=${run}`);
     socket.current = ws;
     ws.onmessage = (event) => {
       const message = JSON.parse(event.data) as Message;
@@ -132,7 +133,7 @@ function Player({ data }: { data: MapData }) {
 }
 
 export default function ReplayPage() {
-  const loaded = useApi<MapData>("/api/map");
+  const loaded = useApi<MapData>(runApi("map"));
   return (
     <>
       <h1>Replay</h1>

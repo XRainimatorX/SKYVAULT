@@ -1,7 +1,7 @@
 """Export a state-action-outcome dataset from the military reference scenarios.
 
-    python3 scripts/export_dataset.py
-    python3 scripts/export_dataset.py --runs 5 \
+    python3 scripts/dev/export_dataset.py
+    python3 scripts/dev/export_dataset.py --runs 5 \
         --scenario data/scenarios/military_squad_001/v0.1.json
 
 Runs every scenario --runs times (seeds from the scenario's own, one up per
@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIO_DIR = REPO_ROOT / "data" / "scenarios"
 

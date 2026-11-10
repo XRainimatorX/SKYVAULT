@@ -1,6 +1,6 @@
 """Run every product of an edition and write what each shows a customer.
 
-    python3 scripts/run_products.py --edition commercial
+    python3 scripts/dev/run_products.py --edition commercial
 
 Writes output/products/: one <product>.json per product (its question, key
 figures and conclusion, redacted for the edition) and products.md for a
@@ -12,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

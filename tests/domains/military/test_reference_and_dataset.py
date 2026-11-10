@@ -277,7 +277,7 @@ def test_the_export_is_identical_across_hash_seeds(tmp_path):
         subprocess.run(
             [
                 sys.executable,
-                str(REPO_ROOT / "scripts" / "export_dataset.py"),
+                str(REPO_ROOT / "scripts" / "dev" / "export_dataset.py"),
                 "--runs",
                 "2",
                 "--scenario",

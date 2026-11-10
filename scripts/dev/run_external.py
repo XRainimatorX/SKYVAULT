@@ -1,6 +1,6 @@
 """Carry every outside system's fixture submission through SKYVAULT (Phase 12).
 
-    python3 scripts/run_external.py
+    python3 scripts/dev/run_external.py
 
 Writes output/external/: what each of the nine systems gets back
 (<system>.json, NEXUS's briefing as nexus_briefing.md), and a conflict in a
@@ -9,16 +9,25 @@ once NEXUS has decided (conflict_*.json; this script stands in for NEXUS
 and keeps the first branch by name). Everything runs here, on an
 in-memory store, under the default governance; nothing is decided by
 SKYVAULT.
+
+A development script: the fixture submissions are the tests' and name the
+Phase 0 reference slice, so it adds tests/fixtures/reference/ to the
+library and the policy modules (the way a deployment adds its own) unless
+they are already set.
 """
 
 import argparse
 import copy
 import json
+import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
+REFERENCE_SLICE = REPO_ROOT / "tests" / "fixtures" / "reference"
+os.environ.setdefault("SKYVAULT_SCENARIO_PATH", str(REFERENCE_SLICE / "scenarios"))
+os.environ.setdefault("SKYVAULT_POLICY_MODULES", str(REFERENCE_SLICE / "policy.py"))
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))

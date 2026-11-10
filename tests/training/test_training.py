@@ -496,7 +496,7 @@ def test_the_export_is_identical_across_hash_seeds(tmp_path):
         subprocess.run(
             [
                 sys.executable,
-                str(REPO_ROOT / "scripts" / "build_training_data.py"),
+                str(REPO_ROOT / "scripts" / "dev" / "build_training_data.py"),
                 "--sources",
                 str(sources),
                 "--output",

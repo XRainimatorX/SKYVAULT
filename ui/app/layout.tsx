@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Nav from "@/components/Nav";
+import RunPicker from "@/components/RunPicker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             SKYVAULT
           </a>
           <Nav />
+          <RunPicker />
         </header>
         <main className="page">{children}</main>
       </body>

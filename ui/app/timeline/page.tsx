@@ -1,10 +1,10 @@
 "use client";
 
 import Status from "@/components/Status";
-import { type Timeline, useApi } from "@/lib/api";
+import { type Timeline, runApi, useApi } from "@/lib/api";
 
 export default function TimelinePage() {
-  const loaded = useApi<Timeline>("/api/timeline");
+  const loaded = useApi<Timeline>(runApi("timeline"));
   return (
     <>
       <h1>Timeline</h1>

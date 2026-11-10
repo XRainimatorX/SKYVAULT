@@ -1,6 +1,6 @@
 """Run every committed equipment profile through the virtual test.
 
-    python3 scripts/run_virtual_test.py
+    python3 scripts/dev/run_virtual_test.py
 
 Writes output/virtual_test/: one equipment_test_result per profile
 (<equipment_id>.json, Formal Spec section 18) and virtual_test_report.md for
@@ -13,7 +13,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

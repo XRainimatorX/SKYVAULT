@@ -506,18 +506,15 @@ def test_the_default_queue_follows_the_policy():
     queue.close()
 
 
-def test_the_worker_script_runs_what_the_api_queued(store, policy, redis_url):
-    import sys
-
-    sys.path.insert(0, str(REPO_ROOT / "scripts"))
-    from world_worker import main
+def test_skyvault_worker_runs_what_the_api_queued(store, policy, redis_url):
+    from skyvault.cli import main
 
     queue = RQQueue(redis_url, store.spec)
     queue.clear()
     client = TestClient(create_world_service(store, queue, policy))
     client.post("/api/jobs", json=job_request("reference_run"))
 
-    main(["--redis", redis_url, "--store", store.spec, "--burst"])
+    assert main(["worker", "--redis", redis_url, "--store", store.spec, "--burst"]) == 0
 
     assert client.get("/api/jobs/job_000001").json()["lifecycle_state"] == "completed"
 
@@ -526,25 +523,45 @@ def test_the_compose_file_runs_the_api_and_a_worker_on_redis_and_postgres():
     compose = yaml.safe_load((REPO_ROOT / "docker-compose.yml").read_text())
 
     assert set(compose["services"]) == {"api", "worker", "redis", "postgres"}
-    for name, script in (("api", "serve_world.py"), ("worker", "world_worker.py")):
+    for name, command_name in (
+        ("api", "skyvault serve"),
+        ("worker", "skyvault worker"),
+    ):
         command = compose["services"][name]["command"]
-        assert script in command and (REPO_ROOT / "scripts" / script).exists()
+        assert command.startswith(command_name)
         assert "redis://redis:6379" in command and "postgresql://" in command
-    assert "serve_world.py" in (REPO_ROOT / "Dockerfile").read_text()
+    dockerfile = (REPO_ROOT / "Dockerfile").read_text()
+    assert 'CMD ["skyvault", "serve"' in dockerfile
+    assert "pip install --no-cache-dir -e ." in dockerfile
+    assert "scripts" not in dockerfile  # the image runs SKYVAULT, not its dev scripts
 
 
-def test_the_world_service_never_imports_the_ui_backend():
-    for path in (REPO_ROOT / "src" / "skyvault" / "worldservice").glob("*.py"):
+def test_the_ui_routes_never_reach_the_world_service_or_the_simulation():
+    """The world service mounts the UI's routes (Phase 21), never the reverse.
+
+    Relative imports are resolved against the module's own package, so
+    "from ..worldservice import x" is seen as skyvault.worldservice.
+    """
+    service = REPO_ROOT / "src" / "skyvault" / "service"
+    for path in service.glob("*.py"):
         tree = ast.parse(path.read_text(encoding="utf-8"))
-        modules = {
-            getattr(node, "module", "") or ""
-            for node in ast.walk(tree)
-            if isinstance(node, ast.ImportFrom)
-        }
+        modules = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.ImportFrom):
+                base = ["skyvault", "service"][: max(0, 2 - node.level + 1)]
+                modules.add(
+                    ".".join([*base, node.module or ""])
+                    if node.level
+                    else node.module or ""
+                )
         assert not any(
-            m.startswith("..service") or m.startswith("skyvault.service")
+            m.startswith(("skyvault.worldservice", "skyvault.engine", "skyvault.batch"))
             for m in modules
-        ), path.name
+        ), (path.name, modules)
+        assert (
+            any(m.startswith("skyvault.views") for m in modules)
+            or path.name == "__init__.py"
+        )
 
 
 def test_redis_is_only_needed_when_asked_for():

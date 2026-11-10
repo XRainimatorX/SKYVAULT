@@ -265,7 +265,7 @@ def test_committed_schema_files_match_the_contracts():
 
         assert (
             on_disk == schema
-        ), f"{name}.schema.json is stale: run python3 scripts/export_schemas.py"
+        ), f"{name}.schema.json is stale: run python3 scripts/dev/export_schemas.py"
 
 
 def test_schemas_encode_the_acceptance_criteria():

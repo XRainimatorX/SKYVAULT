@@ -3,10 +3,10 @@
 import Chart from "@/components/Chart";
 import Status from "@/components/Status";
 import { factionColor } from "@/components/WorldMap";
-import { type Overview, percent, useApi } from "@/lib/api";
+import { type Overview, percent, runApi, useApi } from "@/lib/api";
 
 export default function OverviewPage() {
-  const loaded = useApi<Overview>("/api/overview");
+  const loaded = useApi<Overview>(runApi("overview"));
   return (
     <Status loaded={loaded}>
       {(run) => (

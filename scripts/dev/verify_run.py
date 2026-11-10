@@ -1,6 +1,6 @@
 """Rerun a recorded result package and check it reproduces.
 
-    python3 scripts/verify_run.py output/result_package.json
+    python3 scripts/dev/verify_run.py output/result_package.json
 
 The scenario and profile are found from the package itself (its scenario_id,
 scenario_version and profile_id). Exits 0 when the rerun reproduces the
@@ -12,7 +12,7 @@ import json
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 
 if str(SRC_PATH) not in sys.path:

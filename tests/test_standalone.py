@@ -22,6 +22,8 @@ def shipped_files() -> list[Path]:
         for folder in (REPO_ROOT / "src", REPO_ROOT / "data")
         for p in folder.rglob("*")
         if p.is_file() and "__pycache__" not in p.parts and p.suffix != ".pyc"
+        # what pip writes on install is not shipped
+        and not any(part.endswith(".egg-info") for part in p.parts)
     ]
     for name in ("Dockerfile", "docker-compose.yml", "pyproject.toml"):
         if (REPO_ROOT / name).is_file():

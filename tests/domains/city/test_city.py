@@ -193,7 +193,9 @@ def test_a_trip_without_a_road_is_refused():
 def test_the_committed_city_scenarios_are_what_the_specs_build():
     for name, scenario in reference_scenarios().items():
         committed = json.loads(scenario_path(name).read_text(encoding="utf-8"))
-        assert committed == scenario, f"rerun scripts/build_city_scenarios.py ({name})"
+        assert (
+            committed == scenario
+        ), f"rerun scripts/dev/build_city_scenarios.py ({name})"
 
 
 def test_a_built_city_is_a_road_network_of_one_faction():

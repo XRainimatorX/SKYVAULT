@@ -482,7 +482,7 @@ def test_run_airspace_writes_the_outcome_comparisons_and_report(tmp_path):
     done = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "run_airspace.py"),
+            str(ROOT / "scripts" / "dev" / "run_airspace.py"),
             "--output",
             str(tmp_path),
             "--runs",
