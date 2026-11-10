@@ -249,9 +249,9 @@ def test_rule_set_is_read_only_and_raises_for_a_missing_rule():
 
 
 def test_world_snapshot_still_validates_inside_a_result_package():
-    from skyvault.engine import SkyVaultTacticalReferenceEngine
+    from skyvault.engine import SkyVaultEngine
 
-    package = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO)).run()
+    package = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO)).run()
 
     assert package["initial_world_state"]["space"]["type"] == "grid"
     assert package["final_world_state"]["resources"] == {}
@@ -260,10 +260,10 @@ def test_world_snapshot_still_validates_inside_a_result_package():
 
 
 def test_tactical_engine_refuses_a_world_it_cannot_run():
-    from skyvault.engine import SkyVaultTacticalReferenceEngine
+    from skyvault.engine import SkyVaultEngine
 
     with pytest.raises(ValueError, match="grid"):
-        SkyVaultTacticalReferenceEngine(fixture("scenario_graph"))
+        SkyVaultEngine(fixture("scenario_graph"))
 
 
 def test_a_recorded_event_keeps_node_id_locations_whole():

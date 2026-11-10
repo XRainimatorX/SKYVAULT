@@ -10,6 +10,7 @@ from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handl
 from .actors.participants import Participants
 from .actors.view import WorldView
 from .contracts import (
+    ContractError,
     ungoverned_record,
     validate_action,
     validate_evaluation_profile,
@@ -40,19 +41,15 @@ from .runtime.world import create_world
 from .scenario_loader import default_evaluation_profile, scenario_perspective
 from .world_state import WorldState
 
-ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
+ENGINE_SYSTEM_ID = "skyvault_engine"
 
 # Keep a world snapshot every this many ticks, so a rebuild can start late
 SNAPSHOT_INTERVAL = 5
 
 
-class SkyVaultTacticalReferenceEngine:
+class SkyVaultEngine:
     """
-    First executable SKYVAULT-style tactical reference slice.
-
-    This is not the final SKYVAULT engine.
-
-    It exists to prove:
+    The SKYVAULT engine: turns a scenario into a result package.
 
     Scenario
     → World State
@@ -63,6 +60,11 @@ class SkyVaultTacticalReferenceEngine:
     → World State Mutation
     → Event Memory
     → Evaluation Result
+
+    A scenario says who decides: its runtime.policy names a registered
+    policy, or its domain pack brings one. One that says neither is
+    refused (ContractError) — the engine never falls back to a policy of
+    its own.
     """
 
     def __init__(
@@ -152,15 +154,15 @@ class SkyVaultTacticalReferenceEngine:
     def choose_policy(self, scenario: dict[str, Any]) -> AnyPolicy:
         """
         The policy when none was handed in: runtime.policy by registered
-        name, else the domain's default, else the tactical reference — by
-        name too, so the core never imports it (development plan Phase 6).
+        name, else the domain's default (development plan Phase 6: the core
+        imports no policy). ContractError when the scenario names neither.
         """
         choice = scenario["runtime"].get("policy")
         if choice:
             return build_policy(choice["name"], self.rng, choice.get("params"))
-        if self.domain:
-            return self.domain.default_policy(scenario, self.rng)
-        return build_policy("tactical_reference", self.rng)
+        if self.domain is None:
+            require_decider(scenario)  # raises: neither a policy nor a domain
+        return cast(DomainPack, self.domain).default_policy(scenario, self.rng)
 
     def decided_by_factions(self) -> bool:
         """
@@ -288,9 +290,10 @@ class SkyVaultTacticalReferenceEngine:
 
         Important:
         The world itself comes from runtime.create_world(), which supports any
-        space and clock. This engine is the tactical reference: its policy
-        steps between grid cells one tick at a time, so it refuses any other
-        space or clock here instead of misbehaving later.
+        space and clock. The engine steps one tick at a time on a grid unless
+        the scenario's domain pack says its policy and handlers work on
+        another space, so it refuses any other space or clock here instead of
+        misbehaving later.
 
         An entity may omit position, in which case it is built with None.
         Anything that measures distance has to handle that.
@@ -630,6 +633,21 @@ class SkyVaultTacticalReferenceEngine:
         if named is not None:
             summary["winner_or_result"] = named
         return summary
+
+
+def require_decider(scenario: dict[str, Any]) -> None:
+    """
+    ContractError unless the scenario says who decides: runtime.policy
+    names a registered policy, or its domain pack brings a default one.
+    """
+    if not scenario["runtime"].get("policy") and not scenario.get("domain"):
+        raise ContractError(
+            "scenario",
+            [
+                f"scenario {scenario['scenario_id']} names no runtime.policy and no "
+                "domain: SKYVAULT has no policy to fall back on"
+            ],
+        )
 
 
 def utc_now() -> datetime:

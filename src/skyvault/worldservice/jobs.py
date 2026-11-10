@@ -25,7 +25,7 @@ from ..contracts import (
     validate_job_request,
     validate_scenario,
 )
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine, require_decider
 from ..failure import build_failure_map, explore_failures
 from ..interface.handoff import AUTHORITIES, authority_handoff, handoff_triggers
 from ..replay import build_replay_state_at_tick
@@ -210,6 +210,7 @@ def plan(
     clamped = None
     if kind in ("scenario_run", "persistent_world", "failure_exploration"):
         scenario = scenario_for(request, scenarios_dir)
+        require_decider(scenario)
         clamped = clamp_duration(scenario, policy)
         estimate = estimate_run(scenario)
         if kind == "failure_exploration":
@@ -218,6 +219,7 @@ def plan(
             )
     elif kind == "branch_compare":
         variants = compare_variants(request, scenarios_dir)
+        require_decider(variants[0].scenario)
         estimate = scale(
             estimate_run(variants[0].scenario),
             len(variants) * (request.get("repeat_count") or 1),
@@ -229,6 +231,7 @@ def plan(
                 scenarios_dir, f"{spec['scenario_id']}/{spec['base_version']}"
             ).read_text()
         )
+        require_decider(base)
         variants = planned_variants(spec, base, scenarios_dir)
         estimate = scale(
             estimate_run(base), len(variants) * spec["run_policy"]["repeat_count"]
@@ -328,7 +331,7 @@ def run_scenario(
     """One governed run of the job's scenario; its result package."""
     scenario = scenario_for(job["request"], scenarios_dir)
     clamped = clamp_duration(scenario, policy)
-    engine = SkyVaultTacticalReferenceEngine(
+    engine = SkyVaultEngine(
         scenario,
         evaluation_profile=profile_for(job["request"], scenario),
         governor=_governor(job, store, policy, scenario, clamped),

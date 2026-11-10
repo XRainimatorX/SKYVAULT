@@ -8,7 +8,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 
@@ -30,7 +30,7 @@ def test_engine_runs_and_creates_events():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -45,7 +45,7 @@ def test_event_has_before_and_after_state():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -71,7 +71,7 @@ def test_result_package_carries_initial_and_final_world_state():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -95,7 +95,7 @@ def test_evaluation_event_count_matches_event_memory():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -113,7 +113,7 @@ def test_policy_is_separated_from_world_state():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     assert hasattr(engine, "policy")
     assert engine.policy.__class__.__name__ == "TacticalReferencePolicy"

@@ -9,7 +9,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.replay import build_replay_state_at_tick
 from skyvault.scenario_loader import load_scenario
 
@@ -20,7 +20,7 @@ def build_reference_replay() -> dict:
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 

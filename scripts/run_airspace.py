@@ -23,7 +23,7 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.domains.airspace.pack import AIRSPACE  # noqa: E402
 from skyvault.domains.airspace.report import airspace_report  # noqa: E402
-from skyvault.engine import SkyVaultTacticalReferenceEngine  # noqa: E402
+from skyvault.engine import SkyVaultEngine  # noqa: E402
 from skyvault.interface.api import run_submission  # noqa: E402
 from skyvault.scenario_loader import load_scenario  # noqa: E402
 from skyvault.worldservice.governance import load_governance  # noqa: E402
@@ -79,7 +79,7 @@ def main() -> None:
     folder.mkdir(parents=True, exist_ok=True)
 
     scenario = load_scenario(REPO_ROOT / "data" / "scenarios" / NAME / "v0.1.json")
-    package = SkyVaultTacticalReferenceEngine(scenario).run()
+    package = SkyVaultEngine(scenario).run()
     outcome = AIRSPACE.airspace_outcome(package, scenario)
     write(folder, f"outcome_{NAME}.json", outcome)
     print(

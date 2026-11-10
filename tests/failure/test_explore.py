@@ -14,7 +14,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.contracts import validate_failure_map
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import (
     build_collapse_sequence,
     build_failure_map,
@@ -81,7 +81,7 @@ def test_every_variable_runs_at_every_level_with_every_seed(exploration):
 
 def test_a_run_summary_matches_a_direct_engine_run(exploration):
     first = exploration["baseline"][0]
-    package = SkyVaultTacticalReferenceEngine(plan()).run()
+    package = SkyVaultEngine(plan()).run()
 
     assert first["seed"] == 42
     assert first["outcome"] == package["evaluation_result"]["winner_or_result"]

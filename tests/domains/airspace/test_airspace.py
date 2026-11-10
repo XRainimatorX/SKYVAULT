@@ -30,7 +30,7 @@ from skyvault.domains.airspace.reference import (
     scenario_path,
 )
 from skyvault.domains.airspace.scenario import build_airspace_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
 
@@ -59,7 +59,7 @@ def run(scenario: dict, seed: int | None = None) -> dict:
     scenario = copy.deepcopy(scenario)
     if seed is not None:
         scenario["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 @cache
@@ -864,7 +864,7 @@ def test_hades_rules_are_a_policy_a_run_can_name():
         if e["event_type"] == "ENTITY_STATE_CHANGED" and "track" not in e["tags"]
     }
     assert shots <= {1, 2} and 2 in shots  # salvo 2, cut to ammo at the end
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(scenario_path(NAME)))
+    engine = SkyVaultEngine(load_scenario(scenario_path(NAME)))
     assert type(engine.policy).__name__ == "AirDefencePolicy"
 
 

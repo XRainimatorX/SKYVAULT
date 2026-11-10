@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..contracts import validate_failure_exploration
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..scenario_loader import load_scenario, scenario_perspective
 from ..verification import SCENARIO_DIR
 from .analysis import sensitivity, survival_rate
@@ -159,7 +159,7 @@ def _run(
     """One run, reduced to what a failure map needs."""
     seeded = copy.deepcopy(scenario)
     seeded["runtime"]["random_seed"] = seed
-    package = SkyVaultTacticalReferenceEngine(seeded, profile).run()
+    package = SkyVaultEngine(seeded, profile).run()
     verdict = package["evaluation_result"]
     factions = {
         entity_id: entity.get("faction")

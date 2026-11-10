@@ -33,7 +33,7 @@ from pathlib import Path
 from typing import Any
 
 from ..domains import load_domain
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..scenario_loader import load_scenario
 from .engineering import maintenance_ratio
 from .physics import accessible_terrain, effective_endurance
@@ -114,7 +114,7 @@ def unit_changes(
 def _run(scenario: dict[str, Any], seed: int) -> dict[str, Any]:
     scenario = copy.deepcopy(scenario)
     scenario["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def _measure(

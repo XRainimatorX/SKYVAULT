@@ -20,7 +20,7 @@ for path in (SRC_PATH, REPO_ROOT / "tests"):
 from reference_trace import reference_package  # noqa: E402
 
 from skyvault.contracts import ANTI_GAMING_BEHAVIORS
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.evaluation import BEHAVIORS, evaluate_run, render_tradeoff_report
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 
@@ -52,7 +52,7 @@ def run_with(seed=None, idle=False):
     scenario = load_scenario(REFERENCE_SCENARIO)
     if seed is not None:
         scenario["runtime"]["random_seed"] = seed
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
     if idle:
         engine.policy.decide_action = lambda world, actor: None
     return engine.run()

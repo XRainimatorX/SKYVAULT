@@ -16,7 +16,7 @@ from typing import Any
 
 from ..boundary import ROLE
 from ..contracts import validate_result_package, validate_world_contract
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..observation.history import observations_for_run
 from ..observation.profiles import load_observer_profile
 from ..report import build_briefing, render_markdown
@@ -29,7 +29,7 @@ from .service import REFERENCE, Service
 
 ROOT = Path(__file__).resolve().parents[3]
 SCENARIOS = ROOT / "data" / "scenarios"
-REFERENCE_HASH = "63090026e137"
+REFERENCE_HASH = "7debca2af332"
 CONFLICTING = [
     {
         "system": "TAC_ANGEL",
@@ -443,9 +443,9 @@ def scenario_grammar(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 
 def execution_protocol(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     hashes = {
-        SkyVaultTacticalReferenceEngine(_scenario("tactical_reference_001")).run()[
-            "reproducibility"
-        ]["output_hash"][:12]
+        SkyVaultEngine(_scenario("tactical_reference_001")).run()["reproducibility"][
+            "output_hash"
+        ][:12]
         for _ in range(2)
     }
     return {

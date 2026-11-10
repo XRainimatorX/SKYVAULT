@@ -8,7 +8,7 @@ rerun a package. Nothing below it imports it.
 from pathlib import Path
 from typing import Any
 
-from .engine import SkyVaultTacticalReferenceEngine
+from .engine import SkyVaultEngine
 from .reproducibility import input_hash, output_hash
 from .scenario_loader import PROFILE_DIR, load_evaluation_profile, load_scenario
 
@@ -71,7 +71,7 @@ def verify_reproducibility(
             "actual_output_hash": None,
         }
 
-    engine = SkyVaultTacticalReferenceEngine(scenario, evaluation_profile)
+    engine = SkyVaultEngine(scenario, evaluation_profile)
     rerun = engine.run()
     actual = rerun["reproducibility"]["output_hash"]
     same_input = (

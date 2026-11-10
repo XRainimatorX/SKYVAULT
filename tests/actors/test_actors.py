@@ -47,7 +47,7 @@ from skyvault.actors.view import (
     frozen,
 )
 from skyvault.contracts import ContractError, validate_order, validate_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.observation import load_observer_profile, observe
 from skyvault.policies import KNOWN_POLICIES, build_policy, register_policy
 from skyvault.scenario_loader import load_scenario
@@ -105,7 +105,7 @@ def run(path, participants=None, policy=None):
         scenario["runtime"]["participants"] = participants
     if policy is not None:
         scenario["runtime"]["policy"] = policy
-    return SkyVaultTacticalReferenceEngine(validate_scenario(scenario)).run()
+    return SkyVaultEngine(validate_scenario(scenario)).run()
 
 
 def selected(package):
@@ -114,7 +114,7 @@ def selected(package):
 
 @pytest.fixture
 def world():
-    return SkyVaultTacticalReferenceEngine(load_scenario(SQUAD)).world
+    return SkyVaultEngine(load_scenario(SQUAD)).world
 
 
 # ── acceptance 3: a world policy reads through glass ─────────────────────────
@@ -131,7 +131,7 @@ class Cheat:
 
 
 def test_the_cheating_policy_is_stopped_at_its_first_write():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE), policy=Cheat())
+    engine = SkyVaultEngine(load_scenario(REFERENCE), policy=Cheat())
 
     with pytest.raises(ReadOnlyWorldError, match="read-only"):
         engine.run()
@@ -264,14 +264,15 @@ def test_frozen_values_compare_like_the_originals():
 
 
 def test_world_policies_play_exactly_as_before():
-    # output hashes of the Phase 5 system (before the read-only view)
+    # output hashes of the Phase 5 system (before the read-only view), as
+    # renamed by Phase 21: the engine's system id is part of every event
     expected = {
-        "tactical_reference_001/v0.1": "63090026e13734f5",
-        "military_squad_001/v0.1": "7ea5ffe9ef0ba801",
-        "military_urban_001/v0.1": "f0cd3cae5b7bfa47",
-        "military_mountain_001/v0.1": "014c894cc4ae9483",
-        "military_junction_001/v0.1": "ef399a40e1a015f8",
-        "military_urban_001/v0.1+overwatch": "fa32c17875f01a61",
+        "tactical_reference_001/v0.1": "7debca2af33238c2",
+        "military_squad_001/v0.1": "f49c7eb730cef464",
+        "military_urban_001/v0.1": "203bd68cf56c1e80",
+        "military_mountain_001/v0.1": "33b6e3aad8fdcbcc",
+        "military_junction_001/v0.1": "d79218652b949905",
+        "military_urban_001/v0.1+overwatch": "721eea5f8477bdd6",
     }
     for name, prefix in expected.items():
         package = run(SCENARIOS / f"{name}.json")
@@ -314,6 +315,23 @@ def test_with_the_tactical_reference_unplugged_another_policy_still_runs(
     } == {"rule_based"}
     with pytest.raises(KeyError, match="registered: "):
         run(REFERENCE)
+
+
+def test_a_scenario_that_names_no_policy_and_no_domain_is_refused():
+    """The engine used to fall back to the Phase 0 policy (Phase 21)."""
+    from skyvault.contracts import ContractError
+    from skyvault.engine import SkyVaultEngine, require_decider
+
+    nobody = load_scenario(REFERENCE)
+    del nobody["runtime"]["policy"]
+
+    with pytest.raises(ContractError, match="no runtime.policy and no domain"):
+        SkyVaultEngine(nobody)
+    with pytest.raises(ContractError, match="no policy to fall back on"):
+        require_decider(nobody)
+    # handed a policy, it runs: only choosing one needs the scenario to say
+    assert SkyVaultEngine(nobody, policy=build_policy("rule_based", random.Random(1)))
+    require_decider({**nobody, "domain": "military"})
 
 
 def test_every_known_policy_name_builds():
@@ -419,7 +437,7 @@ def test_an_observing_actor_that_submits_a_broken_order_is_a_broken_actor():
             return {"action_type": "move", "target": {"location": "nowhere", "x": 1}}
 
     with pytest.raises(ContractError, match="order"):
-        SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE), policy=Broken()).run()
+        SkyVaultEngine(load_scenario(REFERENCE), policy=Broken()).run()
 
 
 # ── rule-based ───────────────────────────────────────────────────────────────
@@ -1057,7 +1075,7 @@ def test_a_multi_view_actor_gets_every_view_of_the_same_moment():
             seen.append(observations)
             return None
 
-    SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE), policy=TwoEyes()).run()
+    SkyVaultEngine(load_scenario(REFERENCE), policy=TwoEyes()).run()
 
     assert seen and all(set(o) == {"STARTX", "TAC_ANGEL"} for o in seen)
     assert all(o["STARTX"]["time"] == o["TAC_ANGEL"]["time"] for o in seen)

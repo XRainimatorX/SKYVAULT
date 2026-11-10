@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from ..batch.run import run_batch
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..failure import apply_stress
 from ..scenario_loader import PROFILE_DIR, load_evaluation_profile, load_scenario
 from .branches import branch_evaluation
@@ -42,7 +42,7 @@ def run_sources(
         for offset in range(int(sources["seeds"])):
             scenario = copy.deepcopy(base)
             scenario["runtime"]["random_seed"] = base["runtime"]["random_seed"] + offset
-            package = SkyVaultTacticalReferenceEngine(
+            package = SkyVaultEngine(
                 scenario, evaluation_profile=copy.deepcopy(profile)
             ).run()
             runs.append((package, scenario))

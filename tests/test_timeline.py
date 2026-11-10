@@ -8,7 +8,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 from skyvault.timeline import render_timeline
 
@@ -19,7 +19,7 @@ def render_reference_timeline() -> str:
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -97,7 +97,7 @@ def test_timeline_damage_matches_event_memory():
     scenario_path = (
         REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
     )
-    result_package = SkyVaultTacticalReferenceEngine(load_scenario(scenario_path)).run()
+    result_package = SkyVaultEngine(load_scenario(scenario_path)).run()
 
     text = render_timeline(
         result_package["scenario_id"],

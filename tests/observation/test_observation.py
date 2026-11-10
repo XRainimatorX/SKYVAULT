@@ -17,7 +17,7 @@ from skyvault.contracts import (
     validate_observation,
     validate_observer_profile,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.observation import (
     OBSERVERS,
     available_actions,
@@ -83,13 +83,13 @@ RED = {"faction": "RED", "actor_id": "r1"}
 @pytest.fixture(scope="module")
 def reference():
     scenario = load_scenario(REFERENCE)
-    return scenario, SkyVaultTacticalReferenceEngine(scenario).run()
+    return scenario, SkyVaultEngine(scenario).run()
 
 
 @pytest.fixture(scope="module")
 def urban():
     scenario = load_scenario(MILITARY["urban"])
-    return scenario, SkyVaultTacticalReferenceEngine(scenario).run()
+    return scenario, SkyVaultEngine(scenario).run()
 
 
 def strings(value: Any) -> set[str]:
@@ -347,7 +347,7 @@ def test_the_mission_view_has_no_fog_and_full_confidence():
 def test_every_observation_carries_its_uncertainty(name):
     path = REFERENCE if name == "reference" else MILITARY[name]
     scenario = load_scenario(path)
-    package = SkyVaultTacticalReferenceEngine(scenario).run()
+    package = SkyVaultEngine(scenario).run()
     first = scenario["entities"][0]
     viewpoint = {"faction": first["faction"], "actor_id": first["entity_id"]}
 
@@ -892,9 +892,7 @@ def test_an_observing_policy_never_gets_the_world_or_a_hidden_enemy(monkeypatch)
 
     monkeypatch.setattr(engine_module, "observe", recording_observe)
     recorder = Recorder()
-    SkyVaultTacticalReferenceEngine(
-        load_scenario(MILITARY["urban"]), policy=recorder
-    ).run()
+    SkyVaultEngine(load_scenario(MILITARY["urban"]), policy=recorder).run()
 
     assert recorder.seen == [call[-1] for call in calls]
     assert any(o["hidden_state"]["exists"] for o in recorder.seen)
@@ -915,7 +913,7 @@ def test_an_observing_policy_never_gets_the_world_or_a_hidden_enemy(monkeypatch)
 
 def test_the_engine_issues_the_action_ids_of_an_observing_policy():
     scenario = load_scenario(MILITARY["squad"])
-    package = SkyVaultTacticalReferenceEngine(scenario, policy=Recorder()).run()
+    package = SkyVaultEngine(scenario, policy=Recorder()).run()
 
     selected = [
         e for e in package["event_memory"] if e["event_type"] == "ACTION_SELECTED"
@@ -936,7 +934,7 @@ def test_an_observing_policy_that_holds_records_no_action():
             return None
 
     scenario = load_scenario(REFERENCE)
-    package = SkyVaultTacticalReferenceEngine(scenario, policy=Holder()).run()
+    package = SkyVaultEngine(scenario, policy=Holder()).run()
     kinds = {e["event_type"] for e in package["event_memory"]}
 
     assert "ACTION_SELECTED" not in kinds
@@ -945,7 +943,7 @@ def test_an_observing_policy_that_holds_records_no_action():
 
 def test_the_engines_history_is_the_packages_history():
     scenario = load_scenario(MILITARY["squad"])
-    engine = SkyVaultTacticalReferenceEngine(scenario, policy=Recorder())
+    engine = SkyVaultEngine(scenario, policy=Recorder())
 
     package = engine.run()
 
@@ -955,7 +953,7 @@ def test_the_engines_history_is_the_packages_history():
 
 
 def test_a_world_policy_keeps_no_observation_history(reference):
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE))
+    engine = SkyVaultEngine(load_scenario(REFERENCE))
     engine.run()
 
     assert engine.observers == {}
@@ -973,7 +971,7 @@ def test_the_tac_angel_example_decides_from_observations_only():
     squad = load_scenario(MILITARY["squad"])
     squad["runtime"]["policy"] = {"name": "tac_angel_example"}
 
-    package = SkyVaultTacticalReferenceEngine(squad).run()
+    package = SkyVaultEngine(squad).run()
 
     assert policy.observer_profile == "TAC_ANGEL"
     assert not hasattr(policy, "decide_action")

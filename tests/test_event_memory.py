@@ -8,7 +8,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 # The nested shape of Formal Spec section 7.2, adopted by ADR 003.
@@ -34,7 +34,7 @@ def run_reference_scenario() -> dict:
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     return engine.run()
 
@@ -156,7 +156,7 @@ def test_events_record_the_system_that_produced_the_action():
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 

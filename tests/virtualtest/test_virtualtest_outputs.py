@@ -14,7 +14,7 @@ from skyvault.action import Action, ActionTarget
 from skyvault.actions import ActionContext
 from skyvault.domains.military.handlers import military_handlers
 from skyvault.domains.military.policy import MilitaryBaselinePolicy
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.interface.api import run_submission
 from skyvault.interface.systems import to_request
 from skyvault.runtime.world import create_world
@@ -157,11 +157,11 @@ def test_the_baseline_policy_holds_a_spent_unit_and_routes_around_closed_ground(
 
 def test_without_the_new_capabilities_the_run_is_what_it_was():
     scenario = load_scenario(SQUAD)
-    before = SkyVaultTacticalReferenceEngine(copy.deepcopy(scenario)).run()
+    before = SkyVaultEngine(copy.deepcopy(scenario)).run()
     open_everywhere = copy.deepcopy(scenario)
     unit = next(e for e in open_everywhere["entities"] if e["entity_id"] == "red_02")
     unit["capabilities"]["endurance_ticks"] = 1000
-    after = SkyVaultTacticalReferenceEngine(open_everywhere).run()
+    after = SkyVaultEngine(open_everywhere).run()
     assert [e["event_type"] for e in after["event_memory"]] == [
         e["event_type"] for e in before["event_memory"]
     ]

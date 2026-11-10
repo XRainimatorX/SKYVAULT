@@ -15,7 +15,7 @@ from skyvault.batch.run import run_batch
 from skyvault.domains.military import mission_outcome
 from skyvault.domains.military.dataset import build_dataset, validate_record
 from skyvault.domains.military.reference import reference_scenarios, scenario_path
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.policies import build_policy, import_policy_module
 from skyvault.scenario_loader import load_scenario
 
@@ -29,9 +29,7 @@ def scenario(name, version="v0.1"):
 
 @pytest.fixture(scope="module")
 def runs():
-    return {
-        name: SkyVaultTacticalReferenceEngine(scenario(name)).run() for name in NAMES
-    }
+    return {name: SkyVaultEngine(scenario(name)).run() for name in NAMES}
 
 
 # ── the reference scenarios ──────────────────────────────────────────────────
@@ -86,7 +84,7 @@ def test_doctrine_variants_are_child_versions_of_the_urban_plan():
 
 
 def test_the_same_engine_runs_every_tactical_scenario(runs):
-    reference = SkyVaultTacticalReferenceEngine(
+    reference = SkyVaultEngine(
         load_scenario(SCENARIOS / "tactical_reference_001" / "v0.1.json")
     ).run()
 
@@ -104,7 +102,7 @@ def test_the_same_engine_runs_every_tactical_scenario(runs):
 
 
 def test_military_runs_are_reproducible(runs):
-    again = SkyVaultTacticalReferenceEngine(scenario("urban")).run()
+    again = SkyVaultEngine(scenario("urban")).run()
 
     assert (
         again["reproducibility"]["output_hash"]
@@ -130,7 +128,7 @@ def test_an_outside_policy_drives_a_military_scenario():
     squad = scenario("squad")
     squad["runtime"]["policy"] = {"name": "tac_angel_example"}
 
-    package = SkyVaultTacticalReferenceEngine(squad).run()
+    package = SkyVaultEngine(squad).run()
 
     deciders = Counter(
         e["source"]["system_id"]

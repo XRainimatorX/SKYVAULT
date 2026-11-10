@@ -23,7 +23,7 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.domains.city.pack import CITY  # noqa: E402
 from skyvault.domains.city.report import cascade, city_report  # noqa: E402
-from skyvault.engine import SkyVaultTacticalReferenceEngine  # noqa: E402
+from skyvault.engine import SkyVaultEngine  # noqa: E402
 from skyvault.scenario_loader import load_scenario  # noqa: E402
 
 SCENARIOS = ("city_takeover_001", "city_blackout_001")
@@ -31,7 +31,7 @@ FACTORS = (1.0, 1.5, 2.0, 2.5, 3.0)
 
 
 def run(scenario: dict) -> dict:
-    package: dict = SkyVaultTacticalReferenceEngine(copy.deepcopy(scenario)).run()
+    package: dict = SkyVaultEngine(copy.deepcopy(scenario)).run()
     return package
 
 

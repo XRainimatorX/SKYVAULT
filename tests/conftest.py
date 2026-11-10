@@ -26,10 +26,10 @@ def write_json(path: Path, data: dict) -> None:
 
 
 def write_run(folder: Path) -> dict:
-    from skyvault.engine import SkyVaultTacticalReferenceEngine
+    from skyvault.engine import SkyVaultEngine
     from skyvault.scenario_loader import load_scenario
 
-    package = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE)).run()
+    package = SkyVaultEngine(load_scenario(REFERENCE)).run()
     write_json(folder / "result_package.json", package)
     return package
 

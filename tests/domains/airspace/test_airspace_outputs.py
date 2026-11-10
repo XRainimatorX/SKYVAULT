@@ -26,7 +26,7 @@ from skyvault.domains.airspace.reference import (
 )
 from skyvault.domains.airspace.report import REASONS, airspace_report
 from skyvault.domains.airspace.scenario import build_airspace_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import build_failure_map, explore_failures
 from skyvault.failure.variables import FAILURE_VARIABLES, apply_stress, variable_for
 from skyvault.interface.api import run_submission
@@ -51,7 +51,7 @@ def run(s: dict, seed: int | None = None) -> dict:
     s = copy.deepcopy(s)
     if seed is not None:
         s["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(s).run()
+    return SkyVaultEngine(s).run()
 
 
 REFERENCE = scenario()

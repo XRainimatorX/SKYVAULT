@@ -25,7 +25,7 @@ from skyvault.domains.city.reference import (
     scenario_path,
 )
 from skyvault.domains.city.scenario import build_city_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # tests/
@@ -54,7 +54,7 @@ def run(scenario: dict, seed: int | None = None) -> dict:
     scenario = copy.deepcopy(scenario)
     if seed is not None:
         scenario["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 @cache
@@ -282,7 +282,7 @@ def test_a_graph_world_without_a_domain_is_still_refused():
         "edges": [["A", "B"]],
     }
     with pytest.raises(ValueError, match="needs a grid space and a tick clock"):
-        SkyVaultTacticalReferenceEngine(scenario)
+        SkyVaultEngine(scenario)
 
 
 def test_the_city_pack_is_loaded_by_name_and_says_what_it_supports():

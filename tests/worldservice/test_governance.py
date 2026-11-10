@@ -13,7 +13,7 @@ from skyvault.contracts import (
     validate_result_package,
     validate_scenario,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 from skyvault.worldservice.governance import (
     Governor,
@@ -51,7 +51,7 @@ def scenario(path=REFERENCE, **runtime):
 
 
 def governed(loaded, pol=None, perspective="RED", **kwargs):
-    engine = SkyVaultTacticalReferenceEngine(
+    engine = SkyVaultEngine(
         loaded, governor=Governor(pol or policy(), perspective, **kwargs)
     )
     return engine, engine.run()
@@ -407,7 +407,7 @@ def test_a_real_run_over_its_time_is_stopped():
 
 def test_a_governed_run_that_is_not_stopped_is_exactly_the_ungoverned_run():
     for path in (REFERENCE, SCENARIOS / "military_squad_001" / "v0.1.json"):
-        plain = SkyVaultTacticalReferenceEngine(scenario(path)).run()
+        plain = SkyVaultEngine(scenario(path)).run()
         _, under_policy = governed(scenario(path))
 
         assert (
@@ -419,7 +419,7 @@ def test_a_governed_run_that_is_not_stopped_is_exactly_the_ungoverned_run():
 
 
 def test_every_run_records_its_governance_even_without_a_policy():
-    package = SkyVaultTacticalReferenceEngine(scenario()).run()
+    package = SkyVaultEngine(scenario()).run()
     rec = record(package)
 
     assert validate_governance_record(rec) == rec
@@ -437,7 +437,7 @@ def test_every_run_records_its_governance_even_without_a_policy():
 
 
 def test_stepping_a_run_by_hand_is_the_same_run():
-    engine = SkyVaultTacticalReferenceEngine(scenario())
+    engine = SkyVaultEngine(scenario())
     engine.begin()
     steps = 0
     while engine.step():
@@ -447,12 +447,12 @@ def test_stepping_a_run_by_hand_is_the_same_run():
 
     # RED wins during tick 10: that step answers False, after 9 that answered True
     assert steps == 9 and engine.over
-    assert package["reproducibility"]["output_hash"].startswith("63090026e137")
+    assert package["reproducibility"]["output_hash"].startswith("7debca2af332")
     assert engine.step() is False
 
 
 def test_a_run_stopped_from_outside_ends_after_the_tick():
-    engine = SkyVaultTacticalReferenceEngine(scenario())
+    engine = SkyVaultEngine(scenario())
     engine.begin()
     engine.step()
     engine.step()
@@ -466,7 +466,7 @@ def test_a_run_stopped_from_outside_ends_after_the_tick():
 
 
 def test_the_run_steps_must_come_in_order():
-    engine = SkyVaultTacticalReferenceEngine(scenario())
+    engine = SkyVaultEngine(scenario())
     with pytest.raises(RuntimeError, match="begin"):
         engine.step()
     with pytest.raises(RuntimeError, match="begin"):

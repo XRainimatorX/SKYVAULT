@@ -25,7 +25,7 @@ from skyvault.contracts import (
     validate_failure_exploration,
     validate_scenario,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure.variables import FAILURE_VARIABLES, STRESS_LEVELS, apply_stress
 from skyvault.scenario_loader import load_scenario
 
@@ -188,7 +188,7 @@ def test_an_unknown_level_is_refused():
 
 
 def run(scenario):
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def test_dropped_orders_match_the_rate_and_only_hit_the_stressed_side():

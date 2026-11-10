@@ -19,7 +19,7 @@ from skyvault.contracts import (
     validate_reproducibility,
     validate_scenario,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.reproducibility import (
     RUNTIME_VERSION,
     input_hash,
@@ -38,7 +38,7 @@ def scenario(version: str = "v0.1") -> dict:
 
 
 def run(chosen=None, profile=None) -> dict:
-    return SkyVaultTacticalReferenceEngine(chosen or scenario(), profile).run()
+    return SkyVaultEngine(chosen or scenario(), profile).run()
 
 
 def test_every_package_carries_a_valid_reproducibility_block():
@@ -55,7 +55,7 @@ def test_every_package_carries_a_valid_reproducibility_block():
 
 
 def test_the_block_hashes_match_what_was_run_and_produced():
-    engine = SkyVaultTacticalReferenceEngine(scenario())
+    engine = SkyVaultEngine(scenario())
     package = engine.run()
     block = package["reproducibility"]
 

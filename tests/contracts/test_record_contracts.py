@@ -21,7 +21,7 @@ from skyvault.contracts import (
     validate_entity,
     validate_event,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 REFERENCE_SCENARIO = (
@@ -35,7 +35,7 @@ def fixture(name: str) -> dict:
 
 
 def run_reference_scenario() -> dict:
-    return SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO)).run()
+    return SkyVaultEngine(load_scenario(REFERENCE_SCENARIO)).run()
 
 
 # ── acceptance criterion 2: an action without actor_id is rejected ──────────
@@ -64,7 +64,7 @@ def test_valid_action_passes_and_keeps_its_shape():
 
 
 def test_engine_refuses_a_malformed_action_from_the_policy():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
 
     def broken_policy(world, actor):
         return Action(action_id="action_broken", actor_id="", action_type="move")
@@ -178,7 +178,7 @@ def test_consequence_fixture_passes_and_keeps_its_shape():
 
 
 def test_consequence_produced_by_the_engine_satisfies_the_contract():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
     actor = engine.world.get_entity("red_001")
     action = engine.policy.decide_action(engine.world, actor)
     consequence = engine.resolver.execute(engine.world, action)

@@ -90,7 +90,8 @@
   "runtime": {
     "max_ticks": 10,
     "random_seed": 7,
-    "deterministic_mode": true
+    "deterministic_mode": true,
+    "policy": {"name": "tactical_reference"}
   },
   "evaluation": {
     "primary_metrics": [

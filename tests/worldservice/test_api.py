@@ -61,7 +61,7 @@ def test_a_submitted_run_is_run_in_the_background_and_its_result_downloaded(api)
     result = client.get("/api/jobs/job_000001/result").json()
     assert job["lifecycle_state"] == "completed"
     assert [e["message"] for e in job["events"]][-1] == "completed: RED_survived"
-    assert result["reproducibility"]["output_hash"].startswith("63090026e137")
+    assert result["reproducibility"]["output_hash"].startswith("7debca2af332")
     assert (
         result["reproducibility"]["run_metadata"]["resource_compute_governance"][
             "policy_id"

@@ -18,7 +18,7 @@ import re
 from typing import Any
 
 from ..contracts import validate_scenario
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..training.transitions import build_transitions
 from .redact import redact
 
@@ -59,7 +59,7 @@ def contribute(
         "scenario_id": scenario["scenario_id"],
         "sources": sources,
     }
-    package = SkyVaultTacticalReferenceEngine(copy.deepcopy(scenario)).run()
+    package = SkyVaultEngine(copy.deepcopy(scenario)).run()
     contribution = {
         "source_edition": edition["edition_id"],
         "product": product,

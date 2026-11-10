@@ -17,7 +17,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.contracts import validate_scenario
-from skyvault.engine import SNAPSHOT_INTERVAL, SkyVaultTacticalReferenceEngine
+from skyvault.engine import SNAPSHOT_INTERVAL, SkyVaultEngine
 from skyvault.replay import build_replay_state_at_tick
 from skyvault.runtime import SnapshotStore, rebuild_world
 from skyvault.runtime.world import create_world
@@ -30,7 +30,7 @@ REFERENCE_SCENARIO = (
 
 @pytest.fixture(scope="module")
 def run():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
     package = engine.run()
     return engine, package
 

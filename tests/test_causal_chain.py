@@ -9,7 +9,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.causal_chain import build_causal_chain
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 
@@ -19,7 +19,7 @@ def run_reference_scenario() -> dict:
     )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     return engine.run()
 

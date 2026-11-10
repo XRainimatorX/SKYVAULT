@@ -55,13 +55,13 @@ def digest(package: dict[str, Any]) -> str:
 
 
 def reference_package() -> dict[str, Any]:
-    from skyvault.engine import SkyVaultTacticalReferenceEngine
+    from skyvault.engine import SkyVaultEngine
     from skyvault.scenario_loader import load_scenario
 
     scenario = load_scenario(
         REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
     )
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 if __name__ == "__main__":

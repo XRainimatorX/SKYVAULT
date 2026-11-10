@@ -8,7 +8,7 @@ import pytest
 
 from skyvault.batch.variants import branch_variant
 from skyvault.contracts import ContractError, validate_authority_handoff
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import build_failure_map, explore_failures
 from skyvault.interface.conflicts import SubmissionWindow, find_conflicts, resolve
 from skyvault.interface.handoff import (
@@ -41,7 +41,7 @@ def run(path, seed, thresholds=("all_entities_destroyed",)):
     scenario = load_scenario(path)
     scenario["runtime"]["random_seed"] = seed
     scenario["evaluation"]["failure_thresholds"] = list(thresholds)
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def failure_map(threshold):
@@ -413,9 +413,7 @@ def test_each_branch_is_the_same_history_forked_at_the_conflict(world):
         chosen,
         [by_id[p] for p in record["branches"][chosen]],
     )
-    replayed = SkyVaultTacticalReferenceEngine(branch.scenario).run()["event_memory"][
-        :-1
-    ]
+    replayed = SkyVaultEngine(branch.scenario).run()["event_memory"][:-1]
 
     def strip(e):
         return (

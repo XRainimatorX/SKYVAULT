@@ -23,7 +23,7 @@ from skyvault.contracts import (
     validate_reproducibility,
     validate_result_package,
 )
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 REFERENCE_SCENARIO = (
@@ -51,7 +51,7 @@ def fixture(name: str) -> dict:
 
 
 def run_reference_scenario() -> dict:
-    return SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO)).run()
+    return SkyVaultEngine(load_scenario(REFERENCE_SCENARIO)).run()
 
 
 def reproducibility_record() -> dict:

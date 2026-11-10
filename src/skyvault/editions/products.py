@@ -22,7 +22,7 @@ from typing import Any
 from ..batch.run import run_batch
 from ..domains.city.pack import CITY
 from ..domains.city.report import cascade
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..failure import build_failure_map, explore_failures
 from ..report import build_briefing, render_markdown
 from ..scenario_loader import default_evaluation_profile, load_scenario
@@ -50,7 +50,7 @@ def _scenario(name: str) -> dict[str, Any]:
 def _run(scenario: dict[str, Any], **runtime: Any) -> dict[str, Any]:
     scenario = copy.deepcopy(scenario)
     scenario["runtime"].update(runtime)
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def crisis_planning(scenario: dict[str, Any] | None) -> dict[str, Any]:

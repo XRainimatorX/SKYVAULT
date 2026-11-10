@@ -14,7 +14,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.reproducibility import (
     CHANGE_CATEGORIES,
     RunRegistry,
@@ -35,8 +35,7 @@ def scenario(version: str) -> dict:
 @pytest.fixture(scope="module")
 def runs():
     return {
-        version: SkyVaultTacticalReferenceEngine(scenario(version)).run()
-        for version in ("v0.1", "v0.2")
+        version: SkyVaultEngine(scenario(version)).run() for version in ("v0.1", "v0.2")
     }
 
 
@@ -115,7 +114,7 @@ def test_the_two_versions_lead_to_different_outcomes(runs):
 
 
 def test_a_rerun_of_the_same_input_differs_in_nothing(runs):
-    again = SkyVaultTacticalReferenceEngine(scenario("v0.1")).run()
+    again = SkyVaultEngine(scenario("v0.1")).run()
 
     diff = compare_runs(runs["v0.1"], again)
 
@@ -128,7 +127,7 @@ def test_a_rerun_of_the_same_input_differs_in_nothing(runs):
 
 def test_the_registry_records_and_finds_runs(tmp_path, runs):
     registry = RunRegistry(tmp_path / "runs" / "registry.jsonl")
-    rerun = SkyVaultTacticalReferenceEngine(scenario("v0.1")).run()
+    rerun = SkyVaultEngine(scenario("v0.1")).run()
 
     first = registry.record(runs["v0.1"])
     registry.record(runs["v0.2"])
@@ -194,7 +193,7 @@ def test_a_changed_scenario_does_not_reproduce(runs):
 def test_a_stochastic_run_is_not_replayed(runs):
     stochastic = scenario("v0.1")
     stochastic["runtime"]["random_seed_policy"] = "stochastic"
-    package = SkyVaultTacticalReferenceEngine(stochastic).run()
+    package = SkyVaultEngine(stochastic).run()
 
     report = verify_reproducibility(package, stochastic)
 

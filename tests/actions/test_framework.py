@@ -34,7 +34,7 @@ from skyvault.actions import (
 )
 from skyvault.consequence import Consequence, DirectEffect
 from skyvault.contracts import validate_action, validate_consequence, validate_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.runtime import rebuild_world
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
@@ -328,7 +328,7 @@ def test_a_miss_records_one_event_and_changes_nothing():
 
 
 def test_every_effect_and_chain_reaction_is_one_event_in_the_reference_run():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
     applied = []
     original = engine.resolver.execute
 
@@ -463,7 +463,7 @@ def test_action_attempt_is_the_action_and_serialises_to_its_contract():
 
 
 def test_the_tactical_policy_fills_every_section_6_field():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
     place_adjacent(engine.world, "red_001", "blue_001")
     for other in ("blue_002", "blue_003"):
         engine.world.get_entity(other).state["status"] = "destroyed"
@@ -488,7 +488,7 @@ def test_mutate_entity_refuses_an_unknown_change_key():
 
 
 def test_the_military_line_registers_five_types_and_the_engine_uses_it():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE_SCENARIO))
+    engine = SkyVaultEngine(load_scenario(REFERENCE_SCENARIO))
 
     assert MILITARY_ACTION_TYPES == ("move", "attack", "observe", "supply", "repair")
     assert set(engine.resolver.handlers) <= set(MILITARY_ACTION_TYPES)

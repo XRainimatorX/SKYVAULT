@@ -20,7 +20,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.batch.run import run_batch
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import apply_stress
 from skyvault.scenario_loader import load_scenario
 from skyvault.training.branches import branch_evaluation
@@ -45,7 +45,7 @@ def run(path, seed=None, stress=None):
         scenario = apply_stress(scenario, stress, "RED")
     if seed is not None:
         scenario["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(scenario).run(), scenario
+    return SkyVaultEngine(scenario).run(), scenario
 
 
 @pytest.fixture(scope="module")

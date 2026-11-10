@@ -18,7 +18,7 @@ from skyvault.editions.manifest import allows, edition_ids, load_edition, public
 from skyvault.editions.products import catalogue, product_report, run_product
 from skyvault.editions.redact import leaks, redact, redact_text
 from skyvault.editions.service import create_edition_service
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import build_failure_map, explore_failures
 from skyvault.scenario_loader import default_evaluation_profile, load_scenario
 from skyvault.training.filter import split_runs
@@ -197,7 +197,7 @@ def test_an_edition_service_runs_the_same_core_to_the_same_hash():
         "/api/jobs",
         json={"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1"},
     ).json()["job_id"]
-    assert wait(client, job_id)["summary"]["output_hash"].startswith("63090026e137")
+    assert wait(client, job_id)["summary"]["output_hash"].startswith("7debca2af332")
 
 
 def test_the_core_imports_no_edition():
@@ -477,7 +477,7 @@ def test_a_customer_scenario_comes_back_to_the_core_with_its_provenance():
         if s["source_id"] == "commercial:crisis_planning"
     ]
     assert source["modified_by"] == "commercial edition"
-    package = SkyVaultTacticalReferenceEngine(copy.deepcopy(scenario)).run()
+    package = SkyVaultEngine(copy.deepcopy(scenario)).run()
     assert (
         package["reproducibility"]["output_hash"]
         == contribution["result"]["output_hash"]
@@ -495,7 +495,7 @@ def test_the_core_explores_the_contributed_scenario_and_learns_from_its_runs():
         explore_failures(scenario, default_evaluation_profile(scenario), config)
     )
     assert failure_map["variables"][0]["variable"] == "supply_delay"
-    package = SkyVaultTacticalReferenceEngine(copy.deepcopy(scenario)).run()
+    package = SkyVaultEngine(copy.deepcopy(scenario)).run()
     labels = run_labels(package, scenario)
     buckets = split_runs([(package, scenario)])
     # every transition of the run lands in exactly one training bucket
@@ -516,7 +516,7 @@ def test_aliases_written_by_a_customer_are_restored_to_internal_names():
     )
     restored = import_contribution(contribution, COMMERCIAL)
     assert restored["runtime"]["policy"]["name"] == "hades_rules"
-    SkyVaultTacticalReferenceEngine(copy.deepcopy(restored)).run()
+    SkyVaultEngine(copy.deepcopy(restored)).run()
 
 
 def test_an_internal_contribution_needs_no_restoring():

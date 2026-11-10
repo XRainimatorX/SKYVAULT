@@ -14,7 +14,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.contracts import ContractError, validate_result_package
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import (
     default_evaluation_profile,
     load_evaluation_profile,
@@ -32,7 +32,7 @@ def scenario():
 
 
 def test_without_a_profile_the_run_is_judged_by_balanced_from_the_first_side():
-    engine = SkyVaultTacticalReferenceEngine(scenario())
+    engine = SkyVaultEngine(scenario())
 
     package = engine.run()
 
@@ -49,14 +49,14 @@ def test_a_scenario_can_declare_whose_plan_it_is():
 
     assert scenario_perspective(declared) == "BLUE"
     assert default_evaluation_profile(declared)["perspective"] == "BLUE"
-    verdict = SkyVaultTacticalReferenceEngine(declared).run()["evaluation_result"]
+    verdict = SkyVaultEngine(declared).run()["evaluation_result"]
     assert verdict["overall_judgement"]["status"] == "fail"
 
 
 def test_the_engine_judges_under_the_profile_it_is_given():
     tactical = load_evaluation_profile(PROFILES / "tactical.json")
 
-    package = SkyVaultTacticalReferenceEngine(scenario(), tactical).run()
+    package = SkyVaultEngine(scenario(), tactical).run()
 
     assert package["evaluation_result"]["profile_id"] == "tactical"
     assert package["evaluation_result"]["perspective"] == "RED"
@@ -68,11 +68,11 @@ def test_a_broken_profile_fails_before_the_run_starts():
     broken["weights"] = {"luck": 1.0}
 
     with pytest.raises(ContractError, match="evaluation_profile"):
-        SkyVaultTacticalReferenceEngine(scenario(), broken)
+        SkyVaultEngine(scenario(), broken)
 
 
 def test_every_package_carries_the_three_phase_7_outputs():
-    package = SkyVaultTacticalReferenceEngine(scenario()).run()
+    package = SkyVaultEngine(scenario()).run()
 
     validate_result_package(package)
     assert set(package["score_breakdown"]) == set(
@@ -85,8 +85,8 @@ def test_every_package_carries_the_three_phase_7_outputs():
 def test_changing_the_profile_never_changes_what_happened():
     tactical = load_evaluation_profile(PROFILES / "tactical.json")
 
-    balanced_run = SkyVaultTacticalReferenceEngine(scenario()).run()
-    tactical_run = SkyVaultTacticalReferenceEngine(scenario(), tactical).run()
+    balanced_run = SkyVaultEngine(scenario()).run()
+    tactical_run = SkyVaultEngine(scenario(), tactical).run()
 
     def facts(package):
         return [

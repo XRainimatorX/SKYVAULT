@@ -16,7 +16,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.contracts import validate_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.reproducibility import (
     canonical_json,
     content_hash,
@@ -35,7 +35,7 @@ def run(version: str = "v0.1", seed: int | None = None) -> dict:
     scenario = load_scenario(SCENARIOS / f"{version}.json")
     if seed is not None:
         scenario["runtime"]["random_seed"] = seed
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def without_reproducibility(package: dict) -> dict:

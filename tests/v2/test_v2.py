@@ -23,7 +23,7 @@ from skyvault.contracts import (
 from skyvault.editions.manifest import load_edition
 from skyvault.editions.redact import leaks
 from skyvault.editions.service import create_edition_service
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.interface.conflicts import resolve as decide_conflict
 from skyvault.interface.handoff import authority_handoff, decide, handoff_triggers
 from skyvault.scenario_loader import load_scenario
@@ -45,7 +45,7 @@ def accepted() -> dict:
 
 @cache
 def reference_handoff() -> dict:
-    package = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE)).run()
+    package = SkyVaultEngine(load_scenario(REFERENCE)).run()
     return authority_handoff(handoff_triggers(result=package), result=package)
 
 
@@ -96,7 +96,7 @@ def test_an_edition_cannot_make_skyvault_an_authority():
 
 
 def test_a_handoff_cannot_name_skyvault_and_skyvault_never_decides():
-    package = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE)).run()
+    package = SkyVaultEngine(load_scenario(REFERENCE)).run()
     with pytest.raises(ContractError):
         authority_handoff(
             handoff_triggers(result=package), result=package, authorities=("SKYVAULT",)
@@ -169,7 +169,7 @@ def test_every_criterion_must_have_and_boundary_check_passes_with_evidence():
 
 def test_the_evidence_is_what_a_reader_can_look_up():
     rows = {r["id"]: r["evidence"] for r in accepted()["acceptance"]}
-    assert rows["normal_simulation"]["output_hash"] == "63090026e137"
+    assert rows["normal_simulation"]["output_hash"] == "7debca2af332"
     assert rows["normal_simulation"]["events"] == 97
     assert rows["high_risk_handoff"]["triggers"] == ["high_risk_outcome"]
     assert rows["failure_to_authority"]["decision_authority"] == ["NEXUS", "SOVEREIGN"]
@@ -338,7 +338,7 @@ def test_a_simulation_that_drifts_from_the_reference_hash_is_not_accepted():
 
     drifted = {"output_hash": "deadbeef0000", "result": "RED_survived", "events": 97}
     assert normal_simulation(Answers(drifted), {})["passed"] is False
-    pinned = {**drifted, "output_hash": "63090026e137ffff"}
+    pinned = {**drifted, "output_hash": "7debca2af332ffff"}
     assert normal_simulation(Answers(pinned), {})["passed"] is True
 
 

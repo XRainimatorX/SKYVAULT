@@ -13,7 +13,7 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.causal_chain import build_causal_chain
 from skyvault.contracts import validate_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.entity_history import build_entity_history
 from skyvault.evaluation import render_tradeoff_report
 from skyvault.policies import import_policy_module
@@ -89,7 +89,7 @@ def main(argv: list[str] | None = None) -> None:
         scenario = validate_scenario(scenario)
     profile = load_evaluation_profile(args.profile) if args.profile else None
 
-    engine = SkyVaultTacticalReferenceEngine(scenario, evaluation_profile=profile)
+    engine = SkyVaultEngine(scenario, evaluation_profile=profile)
     result_package = engine.run()
 
     event_memory = result_package["event_memory"]

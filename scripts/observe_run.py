@@ -23,7 +23,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.observation import OBSERVERS, load_observer_profile, observations_for_run
 from skyvault.scenario_loader import load_scenario, scenario_perspective
 
@@ -44,7 +44,7 @@ def main(argv: list[str] | None = None) -> None:
     if not side:
         raise SystemExit(f"no unit of faction {faction!r} in the scenario")
     actor = args.actor or side[0]
-    package = SkyVaultTacticalReferenceEngine(scenario).run()
+    package = SkyVaultEngine(scenario).run()
 
     args.output.mkdir(parents=True, exist_ok=True)
     viewpoint = {"faction": faction, "actor_id": actor}

@@ -15,7 +15,7 @@ from skyvault.domains.city.pack import CITY
 from skyvault.domains.city.reference import reference_scenarios
 from skyvault.domains.city.report import cascade, city_report
 from skyvault.domains.city.score import COMPONENTS, governance_stability
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.failure import build_failure_map, explore_failures
 from skyvault.failure.variables import FAILURE_VARIABLES, apply_stress, variable_for
 from skyvault.interface.api import run_submission
@@ -31,7 +31,7 @@ def scenario(name="city_takeover_001"):
 
 
 def run(s):
-    return SkyVaultTacticalReferenceEngine(copy.deepcopy(s)).run()
+    return SkyVaultEngine(copy.deepcopy(s)).run()
 
 
 TAKEOVER = scenario()

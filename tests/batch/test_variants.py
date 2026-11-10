@@ -20,7 +20,7 @@ from reference_trace import trace  # noqa: E402
 
 from skyvault.batch.variants import branch_variant, build_variants, set_parameter
 from skyvault.contracts import ContractError, validate_scenario
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 
@@ -134,7 +134,7 @@ def test_the_baseline_branch_schedules_nothing():
 
 
 def run(scenario):
-    return SkyVaultTacticalReferenceEngine(scenario).run()
+    return SkyVaultEngine(scenario).run()
 
 
 def test_a_scheduled_order_replaces_the_policy_and_carries_its_system():

@@ -24,7 +24,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.domains.military.dataset import build_dataset
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 REFERENCE = [
@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> None:
         for run in range(args.runs):
             seeded = copy.deepcopy(scenario)
             seeded["runtime"]["random_seed"] = scenario["runtime"]["random_seed"] + run
-            package = SkyVaultTacticalReferenceEngine(seeded).run()
+            package = SkyVaultEngine(seeded).run()
             records = build_dataset(package, seeded)
             lines += [
                 json.dumps(r, ensure_ascii=False, sort_keys=True) for r in records

@@ -17,7 +17,7 @@ from skyvault.action import Action, ActionTarget
 from skyvault.actions import MILITARY_ACTION_TYPES
 from skyvault.domains import load_domain
 from skyvault.domains.military import MILITARY
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.policies import build_policy, register_policy, registered_policies
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
@@ -56,9 +56,7 @@ def test_the_reference_policy_is_registered_and_others_can_join():
 
 
 def test_an_outside_policy_replaces_the_baseline_and_signs_its_events():
-    package = SkyVaultTacticalReferenceEngine(
-        load_scenario(REFERENCE), policy=Holder()
-    ).run()
+    package = SkyVaultEngine(load_scenario(REFERENCE), policy=Holder()).run()
 
     selected = [
         e for e in package["event_memory"] if e["event_type"] == "ACTION_SELECTED"
@@ -77,13 +75,13 @@ def test_a_scenario_can_name_a_registered_policy():
     scenario = load_scenario(REFERENCE)
     scenario["runtime"]["policy"] = {"name": "test_holder_named"}
 
-    package = SkyVaultTacticalReferenceEngine(scenario).run()
+    package = SkyVaultEngine(scenario).run()
 
     assert package["evaluation_result"]["destroyed_entities"] == 0
 
 
 def test_without_a_domain_the_engine_is_the_tactical_reference():
-    engine = SkyVaultTacticalReferenceEngine(load_scenario(REFERENCE))
+    engine = SkyVaultEngine(load_scenario(REFERENCE))
 
     assert engine.domain is None
     assert sorted(engine.resolver.handlers) == sorted(MILITARY_ACTION_TYPES)

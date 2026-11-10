@@ -10,7 +10,7 @@ import copy
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any
 
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from .variants import Variant
 
 Job = tuple[str, str, dict[str, Any], dict[str, Any], int]
@@ -46,7 +46,7 @@ def run_job(job: Job) -> dict[str, Any]:
     variant_id, kind, scenario, profile, seed = job
     seeded = copy.deepcopy(scenario)
     seeded["runtime"]["random_seed"] = seed
-    package = SkyVaultTacticalReferenceEngine(seeded, profile).run()
+    package = SkyVaultEngine(seeded, profile).run()
     verdict = package["evaluation_result"]
     breakdown = package["score_breakdown"]
     return {

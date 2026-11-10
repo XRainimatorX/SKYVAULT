@@ -15,7 +15,7 @@ import copy
 import threading
 from typing import Any
 
-from ..engine import SkyVaultTacticalReferenceEngine
+from ..engine import SkyVaultEngine
 from ..interface.conflicts import (
     SubmissionWindow,
     find_conflicts,
@@ -78,7 +78,7 @@ class PersistentWorld:
             cap=self.cap,
             estimated_cost=self.estimate(scenario),
         )
-        self.engine = SkyVaultTacticalReferenceEngine(
+        self.engine = SkyVaultEngine(
             scenario,
             evaluation_profile=self.profile,
             governor=self.governor,
