@@ -339,8 +339,7 @@ def _finish_run(
         job["job_id"],
         lifecycle_state="completed",
         governance=record,
-        summary={
-            **job["summary"],
+        summary_fields={
             "result": verdict["winner_or_result"],
             "termination_reason": verdict["termination_reason"],
             "events": len(package["event_memory"]),
@@ -418,8 +417,7 @@ def _batch(
             sum(r["event_count"] for r in runs),
             time.monotonic() - started,
         ),
-        summary={
-            **job["summary"],
+        summary_fields={
             "runs": len(runs),
             "workers": workers,
             "variants": len(out["batch_result"]["variants"]),
@@ -456,8 +454,7 @@ def _failure_exploration(
         job["job_id"],
         lifecycle_state="completed",
         governance=_many_runs_record(policy, job, runs, 0, time.monotonic() - started),
-        summary={
-            **job["summary"],
+        summary_fields={
             "crushing_variable": failure_map["crushing_variable"],
             "survival_rate": failure_map["baseline"]["survival_rate"],
             "handoff": authority_handoff(
@@ -513,8 +510,7 @@ def _branch_compare(
             sum(r["event_count"] for r in records),
             time.monotonic() - started,
         ),
-        summary={
-            **job["summary"],
+        summary_fields={
             "runs": len(records),
             "branches": [v.variant_id for v in variants],
         },
@@ -569,8 +565,7 @@ def _replay(
         governance=again["reproducibility"]["run_metadata"][
             "resource_compute_governance"
         ],
-        summary={
-            **job["summary"],
+        summary_fields={
             "replay_of": original["job_id"],
             "reproduced": reproduced,
         },
@@ -591,7 +586,6 @@ def new_job(
     request = full_request(request)
     stamp = now()
     job = {
-        "job_id": store.next_job_id(),
         "request": request,
         "priority": request.get("priority") or policy["run_priority"],
         "lifecycle_state": "created",
@@ -603,6 +597,6 @@ def new_job(
         "created_at": stamp,
         "updated_at": stamp,
     }
-    store.create_job(job)
+    job = store.create_job(job)
     store.log(job["job_id"], f"created by {request['source_system']}")
     return job

@@ -299,8 +299,7 @@ class PersistentWorld:
             lifecycle_state="completed",
             governance=record,
             world_instance=self.instance(),
-            summary={
-                **self.store.get_job(self.world_id)["summary"],
+            summary_fields={
                 "tick": self.result["final_world_state"]["tick"],
                 "termination_reason": self.result["evaluation_result"][
                     "termination_reason"

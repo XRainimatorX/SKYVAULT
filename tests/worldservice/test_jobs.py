@@ -93,6 +93,66 @@ def test_numbered_records_written_at_once_from_many_threads_never_collide(store)
     assert store.get_conflict("conflict_000040")["conflict_id"] == "conflict_000040"
 
 
+def test_jobs_created_at_once_from_many_threads_each_get_their_own_number(
+    store, policy
+):
+    """Two clients submit at the same moment (code review, 2026-11-09)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    request = job_request("reference_run")
+    planned = plan(request, policy, 0, store)
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        jobs = list(
+            pool.map(lambda _: new_job(store, request, planned, policy), range(24))
+        )
+    ids = sorted(j["job_id"] for j in jobs)
+    assert ids == [f"job_{n:06d}" for n in range(1, 25)]
+    assert [j["job_id"] for j in store.list_jobs()] == ids
+    assert all(store.events(i)[0]["message"].startswith("created") for i in ids)
+
+
+def test_fields_written_at_once_from_many_threads_are_all_kept(store, policy):
+    """A worker and a cancel request write the same job at the same moment."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    job = submit(store, policy, "reference_run")
+
+    def write(i: int) -> None:
+        if i % 2:
+            store.merge_summary(job["job_id"], **{f"k{i}": i})
+        else:
+            store.update_job(job["job_id"], **{f"field_{i}": i})
+
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        list(pool.map(write, range(40)))
+    kept = store.get_job(job["job_id"])
+    assert all(kept[f"field_{i}"] == i for i in range(0, 40, 2))
+    assert all(kept["summary"][f"k{i}"] == i for i in range(1, 40, 2))
+    assert kept["summary"]["duration_clamped_from"] is None
+
+
+def test_a_merged_summary_keeps_what_was_there(store, policy):
+    job = submit(store, policy, "reference_run")
+    store.merge_summary(job["job_id"], cancel_requested=True)
+    merged = store.merge_summary(job["job_id"], output_hash="abc")
+
+    assert merged["summary"] == {
+        "duration_clamped_from": None,
+        "cancel_requested": True,
+        "output_hash": "abc",
+    }
+    assert store.get_job(job["job_id"]) == merged
+    with pytest.raises(KeyError, match="no job"):
+        store.merge_summary("job_999999", a=1)
+    # the worker finishing adds to the summary as it is now, not as it read it
+    done = store.update_job(
+        job["job_id"], lifecycle_state="completed", summary_fields={"result": "x"}
+    )
+    assert done["summary"]["cancel_requested"] is True
+    assert done["summary"]["result"] == "x"
+    assert done["lifecycle_state"] == "completed"
+
+
 def test_three_slashes_name_a_file_relative_to_where_the_service_runs(
     tmp_path, monkeypatch
 ):

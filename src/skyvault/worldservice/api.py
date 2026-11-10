@@ -212,9 +212,7 @@ def create_world_service(
                 job_id, lifecycle_state="failed", error="cancelled before it ran"
             )
         store.log(job_id, "cancel requested")
-        return store.update_job(
-            job_id, summary={**job["summary"], "cancel_requested": True}
-        )
+        return store.merge_summary(job_id, cancel_requested=True)
 
     @app.post("/api/jobs/{job_id}/replay", status_code=202)
     def replay(job_id: str) -> dict[str, Any]:

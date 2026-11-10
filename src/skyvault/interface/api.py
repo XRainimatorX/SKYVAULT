@@ -124,8 +124,7 @@ def add_external_routes(
         for job in admitted:
             store.update_job(
                 job["job_id"],
-                summary={
-                    **job["summary"],
+                summary_fields={
                     "submission_id": submission_id,
                     "external_submission": submission,
                 },
@@ -345,7 +344,7 @@ def add_external_routes(
             raise refuse(error) from None
         except ValueError as error:
             raise problem(409, "decided", str(error)) from None
-        store.update_job(run_id, summary={**job["summary"], "handoff": decided})
+        store.merge_summary(run_id, handoff=decided)
         store.log(run_id, f"{decided['decided_by']} decided the handoff")
         return decided
 

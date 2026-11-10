@@ -8,12 +8,17 @@ text: the service reads them back exactly as it wrote them. A store is
 named by a spec string, so a worker in another process opens the same one:
 "sqlite:///relative/file", "sqlite:////absolute/file" (four slashes, as in
 SQLAlchemy), "sqlite://" (memory) or "postgresql://...".
+
+Every read-modify-write runs in one transaction (a worker and a cancel
+request may write the same job at once), and every numbered record —
+jobs included — takes its number in the insert that claims it.
 """
 
 import json
 import sqlite3
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from typing import Any, Protocol
 
@@ -43,10 +48,15 @@ def now() -> str:
 class JobStore(Protocol):
     spec: str
 
-    def next_job_id(self) -> str: ...
-    def create_job(self, job: dict[str, Any]) -> None: ...
+    def create_job(self, job: dict[str, Any]) -> dict[str, Any]: ...
     def get_job(self, job_id: str) -> dict[str, Any]: ...
-    def update_job(self, job_id: str, **fields: Any) -> dict[str, Any]: ...
+    def update_job(
+        self,
+        job_id: str,
+        summary_fields: dict[str, Any] | None = None,
+        **fields: Any,
+    ) -> dict[str, Any]: ...
+    def merge_summary(self, job_id: str, **fields: Any) -> dict[str, Any]: ...
     def list_jobs(self) -> list[dict[str, Any]]: ...
     def save_result(self, job_id: str, package: dict[str, Any]) -> None: ...
     def get_result(self, job_id: str) -> dict[str, Any] | None: ...
@@ -64,9 +74,16 @@ class _SQLStore:
 
     spec = ""
     placeholder = "?"
+    # appended to the SELECT that a read-modify-write locks its row with
+    lock_row = ""
 
     def _run(self, sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
         raise NotImplementedError  # pragma: no cover - every store connects
+
+    @contextmanager
+    def _transaction(self) -> Iterator[Callable[..., list[tuple[Any, ...]]]]:
+        raise NotImplementedError  # pragma: no cover - every store connects
+        yield  # pragma: no cover
 
     def _sql(self, sql: str) -> str:
         return sql.replace("?", self.placeholder)
@@ -101,23 +118,27 @@ class _SQLStore:
                     raise
         raise AssertionError("unreachable")  # pragma: no cover
 
-    def next_job_id(self) -> str:
-        rows = self._run("SELECT COALESCE(MAX(seq), 0) FROM jobs")
-        return f"job_{int(rows[0][0]) + 1:06d}"
+    def create_job(self, job: dict[str, Any]) -> dict[str, Any]:
+        """Keep a new job as job_<next n>; return it with that id."""
 
-    def create_job(self, job: dict[str, Any]) -> None:
-        seq = int(job["job_id"].split("_")[-1])
-        self._run(
+        def row(seq: int) -> tuple[Any, ...]:
+            saved = {**job, "job_id": f"job_{seq:06d}"}
+            return (
+                saved["job_id"],
+                seq,
+                saved["request"]["kind"],
+                saved["lifecycle_state"],
+                json.dumps(saved, sort_keys=True),
+            )
+
+        seq = self._insert_next(
+            "SELECT COALESCE(MAX(seq), 0) FROM jobs",
+            (),
             "INSERT INTO jobs (job_id, seq, kind, lifecycle_state, record) "
             "VALUES (?, ?, ?, ?, ?)",
-            (
-                job["job_id"],
-                seq,
-                job["request"]["kind"],
-                job["lifecycle_state"],
-                json.dumps(job, sort_keys=True),
-            ),
+            row,
         )
+        return {**job, "job_id": f"job_{seq:06d}"}
 
     def get_job(self, job_id: str) -> dict[str, Any]:
         rows = self._run("SELECT record FROM jobs WHERE job_id = ?", (job_id,))
@@ -126,15 +147,46 @@ class _SQLStore:
         job: dict[str, Any] = json.loads(rows[0][0])
         return job
 
-    def update_job(self, job_id: str, **fields: Any) -> dict[str, Any]:
-        job = self.get_job(job_id)
-        job.update(fields)
-        job["updated_at"] = now()
-        self._run(
-            "UPDATE jobs SET lifecycle_state = ?, record = ? WHERE job_id = ?",
-            (job["lifecycle_state"], json.dumps(job, sort_keys=True), job_id),
-        )
-        return job
+    def _modify_job(
+        self, job_id: str, change: Callable[[dict[str, Any]], None]
+    ) -> dict[str, Any]:
+        """Read, change and write one job in a single transaction."""
+        with self._transaction() as run:
+            rows = run(
+                "SELECT record FROM jobs WHERE job_id = ?" + self.lock_row, (job_id,)
+            )
+            if not rows:
+                raise KeyError(f"no job {job_id}")
+            job: dict[str, Any] = json.loads(rows[0][0])
+            change(job)
+            job["updated_at"] = now()
+            run(
+                "UPDATE jobs SET lifecycle_state = ?, record = ? WHERE job_id = ?",
+                (job["lifecycle_state"], json.dumps(job, sort_keys=True), job_id),
+            )
+            return job
+
+    def update_job(
+        self,
+        job_id: str,
+        summary_fields: dict[str, Any] | None = None,
+        **fields: Any,
+    ) -> dict[str, Any]:
+        """
+        Set fields of the job; summary_fields are added to its summary as it
+        stands when written (never to a copy read earlier).
+        """
+
+        def change(job: dict[str, Any]) -> None:
+            job.update(fields)
+            if summary_fields:
+                job["summary"] = {**job["summary"], **summary_fields}
+
+        return self._modify_job(job_id, change)
+
+    def merge_summary(self, job_id: str, **fields: Any) -> dict[str, Any]:
+        """Add fields to the job's summary, keeping whatever else is there."""
+        return self.update_job(job_id, summary_fields=fields)
 
     def list_jobs(self) -> list[dict[str, Any]]:
         rows = self._run("SELECT record FROM jobs ORDER BY seq")
@@ -194,12 +246,19 @@ class _SQLStore:
         return record
 
     def update_conflict(self, conflict_id: str, **fields: Any) -> dict[str, Any]:
-        record = {**self.get_conflict(conflict_id), **fields}
-        self._run(
-            "UPDATE conflicts SET record = ? WHERE conflict_id = ?",
-            (json.dumps(record, sort_keys=True), conflict_id),
-        )
-        return record
+        with self._transaction() as run:
+            rows = run(
+                "SELECT record FROM conflicts WHERE conflict_id = ?" + self.lock_row,
+                (conflict_id,),
+            )
+            if not rows:
+                raise KeyError(f"no conflict {conflict_id}")
+            record: dict[str, Any] = {**json.loads(rows[0][0]), **fields}
+            run(
+                "UPDATE conflicts SET record = ? WHERE conflict_id = ?",
+                (json.dumps(record, sort_keys=True), conflict_id),
+            )
+            return record
 
     def log(self, job_id: str, message: str) -> None:
         self._insert_next(
@@ -223,22 +282,35 @@ class SQLiteStore(_SQLStore):
     def __init__(self, path: str = ":memory:") -> None:
         self.path = path
         self.spec = "sqlite://" if path == ":memory:" else f"sqlite:///{path}"
-        self._lock = threading.Lock()
+        self._lock = threading.RLock()
         self._db = sqlite3.connect(path, check_same_thread=False)
         self.setup()
 
     def _run(self, sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
+        with self._transaction() as run:
+            return run(sql, params)
+
+    @contextmanager
+    def _transaction(self) -> Iterator[Callable[..., list[tuple[Any, ...]]]]:
+        """The one connection, held for the whole transaction."""
+
+        def run(sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
+            return self._db.execute(self._sql(sql), params).fetchall()
+
         with self._lock:
-            cursor = self._db.execute(self._sql(sql), params)
-            rows = cursor.fetchall()
+            try:
+                yield run
+            except BaseException:
+                self._db.rollback()
+                raise
             self._db.commit()
-            return rows
 
 
 class PostgresStore(_SQLStore):
     """PostgreSQL through psycopg: a connection per statement, safe from any thread."""
 
     placeholder = "%s"
+    lock_row = " FOR UPDATE"
 
     def __init__(self, dsn: str) -> None:
         import psycopg
@@ -256,6 +328,21 @@ class PostgresStore(_SQLStore):
         with self._connect() as connection, connection.cursor() as cursor:
             cursor.execute(self._sql(sql), params)
             return list(cursor.fetchall()) if cursor.description else []
+
+    @contextmanager
+    def _transaction(self) -> Iterator[Callable[..., list[tuple[Any, ...]]]]:
+        """One connection and one transaction; FOR UPDATE locks the row read."""
+        with (
+            self._connect() as connection,
+            connection.transaction(),
+            connection.cursor() as cursor,
+        ):
+
+            def run(sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
+                cursor.execute(self._sql(sql), params)
+                return list(cursor.fetchall()) if cursor.description else []
+
+            yield run
 
 
 def open_store(spec: str) -> JobStore:
