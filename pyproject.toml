@@ -5,7 +5,7 @@
 #       websockets python-docx reportlab pyarrow
 [project]
 name = "skyvault"
-version = "2.0.0"
+version = "2.1.0"
 requires-python = ">=3.10"
 dependencies = [
     # Contracts and JSON Schema generation (Phase 1, ADR 004).

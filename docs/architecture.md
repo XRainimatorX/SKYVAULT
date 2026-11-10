@@ -6,6 +6,34 @@
 
 ---
 
+# 0. 怎麼啟動與使用（Phase 21）
+
+SKYVAULT 只靠自己運作：一個指令 `skyvault`（`src/skyvault/cli.py`，`pyproject` 的 `[project.scripts]`）。
+
+```text
+skyvault serve   cli.build_app()
+  ├─ editions.create_edition_service(edition, store, queue, policy)    預設 internal（核心原樣）
+  │     └─ worldservice.create_world_service()   /api/jobs、/api/worlds、/api/status、/api/boundary、
+  │           │                                  /api/runs、/api/runs/{run}/<畫面>、/ws/replay?run=
+  │           └─ interface.add_external_routes() /scenario/submit 等外部介面（edition 列了系統時）
+  └─ service.mount_ui(ui/out)   UI 掛在所有路由之後
+skyvault run / explore / batch / replay / cancel / world / status / runs / result / briefing / products
+                 經 HTTP 交給服務（--url 或 SKYVAULT_URL）
+skyvault worker  RQ worker（serve --queue rq）
+skyvault virtual-test / acceptance   在本程序計算
+```
+
+```text
+找 scenario / batch     library.find()：data/scenarios（data/batches）→ SKYVAULT_SCENARIO_PATH（SKYVAULT_BATCH_PATH）
+找 policy               KNOWN_POLICIES → 第一次遇到未知名稱時匯入 SKYVAULT_POLICY_MODULES
+誰做決定                scenario 必須有 runtime.policy 或 domain（engine.require_decider；world service 入列前同樣檢查，422）
+系統的基線              military_urban_001 v0.2（528 events、output 78aa3fe5bbdf）
+```
+
+開發用的東西不在運作路徑上：`scripts/dev/` 不經服務、直接呼叫函式庫寫 `output/`；Phase 0 的參考切片（policy、scenario、batch）在 `tests/fixtures/reference/`，測試以上面三個變數取得 —— 和部署加入自己的東西是同一條路。`tests/test_standalone.py` 守住：`src/`、`data/`、Dockerfile、compose 不提它，`src/` 不 import、不讀 `tests/` 或 `scripts/`。
+
+---
+
 # 1. 系統在做什麼
 
 一次執行就是把一份 scenario JSON 變成一包可回放、可追溯的紀錄。
@@ -51,7 +79,7 @@ scenario JSON
 Failure exploration（Phase 9）是許多次上面的 run：
 
 ```text
-scripts/explore_failures.py
+scripts/dev/explore_failures.py
   ├─ failure.explore_failures()   基線 + 每個變量 × 每個壓力等級 + 分支 + 每個替代方案，
   │                               每個都跑 repeat_count 次（seed = 原 seed + i）
   │     └─ 每個惡化版本 = failure.apply_stress() 產生的子版本 scenario，交給同一個 engine
@@ -61,7 +89,7 @@ scripts/explore_failures.py
 Batch（Phase 10）是許多個方案、各許多次的 run：
 
 ```text
-scripts/run_batch.py
+scripts/dev/run_batch.py
   └─ batch.run_batch()
         ├─ batch.variants            版本、參數掃描點、衝突分支 → 每個都是一份 scenario
         │     └─ batch.conflicts     同 tick 的命令兩兩比較 → 衝突 → 極大相容集合 = 分支 + 基準
@@ -86,7 +114,7 @@ run 之後：mission_outcome（任務）、build_dataset（state-action-outcome�
 訓練資料（Phase 18）從 run 產生：
 
 ```text
-scripts/build_training_data.py（data/training/sources.json）
+scripts/dev/build_training_data.py（data/training/sources.json）
   └─ training.pipeline              跑每個來源 × seed（engine、惡化版本）與 batch
         ├─ transitions（純函式）     每個決定一筆：state、observation、action、consequence、reward、next_state…
         ├─ labels（純函式）          六個 anti-gaming 標籤、success_type
@@ -95,16 +123,20 @@ scripts/build_training_data.py（data/training/sources.json）
         └─ export / registry / rag   JSONL + Parquet；training data registry；RAG index
 ```
 
-UI 與 briefing（Phase 17）只讀上面三個腳本寫出的檔案：
+UI 與 briefing（Phase 17；Phase 21 起讀 world service）：
 
 ```text
-output/（workspace）
-  └─ views.load_workspace()        result_package 必要；failure、batch 的檔 optional
+world service 的 store
+  └─ worldservice.views.workspace_from_store(store, run)   一場 run（scenario_run、persistent_world、replay）的
+        │                                                   result package ＋ 同一 scenario 最近一次完成的
+        │                                                   failure exploration 與 batch；形狀同 views.load_workspace
         ├─ views（純函式）          每個畫面的 view model：總覽、時間線、地圖 frame、因果鏈、失敗地圖、比較、package
         │     └─ report.build_briefing()  → render_markdown / render_docx / render_pdf（回傳 bytes，可重現）
-        └─ service.create_app()     FastAPI：/api/*、/api/report.*、/ws/replay；ui/out 掛在 /
-              └─ ui/（Next.js 靜態匯出） 八個頁面 fetch /api；Replay 頁經 WebSocket 逐 tick 取 frame
+        └─ service.add_view_routes()  /api/runs/{run}/<畫面>、/api/runs/{run}/report.*、/ws/replay?run=
+              └─ ui/（Next.js 靜態匯出） 八個頁面依 ?run=（預設最新）fetch；右上角列出 /api/runs
 ```
+
+開發用的 `scripts/dev/export_briefing.py` 仍以 `views.load_workspace(output/)` 讀腳本寫出的資料夾。
 
 ## 六個關鍵設計
 
@@ -116,7 +148,7 @@ output/（workspace）
 
 **評估是紀錄的推導，不是模擬的一部分。** `evaluate_run()` 在 SCENARIO_END 之後執行，只讀 initial / event memory / final，與 exporter 一樣不 import 專案模組。換 evaluation profile 只會換判斷，不會換發生過的事 —— 有測試證明兩個 profile 的 event 完全相同。
 
-**同一輸入得到同一個 output_hash。** event 與 action 的 id 是每個 run 自己的計數器，不再是 uuid；scenario + profile 相同、seed 相同、規則相同，result package 除了記錄執行時間的 reproducibility 區塊外逐位元相同。`scripts/verify_run.py` 只靠 result package 就能找回輸入、重跑並比對。
+**同一輸入得到同一個 output_hash。** event 與 action 的 id 是每個 run 自己的計數器，不再是 uuid；scenario + profile 相同、seed 相同、規則相同，result package 除了記錄執行時間的 reproducibility 區塊外逐位元相同。`scripts/dev/verify_run.py` 只靠 result package 就能找回輸入、重跑並比對。
 
 **exporter 不認識這個系統。** 四個 exporter 只 import 標準函式庫，收 plain dict、回傳 plain dict。它們在型別上就不可能反過來影響模擬。
 
@@ -127,15 +159,14 @@ output/（workspace）
 ## 核心（有上下關係，禁止向上 import）
 
 ```text
-                 ① scripts/
-        run_tactical_reference.py
-        啟動入口 / 開發 runner
+          ① cli.py（skyvault）、worldservice/、scripts/dev/
+        啟動入口（scripts/dev 只在開發時）
 ────────────────────────────────────
                  ② engine.py
         流程總管 / simulation runtime
 ────────────────────────────────────
-  ③ scenario_loader.py   tactical_reference_policy.py   evaluator.py   actions/
-       讀 scenario          臨時 actor policy          結果計算     驗證 / 結算 / 套用
+  ③ scenario_loader.py   policies.py（registry）   evaluator.py   actions/
+       讀 scenario          以名稱取得 policy        結果計算     驗證 / 結算 / 套用
 ────────────────────────────────────
      ④ world_state.py   action.py   consequence.py
         世界狀態        行動嘗試      行動後果
@@ -161,12 +192,12 @@ output/（workspace）
 具體意思：
 
 ```text
-① scripts/
+① cli.py / worldservice/ / scripts/dev/
 需要 ② engine.py
-原因：scripts 只負責啟動流程。
+原因：它們只負責啟動流程。
 
 ② engine.py
-需要 ③ scenario_loader.py / tactical_reference_policy.py / evaluator.py / actions/
+需要 ③ scenario_loader.py / policies.py / evaluator.py / actions/
 需要 ④ world_state.py / action.py
 需要 ⑤ entity.py / event_memory.py
 原因：engine 要把 scenario、world、policy、action、event、evaluation 串起來。
@@ -175,10 +206,10 @@ output/（workspace）
 需要 ⑥ data/scenarios/*.json
 原因：它讀 scenario 原料。
 
-③ tactical_reference_policy.py
+③ 一個 policy（domain pack 的、actors/ 的、部署自己的）
 需要 ④ world_state.py / action.py
 需要 ⑤ entity.py
-原因：policy 要看世界與 actor 狀態，然後產生 Action。
+原因：policy 要看世界與 actor 狀態，然後產生 Action。engine 只經 policies.py 以名稱取得它。
 
 ③ actions/
 需要 ④ world_state.py / action.py / consequence.py
@@ -322,10 +353,10 @@ engine 向 pack 讀的可選宣告（Phase 14，getattr 與預設值）：
 ```text
    src/skyvault/actors/   view、queue、participants、basic、adapters；不 import engine（測試逐檔檢查）
                           engine 只 import view 與 participants；actor 類型由 policies.KNOWN_POLICIES 以名稱延遲 import
-   src/skyvault/world_state.py   不 import policies、actors、engine、tactical_reference_policy（AST 測試）
+   src/skyvault/world_state.py   不 import policies、actors、engine 或任何 policy（AST 測試）
 ```
 
-world policy 透過 `WorldView` 讀世界：任何寫入 raise `ReadOnlyWorldError`。其他 actor 只拿到 observation、只交出 order。engine 不 import tactical_reference_policy —— 它和其他 policy 一樣以名稱取得，可以被拔掉。
+world policy 透過 `WorldView` 讀世界：任何寫入 raise `ReadOnlyWorldError`。其他 actor 只拿到 observation、只交出 order。engine 不 import 任何 policy —— 都以名稱取得。
 
 ## World service（在 engine 之上，與 batch / failure 同層）
 
@@ -393,12 +424,12 @@ engine 用 reproducibility 產生 hash 與版本；verification 用 engine 重�
 
 ```python
 # 不要在 entity.py / world_state.py / action.py 裡這樣做
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 ```
 
 ```python
 # 不要在 world_state.py 裡這樣做
-from skyvault.tactical_reference_policy import TacticalReferencePolicy
+from skyvault.domains.military.policy import MilitaryBaselinePolicy
 ```
 
 ```python
@@ -409,8 +440,8 @@ from skyvault.world_state import WorldState
 核心規則：
 
 ```text
-engine.py 可以知道 tactical_reference_policy.py。
-world_state.py 不可以知道 tactical_reference_policy.py。
+engine.py 只經 policies.py 以名稱取得 policy，不 import 任何一個。
+world_state.py 不可以知道任何 policy。
 exporter 誰都不認識，只認得資料。
 
 policy 決定 actor 想做什麼。
@@ -812,50 +843,16 @@ scenario_perspective(scenario)          evaluation.perspective，否則第一個
 不驗證戰術合理性。
 ```
 
-## `tactical_reference_policy.py`
+## Phase 0 的參考 policy（不在系統裡）
 
-定義：
-
-```text
-TacticalReferencePolicy
-```
-
-暫時性的 actor policy。**這不是 SKYVAULT core**，之後會被換掉。
-
-方法：
-
-```python
-decide_action(world, actor)         回傳 Action 或 None
-choose_target(world, actor)         挑攻擊目標
-threat_score(world, actor, enemy)   目標的威脅評分
-next_step_toward(world, actor, target)  往目標靠近一格
-```
-
-決策邏輯大致是：
-
-```text
-1. 有敵人在 attack_range 內  → 產生 attack action
-2. 否則往最有威脅的敵人移動一格 → 產生 move action
-3. 沒有可行動作 → 回傳 None（記為 NO_ACTION）
-```
-
-規則：
-
-```text
-policy 只提議，不執行。
-policy 不改變世界。
-policy 不記錄事件。
-policy 用 engine 傳進來的 rng，不自己建立隨機來源。
-```
-
-隨機用在兩個地方：`choose_target()` 多個目標同分時挑一個、`next_step_toward()` 多個格子同分時挑一個。
+`TacticalReferencePolicy` 是讓第一個切片跑起來的臨時 policy，Phase 21 起搬到 `tests/fixtures/reference/policy.py`：測試以 `SKYVAULT_POLICY_MODULES` 匯入它（註冊為 `tactical_reference`），參考切片的回歸測試仍釘住它的行為（RED_survived / 97 events）。SKYVAULT 本身不知道它的存在。
 
 ## `engine.py`
 
 定義：
 
 ```text
-SkyVaultTacticalReferenceEngine
+SkyVaultEngine
 ```
 
 流程總管。持有整場模擬**唯一**的 `random.Random(seed)`，並交給 policy 共用。
@@ -1009,9 +1006,9 @@ build_policy(name, rng, params=None) 未註冊 raise KeyError（列出已註冊�
 import_policy_module(spec)           import 會註冊 policy 的模組或 .py 檔 —— 只給腳本的 --policy-module 用
 ```
 
-engine 選 policy 的順序：`engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 時，它決定的 event 都記這個 id。scenario 檔只能選已註冊的名稱，不能載入程式。
+engine 選 policy 的順序：`engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → 都沒有就 `ContractError`（`require_decider`；Phase 21 前退回 Phase 0 的 policy）。未知的名稱先試 `KNOWN_POLICIES`，再匯入 `SKYVAULT_POLICY_MODULES` 列出的模組（`import_deployment_policies`，每個只匯入一次）。policy 有 `system_id` 時，它決定的 event 都記這個 id。scenario 檔只能選已註冊的名稱，不能載入程式。
 
-**KNOWN_POLICIES 與多視角（Phase 6）。** `build_policy` 遇到未註冊、但在 `KNOWN_POLICIES` 裡的名稱時先 import 它的模組（tactical_reference 與十種 actor 類型）；模組無法 import 就當作沒有這個名稱。`MultiViewPolicy` 宣告 `observer_profiles`（tuple），engine 呼叫 `decide_from_observations({observer_id: observation})`。`AnyPolicy = Policy | ObservingPolicy | MultiViewPolicy`。
+**KNOWN_POLICIES 與多視角（Phase 6）。** `build_policy` 遇到未註冊、但在 `KNOWN_POLICIES` 裡的名稱時先 import 它的模組（十種 actor 類型與空域的 hades_rules）；模組無法 import 就當作沒有這個名稱。`MultiViewPolicy` 宣告 `observer_profiles`（tuple），engine 呼叫 `decide_from_observations({observer_id: observation})`。`AnyPolicy = Policy | ObservingPolicy | MultiViewPolicy`。
 
 **ObservingPolicy（Phase 5）。** 有 `observer_profile` 屬性的 policy 不會拿到 world：engine 呼叫 `decide_from_observation(observation)`，它回傳 `{action_type, target, intent, …}` 或 None，action id 由 engine 產生（與 scheduled_actions 同一條路）。`AnyPolicy = Policy | ObservingPolicy`；registry 的 factory 可以回傳任一種。
 
@@ -1407,24 +1404,25 @@ render_pdf(briefing)           bytes；reportlab invariant 模式
 
 ## `service/`
 
+Phase 21 起是可以掛在任何 app 上的路由（world service 掛它）：
+
 ```python
-create_app(workspace_dir, ui_dir=None) -> FastAPI
+add_view_routes(app, workspace_for)   workspace_for(run) -> workspace；沒有這場 run → NoSuchRun（404）
+mount_ui(app, ui_dir) -> bool         ui_dir 有 index.html 時掛在 /；要在所有路由之後呼叫
 ```
 
 ```text
-GET  /api/health                         workspace 有哪些輸出
-GET  /api/{overview,timeline,map,causal,package}
-GET  /api/{failure,comparison}           缺對應檔時 404，detail 說明用哪個腳本產生
-GET  /api/report.{md,pdf,docx}           briefing 下載（Content-Disposition: attachment）
-WS   /ws/replay                          ready → seek / play / pause → frame / end / paused / error
-/                                         ui_dir 有 index.html 時的靜態 UI
+GET  /api/runs/{run}/{overview,timeline,map,causal,package}     run = job id 或 latest
+GET  /api/runs/{run}/{failure,comparison}   同一 scenario 沒有完成的 exploration / batch 時 404，detail 說明用哪個 skyvault 指令
+GET  /api/runs/{run}/report.{md,pdf,docx}   briefing 下載（Content-Disposition: attachment）
+WS   /ws/replay?run=                         ready → seek / play / pause → frame / end / paused / error
 ```
 
-每個 request 重讀 workspace，所以重新跑腳本後不必重啟。播放時另一個 task 讀訊息，讓 pause 能在串流中途生效。
+`NoSuchRun` 是自己的例外類別，不是 `LookupError`：結果壞掉時的 `KeyError` 要以 500 浮出，而不是被讀成「沒有這場 run」。每個 request 重讀 store，所以新的結果不必重啟就看得到。播放時另一個 task 讀訊息，讓 pause 能在串流中途生效。world service 另有 `GET /api/runs`（`worldservice.views.runs`：有 result package 的 run，最新的在前）。
 
 ## `ui/`
 
-Next.js 16（App Router、`output: "export"`、`trailingSlash`）、React 19、ECharts 6。八個頁面：Overview、Timeline、Replay、Causal chain、Failure map、Compare、Result package、Briefing。`npm run build` 寫到 `ui/out/`；`npm run e2e` 用 Playwright 驅動每個頁面（`SKYVAULT_URL` 指向 server）。
+Next.js 16（App Router、`output: "export"`、`trailingSlash`）、React 19、ECharts 6。八個頁面：Overview、Timeline、Replay、Causal chain、Failure map、Compare、Result package、Briefing；每頁顯示 `?run=` 指定的 run（預設最新），右上角的選單列出服務裡的 run，頁面之間的連結保留 `?run=`。`npm run build` 寫到 `ui/out/`，由 `skyvault serve` 提供；`npm run e2e` 先讀服務的 API，再用 Playwright 驗證每個頁面顯示的是同一份內容（`SKYVAULT_URL` 指向 server）。
 
 ## `verification.py`
 
@@ -1526,7 +1524,7 @@ ContractError 一次列出全部錯誤，格式 "<欄位路徑>: <訊息>"。
 
 完整欄位與每個 optional 欄位留待哪個 Phase，見 [`spec/contracts.md`](spec/contracts.md)。
 
-**改了契約要重跑 `scripts/export_schemas.py`** —— 連只改 docstring 也要，因為 Pydantic 把它寫進 JSON Schema 的 `description`。
+**改了契約要重跑 `scripts/dev/export_schemas.py`** —— 連只改 docstring 也要，因為 Pydantic 把它寫進 JSON Schema 的 `description`。
 
 ## Exporter
 
@@ -1639,12 +1637,12 @@ build_causal_chain(scenario_id, event_memory)
 
 `SCENARIO_END` 沒有 `source_action_id`，不納入任何 chain。
 
-## `scripts/run_tactical_reference.py`
+## `scripts/dev/run_scenario.py`
 
-啟動入口。
+開發用 runner（Phase 21 前叫 run_tactical_reference.py，是啟動入口；現在 SKYVAULT 以 `skyvault` 啟動）。
 
 ```text
-載入 scenario（--scenario，預設 tactical_reference_001/v0.1.json）與 profile（--profile）
+載入 scenario（--scenario，預設 military_urban_001/v0.2.json）與 profile（--profile）
 跑 engine
 從 result_package 取出欄位
 呼叫四個 exporter 與 render_tradeoff_report
@@ -1653,7 +1651,7 @@ build_causal_chain(scenario_id, event_memory)
 印出摘要、判斷、run_id 與 output_hash 前 12 碼
 ```
 
-`scripts/verify_run.py <result_package.json>`：從 package 找回 scenario 與 profile，重跑，比對 output_hash；重現成功 exit 0，否則 exit 1。
+`scripts/dev/verify_run.py <result_package.json>`：從 package 找回 scenario 與 profile，重跑，比對 output_hash；重現成功 exit 0，否則 exit 1。
 
 規則：
 
@@ -1757,7 +1755,7 @@ ACTION_SELECTED  ←caused_by─  ATTACK  ←caused_by─  ENTITY_DESTROYED
 
 # 6. 輸出
 
-執行一次產生十一個檔案；`scripts/explore_failures.py` 另外寫四個。
+執行一次產生十一個檔案；`scripts/dev/explore_failures.py` 另外寫四個。
 
 ## Truth source
 
@@ -1800,7 +1798,7 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 
 四個都是純推導 —— 刪掉重跑會得到相同內容。
 
-## Failure output（`scripts/explore_failures.py`）
+## Failure output（`scripts/dev/explore_failures.py`）
 
 | 檔案 | 回答什麼 |
 |---|---|
@@ -1809,7 +1807,7 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `survival_conditions.json` | 每個變量撐到哪一級、在哪一級崩潰；不適用的變量與原因 |
 | `recommended_modifications.md` | 現實行動前必須改什麼 |
 
-## Batch output（`scripts/run_batch.py`）
+## Batch output（`scripts/dev/run_batch.py`）
 
 | 檔案 | 回答什麼 |
 |---|---|
@@ -1822,11 +1820,11 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 
 | 檔案 / 指令 | 回答什麼 |
 |---|---|
-| `run_tactical_reference.py --scenario data/scenarios/military_*/v0.1.json` | 同樣的十一個輸出，換成軍事 scenario |
+| `scripts/dev/run_scenario.py --scenario data/scenarios/military_*/v0.1.json`（或 `skyvault run`） | 同樣的十一個輸出，換成軍事 scenario |
 | `run_batch.py --batch data/batches/military_doctrine.json` | urban 中庭的三種 doctrine 並排 |
 | `tac_angel_dataset.jsonl`（`export_dataset.py`） | 每個決定一筆 state-action-outcome；不進版本控制 |
 
-## Training output（`scripts/build_training_data.py`）
+## Training output（`scripts/dev/build_training_data.py`）
 
 | 檔案 | 回答什麼 |
 |---|---|
@@ -1840,12 +1838,12 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 
 全部不進版本控制（約 32 MB）；由 sources.json 重產。
 
-## Briefing 與 UI（`scripts/export_briefing.py`、`scripts/serve_ui.py`）
+## Briefing 與 UI（`skyvault briefing`、`skyvault serve`；開發用 `scripts/dev/export_briefing.py`）
 
 | 檔案 / 位址 | 回答什麼 |
 |---|---|
-| `briefing.md`、`briefing.pdf`、`briefing.docx` | 這次 run、它的失敗地圖與方案比較，一份可以帶進會議的文件 |
-| `http://127.0.0.1:8000` | 同樣的內容，加上逐 tick 的地圖 replay、可篩選的因果鏈、圖表 |
+| `briefing.md`、`briefing.pdf`、`briefing.docx` | 一場 run、它的 scenario 的失敗地圖與方案比較，一份可以帶進會議的文件 |
+| `http://127.0.0.1:8000` | 同樣的內容，加上逐 tick 的地圖 replay、可篩選的因果鏈、圖表；右上角選 run |
 
 ## Evaluation output
 
@@ -1856,7 +1854,7 @@ tradeoff_report      dict     四組對立軸、最強 / 最弱軸、防刷分�
 | `anti_gaming_report.json` | 高分是不是刷出來的 | `result_package["anti_gaming_report"]` |
 | `tradeoff_report.md` | 得到什麼、付出什麼 | `render_tradeoff_report(result_package["tradeoff_report"])` |
 
-`python3 scripts/run_tactical_reference.py --profile <path>` 用別的 profile 評同一個 scenario；不給就用 `data/evaluation_profiles/balanced.json`。
+`python3 scripts/dev/run_scenario.py --profile <path>` 用別的 profile 評同一個 scenario；不給就用 `data/evaluation_profiles/balanced.json`。
 
 ---
 
@@ -1937,7 +1935,7 @@ Phase 8 起 `event_id` 與 `action_id` 是每個 run 的計數器（`runtime/ids
 |---|---|
 | 事件數不對 | `len(event_memory)` vs `evaluation_result.event_count` |
 | `ContractError` | `error.contract` 指出哪份契約，`error.errors` 列出每個欄位路徑 |
-| JSON Schema 測試失敗 | 契約改過（連 docstring 也算）但沒重跑 `scripts/export_schemas.py` |
+| JSON Schema 測試失敗 | 契約改過（連 docstring 也算）但沒重跑 `scripts/dev/export_schemas.py` |
 | 某個 tick 狀態不對 | `replay_state_at_tick.json` 的該 tick；或 `rebuild_world(..., at_time=N)` |
 | 重建結果 ≠ final_world_state | 有人改了世界卻沒記 event，或 event 的 after_state 不是完整快照 |
 | tactical engine 拒絕 scenario | 它只跑 grid + tick；其他空間與時間要用 `create_world()` 直接建 |
@@ -1979,26 +1977,26 @@ world service    Redis 與 PostgreSQL 為選用：預設 SQLite + in-process que
 ```
 
 ```bash
-python3 scripts/run_tactical_reference.py       # 跑一次
+python3 scripts/dev/run_scenario.py       # 跑一次
 python3 -m pytest tests/ -q                     # 測試
 python3 -m pytest tests/ -q --cov               # 覆蓋率
 ruff check .                                    # linter
 black --check src/ tests/ scripts/              # 排版
 python3 -m mypy src/                            # 型別（要用能 import pydantic 的直譯器）
-python3 scripts/export_schemas.py               # 改契約後重新產生 JSON Schema
-python3 scripts/verify_run.py output/result_package.json   # 重跑並比對 output_hash
-python3 scripts/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
-python3 scripts/run_batch.py [--repeats N] [--workers N]  # 批量與分支比較，寫出四個 batch 輸出
-python3 scripts/export_briefing.py [--workspace DIR]      # briefing.md / .pdf / .docx
-python3 scripts/build_military_scenarios.py               # 改 profile 或 spec 後重建軍事 scenario
-python3 scripts/export_dataset.py [--runs N]              # state-action-outcome dataset
-python3 scripts/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
-python3 scripts/observe_run.py [--scenario F] [--faction F] [--actor ID]   # 五個 observer 各自看到什麼
-python3 scripts/run_tactical_reference.py --participants F                # 每個 participant 決定自己的單位
-python3 scripts/serve_world.py [--queue rq --redis URL --store SPEC]      # world service（/api/docs）
-python3 scripts/world_worker.py --redis URL --store SPEC [--burst]       # RQ worker
-(cd ui && npm ci && npm run build)                        # 建 UI 到 ui/out
-python3 scripts/serve_ui.py [--port 8000]                 # UI + API；(cd ui && npm run e2e) 驅動每個頁面
+python3 scripts/dev/export_schemas.py               # 改契約後重新產生 JSON Schema
+python3 scripts/dev/verify_run.py output/result_package.json   # 重跑並比對 output_hash
+python3 scripts/dev/explore_failures.py [--repeats N]         # 故意惡化，寫出四個 failure 輸出
+python3 scripts/dev/run_batch.py [--repeats N] [--workers N]  # 批量與分支比較，寫出四個 batch 輸出
+python3 scripts/dev/export_briefing.py [--workspace DIR]      # briefing.md / .pdf / .docx
+python3 scripts/dev/build_military_scenarios.py               # 改 profile 或 spec 後重建軍事 scenario
+python3 scripts/dev/export_dataset.py [--runs N]              # state-action-outcome dataset
+python3 scripts/dev/build_training_data.py [--workers N]      # 訓練資料：三個集合、報告、分支評估、索引
+python3 scripts/dev/observe_run.py [--scenario F] [--faction F] [--actor ID]   # 五個 observer 各自看到什麼
+python3 scripts/dev/run_scenario.py --participants F                # 每個 participant 決定自己的單位
+skyvault serve [--queue rq --redis URL --store SPEC] [--edition E]   # 服務 + worker + UI（/api/docs）
+skyvault worker --redis URL --store SPEC [--burst]                  # RQ worker
+(cd ui && npm ci && npm run build)                                  # 建 UI 到 ui/out（skyvault serve 提供）
+(cd ui && npm run e2e)                                              # 對一個有 run 的服務驅動每個頁面
 python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 ```
 

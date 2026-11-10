@@ -41,14 +41,14 @@ EIDEN-01    將情報轉成 SKYVAULT 的世界參數
 
 ## 目前的實作
 
-本 repo 目前是 **tactical reference slice** —— 第一個應用場景（軍事戰術）的參考實作，用來驗證整條世界迴圈能跑通：
+SKYVAULT 是一個完整的系統，用一個指令 `skyvault` 啟動與使用（Phase 21）：它啟動 world service、worker 與網頁介面，所有工作都經服務提交，介面從服務讀任何 run。運作時不依賴任何開發用的腳本或測試資料 —— Phase 0 的 tactical reference slice 只留在 `tests/` 當回歸測試。每一場 run 都走同一條世界迴圈：
 
 ```text
 scenario → world state → actor policy → action → validation
 → consequence → world mutation → event memory → evaluation → result package
 ```
 
-世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。tactical reference 只用其中的 grid + tick。
+世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。scenario 必須說明誰做決定：`runtime.policy` 指名一個 policy，或它的 domain pack 帶預設 policy —— 都沒有就被拒絕，SKYVAULT 不替它挑一個。系統的基線是 `military_urban_001` v0.2。
 
 actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
 
@@ -72,7 +72,7 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 每個系統看到自己的世界（Phase 5）：observer profile 決定 TAC ANGEL 看一個單位周圍、STARTX 看趨勢、NEXUS 看任務、HADES 看威脅、AEROGRID 看覆蓋；看不到的敵人不出現，看得到的帶 confidence，過期的接觸標明幾 tick 前、延遲的系統看到較早的 tick。外部 policy 可以只拿 observation 決定 —— engine 根本不給它 world。
 
-誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；tactical reference policy 可以被拔掉。
+誰來決定被拆出 core（Phase 6）：每個單位可以由不同的 participant 決定 —— 規則、腳本、人、外部系統、LLM 輔助，或 TAC ANGEL / STARTX / HADES / AEROGRID / SKYFOX 的 adapter —— 它們只能交出 Action 意圖。讀世界的 policy 拿到唯讀的世界，任何寫入當場被擋下；core 不 import 任何 policy，部署自己的 policy 以 `SKYVAULT_POLICY_MODULES` 帶進來。
 
 SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、排隊（優先序、上限）、在 worker 上跑（同一個程序，或 RQ + Redis 的 worker），結果存在 SQLite 或 PostgreSQL，可查、可下載、可重播；persistent world 可以一次推進幾個 tick。每個 run 都受 Resource & Compute Governance 約束：失控的 run 被自動停下並交出 partial result，過大的 batch 在門口被拒。
 
@@ -80,7 +80,7 @@ SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、�
 
 模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
 
-結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。
+結果不用打開 JSON 就能看懂（Phase 17）：一個網頁介面有總覽、逐 tick 的時間線、地圖 replay、因果鏈、失敗地圖、方案比較與 result package；briefing report 可匯出成 PDF、Word 或 Markdown，同一份結果每次逐位元相同。介面由 world service 本身提供（Phase 21）：選單列出服務裡的每一場 run，失敗地圖與比較取自同一個 scenario 最近一次的 failure exploration 與 batch。
 
 每次 run 結束後依 evaluation profile 做多軸評估（`src/skyvault/evaluation/`）：11 軸分數、pass / fail / risky / needs_more_test 的判斷與信心、失敗原因、建議下一步測試，並標記靠不行動、犧牲穩定或忽略風險拿到的高分。
 
@@ -93,92 +93,41 @@ SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、�
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow scipy
-python3 scripts/run_tactical_reference.py
+python3 -m pip install -e .                       # 安裝 SKYVAULT 與 skyvault 指令
+(cd ui && npm ci && npm run build)                # 第一次需要：網頁介面（Node 22）
+skyvault serve                                    # world service + worker + 介面：http://127.0.0.1:8000
 ```
 
-需要 Python 3.10+。模擬本身的相依有四個：`pydantic`（契約與 JSON Schema）、`PyYAML`（YAML scenario）、`networkx`（graph / network 空間的最短路與衝突分支）、`pandas`（批量彙整）；介面與 briefing 另用 `fastapi`、`uvicorn`、`websockets`、`python-docx`、`reportlab`。裝備篩查的 constraint solver 用 `scipy`。全部宣告在 `pyproject.toml`。建 UI 需要 Node 22。
+需要 Python 3.10+；相依全部宣告在 `pyproject.toml`。用 `-e`（editable）安裝：SKYVAULT 讀它自己在 repo 裡的 `data/`。
 
-跑完會在 `output/` 產生十一個檔案，最後一行是評估判斷：
-
-```text
-Verdict: risky (score 0.50, profile balanced)
-```
-
-驗證這次的結果可以重現、換另一個 scenario 版本：
+另開一個終端機，所有工作都經服務提交（`--url` 或 `SKYVAULT_URL` 指向別的服務）：
 
 ```bash
-python3 scripts/verify_run.py output/result_package.json
-# Reproduced: yes
-python3 scripts/run_tactical_reference.py --scenario data/scenarios/tactical_reference_001/v0.2.json
-# Result: BLUE_survived（v0.2 只把 blue_002 的命中率從 0.55 調到 0.75）
+skyvault run military_urban_001/v0.2              # 跑一場，等它結束，印出結果
+# job_000001  completed
+#   events: 528
+#   output_hash: 78aa3fe5bbdf…
+#   result: no_winner_duration_limit
+skyvault explore military_urban_001/v0.2          # 在哪裡失敗、被什麼壓垮、哪個替代方案撐更久
+skyvault batch military_doctrine                  # 三種 doctrine 各跑 100 次並排比較
+skyvault runs                                     # 介面能看的每一場 run
+skyvault briefing latest --format pdf             # 帶進會議的文件（md / pdf / docx）
+skyvault replay job_000001                        # 重跑一場，確認逐位元重現
+skyvault world create military_squad_001/v0.1     # persistent world：然後 advance / finish
+skyvault products                                 # 這個版本的產品（serve --edition commercial 是商業版）
+skyvault status
 ```
 
-故意惡化這個方案（約 12 秒；`--repeats 2` 約 3 秒）：
+打開 http://127.0.0.1:8000 看同一場：總覽、時間線、replay、因果鏈、失敗地圖、比較、result package、briefing；右上角選另一場 run。
+
+不需要服務的兩個：
 
 ```bash
-python3 scripts/explore_failures.py
-# Survives without stress: 60%
-# Crushed by: communication_failure
-# Best alternative: v0.1-support-rear
+skyvault virtual-test pax_test_001                # 一份裝備 profile 的三重篩查與判斷
+skyvault acceptance                               # 完整 v2.0 的驗收：15 / 14 / 6 / 5 → ACCEPTED
 ```
 
-把三個部署、三個敵方命中率與三道互相衝突的命令各跑 100 次（900 次 run，4 個 worker 約 5 秒）：
-
-```bash
-python3 scripts/run_batch.py
-# Best mean score: support-rear
-# Conflicts: 2; branches: P1, P2+P3; decision required: True
-```
-
-把上面三個腳本的結果寫成 briefing，或打開網頁介面：
-
-```bash
-python3 scripts/export_briefing.py              # output/briefing.md、.pdf、.docx
-(cd ui && npm ci && npm run build)              # 第一次需要
-python3 scripts/serve_ui.py                     # http://127.0.0.1:8000
-```
-
-跑軍事 domain pack 的 scenario、讓外部 policy 指揮、匯出訓練資料：
-
-```bash
-python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_urban_001/v0.1.json
-python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
-    --policy-module examples/tac_angel_policy.py --policy tac_angel_example
-python3 scripts/run_batch.py --batch data/batches/military_doctrine.json   # 三種 doctrine 並排
-python3 scripts/export_dataset.py                                          # output/tac_angel_dataset.jsonl
-python3 scripts/build_training_data.py --workers 4                         # output/training/：三個集合與報告
-python3 scripts/observe_run.py                                             # output/observations/：五個系統各自看到什麼
-python3 scripts/run_tactical_reference.py --scenario data/scenarios/military_squad_001/v0.1.json \
-    --participants tests/fixtures/actors/participants_squad.json            # RED 由 TAC ANGEL / HADES、BLUE 由 baseline
-python3 scripts/serve_world.py                                             # world service：http://127.0.0.1:8100/api/docs
-python3 scripts/run_external.py                                            # output/external/：九個系統各自拿回什麼、一個衝突
-python3 scripts/run_tactical_reference.py --scenario data/scenarios/city_blackout_001/v0.1.json   # 一座停電的城市
-python3 scripts/run_city.py                                                # output/city/：governance score、連鎖、補給延遲
-python3 scripts/run_airspace.py                                            # output/airspace/：偵測缺口、反應、漏過原因、規則與雷達配置比較
-python3 scripts/run_virtual_test.py                                        # output/virtual_test/：四份裝備的三重篩查與判斷
-python3 scripts/run_products.py --edition commercial                       # output/products/：商業版六個產品的 KPI 與結論
-python3 scripts/serve_world.py --edition commercial                        # 商業版的 world service
-python3 scripts/run_v2_acceptance.py                                       # output/v2/：完整 v2.0 的驗收與證據
-docker compose up --build                                                  # API + worker + Redis + PostgreSQL
-```
-
-用另一個 profile 評同一場：
-
-```bash
-python3 scripts/run_tactical_reference.py --profile data/evaluation_profiles/tactical.json
-# Verdict: pass (score 0.78, profile tactical)
-```
-
-想快速知道發生了什麼，先看 `output/timeline.txt`：
-
-```text
-Tick 6
-
-- Red Rifleman selected ATTACK against Blue Commander
-- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 10)
-- Blue Commander in the BLUE faction was destroyed by Red Rifleman
-```
+部署自己的 scenario、batch 與 policy 不需要改 SKYVAULT：`SKYVAULT_SCENARIO_PATH`、`SKYVAULT_BATCH_PATH` 加資料夾（排在 `data/` 之後），`SKYVAULT_POLICY_MODULES` 加 policy 模組。用 Redis 與 PostgreSQL：`skyvault serve --queue rq --redis … --store postgresql://…` 加上 `skyvault worker`；或 `docker compose up --build`。
 
 跑測試：
 
@@ -186,9 +135,9 @@ Tick 6
 python3 -m pytest tests/ -q
 ```
 
----
-
 ## 產出什麼
+
+服務保存每個 job 的紀錄與結果（SQLite 或 PostgreSQL）：`skyvault result <job>` 下載 result package，`/api/runs/<run>/…` 是介面的每個畫面，`skyvault briefing` 是 briefing。開發用腳本（見「開發」）把同樣的內容寫進 `output/`：
 
 | 檔案 | 這是什麼 |
 |---|---|
@@ -229,7 +178,7 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 |---|---|
 | 系統怎麼運作、模組怎麼分工 | [`docs/architecture.md`](docs/architecture.md) |
 | 我要接手這個專案 | [`docs/handoff.md`](docs/handoff.md) |
-| 完整技術參考（1510 行） | [`docs/phases/phase4_tactical_slice.md`](docs/phases/phase4_tactical_slice.md) |
+| Phase 4 時的完整技術參考（凍結） | [`docs/phases/phase4_tactical_slice.md`](docs/phases/phase4_tactical_slice.md) |
 | 某個階段做了什麼 | [`docs/phases/`](docs/phases/) |
 | 資料格式長什麼樣 | [`docs/spec/contracts.md`](docs/spec/contracts.md) |
 | 每個 Phase 要做什麼、照什麼順序 | [`docs/plan/`](docs/plan/) |
@@ -243,7 +192,9 @@ timeline 到 causal_chain 四個與評估四個，都是從 result package 推�
 ## Repo 結構
 
 ```text
-src/skyvault/       引擎與 exporter
+src/skyvault/       SKYVAULT 本身
+  cli.py            skyvault 指令：serve、worker、run、explore、batch、briefing、acceptance…
+  library.py        依名稱找 scenario 與 batch：data/ 之後是 SKYVAULT_SCENARIO_PATH / SKYVAULT_BATCH_PATH
   contracts/        26 份資料契約（Pydantic，schema 0.6）
   runtime/          世界的積木：空間、時間、實體登記、資源、規則、快照、event sourcing
   actions/          action 的驗證、結算與套用；十種 action type
@@ -251,9 +202,9 @@ src/skyvault/       引擎與 exporter
   reproducibility/  hash、版本、scenario 比較、run registry
   failure/          failure variables、壓力測試、failure map
   batch/            批量、平行、參數掃描、衝突分支、conflict package
-  views/            每個畫面的內容，從輸出檔推導
+  views/            每個畫面的內容，從一場 run 的結果推導
   report/           briefing（Markdown / Word / PDF）
-  service/          網頁介面的後端（FastAPI、replay WebSocket）
+  service/          網頁介面的路由（一場 run 的畫面、replay WebSocket、靜態 UI），掛在 world service 上
   policies.py       policy registry：外部 policy 從這裡接入
   domains/military/ 第一個 domain pack（不是 core）
   domains/city/     第二個 domain pack：道路網上的城市、治安、電力連鎖、補給、governance score
@@ -265,11 +216,11 @@ src/skyvault/       引擎與 exporter
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
   actors/           誰決定：唯讀世界、十種 actor 與 adapter、ActionQueue、participants
-  worldservice/     後台服務：governance、store、queue、jobs、persistent world、HTTP API
+  worldservice/     後台服務：governance、store、queue、jobs、persistent world、HTTP API、介面讀的 runs
   interface/        外部系統：九個 adapter、conflict 的分支與決定、authority handoff、外部 API
 ui/                 網頁介面（Next.js、ECharts）
   schemas/          由契約產生的 JSON Schema
-scripts/            執行入口
+scripts/dev/        開發用腳本：重產 output/、建 domain scenario、匯出 schema（SKYVAULT 運作時不用）
 data/scenarios/     scenario 輸入，每個 scenario 一個資料夾、每個版本一個檔
 data/evaluation_profiles/   評估 profile（balanced、tactical）
 data/batches/       batch 請求
@@ -281,7 +232,7 @@ data/training/      訓練資料要匯出哪些 run
 data/observers/     五個系統的 observer profile
 data/service/       world service 的 governance 政策
 examples/           外部 policy 範例（TAC ANGEL 的介面）
-tests/              測試
+tests/              測試；fixtures/reference/ 是 Phase 0 的參考切片（policy、scenario、batch），只供回歸測試
 output/             執行產物
 docs/               文件
 ```
@@ -316,9 +267,12 @@ docs/               文件
 | v2 驗收是 in-process | 證明系統能做到，不證明某個部署的網路、身分驗證、資料庫設定 | 部署時 |
 | 提交者的身分 | 誰可以自稱 NEXUS 不由 SKYVAULT 驗證 | 部署環境 |
 | adapter 用內建替身 | 真正的 TAC ANGEL 等以 callable 或 HTTP 提交接入；沒有 LLM SDK、沒有真正的外部系統連線 | — |
-| 介面只讀一個 workspace | 看另一個 run 要重跑腳本或換資料夾重啟；不能編輯 scenario（world service 的 API 可查任何 run 的狀態與 result package） | 需要時 |
+| 介面不能編輯 scenario | 介面讀服務裡的 run；新的 run 經 skyvault 或 API 提交 | 需要時 |
+| 一場 run 的失敗地圖與比較取同一 scenario 最近一次的 | 不分版本；要看某一次 exploration 得先讓它是最近的 | 需要時 |
+| 只支援 editable 安裝 | SKYVAULT 讀 repo 裡的 data/；`pip install .` 的套件找不到它（Docker 也用 -e） | 打包 data 時 |
+| 產品在請求裡同步執行 | 同時執行數受 max_parallel_runs 限制，多的回 429；不經佇列 | 需要時 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
-| tactical reference 只跑 grid + tick | 其他空間與時間要直接用 `create_world()` 建；action framework 已支援圖上的 action，但還沒有 policy 會在圖上決策 | domain pack（Phase 13 起） |
+| engine 只跑 tick | phase / event-driven 時間要直接用 `create_world()` 建；空間由 domain pack 宣告（城市用 graph） | 需要它們的 domain |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
 | `state_changes`（環境變動）一律 raise | WorldState 沒有建模 environment_state | 需要它的 domain |
 | risk_growth、stability_impact 是代理指標 | 沒有風險與穩定模型；用 affects_risk 事件與摧毀比例代替 | Phase 9 起 |
@@ -327,7 +281,7 @@ docs/               文件
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase20_full_skyvault_v2.md`](docs/phases/phase20_full_skyvault_v2.md)。
+完整清單見 [`docs/phases/phase21_standalone.md`](docs/phases/phase21_standalone.md) 與先前各 Phase 的完成報告。
 
 ---
 
@@ -338,12 +292,26 @@ python3 -m pytest tests/ -q --cov                # 測試與覆蓋率
 ruff check .                                      # linter
 black --check src/ tests/ scripts/                # 排版
 python3 -m mypy src/                              # 型別
-python3 scripts/export_schemas.py                 # 改契約後重新產生 JSON Schema
+python3 scripts/dev/export_schemas.py             # 改契約後重新產生 JSON Schema
 python3 -m bandit -c pyproject.toml -r src/       # 安全掃描
 ```
 
 所有設定集中在 `pyproject.toml`。
 
-每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、從空的 `output/` 跑完整 pipeline 並讀內容驗證（含由 event memory 重建終局世界）；另一個 job 建 UI、啟動 server，用 Chromium 打開每個頁面驗證。
+開發用腳本在 `scripts/dev/`：它們不經服務、直接呼叫函式庫，把結果寫進 `output/`（上表），用來重產 commit 的輸出與 CI 的逐檔驗證。SKYVAULT 運作時不 import、不需要它們（`tests/test_standalone.py` 守住）。
+
+```bash
+python3 scripts/dev/run_scenario.py               # 一場 run（預設 military_urban_001 v0.2）的十一個輸出
+python3 scripts/dev/explore_failures.py           # failure_map 等四個
+python3 scripts/dev/run_batch.py                  # batch_result 等四個（預設 military_doctrine）
+python3 scripts/dev/export_briefing.py            # 從 output/ 寫 briefing
+python3 scripts/dev/build_military_scenarios.py   # 由 spec 重建 data/scenarios/military_*（city、airspace 同）
+python3 scripts/dev/build_training_data.py        # output/training/
+python3 scripts/dev/run_v2_acceptance.py          # output/v2/
+```
+
+Phase 0 的參考切片在 `tests/fixtures/reference/`：測試以部署加資料的同一種方式取得它（`tests/conftest.py` 設定 `SKYVAULT_SCENARIO_PATH`、`SKYVAULT_BATCH_PATH`、`SKYVAULT_POLICY_MODULES`），它的回歸測試仍釘住 RED_survived / 97 events。
+
+每次 push 與 PR 由 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) 在乾淨環境（Python 3.10 與 3.11）跑上面全部檢查，外加：換工作目錄跑測試、檢查測試沒有讀 `output/`、JSON Schema 與契約一致、開發腳本的逐檔驗證、在空資料夾只用 `skyvault` 跑完一整輪（SKYVAULT on its own）；另一個 job 建 UI、以 `skyvault serve` 提供、提交 run，再用 Chromium 打開每個頁面驗證。
 
 送 PR 前的檢查清單見 [`docs/handoff.md`](docs/handoff.md)。

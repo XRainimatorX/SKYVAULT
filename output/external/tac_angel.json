@@ -156,8 +156,8 @@
       },
       "scenario": {
         "domain": null,
-        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
-        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
+        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -347,8 +347,8 @@
       },
       "scenario": {
         "domain": null,
-        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
-        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
+        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -539,8 +539,8 @@
       },
       "scenario": {
         "domain": null,
-        "input_hash": "db99248559ec1ef96a6fb21fdc01a4132dac40bfb61476fc6bdd74a74340860c",
-        "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
+        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -583,7 +583,7 @@
     "missions": null,
     "orders_carried_out": 3,
     "orders_rejected": [],
-    "output_hash": "0b80effe4f305c7f1f0569f3cc0e917a474fedb6327dc8bbf4af6cabecb0f99f",
+    "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
     "overall_judgement": {
       "confidence": 0.9231,
       "status": "needs_more_test"

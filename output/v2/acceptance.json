@@ -6,8 +6,8 @@
       "passed": true,
       "evidence": {
         "submission_id": "job_000001",
-        "result": "RED_survived",
-        "output_hash": "63090026e137"
+        "result": "no_winner_duration_limit",
+        "output_hash": "78aa3fe5bbdf"
       }
     },
     {
@@ -66,9 +66,9 @@
       "passed": true,
       "evidence": {
         "job_id": "job_000009",
-        "result": "RED_survived",
-        "events": 97,
-        "output_hash": "63090026e137"
+        "result": "no_winner_duration_limit",
+        "events": 528,
+        "output_hash": "78aa3fe5bbdf"
       }
     },
     {
@@ -99,7 +99,7 @@
           "score_breakdown",
           "tradeoff_report"
         ],
-        "events": 97
+        "events": 528
       }
     },
     {
@@ -125,7 +125,7 @@
           "Trade-offs",
           "Reproducibility"
         ],
-        "lines": 77
+        "lines": 101
       }
     },
     {
@@ -134,7 +134,7 @@
       "passed": true,
       "evidence": {
         "job_id": "job_000012",
-        "handoff_id": "handoff_73d2",
+        "handoff_id": "handoff_234b",
         "triggers": [
           "high_risk_outcome"
         ],
@@ -194,8 +194,12 @@
           "military_junction_001",
           "military_mountain_001",
           "military_squad_001",
-          "military_urban_001",
-          "tactical_reference_001"
+          "military_urban_001"
+        ],
+        "domains": [
+          "airspace",
+          "city",
+          "military"
         ]
       }
     },
@@ -204,7 +208,7 @@
       "title": "Scenario Grammar 完整可用",
       "passed": true,
       "evidence": {
-        "versions": 13,
+        "versions": 12,
         "unknown_refused": 404
       }
     },
@@ -214,7 +218,7 @@
       "passed": true,
       "evidence": {
         "output_hashes": [
-          "63090026e137"
+          "78aa3fe5bbdf"
         ]
       }
     },
@@ -224,7 +228,7 @@
       "passed": true,
       "evidence": {
         "observer": "hades",
-        "observations": 11
+        "observations": 26
       }
     },
     {
@@ -232,8 +236,8 @@
       "title": "Action & Consequence Engine 可用",
       "passed": true,
       "evidence": {
-        "actions": 46,
-        "linked_events": 97
+        "actions": 193,
+        "linked_events": 528
       }
     },
     {
@@ -241,7 +245,7 @@
       "title": "Event Memory + Replay 可用",
       "passed": true,
       "evidence": {
-        "rebuilt_tick": 10,
+        "rebuilt_tick": 25,
         "matches_final_state": true
       }
     },
@@ -250,11 +254,9 @@
       "title": "Evaluation Engine 可用",
       "passed": true,
       "evidence": {
-        "axes": 10,
-        "verdict": "risky",
-        "anti_gaming": [
-          "sacrifice_long_term_stability_for_short_term_success"
-        ]
+        "axes": 11,
+        "verdict": "fail",
+        "anti_gaming": []
       }
     },
     {
@@ -318,8 +320,8 @@
       "title": "UI / Report 可用",
       "passed": true,
       "evidence": {
-        "overview": "tactical_reference_001",
-        "briefing_lines": 77
+        "overview": "military_urban_001",
+        "briefing_lines": 101
       }
     },
     {
@@ -327,7 +329,7 @@
       "title": "Authority Handoff Logic 完整可用",
       "passed": true,
       "evidence": {
-        "conflict_handoff": "handoff_e570",
+        "conflict_handoff": "handoff_444e",
         "triggers": [
           "conflicting_branches"
         ]
@@ -358,10 +360,8 @@
         "title": "SKYVAULT 可以警告",
         "passed": true,
         "evidence": {
-          "verdict": "risky",
-          "flagged": [
-            "sacrifice_long_term_stability_for_short_term_success"
-          ]
+          "verdict": "fail",
+          "flagged": []
         }
       },
       {

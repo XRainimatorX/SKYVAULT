@@ -7,281 +7,89 @@
     "mean_score": "higher is better"
   },
   "variants": [
-    "plan",
-    "support-rear",
-    "spread",
-    "sweep:entities[blue_002].capabilities.accuracy=0.55",
-    "sweep:entities[blue_002].capabilities.accuracy=0.65",
-    "sweep:entities[blue_002].capabilities.accuracy=0.75",
-    "branch:P1",
-    "branch:P2+P3",
-    "branch:none"
+    "aggressive",
+    "overwatch",
+    "defensive"
   ],
   "table": {
-    "plan": {
-      "win_rate": 0.06,
-      "failure_frequency": 0.27,
-      "mean_hp_lost": 69.05,
-      "mean_risk_events": 1.92,
-      "mean_score": 0.3948
+    "aggressive": {
+      "win_rate": 0.18,
+      "failure_frequency": 0.12,
+      "mean_hp_lost": 201.64,
+      "mean_risk_events": 6.36,
+      "mean_score": 0.3794
     },
-    "support-rear": {
-      "win_rate": 0.17,
-      "failure_frequency": 0.17,
-      "mean_hp_lost": 61.79,
-      "mean_risk_events": 1.61,
-      "mean_score": 0.4344
+    "overwatch": {
+      "win_rate": 0.0,
+      "failure_frequency": 0.22,
+      "mean_hp_lost": 209.8,
+      "mean_risk_events": 6.82,
+      "mean_score": 0.3567
     },
-    "spread": {
-      "win_rate": 0.12,
-      "failure_frequency": 0.21,
-      "mean_hp_lost": 67.96,
-      "mean_risk_events": 1.83,
-      "mean_score": 0.4154
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.55": {
-      "win_rate": 0.06,
-      "failure_frequency": 0.27,
-      "mean_hp_lost": 69.05,
-      "mean_risk_events": 1.92,
-      "mean_score": 0.3948
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.65": {
-      "win_rate": 0.07,
-      "failure_frequency": 0.38,
-      "mean_hp_lost": 74.6,
-      "mean_risk_events": 2.11,
-      "mean_score": 0.3616
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.75": {
-      "win_rate": 0.03,
-      "failure_frequency": 0.41,
-      "mean_hp_lost": 79.21,
-      "mean_risk_events": 2.22,
-      "mean_score": 0.3426
-    },
-    "branch:P1": {
-      "win_rate": 0.12,
-      "failure_frequency": 0.23,
-      "mean_hp_lost": 65.98,
-      "mean_risk_events": 1.73,
-      "mean_score": 0.4128
-    },
-    "branch:P2+P3": {
-      "win_rate": 0.03,
-      "failure_frequency": 0.19,
-      "mean_hp_lost": 68.43,
-      "mean_risk_events": 1.83,
-      "mean_score": 0.4039
-    },
-    "branch:none": {
-      "win_rate": 0.06,
-      "failure_frequency": 0.27,
-      "mean_hp_lost": 69.05,
-      "mean_risk_events": 1.92,
-      "mean_score": 0.3948
+    "defensive": {
+      "win_rate": 0.1,
+      "failure_frequency": 0.84,
+      "mean_hp_lost": 189.24,
+      "mean_risk_events": 6.16,
+      "mean_score": 0.2183
     }
   },
   "best": {
-    "win_rate": "support-rear",
-    "failure_frequency": "support-rear",
-    "mean_hp_lost": "support-rear",
-    "mean_risk_events": "support-rear",
-    "mean_score": "support-rear"
+    "win_rate": "aggressive",
+    "failure_frequency": "aggressive",
+    "mean_hp_lost": "defensive",
+    "mean_risk_events": "defensive",
+    "mean_score": "aggressive"
   },
   "deltas_vs_first": {
-    "plan": {
+    "aggressive": {
       "win_rate": 0.0,
       "failure_frequency": 0.0,
       "mean_hp_lost": 0.0,
       "mean_risk_events": 0.0,
       "mean_score": 0.0
     },
-    "support-rear": {
-      "win_rate": 0.11,
-      "failure_frequency": -0.1,
-      "mean_hp_lost": -7.26,
-      "mean_risk_events": -0.31,
-      "mean_score": 0.0396
+    "overwatch": {
+      "win_rate": -0.18,
+      "failure_frequency": 0.1,
+      "mean_hp_lost": 8.16,
+      "mean_risk_events": 0.46,
+      "mean_score": -0.0227
     },
-    "spread": {
-      "win_rate": 0.06,
-      "failure_frequency": -0.06,
-      "mean_hp_lost": -1.09,
-      "mean_risk_events": -0.09,
-      "mean_score": 0.0206
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.55": {
-      "win_rate": 0.0,
-      "failure_frequency": 0.0,
-      "mean_hp_lost": 0.0,
-      "mean_risk_events": 0.0,
-      "mean_score": 0.0
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.65": {
-      "win_rate": 0.01,
-      "failure_frequency": 0.11,
-      "mean_hp_lost": 5.55,
-      "mean_risk_events": 0.19,
-      "mean_score": -0.0332
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.75": {
-      "win_rate": -0.03,
-      "failure_frequency": 0.14,
-      "mean_hp_lost": 10.16,
-      "mean_risk_events": 0.3,
-      "mean_score": -0.0522
-    },
-    "branch:P1": {
-      "win_rate": 0.06,
-      "failure_frequency": -0.04,
-      "mean_hp_lost": -3.07,
-      "mean_risk_events": -0.19,
-      "mean_score": 0.018
-    },
-    "branch:P2+P3": {
-      "win_rate": -0.03,
-      "failure_frequency": -0.08,
-      "mean_hp_lost": -0.62,
-      "mean_risk_events": -0.09,
-      "mean_score": 0.0091
-    },
-    "branch:none": {
-      "win_rate": 0.0,
-      "failure_frequency": 0.0,
-      "mean_hp_lost": 0.0,
-      "mean_risk_events": 0.0,
-      "mean_score": 0.0
+    "defensive": {
+      "win_rate": -0.08,
+      "failure_frequency": 0.72,
+      "mean_hp_lost": -12.4,
+      "mean_risk_events": -0.2,
+      "mean_score": -0.1611
     }
   },
   "ranking": [
-    "support-rear",
-    "spread",
-    "branch:P1",
-    "branch:P2+P3",
-    "plan",
-    "sweep:entities[blue_002].capabilities.accuracy=0.55",
-    "branch:none",
-    "sweep:entities[blue_002].capabilities.accuracy=0.65",
-    "sweep:entities[blue_002].capabilities.accuracy=0.75"
+    "aggressive",
+    "overwatch",
+    "defensive"
   ],
   "comparison": {
-    "plan": {
+    "aggressive": {
       "better_than": [
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75"
-      ],
-      "worse_than": [
-        "support-rear",
-        "spread",
-        "branch:P1",
-        "branch:P2+P3"
-      ]
-    },
-    "support-rear": {
-      "better_than": [
-        "plan",
-        "spread",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75",
-        "branch:P1",
-        "branch:P2+P3",
-        "branch:none"
+        "overwatch",
+        "defensive"
       ],
       "worse_than": []
     },
-    "spread": {
+    "overwatch": {
       "better_than": [
-        "plan",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75",
-        "branch:P1",
-        "branch:P2+P3",
-        "branch:none"
+        "defensive"
       ],
       "worse_than": [
-        "support-rear"
+        "aggressive"
       ]
     },
-    "sweep:entities[blue_002].capabilities.accuracy=0.55": {
-      "better_than": [
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75"
-      ],
-      "worse_than": [
-        "support-rear",
-        "spread",
-        "branch:P1",
-        "branch:P2+P3"
-      ]
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.65": {
-      "better_than": [
-        "sweep:entities[blue_002].capabilities.accuracy=0.75"
-      ],
-      "worse_than": [
-        "plan",
-        "support-rear",
-        "spread",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "branch:P1",
-        "branch:P2+P3",
-        "branch:none"
-      ]
-    },
-    "sweep:entities[blue_002].capabilities.accuracy=0.75": {
+    "defensive": {
       "better_than": [],
       "worse_than": [
-        "plan",
-        "support-rear",
-        "spread",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "branch:P1",
-        "branch:P2+P3",
-        "branch:none"
-      ]
-    },
-    "branch:P1": {
-      "better_than": [
-        "plan",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75",
-        "branch:P2+P3",
-        "branch:none"
-      ],
-      "worse_than": [
-        "support-rear",
-        "spread"
-      ]
-    },
-    "branch:P2+P3": {
-      "better_than": [
-        "plan",
-        "sweep:entities[blue_002].capabilities.accuracy=0.55",
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75",
-        "branch:none"
-      ],
-      "worse_than": [
-        "support-rear",
-        "spread",
-        "branch:P1"
-      ]
-    },
-    "branch:none": {
-      "better_than": [
-        "sweep:entities[blue_002].capabilities.accuracy=0.65",
-        "sweep:entities[blue_002].capabilities.accuracy=0.75"
-      ],
-      "worse_than": [
-        "support-rear",
-        "spread",
-        "branch:P1",
-        "branch:P2+P3"
+        "aggressive",
+        "overwatch"
       ]
     }
   }

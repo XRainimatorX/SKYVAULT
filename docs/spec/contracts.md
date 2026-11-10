@@ -45,6 +45,7 @@ ContractError 一次列出全部錯誤，不是只有第一個；它是 ValueErr
 | engine 把 observing actor 的 order 轉成 Action 之前 | `validate_order` | raise —— 壞 order 是 actor 的錯誤 |
 | `interface.systems.to_request()` / `to_return()` | `validate_external_submission` | raise（API 回 422） |
 | `authority_handoff()` / `decide()` 回傳之前 | `validate_authority_handoff` | raise —— 非權威決定先以 PermissionError 拒絕（API 回 403） |
+| engine 選 policy、world service 的 `plan()` | `require_decider`（Phase 21） | scenario 沒有 `runtime.policy` 也沒有 `domain` → ContractError（API 回 422）；SKYVAULT 沒有可退回的 policy |
 
 ## 3. 版本
 
@@ -407,6 +408,10 @@ ResourceComputeGovernance 多一個 optional 的 `decision_authorities`（Phase 
 
 contracts/base.py 的 `Authority` 型別：非空字串、而且不是 SKYVAULT（任何大小寫與空白 / 底線 / 連字號 / 點的寫法，`is_skyvault`）。AuthorityHandoff.decision_authority、ResourceComputeGovernance.decision_authorities、Edition.decision_authorities 都用它；decided_by 必須在 decision_authority 裡，所以也不會是 SKYVAULT。
 
+### 誰做決定（Phase 21）
+
+契約的形狀不變（SCHEMA 0.6）：`runtime.policy` 仍是 optional。新的是使用時的規則 —— 一份要被執行的 scenario 必須有 `runtime.policy`（已註冊的名稱，或 `SKYVAULT_POLICY_MODULES` 帶進來的）或 `domain`（它的 pack 帶預設 policy）。Phase 21 之前，兩者都沒有時 engine 退回 Phase 0 的 tactical reference policy；那個 policy 現在只在 `tests/fixtures/reference/`。
+
 ### Batch 與衝突
 
 `runtime.scheduled_actions`（optional，預設 `[]`）：外部系統的命令，在指定 tick 取代該 actor 的 policy。
@@ -467,13 +472,13 @@ change_reason          str
 
 ```text
 src/skyvault/schemas/<name>.schema.json    26 份，由契約產生，已 commit
-scripts/export_schemas.py                  重新產生
+scripts/dev/export_schemas.py                  重新產生
 ```
 
 **改了任何契約之後要重跑：**
 
 ```bash
-python3 scripts/export_schemas.py
+python3 scripts/dev/export_schemas.py
 ```
 
 連只改 docstring 也要 —— Pydantic 把 docstring 寫進 schema 的 `description`。漂移測試會在已 commit 的檔與產生結果不一致時失敗。

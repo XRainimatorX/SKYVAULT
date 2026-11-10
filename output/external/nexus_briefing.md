@@ -70,8 +70,8 @@ Weakest axis: recovery_ability 0.00
 
 ## Reproducibility
 
-- Run: run_20261108T232708274237Z_5e71d369
+- Run: run_20261110T052507969981Z_3840afe2
 - Random: seed 42 (fixed)
-- Runtime 2.0.0, rules rules-2438b4a50419
-- Input hash: 5e71d369a6d87f35faf23d1c6f3289da60bede8b1a43de0d843402f6420fd14e
-- Output hash: 63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09
+- Runtime 2.1.0, rules rules-2438b4a50419
+- Input hash: 3840afe2dbd8a5f47e6beb2f0e734e8940fdcdffa5d4f8fa2d39421648c2c98a
+- Output hash: 7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70

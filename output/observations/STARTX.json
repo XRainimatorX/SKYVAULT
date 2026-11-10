@@ -5,19 +5,35 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
         "exists": true,
@@ -26,7 +42,7 @@
       "observer_id": "STARTX",
       "time": 0,
       "uncertainty": {
-        "confidence_level": 0.0,
+        "confidence_level": 0.6042,
         "delay_ticks": 1,
         "observed_at": 0,
         "source_quality": "high",
@@ -34,22 +50,24 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
             "destroyed_in_sight": 0,
             "stale": 0,
-            "visible": 0
+            "visible": 3
           },
           "own": {
-            "active": 3,
+            "active": 10,
             "destroyed": 0,
             "hp_ratio": 1.0
           },
@@ -67,19 +85,35 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
         "exists": true,
@@ -88,7 +122,7 @@
       "observer_id": "STARTX",
       "time": 1,
       "uncertainty": {
-        "confidence_level": 0.0,
+        "confidence_level": 0.6042,
         "delay_ticks": 1,
         "observed_at": 0,
         "source_quality": "high",
@@ -96,22 +130,24 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
             "destroyed_in_sight": 0,
             "stale": 0,
-            "visible": 0
+            "visible": 3
           },
           "own": {
-            "active": 3,
+            "active": 10,
             "destroyed": 0,
             "hp_ratio": 1.0
           },
@@ -129,19 +165,35 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
         "exists": true,
@@ -150,7 +202,7 @@
       "observer_id": "STARTX",
       "time": 2,
       "uncertainty": {
-        "confidence_level": 0.0,
+        "confidence_level": 0.5417,
         "delay_ticks": 1,
         "observed_at": 1,
         "source_quality": "high",
@@ -158,28 +210,30 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
             "destroyed_in_sight": 0,
             "stale": 0,
-            "visible": 0
+            "visible": 3
           },
           "own": {
-            "active": 3,
+            "active": 10,
             "destroyed": 0,
-            "hp_ratio": 1.0
+            "hp_ratio": 0.951
           },
           "trend": {
             "enemy_contacts_change": 0,
-            "own_hp_ratio_change": 0.0,
+            "own_hp_ratio_change": -0.049,
             "own_losses": 0,
             "window": 1
           }
@@ -191,28 +245,44 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
       "time": 3,
       "uncertainty": {
-        "confidence_level": 0.5,
+        "confidence_level": 0.581,
         "delay_ticks": 1,
         "observed_at": 2,
         "source_quality": "high",
@@ -220,14 +290,16 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
             "destroyed_in_sight": 0,
@@ -235,14 +307,14 @@
             "visible": 3
           },
           "own": {
-            "active": 3,
-            "destroyed": 0,
-            "hp_ratio": 1.0
+            "active": 9,
+            "destroyed": 1,
+            "hp_ratio": 0.8531
           },
           "trend": {
-            "enemy_contacts_change": 3,
-            "own_hp_ratio_change": 0.0,
-            "own_losses": 0,
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": -0.1469,
+            "own_losses": 1,
             "window": 2
           }
         }
@@ -253,28 +325,44 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
       "time": 4,
       "uncertainty": {
-        "confidence_level": 0.7,
+        "confidence_level": 0.581,
         "delay_ticks": 1,
         "observed_at": 3,
         "source_quality": "high",
@@ -282,29 +370,31 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 0,
+            "destroyed_in_sight": 1,
             "stale": 0,
-            "visible": 3
+            "visible": 2
           },
           "own": {
-            "active": 3,
-            "destroyed": 0,
-            "hp_ratio": 1.0
+            "active": 9,
+            "destroyed": 1,
+            "hp_ratio": 0.7902
           },
           "trend": {
-            "enemy_contacts_change": 3,
-            "own_hp_ratio_change": 0.0,
-            "own_losses": 0,
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.2098,
+            "own_losses": 1,
             "window": 3
           }
         }
@@ -315,28 +405,44 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
       "time": 5,
       "uncertainty": {
-        "confidence_level": 0.8667,
+        "confidence_level": 0.65,
         "delay_ticks": 1,
         "observed_at": 4,
         "source_quality": "high",
@@ -344,29 +450,31 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 0,
+            "destroyed_in_sight": 1,
             "stale": 0,
             "visible": 3
           },
           "own": {
-            "active": 3,
-            "destroyed": 0,
-            "hp_ratio": 1.0
+            "active": 8,
+            "destroyed": 2,
+            "hp_ratio": 0.7133
           },
           "trend": {
-            "enemy_contacts_change": 3,
-            "own_hp_ratio_change": 0.0,
-            "own_losses": 0,
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": -0.2867,
+            "own_losses": 2,
             "window": 4
           }
         }
@@ -377,28 +485,44 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
       "time": 6,
       "uncertainty": {
-        "confidence_level": 0.8667,
+        "confidence_level": 0.6786,
         "delay_ticks": 1,
         "observed_at": 5,
         "source_quality": "high",
@@ -406,28 +530,1070 @@
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 0,
+            "destroyed_in_sight": 1,
             "stale": 0,
             "visible": 3
           },
           "own": {
-            "active": 3,
-            "destroyed": 0,
-            "hp_ratio": 0.8247
+            "active": 7,
+            "destroyed": 3,
+            "hp_ratio": 0.6154
           },
           "trend": {
-            "enemy_contacts_change": 3,
-            "own_hp_ratio_change": -0.1753,
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": -0.3846,
+            "own_losses": 3,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "STARTX",
+      "time": 7,
+      "uncertainty": {
+        "confidence_level": 0.7343,
+        "delay_ticks": 1,
+        "observed_at": 6,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 0,
+            "visible": 4
+          },
+          "own": {
+            "active": 6,
+            "destroyed": 4,
+            "hp_ratio": 0.5455
+          },
+          "trend": {
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.4055,
+            "own_losses": 4,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 8,
+      "uncertainty": {
+        "confidence_level": 0.6191,
+        "delay_ticks": 1,
+        "observed_at": 7,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 1,
+            "visible": 3
+          },
+          "own": {
+            "active": 5,
+            "destroyed": 5,
+            "hp_ratio": 0.5105
+          },
+          "trend": {
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": -0.3426,
+            "own_losses": 4,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 9,
+      "uncertainty": {
+        "confidence_level": 0.5952,
+        "delay_ticks": 1,
+        "observed_at": 8,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 1,
+            "visible": 3
+          },
+          "own": {
+            "active": 5,
+            "destroyed": 5,
+            "hp_ratio": 0.4126
+          },
+          "trend": {
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.3776,
+            "own_losses": 4,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 10,
+      "uncertainty": {
+        "confidence_level": 0.5364,
+        "delay_ticks": 1,
+        "observed_at": 9,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 2,
+            "visible": 2
+          },
+          "own": {
+            "active": 4,
+            "destroyed": 6,
+            "hp_ratio": 0.3706
+          },
+          "trend": {
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.3427,
+            "own_losses": 4,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 11,
+      "uncertainty": {
+        "confidence_level": 0.4726,
+        "delay_ticks": 1,
+        "observed_at": 10,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 2,
+            "visible": 2
+          },
+          "own": {
+            "active": 3,
+            "destroyed": 7,
+            "hp_ratio": 0.3007
+          },
+          "trend": {
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.3147,
+            "own_losses": 4,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 12,
+      "uncertainty": {
+        "confidence_level": 0.4288,
+        "delay_ticks": 1,
+        "observed_at": 11,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 2,
+            "visible": 2
+          },
+          "own": {
+            "active": 3,
+            "destroyed": 7,
+            "hp_ratio": 0.2657
+          },
+          "trend": {
+            "enemy_contacts_change": -2,
+            "own_hp_ratio_change": -0.2798,
+            "own_losses": 3,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "STARTX",
+      "time": 13,
+      "uncertainty": {
+        "confidence_level": 0.65,
+        "delay_ticks": 1,
+        "observed_at": 12,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 0,
+            "visible": 4
+          },
+          "own": {
+            "active": 3,
+            "destroyed": 7,
+            "hp_ratio": 0.2028
+          },
+          "trend": {
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.3077,
+            "own_losses": 2,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 14,
+      "uncertainty": {
+        "confidence_level": 0.5525,
+        "delay_ticks": 1,
+        "observed_at": 13,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 3,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": -2,
+            "own_hp_ratio_change": -0.2727,
+            "own_losses": 3,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 15,
+      "uncertainty": {
+        "confidence_level": 0.49,
+        "delay_ticks": 1,
+        "observed_at": 14,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 3,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.2307,
+            "own_losses": 2,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 16,
+      "uncertainty": {
+        "confidence_level": 0.4275,
+        "delay_ticks": 1,
+        "observed_at": 15,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 3,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.1608,
+            "own_losses": 1,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 17,
+      "uncertainty": {
+        "confidence_level": 0.365,
+        "delay_ticks": 1,
+        "observed_at": 16,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 3,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": -1,
+            "own_hp_ratio_change": -0.1258,
+            "own_losses": 1,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 18,
+      "uncertainty": {
+        "confidence_level": 0.3025,
+        "delay_ticks": 1,
+        "observed_at": 17,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 3,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": -3,
+            "own_hp_ratio_change": -0.0629,
+            "own_losses": 1,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 19,
+      "uncertainty": {
+        "confidence_level": 0.6,
+        "delay_ticks": 1,
+        "observed_at": 18,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 0,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": 0.0,
             "own_losses": 0,
             "window": 5
           }
@@ -439,43 +1605,141 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
-      "time": 7,
+      "time": 20,
       "uncertainty": {
-        "confidence_level": 0.8333,
+        "confidence_level": 0.6,
         "delay_ticks": 1,
-        "observed_at": 6,
+        "observed_at": 19,
         "source_quality": "high",
         "stale_after": 5
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 0,
+            "visible": 1
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1399
+          },
+          "trend": {
+            "enemy_contacts_change": 0,
+            "own_hp_ratio_change": 0.0,
+            "own_losses": 0,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 21,
+      "uncertainty": {
+        "confidence_level": 0.7,
+        "delay_ticks": 1,
+        "observed_at": 20,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
             "destroyed_in_sight": 1,
@@ -484,13 +1748,13 @@
           },
           "own": {
             "active": 2,
-            "destroyed": 1,
-            "hp_ratio": 0.6907
+            "destroyed": 8,
+            "hp_ratio": 0.1119
           },
           "trend": {
-            "enemy_contacts_change": 2,
-            "own_hp_ratio_change": -0.3093,
-            "own_losses": 1,
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.028,
+            "own_losses": 0,
             "window": 5
           }
         }
@@ -501,58 +1765,76 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
-      "time": 8,
+      "time": 22,
       "uncertainty": {
-        "confidence_level": 0.9,
+        "confidence_level": 0.7,
         "delay_ticks": 1,
-        "observed_at": 7,
+        "observed_at": 21,
         "source_quality": "high",
         "stale_after": 5
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 2,
+            "destroyed_in_sight": 1,
             "stale": 0,
-            "visible": 1
+            "visible": 2
           },
           "own": {
             "active": 2,
-            "destroyed": 1,
-            "hp_ratio": 0.6907
+            "destroyed": 8,
+            "hp_ratio": 0.1119
           },
           "trend": {
-            "enemy_contacts_change": -2,
-            "own_hp_ratio_change": -0.3093,
-            "own_losses": 1,
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.028,
+            "own_losses": 0,
             "window": 5
           }
         }
@@ -563,58 +1845,76 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
-      "time": 9,
+      "time": 23,
       "uncertainty": {
-        "confidence_level": 0.9,
+        "confidence_level": 0.7333,
         "delay_ticks": 1,
-        "observed_at": 8,
+        "observed_at": 22,
         "source_quality": "high",
         "stale_after": 5
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 2,
+            "destroyed_in_sight": 1,
             "stale": 0,
-            "visible": 1
+            "visible": 2
           },
           "own": {
             "active": 2,
-            "destroyed": 1,
-            "hp_ratio": 0.5876
+            "destroyed": 8,
+            "hp_ratio": 0.1119
           },
           "trend": {
-            "enemy_contacts_change": -2,
-            "own_hp_ratio_change": -0.4124,
-            "own_losses": 1,
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.028,
+            "own_losses": 0,
             "window": 5
           }
         }
@@ -625,58 +1925,156 @@
         "available_actions": [
           "attack",
           "move",
-          "observe",
-          "repair",
-          "supply"
+          "rally",
+          "supply",
+          "wait"
         ],
         "constraints": [
-          "max_ticks=10"
+          "max_ticks=25"
         ],
-        "mission_goal": [
-          "state_change_test",
-          "action_consequence_test",
-          "event_memory_test",
-          "evaluation_result_test"
-        ]
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
       },
       "hidden_state": {
-        "exists": false,
-        "reason": null
+        "exists": true,
+        "reason": "fog_of_war"
       },
       "observer_id": "STARTX",
-      "time": 10,
+      "time": 24,
       "uncertainty": {
-        "confidence_level": 0.9,
+        "confidence_level": 0.7333,
         "delay_ticks": 1,
-        "observed_at": 9,
+        "observed_at": 23,
         "source_quality": "high",
         "stale_after": 5
       },
       "view": "aggregate",
       "viewpoint": {
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "faction": "RED"
       },
       "visible_world_state": {
         "known_entities": [],
         "known_risks": [],
         "local_area": null,
-        "resources_visible": {},
+        "resources_visible": {
+          "ammo": 40.0
+        },
         "summary": {
           "enemy": {
-            "destroyed_in_sight": 2,
+            "destroyed_in_sight": 1,
             "stale": 0,
-            "visible": 1
+            "visible": 2
           },
           "own": {
             "active": 2,
-            "destroyed": 1,
-            "hp_ratio": 0.5876
+            "destroyed": 8,
+            "hp_ratio": 0.1119
           },
           "trend": {
-            "enemy_contacts_change": -2,
-            "own_hp_ratio_change": -0.4124,
-            "own_losses": 1,
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.028,
+            "own_losses": 0,
+            "window": 5
+          }
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": true,
+        "reason": "fog_of_war"
+      },
+      "observer_id": "STARTX",
+      "time": 25,
+      "uncertainty": {
+        "confidence_level": 0.7333,
+        "delay_ticks": 1,
+        "observed_at": 24,
+        "source_quality": "high",
+        "stale_after": 5
+      },
+      "view": "aggregate",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "enemy": {
+            "destroyed_in_sight": 1,
+            "stale": 0,
+            "visible": 2
+          },
+          "own": {
+            "active": 2,
+            "destroyed": 8,
+            "hp_ratio": 0.1119
+          },
+          "trend": {
+            "enemy_contacts_change": 1,
+            "own_hp_ratio_change": -0.028,
+            "own_losses": 0,
             "window": 5
           }
         }
@@ -684,11 +2082,11 @@
     }
   ],
   "observer_id": "STARTX",
-  "output_hash": "63090026e13734f596339fe2129a4d17cbd43499f72c87cb0dbec5cdf9f5fd09",
-  "scenario_id": "tactical_reference_001",
-  "scenario_version": "v0.1",
+  "output_hash": "78aa3fe5bbdfc1b2828e2756c40fecf72982a7c8b208b97c441626afcb1c6c57",
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.2",
   "viewpoint": {
-    "actor_id": "red_001",
+    "actor_id": "red_01",
     "faction": "RED"
   }
 }

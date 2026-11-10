@@ -11,24 +11,29 @@
 ```bash
 git clone https://github.com/XRainimatorX/SKYVAULT.git
 cd SKYVAULT
-python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn websockets python-docx reportlab pyarrow scipy rq redis "psycopg[binary]" pytest httpx pypdf
-python3 scripts/run_tactical_reference.py
+python3 -m pip install -e . pytest pypdf ruff black mypy bandit
+skyvault serve &                                   # 服務 + worker + 介面（介面要先 cd ui && npm ci && npm run build）
+skyvault run military_urban_001/v0.2
+skyvault acceptance
 python3 -m pytest tests/ -q
 ```
 
 應該看到：
 
 ```text
-Result: RED_survived
-Events: 97
-Verdict: risky (score 0.50, profile balanced)
-Run: run_<時間>_<input 前 8 碼> (output 63090026e137)
-1447 passed, 69 skipped       （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時 1516 passed）
+job_000001  completed
+  events: 528
+  output_hash: 78aa3fe5bbdf…
+  result: no_winner_duration_limit
+ACCEPTED                     （acceptance  15/15、must_have 14/14、may 6/6、may_not 5/5）
+1496 passed, 82 skipped      （設定 SKYVAULT_TEST_REDIS 與 SKYVAULT_TEST_POSTGRES 時全部通過、沒有 skip）
 ```
 
-**如果數字不一樣，先停下來查清楚再繼續。** 這個 scenario 用固定 seed，結果應該永遠相同。不一樣代表有東西被改動了。output_hash 的前 12 碼（`63090026e137`）也應該一樣 —— Phase 8 起連 event id 都是決定性的；不一樣就跑 `python3 scripts/verify_run.py output/result_package.json` 看是輸入變了還是行為變了。
+**如果數字不一樣，先停下來查清楚再繼續。** 系統基線 `military_urban_001` v0.2 用固定 seed，結果應該永遠相同；output_hash 前 12 碼（`78aa3fe5bbdf`）也一樣 —— event id 是決定性的。不一樣就 `skyvault replay <job>`（或 `python3 scripts/dev/verify_run.py output/result_package.json`）看是輸入變了還是行為變了。
 
-接著打開 `output/timeline.txt` 從頭讀到尾。三分鐘就能理解這個引擎在做什麼 —— 這比讀程式碼快。
+接著打開 http://127.0.0.1:8000 的 Timeline 頁從頭讀到尾，或 `python3 scripts/dev/run_scenario.py` 之後讀 `output/timeline.txt`。三分鐘就能理解這個引擎在做什麼。
+
+**SKYVAULT 只靠自己運作（Phase 21）。** 系統的檔案不提 Phase 0 的參考切片，`src/` 不 import `tests/` 或 `scripts/`（`tests/test_standalone.py`）。參考切片在 `tests/fixtures/reference/`，測試以 `SKYVAULT_SCENARIO_PATH`、`SKYVAULT_BATCH_PATH`、`SKYVAULT_POLICY_MODULES` 取得它 —— 部署加入自己的東西也走這條路。
 
 ---
 
@@ -62,7 +67,7 @@ python3 -c "import skyvault.your_module"
 
 ### 規則 3：寫檔只在 runner
 
-`scripts/run_tactical_reference.py` 只做 `import exporter → call exporter → write file`。
+`scripts/dev/run_scenario.py` 只做 `import exporter → call exporter → write file`。服務把結果存在 store；檔案只由開發腳本寫。
 
 模組決定「內容是什麼」，runner 決定「寫去哪」。
 
@@ -198,16 +203,19 @@ Phase 20 再發現：**每加一個可設定的值，同時寫下它不能是什
 | uvicorn 與 WebSocket | uvicorn 本身不支援 WebSocket，靠 `websockets`（已宣告）。少了它 replay 會連不上，server 只印一行警告 |
 | `ui/` | 改頁面後 `npm run build`；`npm run e2e` 需要 server 在跑（`SKYVAULT_URL`）。playwright 釘在 1.63.0 |
 | `scenario.domain` | `"military"` 才載入 pack；null 時 engine 完全照舊。新增 domain 要在 `domains/__init__.py` 的 KNOWN_DOMAINS 登記名稱 → `module:attr` |
-| policy 的選擇順序 | `engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → tactical reference。policy 有 `system_id` 屬性就會記在 event 上 |
-| 軍事 scenario 是產生的 | 改 `data/domains/military/` 的 profile 或 spec 後跑 `scripts/build_military_scenarios.py`；漂移測試會在不一致時失敗 |
+| policy 的選擇順序 | `engine(policy=…)` → `runtime.policy.name`（已註冊）→ domain 的預設 → 都沒有就 ContractError（Phase 21 起不再退回 Phase 0 的 policy）。policy 有 `system_id` 屬性就會記在 event 上 |
+| 軍事 scenario 是產生的 | 改 `data/domains/military/` 的 profile 或 spec 後跑 `scripts/dev/build_military_scenarios.py`；漂移測試會在不一致時失敗。之後的版本寫在 spec 的 `revisions` |
 | 軍事 pack 的 handler | 與 core handler 同樣只讀世界（同一個 AST 檢查）；ATTACK / MISS 的 data 鍵與 core 相同，exporter 才能照讀 |
 | 指揮延遲 | 延遲的命令在抵達時才驗證，所以「Move target occupied」的 ACTION_REJECTED 是正常的摩擦 |
 | `tac_angel_dataset.jsonl` | 不進版本控制（2.8 MB）；episode 以 input / output hash 命名，可重現 |
 | `training/` 的集合 | rejected（有違規）永不進 clean；clean 包含沒有刷分的真失敗，以 success_type 區分 |
-| reference run 是假成功 | RED 存活但穩定性被 flagged → success_type false_success、進 rejected。這是正確的 |
+| 參考切片的 run 是假成功 | RED 存活但穩定性被 flagged → success_type false_success、進 rejected。這是正確的（它現在只在測試裡） |
 | pack 改寫 core handler | evaluation_relevance 要與 core 一致（只有擊毀算 risk），否則評估與訓練資料都會偏 |
 | 訓練資料 | `output/training/` 不進版本控制；由 `data/training/sources.json` 重產，跨 PYTHONHASHSEED 相同 |
-| reference scenario 的位置 | Phase 8 起在 `data/scenarios/tactical_reference_001/v0.1.json`（版本資料夾），不是 `data/scenarios/tactical_reference_001.json` |
+| 參考切片的位置 | Phase 21 起在 `tests/fixtures/reference/`（policy、scenarios/、batches/）；系統裡沒有它，也不得再出現 |
+| 依名稱找 scenario | 一律經 `skyvault.library`（`find`、`scenario_folder`）；直接 `data/scenarios / name` 會繞過部署的 SKYVAULT_SCENARIO_PATH |
+| `skyvault` 指令 | 只支援 editable 安裝（讀 repo 的 data/）；改了 `pyproject` 的 scripts 要重新 `pip install -e .` |
+| `pip install -e .` 的 egg-info | `src/skyvault.egg-info/` 已 gitignore；守護測試跳過它 |
 | event / action id | 每個 world 自己的計數器（`event_0000000001`）。policy 要從 `world.ids.action()` 取 id；不要再用 uuid（有測試擋） |
 | output_hash | 在**驗證過的** package 上算。驗證會把 int 正規化成 float；在驗證前算的 hash 對不上呼叫端拿到的 package |
 | verify_reproducibility | 比三個值：從 package 重算的、記錄的、重跑的。只比後兩者會放過被改過的 package |
@@ -219,7 +227,7 @@ Phase 20 再發現：**每加一個可設定的值，同時寫下它不能是什
 | profile 的 `pass` | Python 關鍵字，model 用 alias；`check()` 依 alias 輸出，所以驗證後仍是 `pass` |
 | 新增評估軸 | 要同時加進 `evaluation/metrics.py` 的 registry 與 `contracts/evaluation_profile.py` 的 METRIC_NAMES（有測試比對兩者） |
 | `git stash` 切版本比對 | 同大小、同一秒改寫的檔案會讓 Python 沿用舊 `.pyc`。切換後先 `find . -name __pycache__ -prune -exec rm -rf {} +` |
-| tactical engine | 只接受 grid + tick；其他世界在 `build_world()` 就 raise。要跑別的世界用 `create_world()` |
+| engine 的世界 | 只接受 tick；空間由 domain pack 宣告（預設 grid、城市 graph）。其他世界在 `build_world()` 就 raise。要跑別的世界用 `create_world()` |
 | `runtime/__init__.py` | 不匯出 `create_world`（會循環 import），從 `skyvault.runtime.world` 取 |
 | scenario 的 `schema_version` | 必須是 `"0.2"`。0.1 檔案被拒，遷移方式見 `spec/contracts.md` 第 3 節 |
 | `snapshot()` | 回傳深拷貝。改成淺拷貝會讓已記錄的事件被後續變動污染，回放就失效了 |
@@ -227,8 +235,10 @@ Phase 20 再發現：**每加一個可設定的值，同時寫下它不能是什
 | `Event` 的屬性 vs `to_dict()` | 屬性是攤平的，輸出是巢狀的。engine 用屬性；exporter 與測試讀的是巢狀輸出 |
 | 新的事件型別 | 要先登記到 `contracts/event.py` 的 `EVENT_TYPES`，否則 `record_event()` 直接 raise |
 | PATH 上的 `mypy` | 可能是隔離環境裝的，看不到 pydantic。一律用 `python3 -m mypy src/` |
-| 契約的 docstring | 會被寫進 JSON Schema 的 `description`。改了要重跑 `scripts/export_schemas.py`，否則漂移測試失敗 |
-| `tests/` 與 `scripts/` 的 `sys.path` 區塊 | 這是刻意的，`pyproject.toml` 已為它豁免 E402。根治方式是讓套件可安裝 |
+| 契約的 docstring | 會被寫進 JSON Schema 的 `description`。改了要重跑 `scripts/dev/export_schemas.py`，否則漂移測試失敗 |
+| `tests/` 與 `scripts/dev/` 的 `sys.path` 區塊 | 這是刻意的，`pyproject.toml` 已為它豁免 E402 |
+| 會被存進 store 的輸出 | store 以 sort_keys 存 JSON；依 dict 順序輸出的東西（報告、清單）讀回後順序會變。測試要經過一次存取往返 |
+| UI 路由的 404 | 只有 `NoSuchRun` 是 404；其他例外是 500。不要用 LookupError（KeyError 是它的子類） |
 
 ---
 
@@ -237,11 +247,12 @@ Phase 20 再發現：**每加一個可設定的值，同時寫下它不能是什
 ```bash
 python3 -c "import skyvault.your_module"          # output/ 有東西冒出來就是有副作用
 grep -rn "open(" tests/                            # 指向 output/ 的都要改
-python3 scripts/run_tactical_reference.py          # 然後真的打開產生的檔案讀一次
+python3 scripts/dev/run_scenario.py                # 然後真的打開產生的檔案讀一次
 python3 -m pytest tests/ -q
 ruff check . && black --check src/ tests/ scripts/
 python3 -m mypy src/
-python3 scripts/export_schemas.py && git status src/skyvault/schemas/   # 改過契約就要有變動
+python3 scripts/dev/export_schemas.py && git status src/skyvault/schemas/   # 改過契約就要有變動
+skyvault serve & skyvault run military_urban_001/v0.2   # 系統本身還能從空資料夾跑起來
 cd /tmp && python3 -m pytest ~/SKYVAULT/tests -q   # 換個目錄再跑一次
 git diff                                           # 註解掉的除錯碼、死變數，推之前刪掉
 ```
@@ -307,13 +318,14 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-**roadmap 的二十一個 Phase 已全部完成**（Phase 0–20）。`python3 scripts/run_v2_acceptance.py` 在同一個服務上跑完開發計劃的十五條最終驗收、十四項必備與 Final Authority Boundary，output/v2/acceptance.md 是目前系統的驗收報告 —— 之後任何變更都應該讓它保持 ACCEPTED（CI 的 Full v2 acceptance 步驟會擋）。
+**roadmap 的二十一個 Phase 與之後的 Phase 21 已完成**（Phase 0–21）。SKYVAULT 以 `skyvault` 啟動與使用；`skyvault acceptance` 跑完開發計劃的十五條最終驗收、十四項必備與 Final Authority Boundary（目前 ACCEPTED，output/v2/acceptance.md）—— 之後任何變更都應該讓它保持 ACCEPTED（CI 的 Full v2 acceptance 與 SKYVAULT on its own 步驟會擋）。
 
 之後的變更先讀：
 
 ```text
-docs/phases/phase20_full_skyvault_v2.md   第 4 節（這一輪發現的問題）與第 6 節（已知限制）
-docs/postmortems/phase20.md               第 6 節：可設定的值寫下禁止值、檢查先看它失敗、改寫程式碼不用字串切割、多層防禦各一個反例
-docs/decisions/022_full_v2.md             Final Authority Boundary 在哪裡強制；11 軸不開放給 domain 的決定
-tests/layers.py                           新的套件要不要給它一個 rank
+docs/phases/phase21_standalone.md         第 4 節（這一輪發現的問題）與第 6 節（已知限制）
+docs/postmortems/phase21.md               第 6 節：開發用的東西放在開發的位置並以測試守住；結構測試要有反例；存取往返
+docs/decisions/023_standalone.md          skyvault 指令、library 與三個環境變數、系統基線、介面讀服務
+docs/reviews/2026-11-09_code_review.md    world service 的並行、治理與授權：十項修正
+tests/layers.py                           新的套件或頂層模組要不要給它一個 rank
 ```
