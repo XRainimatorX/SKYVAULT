@@ -99,6 +99,8 @@ def create_world_service(
         try:
             if gate is not None:
                 gate(request)
+                if request.get("kind") == "replay":
+                    gate(store.get_job(str(request.get("replay")))["request"])
             planned = plan(request, policy, queue.depth() + ahead, store)
             return new_job(store, request, planned, policy)
         except (
@@ -124,10 +126,10 @@ def create_world_service(
     def status() -> dict[str, Any]:
         jobs = store.list_jobs()
         running = [j for j in jobs if j["lifecycle_state"] == "running"]
+        with worlds_lock:
+            everyone = list(worlds.values())
         live = [
-            w
-            for w in worlds.values()
-            if w.lifecycle in ("initialized", "running", "paused")
+            w for w in everyone if w.lifecycle in ("initialized", "running", "paused")
         ]
         finished = [j for j in jobs if j["lifecycle_state"] in FINISHED][-10:]
         failed = sum(1 for j in finished if j["lifecycle_state"] == "failed")
@@ -255,7 +257,8 @@ def create_world_service(
         return world.state()
 
     def world_or_404(world_id: str) -> PersistentWorld:
-        world = worlds.get(world_id)
+        with worlds_lock:
+            world = worlds.get(world_id)
         if world is None:
             raise HTTPException(
                 404, {"reason": "not_found", "detail": f"no live world {world_id}"}
@@ -307,6 +310,7 @@ def create_world_service(
 
     # What the external interface (Phase 12) shares with these routes
     app.state.worlds = worlds
+    app.state.worlds_lock = worlds_lock
     app.state.admit = admit
     app.state.refuse = refuse
     app.state.create_world = create_world

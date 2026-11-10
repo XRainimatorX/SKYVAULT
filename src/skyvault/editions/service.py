@@ -19,12 +19,13 @@ The internal edition is the world service exactly as it was.
 """
 
 import json
+import threading
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request, Response
 
 from ..worldservice.api import create_world_service, in_process_queue
-from ..worldservice.jobs import scenario_for
+from ..worldservice.jobs import batch_for, scenario_for
 from ..worldservice.queues import JobQueue
 from ..worldservice.store import JobStore
 from .manifest import allows, public
@@ -47,12 +48,20 @@ def gate_for(edition: dict[str, Any]) -> Any:
                 f"the {edition['edition_id']} edition does not run {kind} jobs"
             )
         if request.get("scenario"):
-            domain = scenario_for(request).get("domain")
-            if domain and not allows(edition, "domain", domain):
-                raise PermissionError(
-                    f"the {edition['edition_id']} edition does not run the "
-                    f"{domain} domain"
-                )
+            scenario = scenario_for(request)
+        elif request.get("batch"):
+            spec = batch_for(request)
+            scenario = scenario_for(
+                {"scenario": f"{spec['scenario_id']}/{spec['base_version']}"}
+            )
+        else:  # a replay is gated on the request it replays (the service's admit)
+            return
+        domain = scenario.get("domain")
+        if domain and not allows(edition, "domain", domain):
+            raise PermissionError(
+                f"the {edition['edition_id']} edition does not run the "
+                f"{domain} domain"
+            )
 
     return gate
 
@@ -98,16 +107,31 @@ def create_edition_service(
             for p in edition["products"]
         ]
 
+    # a product runs its flow here, in the request: no more at once than the
+    # policy lets runs go in parallel, the rest refused rather than waiting
+    running = threading.BoundedSemaphore(max(int(policy["max_parallel_runs"]), 1))
+
     @app.post("/api/products/{product_id}")
     def product(product_id: str) -> dict[str, Any]:
         if product_id not in catalogue():
             raise HTTPException(404, {"reason": "not_found", "detail": product_id})
+        if not running.acquire(blocking=False):
+            raise HTTPException(
+                429,
+                {
+                    "reason": "queue_full",
+                    "detail": "as many products are running as max_parallel_runs "
+                    "allows; try again when one is done",
+                },
+            )
         try:
             return run_product(product_id, edition, repeats=2)
         except PermissionError as error:
             raise HTTPException(
                 403, {"reason": "not_licensed", "detail": str(error)}
             ) from None
+        finally:
+            running.release()
 
     if edition.get("redact"):
 

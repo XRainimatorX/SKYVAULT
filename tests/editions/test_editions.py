@@ -262,6 +262,80 @@ def test_the_commercial_shell_refuses_what_it_does_not_run(request_body, detail)
     assert detail in response.json()["detail"]["detail"]
 
 
+def test_a_batch_on_a_domain_the_edition_does_not_run_is_refused():
+    """The gate used to look only at a request's scenario (code review, 2026-11-09)."""
+    narrow = copy.deepcopy(COMMERCIAL)
+    narrow["domains"] = ["city"]
+    client = TestClient(create_edition_service(narrow, SQLiteStore(), None, POLICY))
+
+    refused = client.post(
+        "/api/jobs", json={"kind": "batch", "batch": "military_doctrine"}
+    )
+    city = client.post(
+        "/api/jobs", json={"kind": "batch", "batch": "city_supply_delay"}
+    )
+
+    assert refused.status_code == 403
+    assert "does not run the military domain" in refused.json()["detail"]["detail"]
+    assert city.status_code == 202
+
+
+def test_a_replay_of_a_run_on_a_domain_the_edition_does_not_run_is_refused():
+    store = SQLiteStore()
+    internal = TestClient(create_edition_service(INTERNAL, store, None, POLICY))
+    run = internal.post(
+        "/api/jobs",
+        json={"kind": "scenario_run", "scenario": "military_squad_001/v0.1"},
+    ).json()
+    assert wait(internal, run["job_id"])["lifecycle_state"] == "completed"
+    narrow = copy.deepcopy(COMMERCIAL)
+    narrow["domains"] = ["city"]
+    client = TestClient(create_edition_service(narrow, store, None, POLICY))
+
+    refused = client.post(f"/api/jobs/{run['job_id']}/replay")
+    missing = client.post("/api/jobs", json={"kind": "replay", "replay": "job_999999"})
+
+    assert refused.status_code == 403
+    assert "does not run the military domain" in refused.json()["detail"]["detail"]
+    assert missing.status_code == 404
+
+
+def test_products_run_no_more_at_once_than_the_policy_allows(monkeypatch):
+    """Products used to run unbounded in the request thread (code review)."""
+    import threading
+
+    from skyvault.editions import service as edition_service
+
+    started, release = threading.Event(), threading.Event()
+
+    def slow(product_id, edition, repeats):
+        started.set()
+        release.wait(10)
+        return {"product": product_id}
+
+    monkeypatch.setattr(edition_service, "run_product", slow)
+    client = TestClient(
+        create_edition_service(
+            COMMERCIAL, SQLiteStore(), None, {**POLICY, "max_parallel_runs": 1}
+        )
+    )
+    first: list = []
+    worker = threading.Thread(
+        target=lambda: first.append(client.post("/api/products/risk_studio"))
+    )
+    worker.start()
+    assert started.wait(10)
+
+    busy = client.post("/api/products/training_aar")
+    release.set()
+    worker.join(10)
+    after = client.post("/api/products/training_aar")
+
+    assert busy.status_code == 429
+    assert busy.json()["detail"]["reason"] == "queue_full"
+    assert first[0].status_code == 200 and after.status_code == 200
+
+
 def test_naming_a_system_mounts_its_interface_again_for_it_alone():
     client = service(COMMERCIAL, systems=["NEXUS"])
     body = {"kind": "task", "scenario": "tactical_reference_001/v0.1", "content": {}}

@@ -84,6 +84,7 @@ def add_external_routes(
     edition's); others get 403 not_licensed. None takes every system.
     """
     worlds: dict[str, PersistentWorld] = app.state.worlds
+    worlds_lock = app.state.worlds_lock
 
     def refuse(error: Exception) -> HTTPException:
         if isinstance(error, PermissionError):
@@ -147,7 +148,8 @@ def add_external_routes(
             raise refuse(error) from None
 
     def world_or_404(world_id: str) -> PersistentWorld:
-        world = worlds.get(world_id)
+        with worlds_lock:
+            world = worlds.get(world_id)
         if world is None:
             raise problem(404, "not_found", f"no live world {world_id}")
         return world
@@ -299,7 +301,8 @@ def add_external_routes(
     @app.get("/run/{run_id}")
     def run(run_id: str) -> dict[str, Any]:
         job = job_or_404(run_id)
-        world = worlds.get(run_id)
+        with worlds_lock:
+            world = worlds.get(run_id)
         return {
             **job,
             "handoff": job["summary"].get("handoff"),
@@ -311,7 +314,8 @@ def add_external_routes(
     def run_events(run_id: str) -> dict[str, Any]:
         """The run's event memory (a live world's so far) and its job events."""
         job_or_404(run_id)
-        world = worlds.get(run_id)
+        with worlds_lock:
+            world = worlds.get(run_id)
         result = store.get_result(run_id)
         if result is not None:
             memory = result["event_memory"]

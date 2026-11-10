@@ -386,6 +386,25 @@ def test_time_a_world_waits_between_advances_is_not_its_runtime(store, policy):
     assert state["stop_reason"] is None
 
 
+def test_status_reads_the_live_worlds_under_their_lock(api):
+    """Status iterated the worlds unlocked (code review, 2026-11-09)."""
+    client, _ = api
+    client.post("/api/worlds", json={"scenario": "military_squad_001/v0.1"})
+    answers: list = []
+    with client.app.state.worlds_lock:
+        reader = threading.Thread(
+            target=lambda: answers.append(client.get("/api/status"))
+        )
+        reader.start()
+        reader.join(0.5)
+        waited = reader.is_alive()
+    reader.join(10)
+
+    assert waited  # it could not read the worlds while another thread held them
+    assert answers[0].status_code == 200
+    assert len(answers[0].json()["worlds"]) == 1
+
+
 def test_deleting_a_world_that_never_finished_keeps_its_result(api):
     client, _ = api
     world = client.post(
