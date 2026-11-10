@@ -74,8 +74,10 @@ class _SQLStore:
 
     spec = ""
     placeholder = "?"
-    # appended to the SELECT that a read-modify-write locks its row with
-    lock_row = ""
+    # the SELECTs a read-modify-write reads (and, where the database can,
+    # locks) its row with
+    select_job_to_change = "SELECT record FROM jobs WHERE job_id = ?"
+    select_conflict_to_change = "SELECT record FROM conflicts WHERE conflict_id = ?"
 
     def _run(self, sql: str, params: tuple[Any, ...] = ()) -> list[tuple[Any, ...]]:
         raise NotImplementedError  # pragma: no cover - every store connects
@@ -152,9 +154,7 @@ class _SQLStore:
     ) -> dict[str, Any]:
         """Read, change and write one job in a single transaction."""
         with self._transaction() as run:
-            rows = run(
-                "SELECT record FROM jobs WHERE job_id = ?" + self.lock_row, (job_id,)
-            )
+            rows = run(self.select_job_to_change, (job_id,))
             if not rows:
                 raise KeyError(f"no job {job_id}")
             job: dict[str, Any] = json.loads(rows[0][0])
@@ -247,10 +247,7 @@ class _SQLStore:
 
     def update_conflict(self, conflict_id: str, **fields: Any) -> dict[str, Any]:
         with self._transaction() as run:
-            rows = run(
-                "SELECT record FROM conflicts WHERE conflict_id = ?" + self.lock_row,
-                (conflict_id,),
-            )
+            rows = run(self.select_conflict_to_change, (conflict_id,))
             if not rows:
                 raise KeyError(f"no conflict {conflict_id}")
             record: dict[str, Any] = {**json.loads(rows[0][0]), **fields}
@@ -310,7 +307,10 @@ class PostgresStore(_SQLStore):
     """PostgreSQL through psycopg: a connection per statement, safe from any thread."""
 
     placeholder = "%s"
-    lock_row = " FOR UPDATE"
+    select_job_to_change = "SELECT record FROM jobs WHERE job_id = ? FOR UPDATE"
+    select_conflict_to_change = (
+        "SELECT record FROM conflicts WHERE conflict_id = ? FOR UPDATE"
+    )
 
     def __init__(self, dsn: str) -> None:
         import psycopg
