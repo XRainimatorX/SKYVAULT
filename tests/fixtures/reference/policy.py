@@ -1,11 +1,18 @@
-"""Actor policy = how an entity picks its action for the current tick."""
+"""The Phase 0 tactical reference policy — a development fixture, not SKYVAULT.
+
+Important:
+SKYVAULT itself never imports this file and never falls back to it (Phase
+21). Tests register it as "tactical_reference" (tests/conftest.py), so the
+reference slice in tests/fixtures/reference/ keeps pinning the behaviour
+the first twenty phases were built against.
+"""
 
 import random
 
-from .action import Action, ActionTarget
-from .entity import Entity, Position
-from .policies import register_policy
-from .world_state import WorldState
+from skyvault.action import Action, ActionTarget
+from skyvault.entity import Entity, Position
+from skyvault.policies import register_policy
+from skyvault.world_state import WorldState
 
 
 class TacticalReferencePolicy:

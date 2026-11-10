@@ -17,7 +17,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
-REFERENCE = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+REFERENCE = REPO_ROOT / "data" / "scenarios" / "military_urban_001" / "v0.2.json"
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))

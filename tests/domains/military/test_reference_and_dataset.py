@@ -85,7 +85,15 @@ def test_doctrine_variants_are_child_versions_of_the_urban_plan():
 
 def test_the_same_engine_runs_every_tactical_scenario(runs):
     reference = SkyVaultEngine(
-        load_scenario(SCENARIOS / "tactical_reference_001" / "v0.1.json")
+        load_scenario(
+            REPO_ROOT
+            / "tests"
+            / "fixtures"
+            / "reference"
+            / "scenarios"
+            / "tactical_reference_001"
+            / "v0.1.json"
+        )
     ).run()
 
     summaries = {
@@ -145,9 +153,9 @@ def test_an_outside_policy_drives_a_military_scenario():
 
 
 def test_a_policy_module_can_be_named_by_module_path():
-    import_policy_module("skyvault.tactical_reference_policy")
+    import_policy_module("skyvault.actors.basic")
 
-    assert build_policy("tactical_reference", __import__("random").Random(1))
+    assert build_policy("rule_based", __import__("random").Random(1))
     with pytest.raises(FileNotFoundError):
         import_policy_module(str(REPO_ROOT / "examples" / "missing_policy.py"))
 

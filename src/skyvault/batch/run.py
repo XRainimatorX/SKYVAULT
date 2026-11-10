@@ -15,6 +15,7 @@ from ..contracts import (
     validate_batch_spec,
     validate_conflict_package,
 )
+from ..library import scenario_folder
 from ..scenario_loader import (
     PROFILE_DIR,
     load_evaluation_profile,
@@ -53,7 +54,8 @@ def run_batch(
         request["workers"] = workers
 
     base = load_scenario(
-        scenarios_dir / request["scenario_id"] / f"{request['base_version']}.json"
+        scenario_folder(scenarios_dir, request["scenario_id"])
+        / f"{request['base_version']}.json"
     )
     profile = load_evaluation_profile(profile_dir / f"{request['profile']}.json")
     perspective = (

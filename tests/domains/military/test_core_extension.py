@@ -22,7 +22,15 @@ from skyvault.policies import build_policy, register_policy, registered_policies
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_scenario
 
-REFERENCE = SRC.parent / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    SRC.parent
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 
 
 class Holder:

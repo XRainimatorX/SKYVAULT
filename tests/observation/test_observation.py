@@ -35,7 +35,15 @@ from skyvault.scenario_loader import load_scenario
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-REFERENCE = SCENARIOS / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 MILITARY = {
     name: SCENARIOS / f"military_{name}_001" / "v0.1.json"
     for name in ("squad", "urban", "mountain", "junction")

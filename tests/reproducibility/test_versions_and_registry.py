@@ -25,7 +25,14 @@ from skyvault.reproducibility import (
 from skyvault.scenario_loader import load_scenario
 from skyvault.verification import locate_inputs, verify_reproducibility
 
-SCENARIOS = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001"
+SCENARIOS = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+)
 
 
 def scenario(version: str) -> dict:

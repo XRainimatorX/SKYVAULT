@@ -23,7 +23,13 @@ from skyvault.scenario_loader import (
 )
 
 REFERENCE_SCENARIO = (
-    REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
 )
 
 

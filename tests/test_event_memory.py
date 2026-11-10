@@ -30,7 +30,13 @@ TOP_LEVEL_FIELDS = {
 
 def run_reference_scenario() -> dict:
     scenario_path = (
-        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
     )
 
     scenario = load_scenario(scenario_path)
@@ -152,7 +158,13 @@ def test_scenario_end_event_exists_with_evaluation_summary():
 
 def test_events_record_the_system_that_produced_the_action():
     scenario_path = (
-        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
     )
 
     scenario = load_scenario(scenario_path)

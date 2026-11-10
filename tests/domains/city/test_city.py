@@ -275,7 +275,9 @@ def test_the_builder_refuses_a_city_that_does_not_hold_together(change, message)
 
 
 def test_a_graph_world_without_a_domain_is_still_refused():
-    scenario = load_scenario(ROOT / "data/scenarios/tactical_reference_001/v0.1.json")
+    scenario = load_scenario(
+        ROOT / "tests/fixtures/reference/scenarios/tactical_reference_001/v0.1.json"
+    )
     scenario["world_contract"]["space_model"] = {
         "type": "graph",
         "nodes": ["A", "B"],

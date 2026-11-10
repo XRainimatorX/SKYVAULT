@@ -10,7 +10,14 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-BATCH = REPO_ROOT / "data" / "batches" / "tactical_reference_001.json"
+BATCH = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "batches"
+    / "tactical_reference_001.json"
+)
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
@@ -136,7 +143,15 @@ def test_branches_are_compared_metric_by_metric():
 
 
 def plan():
-    return load_scenario(SCENARIOS / "tactical_reference_001" / "v0.1.json")
+    return load_scenario(
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
 
 def test_records_come_back_variant_by_variant_and_seed_by_seed():

@@ -10,7 +10,14 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 FIXTURES = REPO_ROOT / "tests" / "fixtures"
-SCENARIOS = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001"
+SCENARIOS = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+)
 
 for path in (SRC_PATH, REPO_ROOT / "tests"):
     if str(path) not in sys.path:

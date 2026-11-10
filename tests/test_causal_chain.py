@@ -15,7 +15,13 @@ from skyvault.scenario_loader import load_scenario
 
 def run_reference_scenario() -> dict:
     scenario_path = (
-        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
     )
 
     scenario = load_scenario(scenario_path)

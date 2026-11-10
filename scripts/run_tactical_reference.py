@@ -42,8 +42,8 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--scenario",
         type=Path,
-        default=SCENARIO_DIR / "tactical_reference_001" / "v0.1.json",
-        help="scenario file; default: tactical_reference_001 v0.1",
+        default=SCENARIO_DIR / "military_urban_001" / "v0.2.json",
+        help="scenario file; default: military_urban_001 v0.2",
     )
     parser.add_argument(
         "--registry",

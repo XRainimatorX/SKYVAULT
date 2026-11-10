@@ -14,7 +14,8 @@ from ..worldservice.api import in_process_queue
 from ..worldservice.governance import load_governance
 from ..worldservice.store import SQLiteStore
 
-REFERENCE = "tactical_reference_001/v0.1"
+# the system baseline (Phase 21): a domain scenario, not the Phase 0 slice
+BASELINE = "military_urban_001/v0.2"
 FINISHED = ("completed", "failed")
 
 
@@ -67,7 +68,7 @@ class Service:
         )
         return {"answer": body, "returned": returned}
 
-    def world(self, scenario: str = REFERENCE) -> str:
+    def world(self, scenario: str = BASELINE) -> str:
         created = self.post("/world/create", {"scenario": scenario})
         if created.status_code != 201:
             raise RuntimeError(f"world refused: {created.json()}")

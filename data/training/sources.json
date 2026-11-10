@@ -1,22 +1,24 @@
 {
   "dataset": "skyvault_training",
-  "description": "The runs the training pipeline exports (Phase 18). Ten seeds each from the scenario's own seed: the tactical reference and its two alternatives, three severe stresses of the reference, and the four military reference scenarios; plus two batches for STARTX branch evaluation. Measured before commit: 41 clean, 20 risky, 39 rejected; 2 genuine successes, 6 false successes.",
+  "description": "The runs the training pipeline exports (Phase 18; system scenarios only since Phase 21). Ten seeds each from the scenario's own seed: the urban baseline (military_urban_001 v0.2) and its two doctrine alternatives, three severe stresses of the baseline, the four military reference scenarios, the airspace and the city scenario; plus two batches for STARTX branch evaluation. Measured before commit: 46 clean, 27 risky, 47 rejected; 7 genuine successes, 4 false successes.",
   "profile": "balanced",
   "seeds": 10,
   "runs": [
-    {"scenario": "tactical_reference_001/v0.1"},
-    {"scenario": "tactical_reference_001/v0.2"},
-    {"scenario": "tactical_reference_001/v0.1-support-rear"},
-    {"scenario": "tactical_reference_001/v0.1", "stress": {"weather_degradation": "severe"}},
-    {"scenario": "tactical_reference_001/v0.1", "stress": {"communication_failure": "severe"}},
-    {"scenario": "tactical_reference_001/v0.1", "stress": {"civilian_pressure": "severe"}},
+    {"scenario": "military_urban_001/v0.2"},
+    {"scenario": "military_urban_001/v0.2+overwatch"},
+    {"scenario": "military_urban_001/v0.2+defensive"},
+    {"scenario": "military_urban_001/v0.2", "stress": {"weather_degradation": "severe"}},
+    {"scenario": "military_urban_001/v0.2", "stress": {"communication_failure": "severe"}},
+    {"scenario": "military_urban_001/v0.2", "stress": {"sensor_failure": "severe"}},
     {"scenario": "military_squad_001/v0.1"},
     {"scenario": "military_urban_001/v0.1"},
     {"scenario": "military_mountain_001/v0.1"},
-    {"scenario": "military_junction_001/v0.1"}
+    {"scenario": "military_junction_001/v0.1"},
+    {"scenario": "airspace_defence_001/v0.1"},
+    {"scenario": "city_blackout_001/v0.1"}
   ],
   "batches": [
-    {"batch": "tactical_reference_001", "repeats": 20},
-    {"batch": "military_doctrine", "repeats": 20}
+    {"batch": "military_doctrine", "repeats": 20},
+    {"batch": "airspace_sensors", "repeats": 20}
   ]
 }

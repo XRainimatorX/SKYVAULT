@@ -11,7 +11,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
 FIXTURES = REPO_ROOT / "tests" / "fixtures"
-BATCH = REPO_ROOT / "data" / "batches" / "tactical_reference_001.json"
+BATCH = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "batches"
+    / "tactical_reference_001.json"
+)
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
@@ -27,7 +34,15 @@ from skyvault.batch.run import run_batch
 from skyvault.contracts import validate_conflict_package
 from skyvault.scenario_loader import load_scenario
 
-REFERENCE = load_scenario(SCENARIOS / "tactical_reference_001" / "v0.1.json")
+REFERENCE = load_scenario(
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 LOGISTICS = load_scenario(FIXTURES / "scenario_logistics.json")
 
 

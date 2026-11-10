@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from .engine import SkyVaultEngine
+from .library import scenario_folder
 from .reproducibility import input_hash, output_hash
 from .scenario_loader import PROFILE_DIR, load_evaluation_profile, load_scenario
 
@@ -25,13 +26,15 @@ def locate_inputs(
 
     Important:
     A package names its own sources: scenario_id and scenario_version find
-    data/scenarios/<scenario_id>/<scenario_version>.json, and the verdict's
+    <scenario_id>/<scenario_version>.json in the scenario library
+    (skyvault.library), and the verdict's
     profile_id finds data/evaluation_profiles/<profile_id>.json, judged from
     the perspective the verdict records.
     """
     block = package["reproducibility"]
     scenario = load_scenario(
-        scenario_dir / block["scenario_id"] / f"{block['scenario_version']}.json"
+        scenario_folder(scenario_dir, block["scenario_id"])
+        / f"{block['scenario_version']}.json"
     )
     verdict = package["evaluation_result"]
     profile = load_evaluation_profile(profile_dir / f"{verdict['profile_id']}.json")

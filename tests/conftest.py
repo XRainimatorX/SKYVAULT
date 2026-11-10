@@ -1,12 +1,22 @@
-"""Shared fixtures: the reference workspace, built fresh in a temporary folder.
+"""Shared fixtures: the Phase 0 reference slice, and its workspace.
 
-Tests never read output/. The reference workspace is what the three scripts
-write by default (the run, its failure exploration, the reference batch),
-produced here by the same library calls into tmp_path once per session.
+Important:
+The reference slice (tests/fixtures/reference/: the tactical reference
+policy, its scenarios and its batch) is a development fixture — SKYVAULT
+itself has none of it (Phase 21). This module puts it within reach of the
+tests only, the way any deployment adds its own: the policy module through
+SKYVAULT_POLICY_MODULES (it registers "tactical_reference" when a run first
+asks for it), the scenario and batch folders through SKYVAULT_SCENARIO_PATH
+and SKYVAULT_BATCH_PATH. Scripts the tests run inherit all three.
+
+Tests never read output/. The reference workspace is the run, its failure
+exploration and the reference batch, produced here by the same library
+calls into tmp_path once per session.
 """
 
 import copy
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -14,11 +24,18 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_PATH = REPO_ROOT / "src"
-REFERENCE = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
-BATCH = REPO_ROOT / "data" / "batches" / "tactical_reference_001.json"
+REFERENCE_SLICE = REPO_ROOT / "tests" / "fixtures" / "reference"
+REFERENCE_SCENARIOS = REFERENCE_SLICE / "scenarios"
+REFERENCE_POLICY = REFERENCE_SLICE / "policy.py"
+REFERENCE = REFERENCE_SCENARIOS / "tactical_reference_001" / "v0.1.json"
+BATCH = REFERENCE_SLICE / "batches" / "tactical_reference_001.json"
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
+
+os.environ["SKYVAULT_SCENARIO_PATH"] = str(REFERENCE_SCENARIOS)
+os.environ["SKYVAULT_BATCH_PATH"] = str(REFERENCE_SLICE / "batches")
+os.environ["SKYVAULT_POLICY_MODULES"] = str(REFERENCE_POLICY)
 
 
 def write_json(path: Path, data: dict) -> None:

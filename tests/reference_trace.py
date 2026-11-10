@@ -59,7 +59,13 @@ def reference_package() -> dict[str, Any]:
     from skyvault.scenario_loader import load_scenario
 
     scenario = load_scenario(
-        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
     )
     return SkyVaultEngine(scenario).run()
 

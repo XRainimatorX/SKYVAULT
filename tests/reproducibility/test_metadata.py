@@ -29,7 +29,14 @@ from skyvault.reproducibility import (
 )
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 
-SCENARIOS = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001"
+SCENARIOS = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+)
 PROFILES = REPO_ROOT / "data" / "evaluation_profiles"
 
 

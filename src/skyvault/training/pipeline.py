@@ -15,6 +15,7 @@ from typing import Any
 from ..batch.run import run_batch
 from ..engine import SkyVaultEngine
 from ..failure import apply_stress
+from ..library import scenario_folder
 from ..scenario_loader import PROFILE_DIR, load_evaluation_profile, load_scenario
 from .branches import branch_evaluation
 from .filter import anti_gaming_report, split_runs
@@ -28,7 +29,10 @@ def run_sources(
     profile = load_evaluation_profile(profile_dir / f"{sources['profile']}.json")
     runs = []
     for source in sources["runs"]:
-        base = load_scenario(scenarios_dir / f"{source['scenario']}.json")
+        scenario_id, version = source["scenario"].split("/")
+        base = load_scenario(
+            scenario_folder(scenarios_dir, scenario_id) / f"{version}.json"
+        )
         if source.get("stress"):
             perspective = (
                 source.get("perspective")

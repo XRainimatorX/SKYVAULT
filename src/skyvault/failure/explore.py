@@ -12,6 +12,7 @@ from typing import Any
 
 from ..contracts import validate_failure_exploration
 from ..engine import SkyVaultEngine
+from ..library import scenario_folder
 from ..scenario_loader import load_scenario, scenario_perspective
 from ..verification import SCENARIO_DIR
 from .analysis import sensitivity, survival_rate
@@ -45,7 +46,7 @@ def explore_failures(
     if perspective is None:
         raise ValueError("the plan has no perspective to judge failures from")
     seeds = _seeds(scenario, config)
-    folder = (scenarios_dir or SCENARIO_DIR) / scenario["scenario_id"]
+    folder = scenario_folder(scenarios_dir or SCENARIO_DIR, scenario["scenario_id"])
 
     def run_plan(plan: dict[str, Any]) -> list[dict[str, Any]]:
         return [_run(plan, profile, seed, perspective) for seed in seeds]

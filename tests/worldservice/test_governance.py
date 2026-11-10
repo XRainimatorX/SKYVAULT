@@ -28,7 +28,15 @@ from skyvault.worldservice.governance import (
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-REFERENCE = SCENARIOS / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 JOBS = json.loads(
     (REPO_ROOT / "tests" / "fixtures" / "service" / "jobs.json").read_text()
 )["jobs"]

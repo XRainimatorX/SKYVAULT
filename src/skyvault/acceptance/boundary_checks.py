@@ -84,7 +84,7 @@ def reject_invalid(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 
 
 def sovereign_decision(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
-    run_id = shared["nexus"]["run_id"]
+    run_id = shared["handoff_run"]
     codes = {
         name: s.post(
             f"/run/{run_id}/decision", {"decided_by": name, "decision": "accept"}

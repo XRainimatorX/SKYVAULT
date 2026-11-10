@@ -3,7 +3,7 @@
     python3 scripts/explore_failures.py
     python3 scripts/explore_failures.py --repeats 3
 
-The plan is a scenario (default: tactical_reference_001 v0.1) judged under an
+The plan is a scenario (default: military_urban_001 v0.2) judged under an
 evaluation profile (default: balanced). The stress request is the scenario's
 own failure_exploration block; --repeats overrides its repeat_count.
 """
@@ -48,7 +48,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--scenario",
         type=Path,
-        default=SCENARIO_DIR / "tactical_reference_001" / "v0.1.json",
+        default=SCENARIO_DIR / "military_urban_001" / "v0.2.json",
     )
     parser.add_argument("--profile", type=Path, default=None)
     parser.add_argument("--repeats", type=int, default=None)

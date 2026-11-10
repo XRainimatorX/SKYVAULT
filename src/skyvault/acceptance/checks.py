@@ -25,35 +25,35 @@ from ..scenario_loader import load_scenario
 from ..verification import verify_reproducibility
 from ..views.screens import overview_view
 from ..virtualtest.profile import load_profile
-from .service import REFERENCE, Service
+from .service import BASELINE, Service
 
 ROOT = Path(__file__).resolve().parents[3]
 SCENARIOS = ROOT / "data" / "scenarios"
-REFERENCE_HASH = "7debca2af332"
+BASELINE_HASH = "78aa3fe5bbdf"
 CONFLICTING = [
     {
         "system": "TAC_ANGEL",
         "tick": 1,
-        "actor_id": "red_001",
+        "actor_id": "red_08",
         "action_type": "move",
-        "target": {"location": [1, 1]},
+        "target": {"location": [9, 1]},
         "intent": "advance",
     },
     {
         "system": "STARTX",
         "tick": 1,
-        "actor_id": "red_001",
+        "actor_id": "red_08",
         "action_type": "move",
-        "target": {"location": [0, 1]},
+        "target": {"location": [10, 0]},
         "intent": "hold_line",
         "priority": "high",
     },
     {
         "system": "HADES",
         "tick": 1,
-        "actor_id": "red_002",
+        "actor_id": "red_07",
         "action_type": "move",
-        "target": {"location": [1, 1]},
+        "target": {"location": [9, 1]},
         "intent": "cover",
     },
 ]
@@ -63,9 +63,9 @@ STARTX_BRANCHES = [
         "actions": [
             {
                 "tick": 1,
-                "actor_id": "red_002",
+                "actor_id": "red_08",
                 "action_type": "move",
-                "target": {"location": [2, 1]},
+                "target": {"location": [9, 1]},
                 "intent": "press",
             }
         ],
@@ -75,9 +75,9 @@ STARTX_BRANCHES = [
         "actions": [
             {
                 "tick": 1,
-                "actor_id": "red_002",
+                "actor_id": "red_08",
                 "action_type": "move",
-                "target": {"location": [0, 1]},
+                "target": {"location": [10, 0]},
                 "intent": "hold",
             }
         ],
@@ -95,7 +95,8 @@ def _carried(shared: dict[str, Any], system: str, ok: bool) -> None:
 
 
 def _scenario(name: str) -> dict[str, Any]:
-    return load_scenario(SCENARIOS / name / "v0.1.json")
+    """name is "<scenario_id>" (its v0.1) or "<scenario_id>/<version>"."""
+    return load_scenario(SCENARIOS / f"{name if '/' in name else name + '/v0.1'}.json")
 
 
 # ── the fifteen final acceptance criteria ────────────────────────────────────
@@ -106,7 +107,7 @@ def nexus_task(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
         {
             "system": "NEXUS",
             "kind": "task",
-            "scenario": REFERENCE,
+            "scenario": BASELINE,
             "content": {"task_type": "scenario_run", "report_format": "markdown"},
         }
     )
@@ -142,7 +143,7 @@ def startx_branch(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
         {
             "system": "STARTX",
             "kind": "branches",
-            "scenario": REFERENCE,
+            "scenario": BASELINE,
             "content": {"branches": STARTX_BRANCHES, "repeat_count": 2},
         }
     )
@@ -159,9 +160,9 @@ def tac_angel_action(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     world_id = shared["world"]
     action = {
         "tick": 1,
-        "actor_id": "red_001",
+        "actor_id": "red_01",
         "action_type": "move",
-        "target": {"location": [1, 1]},
+        "target": {"location": [0, 1]},
         "intent": "tac_angel_probe",
     }
     accepted = s.act(world_id, "TAC_ANGEL", action)
@@ -248,12 +249,12 @@ def star_guard_profile(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 
 
 def normal_simulation(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
-    job = s.job({"kind": "scenario_run", "scenario": REFERENCE})
+    job = s.job({"kind": "scenario_run", "scenario": BASELINE})
     shared["run"] = job["job_id"]
     summary = job["summary"]
     return {
         "passed": job["lifecycle_state"] == "completed"
-        and summary["output_hash"].startswith(REFERENCE_HASH),
+        and summary["output_hash"].startswith(BASELINE_HASH),
         "evidence": {
             "job_id": job["job_id"],
             "result": summary["result"],
@@ -336,6 +337,8 @@ def high_risk_handoff(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
         }
     )
     handoff = job["summary"]["handoff"] or {}
+    # a run that waits on an authority's decision: the may-not checks try it
+    shared["handoff_run"] = job["job_id"]
     return {
         "passed": "high_risk_outcome" in handoff.get("triggers", []),
         "evidence": {
@@ -386,7 +389,7 @@ def failure_to_authority(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 def role_boundary(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     declared = s.get("/api/boundary").json()
     attempt = s.post(
-        f"/run/{shared['nexus']['run_id']}/decision",
+        f"/run/{shared['handoff_run']}/decision",
         {"decided_by": "SKYVAULT", "decision": "accept"},
     )
     return {
@@ -423,9 +426,16 @@ ACCEPTANCE: dict[str, Check] = {
 
 def world_contract(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     names = sorted(p.name for p in SCENARIOS.iterdir() if p.is_dir())
+    domains = set()
     for name in names:
-        validate_world_contract(_scenario(name)["world_contract"])
-    return {"passed": len(names) >= 8, "evidence": {"scenarios": names}}
+        scenario = _scenario(name)
+        validate_world_contract(scenario["world_contract"])
+        domains.add(scenario.get("domain"))
+    # every scenario SKYVAULT ships passes the contract, in all three domains
+    return {
+        "passed": {"military", "city", "airspace"} <= domains,
+        "evidence": {"scenarios": names, "domains": sorted(d or "" for d in domains)},
+    }
 
 
 def scenario_grammar(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
@@ -443,19 +453,17 @@ def scenario_grammar(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 
 def execution_protocol(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     hashes = {
-        SkyVaultEngine(_scenario("tactical_reference_001")).run()["reproducibility"][
-            "output_hash"
-        ][:12]
+        SkyVaultEngine(_scenario(BASELINE)).run()["reproducibility"]["output_hash"][:12]
         for _ in range(2)
     }
     return {
-        "passed": hashes == {REFERENCE_HASH},
+        "passed": hashes == {BASELINE_HASH},
         "evidence": {"output_hashes": sorted(hashes)},
     }
 
 
 def observation_contract(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
-    scenario = _scenario("tactical_reference_001")
+    scenario = _scenario(BASELINE)
     observations = observations_for_run(
         shared["package"], scenario, load_observer_profile("hades"), {"faction": "RED"}
     )
@@ -507,9 +515,7 @@ def failure_exploration(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 
 
 def reproducibility(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
-    verdict = verify_reproducibility(
-        shared["package"], _scenario("tactical_reference_001")
-    )
+    verdict = verify_reproducibility(shared["package"], _scenario(BASELINE))
     return {
         "passed": bool(verdict["reproduced"]),
         "evidence": {k: verdict[k] for k in ("reproduced", "input_hash_matches")},

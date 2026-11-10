@@ -28,6 +28,7 @@ from ..contracts import (
 from ..engine import SkyVaultEngine, require_decider
 from ..failure import build_failure_map, explore_failures
 from ..interface.handoff import AUTHORITIES, authority_handoff, handoff_triggers
+from ..library import find
 from ..replay import build_replay_state_at_tick
 from ..scenario_loader import (
     default_evaluation_profile,
@@ -65,10 +66,11 @@ class NotFound(ValueError):
 
 
 def _named(folder: Path, name: str, suffix: str = ".json") -> Path:
-    """folder/name.json, refused unless it exists inside folder."""
-    path = (folder / f"{name}{suffix}").resolve()
-    if not path.is_relative_to(folder.resolve()) or not path.is_file():
-        raise NotFound(f"nothing named {name!r} in data/{folder.name}")
+    """folder/name.json on the library path (skyvault.library), refused unless
+    it is a file inside the folder it is found in."""
+    path = find(folder, f"{name}{suffix}")
+    if path is None or not path.is_file():
+        raise NotFound(f"nothing named {name!r} in the {folder.name} library")
     return path
 
 

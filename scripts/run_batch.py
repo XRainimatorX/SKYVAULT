@@ -3,7 +3,7 @@
     python3 scripts/run_batch.py
     python3 scripts/run_batch.py --repeats 10 --workers 2
 
-The batch request (default: data/batches/tactical_reference_001.json) names
+The batch request (default: data/batches/military_doctrine.json) names
 the versions, parameter sweeps and conflicting proposals to run; --repeats
 and --workers override its run_policy.repeat_count and workers.
 """
@@ -34,7 +34,7 @@ def write_json(path: Path, data: dict) -> None:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Run and compare a batch.")
     parser.add_argument(
-        "--batch", type=Path, default=BATCH_DIR / "tactical_reference_001.json"
+        "--batch", type=Path, default=BATCH_DIR / "military_doctrine.json"
     )
     parser.add_argument("--repeats", type=int, default=None)
     parser.add_argument("--workers", type=int, default=None)

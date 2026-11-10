@@ -34,7 +34,15 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tests"))
 from layers import RANK, SRC, layer_of, modules_below  # noqa: E402
 
-REFERENCE = ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 POLICY = load_governance()
 
 
@@ -169,8 +177,10 @@ def test_every_criterion_must_have_and_boundary_check_passes_with_evidence():
 
 def test_the_evidence_is_what_a_reader_can_look_up():
     rows = {r["id"]: r["evidence"] for r in accepted()["acceptance"]}
-    assert rows["normal_simulation"]["output_hash"] == "7debca2af332"
-    assert rows["normal_simulation"]["events"] == 97
+    # the system baseline (Phase 21): military_urban_001 v0.2
+    assert rows["normal_simulation"]["output_hash"] == "78aa3fe5bbdf"
+    assert rows["normal_simulation"]["events"] == 528
+    assert rows["normal_simulation"]["result"] == "no_winner_duration_limit"
     assert rows["high_risk_handoff"]["triggers"] == ["high_risk_outcome"]
     assert rows["failure_to_authority"]["decision_authority"] == ["NEXUS", "SOVEREIGN"]
     assert rows["replay"]["reproduced"] is True
@@ -202,7 +212,7 @@ class Broken:
 
 
 def test_the_acceptance_sees_a_broken_boundary():
-    outcome = sovereign_decision(Broken(), {"nexus": {"run_id": "job_000001"}})
+    outcome = sovereign_decision(Broken(), {"handoff_run": "job_000001"})
     assert outcome["passed"] is False
     assert set(outcome["evidence"].values()) == {200}
 
@@ -333,12 +343,16 @@ class Answers:
         }
 
 
-def test_a_simulation_that_drifts_from_the_reference_hash_is_not_accepted():
+def test_a_simulation_that_drifts_from_the_baseline_hash_is_not_accepted():
     from skyvault.acceptance.checks import normal_simulation
 
-    drifted = {"output_hash": "deadbeef0000", "result": "RED_survived", "events": 97}
+    drifted = {
+        "output_hash": "deadbeef0000",
+        "result": "no_winner_duration_limit",
+        "events": 528,
+    }
     assert normal_simulation(Answers(drifted), {})["passed"] is False
-    pinned = {**drifted, "output_hash": "7debca2af332ffff"}
+    pinned = {**drifted, "output_hash": "78aa3fe5bbdfffff"}
     assert normal_simulation(Answers(pinned), {})["passed"] is True
 
 

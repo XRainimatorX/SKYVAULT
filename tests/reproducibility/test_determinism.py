@@ -27,7 +27,14 @@ from skyvault.runtime.ids import IdSequence, RunIds
 from skyvault.runtime.world import create_world
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 
-SCENARIOS = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001"
+SCENARIOS = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+)
 PROFILES = REPO_ROOT / "data" / "evaluation_profiles"
 
 

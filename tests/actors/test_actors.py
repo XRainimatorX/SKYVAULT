@@ -7,7 +7,6 @@ import io
 import json
 import operator
 import random
-import sys
 import threading
 import time
 from collections import Counter
@@ -56,7 +55,15 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC = REPO_ROOT / "src" / "skyvault"
 FIXTURES = REPO_ROOT / "tests" / "fixtures" / "actors"
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-REFERENCE = SCENARIOS / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 SQUAD = SCENARIOS / "military_squad_001" / "v0.1.json"
 GRID = {"type": "grid", "width": 10, "height": 10, "distance_model": "chebyshev"}
 
@@ -275,7 +282,12 @@ def test_world_policies_play_exactly_as_before():
         "military_urban_001/v0.1+overwatch": "721eea5f8477bdd6",
     }
     for name, prefix in expected.items():
-        package = run(SCENARIOS / f"{name}.json")
+        folder = (
+            SCENARIOS
+            if name.startswith("military")
+            else (REPO_ROOT / "tests" / "fixtures" / "reference" / "scenarios")
+        )
+        package = run(folder / f"{name}.json")
         assert package["reproducibility"]["output_hash"].startswith(prefix), name
 
 
@@ -303,7 +315,7 @@ def test_the_engine_does_not_import_the_tactical_reference_policy():
 def test_with_the_tactical_reference_unplugged_another_policy_still_runs(
     monkeypatch,
 ):
-    monkeypatch.setitem(sys.modules, "skyvault.tactical_reference_policy", None)
+    # the reference policy is a test fixture now (Phase 21): unregister it
     monkeypatch.delitem(policies._REGISTRY, "tactical_reference", raising=False)
 
     package = run(REFERENCE, policy={"name": "rule_based"})

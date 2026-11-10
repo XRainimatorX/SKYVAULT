@@ -9,7 +9,14 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-BATCH = REPO_ROOT / "data" / "batches" / "tactical_reference_001.json"
+BATCH = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "batches"
+    / "tactical_reference_001.json"
+)
 
 for path in (SRC_PATH, REPO_ROOT / "tests"):
     if str(path) not in sys.path:
@@ -30,7 +37,15 @@ def batch() -> dict:
 
 
 def plan() -> dict:
-    return load_scenario(SCENARIOS / "tactical_reference_001" / "v0.1.json")
+    return load_scenario(
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
 
 def proposals(*ids):

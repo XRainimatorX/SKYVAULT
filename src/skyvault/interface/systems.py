@@ -22,6 +22,7 @@ from typing import Any
 
 from ..contracts import validate_external_submission
 from ..domains import load_domain
+from ..library import find
 from ..observation.history import history_from_package, observations_for_run
 from ..observation.profiles import load_observer_profile
 from ..report import build_briefing, render_markdown
@@ -51,9 +52,9 @@ Results = list[dict[str, Any]]
 
 def load_scenario_named(name: str, scenarios_dir: Path = SCENARIOS_DIR) -> dict:
     """The scenario a submission names ("<scenario_id>/<version>"), as stored."""
-    path = (scenarios_dir / f"{name}.json").resolve()
-    if not path.is_relative_to(scenarios_dir.resolve()) or not path.is_file():
-        raise ValueError(f"nothing named {name!r} in data/scenarios")
+    path = find(scenarios_dir, f"{name}.json")
+    if path is None or not path.is_file():
+        raise ValueError(f"nothing named {name!r} in the scenarios library")
     scenario: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
     return scenario
 

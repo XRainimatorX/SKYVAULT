@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
+from ..library import scenario_folder
 from ..reproducibility import child_version
 from ..scenario_loader import load_scenario
 
@@ -75,7 +76,7 @@ def build_variants(batch: dict[str, Any], scenarios_dir: Path) -> list[Variant]:
     value becomes a child version of the base labelled sweep:<path>=<value>.
     Branch variants are added by the conflict step, which knows the branches.
     """
-    folder = scenarios_dir / batch["scenario_id"]
+    folder = scenario_folder(scenarios_dir, batch["scenario_id"])
     base = load_scenario(folder / f"{batch['base_version']}.json")
     variants = [
         Variant(

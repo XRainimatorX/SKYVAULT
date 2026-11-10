@@ -13,6 +13,7 @@ can also hand the engine a policy object.
 import contextlib
 import importlib
 import importlib.util
+import os
 import random
 from collections.abc import Callable
 from pathlib import Path
@@ -54,13 +55,15 @@ AnyPolicy = Policy | ObservingPolicy | MultiViewPolicy
 PolicyFactory = Callable[[random.Random, dict[str, Any]], AnyPolicy]
 
 _REGISTRY: dict[str, PolicyFactory] = {}
+# a deployment's own policy modules, imported on first need (see build_policy)
+POLICY_MODULES = "SKYVAULT_POLICY_MODULES"
+_IMPORTED: set[str] = set()
 
 # Policies the core knows by name only: the module registering each one is
 # imported the first time the name is asked for, so nothing in the core
-# imports a policy (development plan Phase 6: the tactical reference policy
-# can be unplugged).
+# imports a policy (development plan Phase 6). Any other policy is
+# registered by whoever brings it (register_policy, import_policy_module).
 KNOWN_POLICIES = {
-    "tactical_reference": "skyvault.tactical_reference_policy",
     "rule_based": "skyvault.actors.basic",
     "scripted": "skyvault.actors.basic",
     "human_input": "skyvault.actors.basic",
@@ -97,15 +100,31 @@ def build_policy(
     Important:
     A name in KNOWN_POLICIES that is not registered yet has its module
     imported first. A module that cannot be imported counts as unplugged:
-    the name is then simply not available.
+    the name is then simply not available. A name SKYVAULT does not know
+    may come from a deployment's own modules (SKYVAULT_POLICY_MODULES),
+    imported the first time an unknown name is asked for.
     """
     if name not in _REGISTRY and name in KNOWN_POLICIES:
         with contextlib.suppress(ImportError):
             importlib.import_module(KNOWN_POLICIES[name])
     if name not in _REGISTRY:
+        import_deployment_policies()
+    if name not in _REGISTRY:
         known = ", ".join(sorted(_REGISTRY)) or "none"
         raise KeyError(f"no policy named {name!r} (registered: {known})")
     return _REGISTRY[name](rng, dict(params or {}))
+
+
+def import_deployment_policies() -> None:
+    """
+    Import every module or .py file named in SKYVAULT_POLICY_MODULES
+    (os.pathsep-separated), once each: how a deployment brings policies of
+    its own to the service and its workers without changing SKYVAULT.
+    """
+    for spec in os.environ.get(POLICY_MODULES, "").split(os.pathsep):
+        if spec and spec not in _IMPORTED:
+            import_policy_module(spec)
+            _IMPORTED.add(spec)
 
 
 def registered_policies() -> list[str]:

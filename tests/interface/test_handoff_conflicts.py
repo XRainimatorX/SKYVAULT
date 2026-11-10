@@ -30,7 +30,15 @@ from skyvault.worldservice.worlds import PersistentWorld, WorldAwaiting, WorldCl
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
-REFERENCE = SCENARIOS / "tactical_reference_001" / "v0.1.json"
+REFERENCE = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
+)
 SQUAD = SCENARIOS / "military_squad_001" / "v0.1.json"
 SUBMISSIONS = json.loads(
     (REPO_ROOT / "tests" / "fixtures" / "external" / "submissions.json").read_text()

@@ -50,7 +50,14 @@ def run(path, seed=None, stress=None):
 
 @pytest.fixture(scope="module")
 def reference():
-    return run("tactical_reference_001/v0.1.json")
+    return run(
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001/v0.1.json"
+    )
 
 
 @pytest.fixture(scope="module")
@@ -61,7 +68,12 @@ def urban():
 @pytest.fixture(scope="module")
 def stressed():
     return run(
-        "tactical_reference_001/v0.1.json",
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001/v0.1.json",
         stress={"communication_failure": "severe"},
     )
 
@@ -301,7 +313,18 @@ def test_each_run_goes_to_one_bucket_for_a_stated_reason(reference):
 
 @pytest.fixture(scope="module")
 def mixed_runs(reference, urban, stressed):
-    extra = [run("tactical_reference_001/v0.1.json", seed=s) for s in (43, 44, 45, 46)]
+    extra = [
+        run(
+            REPO_ROOT
+            / "tests"
+            / "fixtures"
+            / "reference"
+            / "scenarios"
+            / "tactical_reference_001/v0.1.json",
+            seed=s,
+        )
+        for s in (43, 44, 45, 46)
+    ]
     return [reference, urban, stressed, *extra]
 
 
@@ -336,7 +359,14 @@ def test_the_report_counts_labels_and_explains_every_run(mixed_runs):
 
 
 def test_branches_and_variants_become_evaluation_records():
-    with (BATCHES / "tactical_reference_001.json").open() as file:
+    with (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "batches"
+        / "tactical_reference_001.json"
+    ).open() as file:
         request = json.load(file)
     result = run_batch(request, repeats=2)
 

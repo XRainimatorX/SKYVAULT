@@ -27,7 +27,13 @@ RECORD_FIELDS = [
 
 def build_reference_entity_history() -> dict:
     scenario_path = (
-        REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
     )
 
     scenario = load_scenario(scenario_path)

@@ -7,7 +7,14 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
-SCENARIOS = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001"
+SCENARIOS = (
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+)
 
 if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))

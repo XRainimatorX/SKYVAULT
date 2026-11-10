@@ -25,7 +25,13 @@ from skyvault.evaluation import BEHAVIORS, evaluate_run, render_tradeoff_report
 from skyvault.scenario_loader import load_evaluation_profile, load_scenario
 
 REFERENCE_SCENARIO = (
-    REPO_ROOT / "data" / "scenarios" / "tactical_reference_001" / "v0.1.json"
+    REPO_ROOT
+    / "tests"
+    / "fixtures"
+    / "reference"
+    / "scenarios"
+    / "tactical_reference_001"
+    / "v0.1.json"
 )
 
 
