@@ -4,6 +4,21 @@
   "purpose": "A platoon seizes a courtyard held by a squad inside a ring of buildings.",
   "max_ticks": 25,
   "random_seed": 42,
+  "revisions": [
+    {
+      "scenario_version": "v0.2",
+      "change_reason": "The system baseline (Phase 21): the urban plan declares the failure variables a failure exploration stresses and names its doctrine alternatives. RED holds in 8 of 10 seeds without stress (measured 2026-11-10), so the failure map has room to show what breaks it.",
+      "failure_variables": ["sensor_failure", "communication_failure", "weather_degradation", "enemy_reaction_speed", "equipment_overheat"],
+      "failure_exploration": {
+        "objective": "find_weakness",
+        "failure_variables": ["sensor_failure", "communication_failure", "weather_degradation", "enemy_reaction_speed", "equipment_overheat"],
+        "stress_levels": ["mild", "moderate", "severe", "collapse"],
+        "run_policy": {"repeat_count": 10, "random_seed_policy": "controlled_random", "branch_comparison": true},
+        "alternatives": ["v0.2+overwatch", "v0.2+defensive"],
+        "survival_threshold": 0.5
+      }
+    }
+  ],
   "map": [
     "............",
     ".BB.BB.BB.B.",

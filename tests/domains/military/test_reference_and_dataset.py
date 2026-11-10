@@ -50,6 +50,28 @@ def test_committed_scenarios_are_exactly_what_the_specs_build():
     assert committed == set(built)
 
 
+def test_a_revision_is_a_child_version_with_its_own_doctrine_variants():
+    revised = scenario("urban", "v0.2")
+    overwatch = scenario("urban", "v0.2+overwatch")
+
+    assert revised["version_control"]["parent_version"] == "v0.1"
+    changed = revised["version_control"]["changed_from_previous"]
+    assert changed["failure_variables_changed"] and not changed["rules_changed"]
+    assert revised["world_contract"]["failure_variables"] == (
+        revised["failure_exploration"]["failure_variables"]
+    )
+    assert revised["failure_exploration"]["alternatives"] == [
+        "v0.2+overwatch",
+        "v0.2+defensive",
+    ]
+    assert overwatch["version_control"]["parent_version"] == "v0.2"
+    assert overwatch["world_contract"]["failure_variables"] == (
+        revised["world_contract"]["failure_variables"]
+    )
+    assert "failure_exploration" not in overwatch
+    assert revised["entities"] == scenario("urban", "v0.1")["entities"]
+
+
 def test_doctrine_variants_are_child_versions_of_the_urban_plan():
     defensive = scenario("urban", "v0.1+defensive")
 

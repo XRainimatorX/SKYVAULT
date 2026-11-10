@@ -39,6 +39,7 @@
 | 19 | [Phase 16](phase16_star_guard_virtual_test.md) | Star Guard Virtual Test Support v1.6 | 讓 EXO / PAX / MSX / ERX 等裝備在造實體前先進 SKYVAULT 測物理可能性、工程可行性、戰術價值。Definition 明確列出這三重測試。 |
 | 20 | [Phase 19](phase19_commercial_imperial_dual_track.md) | Commercial / Imperial Dual Track v1.9 | 做對外可賣的乾淨商業版，同時保留內部完整核心能力。 |
 | 21 | [Phase 20](phase20_full_skyvault_v2.md) | Full SKYVAULT v2.0 | 所有核心、接口、多 domain、失敗探索、報告、後台服務全部整合成完整系統。 |
+| 22 | [Phase 21](phase21_standalone.md) | Standalone SKYVAULT v2.1 | roadmap 之後由使用者加入：系統只靠完成的系統本身運作，不再依賴 Phase 0 的參考切片與開發用腳本。 |
 
 ## 為什麼這樣排
 
