@@ -98,40 +98,47 @@ def add_external_routes(
         queue.submit(job["job_id"], job["priority"])
         return job
 
-    def queued_together(
+    def fail_all(admitted: list[dict[str, Any]], why: str) -> None:
+        for job in admitted:
+            store.update_job(job["job_id"], lifecycle_state="failed", error=why)
+
+    def admit_together(
         requests: list[dict[str, Any]], submission: dict[str, Any]
-    ) -> list[str]:
+    ) -> list[dict[str, Any]]:
         """
-        Admit every job of one submission, then queue them: a refused job
-        fails the ones admitted before it, so nothing runs half a submission.
-        The submission is recorded in each job before a worker can see it.
+        Admit every job of one submission without queuing any: each counts
+        the ones admitted before it toward max_queue_length, and all their
+        runs together toward max_batch_count. A refused job fails the ones
+        admitted before it, so nothing runs half a submission. The
+        submission is recorded in each job before a worker can see it.
         """
         admitted: list[dict[str, Any]] = []
         try:
             for request in requests:
-                admitted.append(app.state.admit(request))
+                admitted.append(app.state.admit(request, len(admitted)))
         except HTTPException:
+            fail_all(admitted, "another job of its submission was refused")
+            raise
+        runs = sum(int(job["estimated_cost"]["runs"]) for job in admitted)
+        limit = policy["max_batch_count"]
+        if limit is not None and runs > limit:
+            fail_all(admitted, "its submission was refused")
+            raise problem(
+                422,
+                "batch_too_large",
+                f"one submission of {runs} runs; max_batch_count is {limit}",
+            )
+        if admitted:
+            submission_id = admitted[0]["job_id"]
             for job in admitted:
                 store.update_job(
                     job["job_id"],
-                    lifecycle_state="failed",
-                    error="another job of its submission was refused",
+                    summary_fields={
+                        "submission_id": submission_id,
+                        "external_submission": submission,
+                    },
                 )
-            raise
-        if not admitted:
-            return []
-        submission_id = admitted[0]["job_id"]
-        for job in admitted:
-            store.update_job(
-                job["job_id"],
-                summary_fields={
-                    "submission_id": submission_id,
-                    "external_submission": submission,
-                },
-            )
-        for job in admitted:
-            queue.submit(job["job_id"], job["priority"])
-        return [job["job_id"] for job in admitted]
+        return admitted
 
     def job_or_404(run_id: str) -> dict[str, Any]:
         try:
@@ -179,28 +186,34 @@ def add_external_routes(
             planned = to_request(submission)
         except (ContractError, ValueError) as error:
             raise refuse(error) from None
-        proposals = []
-        if planned["world_actions"] is not None:
-            target = planned["world_actions"]
-            world = world_or_404(target["world_id"])
-            for action in target["actions"]:
-                order = {
-                    k: v
-                    for k, v in action.items()
-                    if k not in ("tick", "actor_id", "system_id")
-                }
-                try:
-                    proposals.append(
-                        world.submit(
-                            planned["system"],
-                            action["tick"],
-                            action["actor_id"],
-                            order,
-                        )
-                    )
-                except (WorldClosed, KeyError, ValueError, ContractError) as error:
-                    raise refuse(error) from None
-        run_ids = queued_together(planned["jobs"], submission)
+        # every check before anything is queued: the world's actions go into
+        # its window only once every job is admitted, and the jobs reach the
+        # queue only once the world took every action
+        target = planned["world_actions"]
+        world = world_or_404(target["world_id"]) if target is not None else None
+        admitted = admit_together(planned["jobs"], submission)
+        proposals: list[dict[str, Any]] = []
+        if world is not None and target is not None:
+            actions = [
+                (
+                    action["tick"],
+                    action["actor_id"],
+                    {
+                        k: v
+                        for k, v in action.items()
+                        if k not in ("tick", "actor_id", "system_id")
+                    },
+                )
+                for action in target["actions"]
+            ]
+            try:
+                proposals = world.submit_all(planned["system"], actions)
+            except (WorldClosed, KeyError, ValueError, ContractError) as error:
+                fail_all(admitted, "its submission's world actions were refused")
+                raise refuse(error) from None
+        for job in admitted:
+            queue.submit(job["job_id"], job["priority"])
+        run_ids = [job["job_id"] for job in admitted]
         return {
             "submission_id": run_ids[0] if run_ids else None,
             "system": planned["system"],

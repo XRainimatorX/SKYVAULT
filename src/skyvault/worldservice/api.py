@@ -90,11 +90,16 @@ def create_world_service(
         except KeyError as error:
             raise refuse(error) from None
 
-    def admit(request: dict[str, Any]) -> dict[str, Any]:
+    def admit(request: dict[str, Any], ahead: int = 0) -> dict[str, Any]:
+        """
+        Record a request the gate and the policy allow. ahead: jobs of the
+        same submission admitted before it but not queued yet — they count
+        toward max_queue_length too.
+        """
         try:
             if gate is not None:
                 gate(request)
-            planned = plan(request, policy, queue.depth(), store)
+            planned = plan(request, policy, queue.depth() + ahead, store)
             return new_job(store, request, planned, policy)
         except (
             PermissionError,

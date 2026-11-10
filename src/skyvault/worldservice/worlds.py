@@ -189,23 +189,41 @@ class PersistentWorld:
         conflict is waiting on. The action is carried out when the world
         reaches the tick — unless it conflicts with another (play_out).
         """
+        return self.submit_all(system, [(tick, actor_id, order)])[0]
+
+    def submit_all(
+        self, system: str, actions: list[tuple[int, str, dict[str, Any]]]
+    ) -> list[dict[str, Any]]:
+        """
+        Queue several actions of one submission: all of them, or — when any
+        one is refused — none (the refusal is raised).
+        """
         with self.lock:
             if self.lifecycle in ("completed", "archived", "deleted"):
                 raise WorldClosed(f"world {self.world_id} is {self.lifecycle}")
-            if tick <= self.engine.world.tick:
-                raise ValueError(
-                    f"tick {tick} has been played; the world is at tick "
-                    f"{self.engine.world.tick}"
+            for tick, actor_id, _ in actions:
+                if tick <= self.engine.world.tick:
+                    raise ValueError(
+                        f"tick {tick} has been played; the world is at tick "
+                        f"{self.engine.world.tick}"
+                    )
+                if actor_id not in self.engine.world.entities:
+                    raise KeyError(f"world {self.world_id} has no unit {actor_id}")
+            proposals: list[dict[str, Any]] = []
+            try:
+                for tick, actor_id, order in actions:
+                    proposals.append(self.window.submit(tick, system, actor_id, order))
+            except Exception:
+                for proposal in proposals:
+                    self.window.withdraw(proposal)
+                raise
+            for proposal in proposals:
+                self.store.log(
+                    self.world_id,
+                    f"{system} submitted {proposal['proposal_id']} "
+                    f"for {proposal['actor_id']} at tick {proposal['tick']}",
                 )
-            if actor_id not in self.engine.world.entities:
-                raise KeyError(f"world {self.world_id} has no unit {actor_id}")
-            proposal = self.window.submit(tick, system, actor_id, order)
-            self.store.log(
-                self.world_id,
-                f"{system} submitted {proposal['proposal_id']} "
-                f"for {actor_id} at tick {tick}",
-            )
-            return proposal
+            return proposals
 
     def _before_tick(self, tick: int) -> bool:
         """

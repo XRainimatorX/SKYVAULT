@@ -47,6 +47,14 @@ class SubmissionWindow:
         self.pending.setdefault(tick, []).append(proposal)
         return proposal
 
+    def withdraw(self, proposal: dict[str, Any]) -> None:
+        """Take back a proposal submitted but not carried out yet."""
+        waiting = self.pending.get(proposal["tick"], [])
+        if proposal in waiting:
+            waiting.remove(proposal)
+        if not waiting:
+            self.pending.pop(proposal["tick"], None)
+
     def take(self, tick: int) -> list[dict[str, Any]]:
         """Every action submitted for tick, in arrival order; the window empties."""
         return self.pending.pop(tick, [])
