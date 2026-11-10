@@ -247,6 +247,7 @@ def test_runtime_counts_only_the_time_the_run_is_stepping(monkeypatch):
     assert governor.after_tick(world([0, 0]), 0, 0, 1) is None  # 0.5 s
     governor.pause()  # 101.0: 1 s spent, then idle for 399 s
     governor.pause()  # pausing twice changes nothing
+    assert governor.runtime() == 1.0  # paused: no clock read, nothing added
     governor.resume()  # 500.0
     governor.resume()  # resuming twice changes nothing
     assert governor.after_tick(world([1, 0]), 0, 0, 2) is None  # 1.5 s

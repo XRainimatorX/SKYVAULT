@@ -538,6 +538,43 @@ def test_a_refused_world_action_leaves_none_of_its_submission_queued(api):
     assert client.get(f"/api/worlds/{world_id}").json()["pending_actions"] == 0
 
 
+def test_a_malformed_later_action_takes_back_the_ones_before_it(api):
+    client, _ = api
+    world_id = client.post("/world/create", json={"scenario": REFERENCE}).json()[
+        "world_id"
+    ]
+    broken = submission("TAC_ANGEL", world_id=world_id)
+    broken["content"]["actions"][2]["target"] = "nowhere"
+
+    refused = client.post("/scenario/submit", json=broken)
+
+    assert refused.status_code == 422
+    assert client.get(f"/api/worlds/{world_id}").json()["pending_actions"] == 0
+
+
+def test_a_refused_world_action_fails_the_jobs_admitted_with_it(store, monkeypatch):
+    from skyvault.interface import api as interface_api
+
+    client, queue = service(store, started=False)
+    world_id = client.post("/world/create", json={"scenario": REFERENCE}).json()[
+        "world_id"
+    ]
+    planned = interface_api.to_request(submission("TAC_ANGEL", world_id=world_id))
+    planned["world_actions"]["actions"][0]["actor_id"] = "red_099"
+    planned["jobs"] = [{"kind": "scenario_run", "scenario": REFERENCE}]
+    monkeypatch.setattr(interface_api, "to_request", lambda _: planned)
+
+    refused = client.post("/scenario/submit", json={"system": "TAC_ANGEL"})
+    jobs = [j for j in client.get("/api/jobs").json() if j["job_id"] != world_id]
+
+    assert refused.status_code == 404
+    assert queue.depth() == 0
+    assert [(j["lifecycle_state"], j["error"]) for j in jobs] == [
+        ("failed", "its submission's world actions were refused")
+    ]
+    queue.close()
+
+
 def test_a_refused_job_leaves_none_of_its_world_actions_queued(store, monkeypatch):
     from skyvault.interface import api as interface_api
 
