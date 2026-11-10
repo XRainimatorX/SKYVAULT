@@ -37,20 +37,28 @@ DEFAULT_INTERVAL_MS = 500
 Workspaces = Callable[[str], dict[str, Any]]
 
 
+class NoSuchRun(Exception):
+    """A run the caller cannot show: unknown, not a run, or without a result.
+
+    Its own class, not LookupError: a KeyError from a broken result must
+    surface as the error it is, not as a 404.
+    """
+
+
 def add_view_routes(app: FastAPI, workspace_for: Workspaces) -> None:
     """
     /api/runs/{run}/<screen> and /ws/replay?run=<run> on app.
 
     workspace_for(run) returns the run's workspace (keys as load_workspace)
-    and raises LookupError when there is no such run; "latest" names the
+    and raises NoSuchRun when there is no such run; "latest" names the
     newest run.
     """
 
     def workspace(run: str) -> dict[str, Any]:
         try:
             return workspace_for(run)
-        except LookupError as error:
-            raise HTTPException(404, str(error).strip("'\"")) from None
+        except NoSuchRun as error:
+            raise HTTPException(404, str(error)) from None
 
     @app.get("/api/runs/{run}/overview")
     def overview(run: str) -> dict[str, Any]:
@@ -123,10 +131,8 @@ def add_view_routes(app: FastAPI, workspace_for: Workspaces) -> None:
         await socket.accept()
         try:
             frames = map_view(workspace_for(run)["result_package"])["frames"]
-        except LookupError as error:
-            await socket.send_json(
-                {"type": "error", "message": str(error).strip("'\"")}
-            )
+        except NoSuchRun as error:
+            await socket.send_json({"type": "error", "message": str(error)})
             await socket.close()
             return
         await _replay(socket, frames)

@@ -234,6 +234,48 @@ def test_a_new_exploration_shows_up_without_a_restart(reference_workspace):
     )
 
 
+def test_only_a_finished_exploration_of_the_run_s_own_scenario_counts(
+    reference_workspace,
+):
+    store = SQLiteStore()
+    failure_map = read(reference_workspace, "failure_map.json")
+    run = record(
+        store,
+        {"kind": "scenario_run", "scenario": REFERENCE_RUN},
+        read(reference_workspace, "result_package.json"),
+    )
+    live = service(store)
+    # a whole failure map, but of another scenario, or kept by a failed job
+    record(
+        store,
+        {"kind": "failure_exploration", "scenario": "military_urban_001/v0.2"},
+        failure_map,
+    )
+    record(
+        store,
+        {"kind": "failure_exploration", "scenario": REFERENCE_RUN},
+        failure_map,
+        state="failed",
+    )
+
+    assert live.get(f"/api/runs/{run}/failure").status_code == 404
+
+
+def test_a_broken_result_is_an_error_not_a_missing_run(reference_workspace):
+    store = SQLiteStore()
+    run = record(
+        store,
+        {"kind": "scenario_run", "scenario": REFERENCE_RUN},
+        read(reference_workspace, "result_package.json"),
+    )
+    record(
+        store, {"kind": "failure_exploration", "scenario": REFERENCE_RUN}, {"broken": 1}
+    )
+    client = TestClient(service(store).app, raise_server_exceptions=False)
+
+    assert client.get(f"/api/runs/{run}/failure").status_code == 500
+
+
 # ── the briefing ─────────────────────────────────────────────────────────────
 
 

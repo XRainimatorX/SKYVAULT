@@ -12,6 +12,7 @@ from typing import Any
 
 from ..batch.aggregate import render_comparative_report
 from ..failure import build_survival_conditions, render_recommended_modifications
+from ..service import NoSuchRun
 from ..views.workspace import JSON_FILES, TEXT_FILES
 from .jobs import batch_for
 from .store import JobStore
@@ -46,23 +47,23 @@ def runs(store: JobStore) -> list[dict[str, Any]]:
 
 def workspace_from_store(store: JobStore, run: str) -> dict[str, Any]:
     """
-    The run's workspace. LookupError when the run is unknown, is not a run,
+    The run's workspace. NoSuchRun when the run is unknown, is not a run,
     or kept no result ("latest" with no run at all included).
     """
     if run == LATEST:
         newest = runs(store)
         if not newest:
-            raise LookupError("No run yet: submit one (skyvault run <scenario>)")
+            raise NoSuchRun("No run yet: submit one (skyvault run <scenario>)")
         run = newest[0]["run"]
     try:
         job = store.get_job(run)
     except KeyError:
-        raise LookupError(f"no run {run}") from None
+        raise NoSuchRun(f"no run {run}") from None
     if job["request"]["kind"] not in RUN_KINDS:
-        raise LookupError(f"{run} is a {job['request']['kind']} job, not a run")
+        raise NoSuchRun(f"{run} is a {job['request']['kind']} job, not a run")
     package = store.get_result(run)
     if package is None:
-        raise LookupError(f"{run} kept no result package ({job['lifecycle_state']})")
+        raise NoSuchRun(f"{run} kept no result package ({job['lifecycle_state']})")
 
     workspace: dict[str, Any] = {key: None for key in [*JSON_FILES, *TEXT_FILES]}
     workspace["result_package"] = package
