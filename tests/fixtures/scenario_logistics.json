@@ -1,0 +1,152 @@
+{
+  "schema_version": "0.6",
+  "scenario_id": "fixture_logistics_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "fixture_logistics_world",
+    "world_scope": "forward_supply_line",
+    "purpose": [
+      "action_framework_fixture"
+    ],
+    "space_model": {
+      "type": "graph",
+      "nodes": [
+        "depot",
+        "junction",
+        "front",
+        "outpost"
+      ],
+      "edges": [
+        [
+          "depot",
+          "junction"
+        ],
+        [
+          "junction",
+          "front"
+        ],
+        [
+          "front",
+          "outpost"
+        ]
+      ]
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 10
+    },
+    "assumption_registry": {},
+    "evaluation_targets": [
+      "actions_resolved"
+    ],
+    "entity_model": {
+      "kinds": [
+        "logistics_unit",
+        "infantry"
+      ]
+    },
+    "environment_state": {},
+    "resource_state": {
+      "fuel": 50.0,
+      "spare_parts": 4.0
+    },
+    "rule_set": {
+      "action_costs": {
+        "repair": {
+          "spare_parts": 1.0
+        }
+      }
+    },
+    "failure_variables": [
+      "supply_delay",
+      "resource_shortage",
+      "communication_failure"
+    ]
+  },
+  "entities": [
+    {
+      "entity_id": "truck_1",
+      "name": "Supply Truck",
+      "entity_type": "logistics_unit",
+      "faction": "BLUE",
+      "position": "depot",
+      "state": {
+        "status": "active",
+        "fuel": 10
+      },
+      "capabilities": {
+        "move_range": 1,
+        "supply_range": 1,
+        "repair_amount": 5,
+        "repair_range": 1,
+        "observe_range": 2,
+        "scan_range": 1,
+        "comm_range": 3
+      },
+      "tags": [
+        "LOGISTICS"
+      ]
+    },
+    {
+      "entity_id": "squad_1",
+      "name": "Forward Squad",
+      "entity_type": "infantry",
+      "faction": "BLUE",
+      "position": "junction",
+      "state": {
+        "status": "active",
+        "hp": 8,
+        "max_hp": 20,
+        "fuel": 0
+      },
+      "capabilities": {
+        "move_range": 1,
+        "deploy_range": 1
+      },
+      "tags": [
+        "FRONTLINE"
+      ]
+    },
+    {
+      "entity_id": "reserve_1",
+      "name": "Reserve Squad",
+      "entity_type": "infantry",
+      "faction": "BLUE",
+      "position": null,
+      "state": {
+        "status": "reserve",
+        "hp": 20,
+        "max_hp": 20
+      },
+      "capabilities": {},
+      "tags": [
+        "RESERVE"
+      ]
+    },
+    {
+      "entity_id": "scout_red",
+      "name": "Red Scout",
+      "entity_type": "infantry",
+      "faction": "RED",
+      "position": "outpost",
+      "state": {
+        "status": "active",
+        "hp": 10
+      },
+      "capabilities": {},
+      "tags": []
+    }
+  ],
+  "runtime": {
+    "max_ticks": 10,
+    "random_seed": 3,
+    "deterministic_mode": true,
+    "policy": {"name": "tactical_reference"}
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "actions_resolved"
+    ],
+    "failure_thresholds": []
+  }
+}

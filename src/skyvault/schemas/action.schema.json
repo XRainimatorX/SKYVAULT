@@ -1,0 +1,141 @@
+{
+  "$defs": {
+    "ActionTargetRecord": {
+      "additionalProperties": false,
+      "description": "What the action is aimed at. Any of the three may be null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "entity_id",
+        "location",
+        "system_id"
+      ],
+      "title": "ActionTargetRecord",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/action.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Action = what an actor attempts, before the world has agreed to it.\n\nImportant:\nactor_id is mandatory. An action nobody owns cannot be validated, resolved\nor attributed in event memory, so it is rejected at the door.\n\nSchema 0.3 adopts Formal Spec section 6.2 whole: target is nested, and the\nsix fields ADR 004 left optional are required. required_resources maps a\nresource id to a non-negative amount. expected_duration, expected_effect,\nrisk_profile and priority are declarations, recorded but not enforced.",
+  "properties": {
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "action_type": {
+      "minLength": 1,
+      "title": "Action Type",
+      "type": "string"
+    },
+    "actor_id": {
+      "minLength": 1,
+      "title": "Actor Id",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "expected_duration": {
+      "title": "Expected Duration",
+      "type": "string"
+    },
+    "expected_effect": {
+      "title": "Expected Effect",
+      "type": "string"
+    },
+    "intent": {
+      "title": "Intent",
+      "type": "string"
+    },
+    "metadata": {
+      "additionalProperties": true,
+      "title": "Metadata",
+      "type": "object"
+    },
+    "priority": {
+      "title": "Priority",
+      "type": "string"
+    },
+    "required_resources": {
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Required Resources",
+      "type": "object"
+    },
+    "risk_profile": {
+      "additionalProperties": true,
+      "title": "Risk Profile",
+      "type": "object"
+    },
+    "target": {
+      "$ref": "#/$defs/ActionTargetRecord"
+    }
+  },
+  "required": [
+    "action_id",
+    "actor_id",
+    "action_type",
+    "target",
+    "intent",
+    "required_resources",
+    "expected_duration",
+    "expected_effect",
+    "risk_profile",
+    "priority",
+    "confidence"
+  ],
+  "title": "ActionRecord",
+  "type": "object"
+}

@@ -3,3 +3,16 @@ __pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Run registry written by scripts/dev/run_scenario.py
+runs/
+
+# Training dataset written by scripts/dev/export_dataset.py (several MB; regenerate it)
+output/tac_angel_dataset.jsonl
+
+# Training data written by scripts/dev/build_training_data.py (tens of MB; regenerate it)
+output/training/
+
+# What pip writes for an editable install, and the store `skyvault serve` keeps
+*.egg-info/
+skyvault.sqlite

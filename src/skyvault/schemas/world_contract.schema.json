@@ -1,0 +1,423 @@
+{
+  "$defs": {
+    "DataProvenance": {
+      "additionalProperties": false,
+      "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",
+      "properties": {
+        "missing_data": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Data",
+          "type": "array"
+        },
+        "reliability_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reliability Notes",
+          "type": "array"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ProvenanceSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "title": "DataProvenance",
+      "type": "object"
+    },
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "One source of scenario data.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "EIDEN_01",
+            "STARTX",
+            "manual_input",
+            "external_data",
+            "historical_record"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "confidence"
+      ],
+      "title": "ProvenanceSource",
+      "type": "object"
+    },
+    "SpaceModelSpec": {
+      "additionalProperties": false,
+      "description": "How space exists in this world.\n\nImportant:\ngrid       needs width and height; positions are [x, y] cells.\ngraph      needs nodes and edges [a, b]; distance counts hops.\nnetwork    needs nodes and edges [a, b, weight]; distance sums weights.\n\nGraph and network positions are node ids. No other space type is accepted\nin schema 0.2, so a misspelt type fails instead of building nothing.",
+      "properties": {
+        "distance_model": {
+          "anyOf": [
+            {
+              "enum": [
+                "chebyshev",
+                "manhattan",
+                "euclidean_floor"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance Model"
+        },
+        "edges": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edges"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "nodes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nodes"
+        },
+        "type": {
+          "enum": [
+            "grid",
+            "graph",
+            "network"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "SpaceModelSpec",
+      "type": "object"
+    },
+    "TimeModelSpec": {
+      "additionalProperties": false,
+      "description": "How time advances in this world.\n\nImportant:\ntick           one step per tick.\nphase          each step moves time forward by phase_length units;\n               time_unit names the unit (for example \"hours\").\nevent_driven   time jumps to the next scheduled event.",
+      "properties": {
+        "max_duration": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Duration"
+        },
+        "max_ticks": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Ticks"
+        },
+        "phase_length": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase Length"
+        },
+        "time_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Unit"
+        },
+        "type": {
+          "enum": [
+            "tick",
+            "phase",
+            "event_driven"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "TimeModelSpec",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/world_contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nSchema 0.6 makes failure_variables required too (Phase 9): the ways this\nworld can be deliberately made worse, from the eight the failure engine\nknows. It may be empty.\n\nactor_slots becomes required with Phase 6.",
+  "properties": {
+    "actor_slots": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Actor Slots"
+    },
+    "assumption_registry": {
+      "additionalProperties": true,
+      "title": "Assumption Registry",
+      "type": "object"
+    },
+    "data_provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DataProvenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "entity_model": {
+      "additionalProperties": true,
+      "title": "Entity Model",
+      "type": "object"
+    },
+    "environment_state": {
+      "additionalProperties": true,
+      "title": "Environment State",
+      "type": "object"
+    },
+    "evaluation_targets": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evaluation Targets",
+      "type": "array"
+    },
+    "event_memory": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Event Memory"
+    },
+    "failure_variables": {
+      "items": {
+        "enum": [
+          "supply_delay",
+          "sensor_failure",
+          "communication_failure",
+          "weather_degradation",
+          "enemy_reaction_speed",
+          "equipment_overheat",
+          "civilian_pressure",
+          "resource_shortage"
+        ],
+        "type": "string"
+      },
+      "title": "Failure Variables",
+      "type": "array"
+    },
+    "purpose": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Purpose",
+      "type": "array"
+    },
+    "resource_state": {
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Resource State",
+      "type": "object"
+    },
+    "rule_set": {
+      "additionalProperties": true,
+      "title": "Rule Set",
+      "type": "object"
+    },
+    "space_model": {
+      "$ref": "#/$defs/SpaceModelSpec"
+    },
+    "time_model": {
+      "$ref": "#/$defs/TimeModelSpec"
+    },
+    "world_id": {
+      "minLength": 1,
+      "title": "World Id",
+      "type": "string"
+    },
+    "world_scope": {
+      "minLength": 1,
+      "title": "World Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "world_id",
+    "world_scope",
+    "purpose",
+    "space_model",
+    "time_model",
+    "assumption_registry",
+    "evaluation_targets",
+    "entity_model",
+    "environment_state",
+    "resource_state",
+    "rule_set",
+    "failure_variables"
+  ],
+  "title": "WorldContract",
+  "type": "object"
+}

@@ -1,0 +1,775 @@
+{
+  "schema_version": "0.6",
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.2+overwatch",
+  "world_contract": {
+    "world_id": "military_urban_001_world",
+    "world_scope": "military_tactical",
+    "purpose": [
+      "A platoon seizes a courtyard held by a squad inside a ring of buildings."
+    ],
+    "space_model": {
+      "type": "grid",
+      "width": 12,
+      "height": 12,
+      "distance_model": "chebyshev"
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 25
+    },
+    "assumption_registry": {
+      "movement_model": "terrain_weighted_grid",
+      "combat_resolution": "accuracy_cover_suppression",
+      "sensing": "range_times_concealment",
+      "command": "delay_and_order_loss",
+      "actor_policy": "military_baseline[RED:overwatch/BLUE:defensive]",
+      "distance_model": "chebyshev"
+    },
+    "evaluation_targets": [
+      "world_state_changed",
+      "event_memory_created",
+      "result_package_created"
+    ],
+    "entity_model": {
+      "unit_types": [
+        "logistics",
+        "machine_gunner",
+        "marksman",
+        "rifleman",
+        "squad_leader"
+      ]
+    },
+    "environment_state": {
+      "terrain": {
+        "rows": [
+          "............",
+          ".BB.BB.BB.B.",
+          ".BB.BB.BB.B.",
+          "............",
+          ".BB.BBBB.BB.",
+          ".BB.B..B.BB.",
+          "....B..B....",
+          ".BB.BBBB.BB.",
+          "............",
+          ".BB.BB.BB.BB",
+          ".BB.BB.BB.BB",
+          "............"
+        ],
+        "legend": {
+          ".": "open",
+          "r": "road",
+          "f": "forest",
+          "B": "building",
+          "x": "rubble",
+          "h": "hill",
+          "^": "rock",
+          "w": "water",
+          "=": "bridge"
+        }
+      }
+    },
+    "resource_state": {
+      "ammo": 40.0
+    },
+    "rule_set": {
+      "action_costs": {
+        "supply": {
+          "ammo": 6.0
+        }
+      },
+      "military": {
+        "pack": "military_tactical@1.3",
+        "terrain": {
+          "open": {
+            "symbol": ".",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "road": {
+            "symbol": "r",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "forest": {
+            "symbol": "f",
+            "move_cost": 2,
+            "cover": 0.3,
+            "concealment": 0.4
+          },
+          "building": {
+            "symbol": "B",
+            "move_cost": 2,
+            "cover": 0.5,
+            "concealment": 0.5
+          },
+          "rubble": {
+            "symbol": "x",
+            "move_cost": 2,
+            "cover": 0.3,
+            "concealment": 0.2
+          },
+          "hill": {
+            "symbol": "h",
+            "move_cost": 2,
+            "cover": 0.25,
+            "concealment": 0.1
+          },
+          "rock": {
+            "symbol": "^",
+            "move_cost": null,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "water": {
+            "symbol": "w",
+            "move_cost": null,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "bridge": {
+            "symbol": "=",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          }
+        },
+        "morale": {
+          "start": 80,
+          "suppress_threshold": 60,
+          "panic_threshold": 85,
+          "retreat_threshold": 25,
+          "suppression_decay": 20,
+          "morale_loss_when_hit": 10,
+          "morale_loss_when_suppressed": 5,
+          "rally": 5
+        },
+        "logistics": {
+          "ammo_stock": 40,
+          "resupply_amount": 6,
+          "supply_range": 1,
+          "low_ammo_share": 0.5
+        },
+        "factions": {
+          "RED": {
+            "doctrine": "overwatch",
+            "command": {
+              "delay_ticks": 1,
+              "loss_prob": 0.05
+            },
+            "command_profile": "radio",
+            "mission": {
+              "type": "seize",
+              "objective": [
+                [
+                  5,
+                  5
+                ],
+                [
+                  6,
+                  5
+                ],
+                [
+                  5,
+                  6
+                ],
+                [
+                  6,
+                  6
+                ]
+              ],
+              "deadline": 25
+            }
+          },
+          "BLUE": {
+            "doctrine": "defensive",
+            "command": {
+              "delay_ticks": 0,
+              "loss_prob": 0.0
+            },
+            "command_profile": "immediate",
+            "mission": {
+              "type": "hold",
+              "objective": [
+                [
+                  5,
+                  5
+                ],
+                [
+                  6,
+                  5
+                ],
+                [
+                  5,
+                  6
+                ],
+                [
+                  6,
+                  6
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "failure_variables": [
+      "sensor_failure",
+      "communication_failure",
+      "weather_degradation",
+      "enemy_reaction_speed",
+      "equipment_overheat"
+    ]
+  },
+  "entities": [
+    {
+      "entity_id": "red_01",
+      "name": "Red 1st squad Squad Leader",
+      "entity_type": "squad_leader",
+      "faction": "RED",
+      "position": [
+        0,
+        0
+      ],
+      "state": {
+        "hp": 28,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 7,
+        "max_ammo": 10,
+        "weapon": "carbine",
+        "sensor": "binoculars"
+      },
+      "tags": [
+        "LEADER",
+        "1st squad"
+      ]
+    },
+    {
+      "entity_id": "red_02",
+      "name": "Red 1st squad Rifleman 1",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        1,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "1st squad"
+      ]
+    },
+    {
+      "entity_id": "red_03",
+      "name": "Red 1st squad Rifleman 2",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        2,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "1st squad"
+      ]
+    },
+    {
+      "entity_id": "red_04",
+      "name": "Red 1st squad Machine Gunner",
+      "entity_type": "machine_gunner",
+      "faction": "RED",
+      "position": [
+        3,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 1,
+        "attack_range": 4,
+        "attack_damage": 8,
+        "accuracy": 0.45,
+        "suppression": 45,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 10,
+        "weapon": "machine_gun",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "1st squad"
+      ]
+    },
+    {
+      "entity_id": "red_05",
+      "name": "Red 2nd squad Squad Leader",
+      "entity_type": "squad_leader",
+      "faction": "RED",
+      "position": [
+        6,
+        0
+      ],
+      "state": {
+        "hp": 28,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 7,
+        "max_ammo": 10,
+        "weapon": "carbine",
+        "sensor": "binoculars"
+      },
+      "tags": [
+        "LEADER",
+        "2nd squad"
+      ]
+    },
+    {
+      "entity_id": "red_06",
+      "name": "Red 2nd squad Rifleman 1",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        7,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "2nd squad"
+      ]
+    },
+    {
+      "entity_id": "red_07",
+      "name": "Red 2nd squad Rifleman 2",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        8,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "2nd squad"
+      ]
+    },
+    {
+      "entity_id": "red_08",
+      "name": "Red 2nd squad Machine Gunner",
+      "entity_type": "machine_gunner",
+      "faction": "RED",
+      "position": [
+        9,
+        0
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 1,
+        "attack_range": 4,
+        "attack_damage": 8,
+        "accuracy": 0.45,
+        "suppression": 45,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 10,
+        "weapon": "machine_gun",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "2nd squad"
+      ]
+    },
+    {
+      "entity_id": "red_09",
+      "name": "Red Support Marksman",
+      "entity_type": "marksman",
+      "faction": "RED",
+      "position": [
+        4,
+        0
+      ],
+      "state": {
+        "hp": 26,
+        "ammo": 8,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 6,
+        "attack_damage": 14,
+        "accuracy": 0.7,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 8,
+        "max_ammo": 8,
+        "weapon": "marksman_rifle",
+        "sensor": "optics"
+      },
+      "tags": [
+        "COMBAT",
+        "Support"
+      ]
+    },
+    {
+      "entity_id": "red_10",
+      "name": "Red Support Logistics",
+      "entity_type": "logistics",
+      "faction": "RED",
+      "position": [
+        5,
+        0
+      ],
+      "state": {
+        "hp": 24,
+        "ammo": 6,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 6,
+        "weapon": "carbine",
+        "sensor": "eyes",
+        "supply_range": 1
+      },
+      "tags": [
+        "LOGISTICS",
+        "Support"
+      ]
+    },
+    {
+      "entity_id": "blue_01",
+      "name": "Blue Garrison Squad Leader",
+      "entity_type": "squad_leader",
+      "faction": "BLUE",
+      "position": [
+        5,
+        4
+      ],
+      "state": {
+        "hp": 28,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 7,
+        "max_ammo": 10,
+        "weapon": "carbine",
+        "sensor": "binoculars"
+      },
+      "tags": [
+        "LEADER",
+        "Garrison"
+      ]
+    },
+    {
+      "entity_id": "blue_02",
+      "name": "Blue Garrison Rifleman 1",
+      "entity_type": "rifleman",
+      "faction": "BLUE",
+      "position": [
+        4,
+        5
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Garrison"
+      ]
+    },
+    {
+      "entity_id": "blue_03",
+      "name": "Blue Garrison Rifleman 2",
+      "entity_type": "rifleman",
+      "faction": "BLUE",
+      "position": [
+        6,
+        5
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Garrison"
+      ]
+    },
+    {
+      "entity_id": "blue_04",
+      "name": "Blue Garrison Machine Gunner",
+      "entity_type": "machine_gunner",
+      "faction": "BLUE",
+      "position": [
+        4,
+        6
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 1,
+        "attack_range": 4,
+        "attack_damage": 8,
+        "accuracy": 0.45,
+        "suppression": 45,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 10,
+        "weapon": "machine_gun",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Garrison"
+      ]
+    },
+    {
+      "entity_id": "blue_05",
+      "name": "Blue Garrison Marksman",
+      "entity_type": "marksman",
+      "faction": "BLUE",
+      "position": [
+        6,
+        6
+      ],
+      "state": {
+        "hp": 26,
+        "ammo": 8,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 6,
+        "attack_damage": 14,
+        "accuracy": 0.7,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 8,
+        "max_ammo": 8,
+        "weapon": "marksman_rifle",
+        "sensor": "optics"
+      },
+      "tags": [
+        "COMBAT",
+        "Garrison"
+      ]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 25,
+    "random_seed": 42,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count",
+      "active_entities",
+      "destroyed_entities",
+      "winner_or_result"
+    ],
+    "failure_thresholds": [
+      "all_entities_destroyed"
+    ],
+    "perspective": "RED"
+  },
+  "scenario_type": "tactical",
+  "domain": "military",
+  "purpose": "A platoon seizes a courtyard held by a squad inside a ring of buildings.",
+  "version_control": {
+    "version": "v0.2+overwatch",
+    "parent_version": "v0.2",
+    "changed_from_previous": {
+      "assumptions_changed": [
+        "world_contract.assumption_registry.actor_policy: 'military_baseline[RED:aggressive/BLUE:defensive]' -> 'military_baseline[RED:overwatch/BLUE:defensive]'"
+      ],
+      "data_changed": [],
+      "rules_changed": [
+        "world_contract.rule_set.military.factions.RED.doctrine: 'aggressive' -> 'overwatch'"
+      ],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "Doctrine comparison: RED fights overwatch"
+  }
+}

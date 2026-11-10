@@ -1,0 +1,316 @@
+{
+  "$defs": {
+    "BatchRunPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "random_seed_policy": {
+          "enum": [
+            "fixed",
+            "controlled_random"
+          ],
+          "title": "Random Seed Policy",
+          "type": "string"
+        },
+        "repeat_count": {
+          "minimum": 1,
+          "title": "Repeat Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "repeat_count",
+        "random_seed_policy"
+      ],
+      "title": "BatchRunPolicy",
+      "type": "object"
+    },
+    "ConflictRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "proposals": {
+          "items": {
+            "$ref": "#/$defs/Proposal"
+          },
+          "minItems": 1,
+          "title": "Proposals",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposals"
+      ],
+      "title": "ConflictRequest",
+      "type": "object"
+    },
+    "OrderTarget": {
+      "additionalProperties": false,
+      "description": "What an order aims at: name only what applies; the rest is null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "title": "OrderTarget",
+      "type": "object"
+    },
+    "Proposal": {
+      "additionalProperties": false,
+      "description": "An order an outside system proposes; conflicting proposals become branches.",
+      "properties": {
+        "action_type": {
+          "minLength": 1,
+          "title": "Action Type",
+          "type": "string"
+        },
+        "actor_id": {
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "expected_effect": {
+          "default": "",
+          "title": "Expected Effect",
+          "type": "string"
+        },
+        "intent": {
+          "default": "",
+          "title": "Intent",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "priority": {
+          "default": "normal",
+          "title": "Priority",
+          "type": "string"
+        },
+        "proposal_id": {
+          "minLength": 1,
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "required_resources": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Required Resources",
+          "type": "object"
+        },
+        "risk_profile": {
+          "additionalProperties": true,
+          "title": "Risk Profile",
+          "type": "object"
+        },
+        "system_id": {
+          "minLength": 1,
+          "title": "System Id",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/OrderTarget"
+        },
+        "tick": {
+          "minimum": 1,
+          "title": "Tick",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "action_type",
+        "target",
+        "tick",
+        "actor_id",
+        "system_id",
+        "proposal_id"
+      ],
+      "title": "Proposal",
+      "type": "object"
+    },
+    "Sweep": {
+      "additionalProperties": false,
+      "properties": {
+        "parameter": {
+          "minLength": 1,
+          "title": "Parameter",
+          "type": "string"
+        },
+        "values": {
+          "items": {},
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "parameter",
+        "values"
+      ],
+      "title": "Sweep",
+      "type": "object"
+    },
+    "VersionVariant": {
+      "additionalProperties": false,
+      "properties": {
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        },
+        "variant_id": {
+          "minLength": 1,
+          "title": "Variant Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variant_id",
+        "scenario_version"
+      ],
+      "title": "VersionVariant",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/batch_spec.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A batch request (development plan Phase 10).\n\nImportant:\nEvery variant is a version of scenario_id: listed versions, sweep points\nof base_version, and, when conflicts are given, one branch per compatible\nset of proposals plus a baseline with none. profile names a file in\ndata/evaluation_profiles; perspective null means the profile's or the\nscenario's. workers above 1 runs in parallel with the same results.",
+  "properties": {
+    "base_version": {
+      "minLength": 1,
+      "title": "Base Version",
+      "type": "string"
+    },
+    "batch_id": {
+      "minLength": 1,
+      "title": "Batch Id",
+      "type": "string"
+    },
+    "conflicts": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ConflictRequest"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "perspective": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Perspective"
+    },
+    "profile": {
+      "minLength": 1,
+      "title": "Profile",
+      "type": "string"
+    },
+    "run_policy": {
+      "$ref": "#/$defs/BatchRunPolicy"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "sweeps": {
+      "items": {
+        "$ref": "#/$defs/Sweep"
+      },
+      "title": "Sweeps",
+      "type": "array"
+    },
+    "variants": {
+      "items": {
+        "$ref": "#/$defs/VersionVariant"
+      },
+      "title": "Variants",
+      "type": "array"
+    },
+    "workers": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Workers",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "batch_id",
+    "scenario_id",
+    "base_version",
+    "profile",
+    "run_policy"
+  ],
+  "title": "BatchSpec",
+  "type": "object"
+}

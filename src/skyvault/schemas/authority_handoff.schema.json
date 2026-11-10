@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "SkyvaultPosition": {
+      "additionalProperties": false,
+      "description": "What SKYVAULT can say: the facts and the tests it recommends — never a pick.",
+      "properties": {
+        "recommended_next_tests": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommended Next Tests",
+          "type": "array"
+        },
+        "statement": {
+          "minLength": 1,
+          "title": "Statement",
+          "type": "string"
+        }
+      },
+      "required": [
+        "statement"
+      ],
+      "title": "SkyvaultPosition",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/authority_handoff.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A result put in front of the authority that decides (Formal Spec section 17).",
+  "properties": {
+    "branch_comparison": {
+      "default": null,
+      "title": "Branch Comparison"
+    },
+    "decided_by": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decided By"
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision"
+    },
+    "decision_authority": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Decision Authority",
+      "type": "array"
+    },
+    "failure_map": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Failure Map"
+    },
+    "handoff_id": {
+      "minLength": 1,
+      "title": "Handoff Id",
+      "type": "string"
+    },
+    "may_execute_final_decision": {
+      "const": false,
+      "default": false,
+      "title": "May Execute Final Decision",
+      "type": "boolean"
+    },
+    "may_recommend": {
+      "const": true,
+      "default": true,
+      "title": "May Recommend",
+      "type": "boolean"
+    },
+    "required_decision": {
+      "minLength": 1,
+      "title": "Required Decision",
+      "type": "string"
+    },
+    "result_summary": {
+      "additionalProperties": true,
+      "title": "Result Summary",
+      "type": "object"
+    },
+    "skyvault_position": {
+      "$ref": "#/$defs/SkyvaultPosition"
+    },
+    "status": {
+      "default": "awaiting_decision",
+      "enum": [
+        "awaiting_decision",
+        "decided"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "triggers": {
+      "items": {
+        "enum": [
+          "high_risk_outcome",
+          "strategic_tradeoff",
+          "conflicting_branches",
+          "failure_threshold_crossed"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Triggers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "handoff_id",
+    "triggers",
+    "result_summary",
+    "required_decision",
+    "skyvault_position",
+    "decision_authority"
+  ],
+  "title": "AuthorityHandoff",
+  "type": "object"
+}

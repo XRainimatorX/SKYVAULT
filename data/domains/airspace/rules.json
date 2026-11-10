@@ -1,0 +1,9 @@
+{
+  "pack_id": "airspace",
+  "version": "0.1",
+  "description": "Rules of the airspace domain pack (development plan Phase 15). A built scenario carries a copy in world_contract.rule_set.airspace, so it runs and reproduces without this file.",
+  "detection": {"falloff": 0.5},
+  "asset": {"hits_to_destroy": 2},
+  "drone": {"altitude": "medium"},
+  "hades": {"engage_at": 1.0, "priority": "nearest_to_asset", "salvo": 1, "hold_fire_below": 0.0}
+}

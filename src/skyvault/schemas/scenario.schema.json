@@ -1,0 +1,1350 @@
+{
+  "$defs": {
+    "Assumption": {
+      "additionalProperties": false,
+      "description": "One assumption, with how much it is trusted and how much rides on it.",
+      "properties": {
+        "assumption_id": {
+          "minLength": 1,
+          "title": "Assumption Id",
+          "type": "string"
+        },
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "criticality": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Criticality",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "assumption_id",
+        "description",
+        "category",
+        "value",
+        "confidence",
+        "criticality"
+      ],
+      "title": "Assumption",
+      "type": "object"
+    },
+    "AssumptionRegistry": {
+      "additionalProperties": false,
+      "description": "Assumption Registry = Formal Spec section 11.2.\n\nImportant:\nThis is the structured registry a scenario carries at its top level. It is\nnot world_contract.assumption_registry, which stays the flat name-to-value\nmapping of Formal Spec section 2.3 that the engine reads its actor_policy\nfrom. See ADR 004.\n\nassumption_confidence comes from the scenario grammar of section 3.3.",
+      "properties": {
+        "assumption_confidence": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assumption Confidence"
+        },
+        "assumption_risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumption Risks",
+          "type": "array"
+        },
+        "assumptions": {
+          "items": {
+            "$ref": "#/$defs/Assumption"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "critical_assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Critical Assumptions",
+          "type": "array"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        }
+      },
+      "title": "AssumptionRegistry",
+      "type": "object"
+    },
+    "ChangedFromPrevious": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 11: what moved since the parent version, by kind.",
+      "properties": {
+        "assumptions_changed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions Changed",
+          "type": "array"
+        },
+        "data_changed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Data Changed",
+          "type": "array"
+        },
+        "failure_variables_changed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Variables Changed",
+          "type": "array"
+        },
+        "metrics_changed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Metrics Changed",
+          "type": "array"
+        },
+        "rules_changed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Rules Changed",
+          "type": "array"
+        }
+      },
+      "title": "ChangedFromPrevious",
+      "type": "object"
+    },
+    "Controls": {
+      "additionalProperties": false,
+      "description": "Which units a participant decides for: whole factions, single units, or both.",
+      "properties": {
+        "entity_ids": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Entity Ids",
+          "type": "array"
+        },
+        "factions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Factions",
+          "type": "array"
+        }
+      },
+      "title": "Controls",
+      "type": "object"
+    },
+    "DataProvenance": {
+      "additionalProperties": false,
+      "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",
+      "properties": {
+        "missing_data": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Missing Data",
+          "type": "array"
+        },
+        "reliability_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reliability Notes",
+          "type": "array"
+        },
+        "scenario_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scenario Id"
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/ProvenanceSource"
+          },
+          "title": "Sources",
+          "type": "array"
+        }
+      },
+      "title": "DataProvenance",
+      "type": "object"
+    },
+    "EntityRecord": {
+      "additionalProperties": false,
+      "description": "Entity = something that exists inside the world.\n\nImportant:\nposition is an [x, y] cell on a grid space, or a node id on a graph or\nnetwork space.\n\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
+      "properties": {
+        "capabilities": {
+          "additionalProperties": true,
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "faction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Faction"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Position"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "name",
+        "entity_type",
+        "faction",
+        "position"
+      ],
+      "title": "EntityRecord",
+      "type": "object"
+    },
+    "FailureExplorationSpec": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 14 failure_exploration, as a scenario declares it.\n\nImportant:\nstress_levels lists which of the four fixed levels to run; their strength\nper variable is defined by the failure engine, not by the scenario.\nalternatives names other versions of the same scenario to stress the same\nway. A run survives unless its verdict is fail; a level breaks the plan\nwhen fewer than survival_threshold of its repeats survive. output keeps\nthe section 14 placeholder and is ignored.",
+      "properties": {
+        "alternatives": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Alternatives",
+          "type": "array"
+        },
+        "failure_variables": {
+          "items": {
+            "enum": [
+              "supply_delay",
+              "sensor_failure",
+              "communication_failure",
+              "weather_degradation",
+              "enemy_reaction_speed",
+              "equipment_overheat",
+              "civilian_pressure",
+              "resource_shortage"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Failure Variables",
+          "type": "array"
+        },
+        "objective": {
+          "default": "find_weakness",
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output"
+        },
+        "run_policy": {
+          "$ref": "#/$defs/RunPolicy"
+        },
+        "stress_levels": {
+          "items": {
+            "enum": [
+              "mild",
+              "moderate",
+              "severe",
+              "collapse"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Stress Levels",
+          "type": "array"
+        },
+        "survival_threshold": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Survival Threshold",
+          "type": "number"
+        }
+      },
+      "required": [
+        "failure_variables",
+        "stress_levels",
+        "run_policy"
+      ],
+      "title": "FailureExplorationSpec",
+      "type": "object"
+    },
+    "OrderTarget": {
+      "additionalProperties": false,
+      "description": "What an order aims at: name only what applies; the rest is null.",
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "title": "OrderTarget",
+      "type": "object"
+    },
+    "Participant": {
+      "additionalProperties": false,
+      "description": "One actor slot (Formal Spec section 4, step 4): a registered policy and\nthe units it decides for. Units no participant controls keep the run's\ndefault policy.",
+      "properties": {
+        "controls": {
+          "$ref": "#/$defs/Controls"
+        },
+        "participant_id": {
+          "minLength": 1,
+          "title": "Participant Id",
+          "type": "string"
+        },
+        "policy": {
+          "$ref": "#/$defs/PolicyChoice"
+        }
+      },
+      "required": [
+        "participant_id",
+        "policy",
+        "controls"
+      ],
+      "title": "Participant",
+      "type": "object"
+    },
+    "PolicyChoice": {
+      "additionalProperties": false,
+      "description": "The registered policy a run uses, by name, with its parameters.\n\nImportant:\nOnly names registered with skyvault.policies can be chosen here, so a\nscenario file can pick a policy but never load arbitrary code.",
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "PolicyChoice",
+      "type": "object"
+    },
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "One source of scenario data.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "EIDEN_01",
+            "STARTX",
+            "manual_input",
+            "external_data",
+            "historical_record"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "confidence"
+      ],
+      "title": "ProvenanceSource",
+      "type": "object"
+    },
+    "RunPolicy": {
+      "additionalProperties": false,
+      "description": "How many times each stressed plan runs, and with which seeds.",
+      "properties": {
+        "branch_comparison": {
+          "default": false,
+          "title": "Branch Comparison",
+          "type": "boolean"
+        },
+        "random_seed_policy": {
+          "enum": [
+            "fixed",
+            "controlled_random",
+            "stochastic"
+          ],
+          "title": "Random Seed Policy",
+          "type": "string"
+        },
+        "repeat_count": {
+          "minimum": 1,
+          "title": "Repeat Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "repeat_count",
+        "random_seed_policy"
+      ],
+      "title": "RunPolicy",
+      "type": "object"
+    },
+    "RuntimeSettings": {
+      "additionalProperties": false,
+      "description": "How the run executes. Formal Spec section 3.3 calls this execution_settings.",
+      "properties": {
+        "deterministic_mode": {
+          "default": false,
+          "title": "Deterministic Mode",
+          "type": "boolean"
+        },
+        "max_ticks": {
+          "exclusiveMinimum": 0,
+          "title": "Max Ticks",
+          "type": "integer"
+        },
+        "participants": {
+          "items": {
+            "$ref": "#/$defs/Participant"
+          },
+          "title": "Participants",
+          "type": "array"
+        },
+        "policy": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PolicyChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "random_seed": {
+          "title": "Random Seed",
+          "type": "integer"
+        },
+        "random_seed_policy": {
+          "anyOf": [
+            {
+              "enum": [
+                "fixed",
+                "controlled_random",
+                "stochastic"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Random Seed Policy"
+        },
+        "repeat_count": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Repeat Count"
+        },
+        "scheduled_actions": {
+          "items": {
+            "$ref": "#/$defs/ScheduledAction"
+          },
+          "title": "Scheduled Actions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "max_ticks",
+        "random_seed"
+      ],
+      "title": "RuntimeSettings",
+      "type": "object"
+    },
+    "ScenarioEvaluation": {
+      "additionalProperties": false,
+      "description": "What the run reports, and whose plan it is.\n\nImportant:\nprimary_metrics names the summary fields the run reports (event_count,\nwinner_or_result...). How the run is scored is the evaluation profile's\nbusiness. perspective is the faction whose plan is judged when the\nprofile does not say; without it, the first entity's faction is used.\nsuccess_outcomes names the results (winner_or_result) that count as the\nmission achieved in a world with no opposing faction (Phase 14).",
+      "properties": {
+        "anti_gaming_metrics": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Anti Gaming Metrics"
+        },
+        "comparison_targets": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comparison Targets"
+        },
+        "failure_thresholds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Thresholds",
+          "type": "array"
+        },
+        "perspective": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Perspective"
+        },
+        "primary_metrics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Primary Metrics",
+          "type": "array"
+        },
+        "secondary_metrics": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Secondary Metrics"
+        },
+        "success_outcomes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Success Outcomes"
+        }
+      },
+      "required": [
+        "primary_metrics"
+      ],
+      "title": "ScenarioEvaluation",
+      "type": "object"
+    },
+    "ScheduledAction": {
+      "additionalProperties": false,
+      "description": "An order an outside system gives one actor for one tick.\n\nImportant:\nAt that tick the actor carries it out instead of asking its policy. The\naction id is still issued by the run, so ids stay deterministic; the\nordering system is recorded as source.system_id on every event it\ncauses. Batch branches use this to play out conflicting orders.",
+      "properties": {
+        "action_type": {
+          "minLength": 1,
+          "title": "Action Type",
+          "type": "string"
+        },
+        "actor_id": {
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "expected_effect": {
+          "default": "",
+          "title": "Expected Effect",
+          "type": "string"
+        },
+        "intent": {
+          "default": "",
+          "title": "Intent",
+          "type": "string"
+        },
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "priority": {
+          "default": "normal",
+          "title": "Priority",
+          "type": "string"
+        },
+        "required_resources": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Required Resources",
+          "type": "object"
+        },
+        "risk_profile": {
+          "additionalProperties": true,
+          "title": "Risk Profile",
+          "type": "object"
+        },
+        "system_id": {
+          "minLength": 1,
+          "title": "System Id",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/OrderTarget"
+        },
+        "tick": {
+          "minimum": 1,
+          "title": "Tick",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "action_type",
+        "target",
+        "tick",
+        "actor_id",
+        "system_id"
+      ],
+      "title": "ScheduledAction",
+      "type": "object"
+    },
+    "SpaceModelSpec": {
+      "additionalProperties": false,
+      "description": "How space exists in this world.\n\nImportant:\ngrid       needs width and height; positions are [x, y] cells.\ngraph      needs nodes and edges [a, b]; distance counts hops.\nnetwork    needs nodes and edges [a, b, weight]; distance sums weights.\n\nGraph and network positions are node ids. No other space type is accepted\nin schema 0.2, so a misspelt type fails instead of building nothing.",
+      "properties": {
+        "distance_model": {
+          "anyOf": [
+            {
+              "enum": [
+                "chebyshev",
+                "manhattan",
+                "euclidean_floor"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance Model"
+        },
+        "edges": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edges"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "nodes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nodes"
+        },
+        "type": {
+          "enum": [
+            "grid",
+            "graph",
+            "network"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "SpaceModelSpec",
+      "type": "object"
+    },
+    "TimeModelSpec": {
+      "additionalProperties": false,
+      "description": "How time advances in this world.\n\nImportant:\ntick           one step per tick.\nphase          each step moves time forward by phase_length units;\n               time_unit names the unit (for example \"hours\").\nevent_driven   time jumps to the next scheduled event.",
+      "properties": {
+        "max_duration": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Duration"
+        },
+        "max_ticks": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Ticks"
+        },
+        "phase_length": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase Length"
+        },
+        "time_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Unit"
+        },
+        "type": {
+          "enum": [
+            "tick",
+            "phase",
+            "event_driven"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "TimeModelSpec",
+      "type": "object"
+    },
+    "VersionControl": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 11 scenario_version_control.\n\nImportant:\nversion must equal the scenario's own scenario_version, so the two can\nnever tell different stories. parent_version is null for a first version.",
+      "properties": {
+        "change_reason": {
+          "title": "Change Reason",
+          "type": "string"
+        },
+        "changed_from_previous": {
+          "$ref": "#/$defs/ChangedFromPrevious"
+        },
+        "parent_version": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Parent Version"
+        },
+        "version": {
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "parent_version",
+        "changed_from_previous",
+        "change_reason"
+      ],
+      "title": "VersionControl",
+      "type": "object"
+    },
+    "WorldContract": {
+      "additionalProperties": false,
+      "description": "World Contract = Formal Spec section 2.\n\nImportant:\nSchema 0.2 makes the four Phase 2 elements required, as ADR 004 promised:\nentity_model, environment_state, resource_state and rule_set. Each may be\nempty, but a world has to say so. resource_state maps a resource id to a\nnon-negative amount.\n\nSchema 0.6 makes failure_variables required too (Phase 9): the ways this\nworld can be deliberately made worse, from the eight the failure engine\nknows. It may be empty.\n\nactor_slots becomes required with Phase 6.",
+      "properties": {
+        "actor_slots": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actor Slots"
+        },
+        "assumption_registry": {
+          "additionalProperties": true,
+          "title": "Assumption Registry",
+          "type": "object"
+        },
+        "data_provenance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DataProvenance"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "entity_model": {
+          "additionalProperties": true,
+          "title": "Entity Model",
+          "type": "object"
+        },
+        "environment_state": {
+          "additionalProperties": true,
+          "title": "Environment State",
+          "type": "object"
+        },
+        "evaluation_targets": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Evaluation Targets",
+          "type": "array"
+        },
+        "event_memory": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Event Memory"
+        },
+        "failure_variables": {
+          "items": {
+            "enum": [
+              "supply_delay",
+              "sensor_failure",
+              "communication_failure",
+              "weather_degradation",
+              "enemy_reaction_speed",
+              "equipment_overheat",
+              "civilian_pressure",
+              "resource_shortage"
+            ],
+            "type": "string"
+          },
+          "title": "Failure Variables",
+          "type": "array"
+        },
+        "purpose": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Purpose",
+          "type": "array"
+        },
+        "resource_state": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Resource State",
+          "type": "object"
+        },
+        "rule_set": {
+          "additionalProperties": true,
+          "title": "Rule Set",
+          "type": "object"
+        },
+        "space_model": {
+          "$ref": "#/$defs/SpaceModelSpec"
+        },
+        "time_model": {
+          "$ref": "#/$defs/TimeModelSpec"
+        },
+        "world_id": {
+          "minLength": 1,
+          "title": "World Id",
+          "type": "string"
+        },
+        "world_scope": {
+          "minLength": 1,
+          "title": "World Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "world_id",
+        "world_scope",
+        "purpose",
+        "space_model",
+        "time_model",
+        "assumption_registry",
+        "evaluation_targets",
+        "entity_model",
+        "environment_state",
+        "resource_state",
+        "rule_set",
+        "failure_variables"
+      ],
+      "title": "WorldContract",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/scenario.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Scenario = Formal Spec section 3.\n\nImportant:\nVersion 0.6 keeps the flat layout every scenario already uses. Section 3.3\ngroups the same information under identity / world_binding /\ninitial_conditions; adopting that grouping is a schema version change, not\na Phase 1 task. See ADR 004.\n\nschema_version names the contract the file was written against, so a\nreader can refuse a file it does not understand instead of misreading it.\nscenario_version is the content's own version and is unrelated.",
+  "properties": {
+    "allowed_actions": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Allowed Actions"
+    },
+    "assumption_registry": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AssumptionRegistry"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "data_provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/DataProvenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "domain": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Domain"
+    },
+    "entities": {
+      "items": {
+        "$ref": "#/$defs/EntityRecord"
+      },
+      "minItems": 1,
+      "title": "Entities",
+      "type": "array"
+    },
+    "evaluation": {
+      "$ref": "#/$defs/ScenarioEvaluation"
+    },
+    "failure_exploration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FailureExplorationSpec"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "output": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output"
+    },
+    "participants": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Participants"
+    },
+    "purpose": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Purpose"
+    },
+    "runtime": {
+      "$ref": "#/$defs/RuntimeSettings"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Type"
+    },
+    "scenario_version": {
+      "minLength": 1,
+      "title": "Scenario Version",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "0.6",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "version_control": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/VersionControl"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "world_contract": {
+      "$ref": "#/$defs/WorldContract"
+    }
+  },
+  "required": [
+    "schema_version",
+    "scenario_id",
+    "scenario_version",
+    "world_contract",
+    "entities",
+    "runtime",
+    "evaluation"
+  ],
+  "title": "Scenario",
+  "type": "object"
+}

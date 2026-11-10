@@ -1,0 +1,59 @@
+{
+  "effect_on_result": {
+    "baseline": {
+      "failure_frequency": 0.3333,
+      "mean_hp_lost": 55.6667,
+      "mean_score": 0.4144,
+      "win_rate": 0.6667
+    },
+    "versus_baseline": {
+      "failure_frequency": 0.0,
+      "mean_hp_lost": 12.6666,
+      "mean_score": -0.0174,
+      "win_rate": -0.3334
+    },
+    "with_intel": {
+      "failure_frequency": 0.3333,
+      "mean_hp_lost": 68.3333,
+      "mean_score": 0.397,
+      "win_rate": 0.3333
+    }
+  },
+  "gaps": [
+    "blue_009: no such unit in tactical_reference_001",
+    "world parameter weather='storm': tactical_reference_001 has no model for it"
+  ],
+  "provenance": {
+    "missing_data": [
+      "blue_009: no such unit in tactical_reference_001",
+      "world parameter weather='storm': tactical_reference_001 has no model for it"
+    ],
+    "reliability_notes": [
+      "blue_002.accuracy = 0.75"
+    ],
+    "scenario_id": "tactical_reference_001",
+    "sources": [
+      {
+        "confidence": 0.7,
+        "modified_by": "EIDEN_01",
+        "source_id": "eiden_report_017",
+        "source_type": "EIDEN_01",
+        "timestamp": "",
+        "version": ""
+      }
+    ]
+  },
+  "sensitive_variables": [
+    {
+      "parameter": "blue_002.accuracy",
+      "versus_baseline": {
+        "failure_frequency": 0.0,
+        "mean_hp_lost": 12.6666,
+        "mean_score": -0.0174,
+        "win_rate": -0.3334
+      }
+    }
+  ],
+  "supported": true,
+  "system": "EIDEN_01"
+}

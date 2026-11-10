@@ -1,0 +1,492 @@
+{
+  "schema_version": "0.6",
+  "scenario_id": "military_squad_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "military_squad_001_world",
+    "world_scope": "military_tactical",
+    "purpose": [
+      "Squad against squad in open ground with patches of forest."
+    ],
+    "space_model": {
+      "type": "grid",
+      "width": 10,
+      "height": 10,
+      "distance_model": "chebyshev"
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 20
+    },
+    "assumption_registry": {
+      "movement_model": "terrain_weighted_grid",
+      "combat_resolution": "accuracy_cover_suppression",
+      "sensing": "range_times_concealment",
+      "command": "delay_and_order_loss",
+      "actor_policy": "military_baseline[RED:aggressive/BLUE:defensive]",
+      "distance_model": "chebyshev"
+    },
+    "evaluation_targets": [
+      "world_state_changed",
+      "event_memory_created",
+      "result_package_created"
+    ],
+    "entity_model": {
+      "unit_types": [
+        "machine_gunner",
+        "rifleman",
+        "squad_leader"
+      ]
+    },
+    "environment_state": {
+      "terrain": {
+        "rows": [
+          "..........",
+          "..ff......",
+          "..ff...ff.",
+          ".......ff.",
+          "....f.....",
+          ".....f....",
+          ".ff.......",
+          ".ff...ff..",
+          "......ff..",
+          ".........."
+        ],
+        "legend": {
+          ".": "open",
+          "r": "road",
+          "f": "forest",
+          "B": "building",
+          "x": "rubble",
+          "h": "hill",
+          "^": "rock",
+          "w": "water",
+          "=": "bridge"
+        }
+      }
+    },
+    "resource_state": {
+      "ammo": 40.0
+    },
+    "rule_set": {
+      "action_costs": {
+        "supply": {
+          "ammo": 6.0
+        }
+      },
+      "military": {
+        "pack": "military_tactical@1.3",
+        "terrain": {
+          "open": {
+            "symbol": ".",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "road": {
+            "symbol": "r",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "forest": {
+            "symbol": "f",
+            "move_cost": 2,
+            "cover": 0.3,
+            "concealment": 0.4
+          },
+          "building": {
+            "symbol": "B",
+            "move_cost": 2,
+            "cover": 0.5,
+            "concealment": 0.5
+          },
+          "rubble": {
+            "symbol": "x",
+            "move_cost": 2,
+            "cover": 0.3,
+            "concealment": 0.2
+          },
+          "hill": {
+            "symbol": "h",
+            "move_cost": 2,
+            "cover": 0.25,
+            "concealment": 0.1
+          },
+          "rock": {
+            "symbol": "^",
+            "move_cost": null,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "water": {
+            "symbol": "w",
+            "move_cost": null,
+            "cover": 0.0,
+            "concealment": 0.0
+          },
+          "bridge": {
+            "symbol": "=",
+            "move_cost": 1,
+            "cover": 0.0,
+            "concealment": 0.0
+          }
+        },
+        "morale": {
+          "start": 80,
+          "suppress_threshold": 60,
+          "panic_threshold": 85,
+          "retreat_threshold": 25,
+          "suppression_decay": 20,
+          "morale_loss_when_hit": 10,
+          "morale_loss_when_suppressed": 5,
+          "rally": 5
+        },
+        "logistics": {
+          "ammo_stock": 40,
+          "resupply_amount": 6,
+          "supply_range": 1,
+          "low_ammo_share": 0.5
+        },
+        "factions": {
+          "RED": {
+            "doctrine": "aggressive",
+            "command": {
+              "delay_ticks": 1,
+              "loss_prob": 0.05
+            },
+            "command_profile": "radio",
+            "mission": {
+              "type": "destroy",
+              "objective": []
+            }
+          },
+          "BLUE": {
+            "doctrine": "defensive",
+            "command": {
+              "delay_ticks": 1,
+              "loss_prob": 0.05
+            },
+            "command_profile": "radio",
+            "mission": {
+              "type": "hold",
+              "objective": [
+                [
+                  7,
+                  7
+                ]
+              ]
+            }
+          }
+        }
+      }
+    },
+    "failure_variables": []
+  },
+  "entities": [
+    {
+      "entity_id": "red_01",
+      "name": "Red Alpha Squad Leader",
+      "entity_type": "squad_leader",
+      "faction": "RED",
+      "position": [
+        1,
+        0
+      ],
+      "state": {
+        "hp": 28,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 7,
+        "max_ammo": 10,
+        "weapon": "carbine",
+        "sensor": "binoculars"
+      },
+      "tags": [
+        "LEADER",
+        "Alpha"
+      ]
+    },
+    {
+      "entity_id": "red_02",
+      "name": "Red Alpha Rifleman 1",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        0,
+        1
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Alpha"
+      ]
+    },
+    {
+      "entity_id": "red_03",
+      "name": "Red Alpha Rifleman 2",
+      "entity_type": "rifleman",
+      "faction": "RED",
+      "position": [
+        2,
+        1
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Alpha"
+      ]
+    },
+    {
+      "entity_id": "red_04",
+      "name": "Red Alpha Machine Gunner",
+      "entity_type": "machine_gunner",
+      "faction": "RED",
+      "position": [
+        0,
+        2
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 1,
+        "attack_range": 4,
+        "attack_damage": 8,
+        "accuracy": 0.45,
+        "suppression": 45,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 10,
+        "weapon": "machine_gun",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Alpha"
+      ]
+    },
+    {
+      "entity_id": "blue_01",
+      "name": "Blue Bravo Squad Leader",
+      "entity_type": "squad_leader",
+      "faction": "BLUE",
+      "position": [
+        7,
+        6
+      ],
+      "state": {
+        "hp": 28,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 2,
+        "attack_damage": 8,
+        "accuracy": 0.6,
+        "suppression": 15,
+        "ammo_per_shot": 1,
+        "sensor_range": 7,
+        "max_ammo": 10,
+        "weapon": "carbine",
+        "sensor": "binoculars"
+      },
+      "tags": [
+        "LEADER",
+        "Bravo"
+      ]
+    },
+    {
+      "entity_id": "blue_02",
+      "name": "Blue Bravo Rifleman 1",
+      "entity_type": "rifleman",
+      "faction": "BLUE",
+      "position": [
+        6,
+        7
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Bravo"
+      ]
+    },
+    {
+      "entity_id": "blue_03",
+      "name": "Blue Bravo Rifleman 2",
+      "entity_type": "rifleman",
+      "faction": "BLUE",
+      "position": [
+        8,
+        7
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 12,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 2,
+        "attack_range": 3,
+        "attack_damage": 10,
+        "accuracy": 0.6,
+        "suppression": 20,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 12,
+        "weapon": "rifle",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Bravo"
+      ]
+    },
+    {
+      "entity_id": "blue_04",
+      "name": "Blue Bravo Machine Gunner",
+      "entity_type": "machine_gunner",
+      "faction": "BLUE",
+      "position": [
+        6,
+        8
+      ],
+      "state": {
+        "hp": 30,
+        "ammo": 10,
+        "morale": 80,
+        "suppression": 0,
+        "readiness": 1.0,
+        "status": "active"
+      },
+      "capabilities": {
+        "move_range": 1,
+        "attack_range": 4,
+        "attack_damage": 8,
+        "accuracy": 0.45,
+        "suppression": 45,
+        "ammo_per_shot": 1,
+        "sensor_range": 5,
+        "max_ammo": 10,
+        "weapon": "machine_gun",
+        "sensor": "eyes"
+      },
+      "tags": [
+        "COMBAT",
+        "Bravo"
+      ]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 20,
+    "random_seed": 42,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count",
+      "active_entities",
+      "destroyed_entities",
+      "winner_or_result"
+    ],
+    "failure_thresholds": [
+      "all_entities_destroyed"
+    ],
+    "perspective": "RED"
+  },
+  "scenario_type": "tactical",
+  "domain": "military",
+  "purpose": "Squad against squad in open ground with patches of forest.",
+  "version_control": {
+    "version": "v0.1",
+    "parent_version": null,
+    "changed_from_previous": {
+      "assumptions_changed": [],
+      "data_changed": [],
+      "rules_changed": [],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "Built from the military domain pack spec."
+  }
+}

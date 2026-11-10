@@ -1,0 +1,2066 @@
+{
+  "observations": [
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 0,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 0,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 5,
+              "destroyed": 0,
+              "hp_ratio": 1.0
+            },
+            "RED": {
+              "active": 10,
+              "destroyed": 0,
+              "hp_ratio": 1.0
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.0,
+          "tick": 0
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 1,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 1,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 5,
+              "destroyed": 0,
+              "hp_ratio": 1.0
+            },
+            "RED": {
+              "active": 10,
+              "destroyed": 0,
+              "hp_ratio": 0.951
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.04,
+          "tick": 1
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 2,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 2,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 5,
+              "destroyed": 0,
+              "hp_ratio": 0.9028
+            },
+            "RED": {
+              "active": 9,
+              "destroyed": 1,
+              "hp_ratio": 0.8531
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.08,
+          "tick": 2
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 3,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 3,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.8194
+            },
+            "RED": {
+              "active": 9,
+              "destroyed": 1,
+              "hp_ratio": 0.7902
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.12,
+          "tick": 3
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 4,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 4,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.8194
+            },
+            "RED": {
+              "active": 8,
+              "destroyed": 2,
+              "hp_ratio": 0.7133
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.16,
+          "tick": 4
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 5,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 5,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.7222
+            },
+            "RED": {
+              "active": 7,
+              "destroyed": 3,
+              "hp_ratio": 0.6154
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.2,
+          "tick": 5
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 6,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 6,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.6528
+            },
+            "RED": {
+              "active": 6,
+              "destroyed": 4,
+              "hp_ratio": 0.5455
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.24,
+          "tick": 6
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 7,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 7,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.6528
+            },
+            "RED": {
+              "active": 5,
+              "destroyed": 5,
+              "hp_ratio": 0.5105
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.28,
+          "tick": 7
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 8,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 8,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.6528
+            },
+            "RED": {
+              "active": 5,
+              "destroyed": 5,
+              "hp_ratio": 0.4126
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.32,
+          "tick": 8
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 9,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 9,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 4,
+              "destroyed": 6,
+              "hp_ratio": 0.3706
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.36,
+          "tick": 9
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 10,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 10,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 3,
+              "destroyed": 7,
+              "hp_ratio": 0.3007
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.4,
+          "tick": 10
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 11,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 11,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 3,
+              "destroyed": 7,
+              "hp_ratio": 0.2657
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.44,
+          "tick": 11
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 12,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 12,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 3,
+              "destroyed": 7,
+              "hp_ratio": 0.2028
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.48,
+          "tick": 12
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 13,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 13,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.52,
+          "tick": 13
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 14,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 14,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.56,
+          "tick": 14
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 15,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 15,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.6,
+          "tick": 15
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 16,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 16,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.64,
+          "tick": 16
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 17,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 17,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.68,
+          "tick": 17
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 18,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 18,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.72,
+          "tick": 18
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 19,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 19,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1399
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.76,
+          "tick": 19
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 20,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 20,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.8,
+          "tick": 20
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 21,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 21,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.84,
+          "tick": 21
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 22,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 22,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.88,
+          "tick": 22
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 23,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 23,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.92,
+          "tick": 23
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 24,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 24,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 0.96,
+          "tick": 24
+        }
+      }
+    },
+    {
+      "decision_context": {
+        "available_actions": [
+          "attack",
+          "move",
+          "rally",
+          "supply",
+          "wait"
+        ],
+        "constraints": [
+          "max_ticks=25"
+        ],
+        "mission_goal": {
+          "deadline": 25,
+          "objective": [
+            [
+              5,
+              5
+            ],
+            [
+              6,
+              5
+            ],
+            [
+              5,
+              6
+            ],
+            [
+              6,
+              6
+            ]
+          ],
+          "type": "seize"
+        }
+      },
+      "hidden_state": {
+        "exists": false,
+        "reason": null
+      },
+      "observer_id": "NEXUS",
+      "time": 25,
+      "uncertainty": {
+        "confidence_level": 1.0,
+        "delay_ticks": 0,
+        "observed_at": 25,
+        "source_quality": "high",
+        "stale_after": 0
+      },
+      "view": "mission",
+      "viewpoint": {
+        "actor_id": "red_01",
+        "faction": "RED"
+      },
+      "visible_world_state": {
+        "known_entities": [],
+        "known_risks": [],
+        "local_area": null,
+        "resources_visible": {
+          "ammo": 40.0
+        },
+        "summary": {
+          "factions": {
+            "BLUE": {
+              "active": 4,
+              "destroyed": 1,
+              "hp_ratio": 0.5833
+            },
+            "RED": {
+              "active": 2,
+              "destroyed": 8,
+              "hp_ratio": 0.1119
+            }
+          },
+          "max_ticks": 25,
+          "progress": 1.0,
+          "tick": 25
+        }
+      }
+    }
+  ],
+  "observer_id": "NEXUS",
+  "output_hash": "78aa3fe5bbdfc1b2828e2756c40fecf72982a7c8b208b97c441626afcb1c6c57",
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.2",
+  "viewpoint": {
+    "actor_id": "red_01",
+    "faction": "RED"
+  }
+}

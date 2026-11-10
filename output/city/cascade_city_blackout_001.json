@@ -1,0 +1,155 @@
+{
+  "cascade_depth": 1,
+  "dark_districts": {
+    "10": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ],
+    "11": [
+      "east",
+      "harbor",
+      "north",
+      "south",
+      "west"
+    ],
+    "12": [
+      "east",
+      "harbor",
+      "north",
+      "south",
+      "west"
+    ],
+    "13": [
+      "east",
+      "harbor",
+      "north",
+      "south",
+      "west"
+    ],
+    "14": [
+      "harbor",
+      "south"
+    ],
+    "15": [
+      "harbor",
+      "south"
+    ],
+    "16": [
+      "harbor",
+      "south"
+    ],
+    "17": [
+      "harbor",
+      "south"
+    ],
+    "18": [
+      "harbor",
+      "south"
+    ],
+    "19": [
+      "harbor",
+      "south"
+    ],
+    "5": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ],
+    "6": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ],
+    "7": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ],
+    "8": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ],
+    "9": [
+      "center",
+      "east",
+      "harbor",
+      "market",
+      "north",
+      "south",
+      "west"
+    ]
+  },
+  "most_dark": 7,
+  "outages": [
+    {
+      "capacity": null,
+      "cause": "incident",
+      "caused_by_event": [],
+      "depth": 0,
+      "event_id": "event_0000000068",
+      "load": null,
+      "substation": "sub_center",
+      "tick": 4
+    },
+    {
+      "capacity": 11.0,
+      "cause": "overload",
+      "caused_by_event": [
+        "event_0000000068"
+      ],
+      "depth": 1,
+      "event_id": "event_0000000093",
+      "load": 13.5,
+      "substation": "sub_north",
+      "tick": 5
+    },
+    {
+      "capacity": 8.0,
+      "cause": "overload",
+      "caused_by_event": [
+        "event_0000000068"
+      ],
+      "depth": 1,
+      "event_id": "event_0000000094",
+      "load": 9.9,
+      "substation": "sub_south",
+      "tick": 5
+    }
+  ],
+  "restored": [
+    {
+      "substation": "sub_center",
+      "tick": 10
+    },
+    {
+      "substation": "sub_north",
+      "tick": 13
+    },
+    {
+      "substation": "sub_south",
+      "tick": 19
+    }
+  ]
+}

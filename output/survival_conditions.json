@@ -1,0 +1,35 @@
+{
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.2",
+  "holds_without_stress": true,
+  "conditions": [
+    "sensor_failure: holds up to severe, breaks at collapse",
+    "communication_failure: holds up to severe, breaks at collapse",
+    "weather_degradation: holds at every tested level",
+    "enemy_reaction_speed: breaks already at mild",
+    "equipment_overheat: holds up to severe, breaks at collapse"
+  ],
+  "per_variable": {
+    "sensor_failure": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    },
+    "communication_failure": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    },
+    "weather_degradation": {
+      "holds_up_to": "collapse",
+      "breaks_at": null
+    },
+    "enemy_reaction_speed": {
+      "holds_up_to": null,
+      "breaks_at": "mild"
+    },
+    "equipment_overheat": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    }
+  },
+  "untested": []
+}

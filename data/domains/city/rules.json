@@ -1,0 +1,58 @@
+{
+  "pack_id": "city",
+  "version": "0.1",
+  "description": "Rules of the city domain pack (development plan Phase 14). A built scenario carries a copy in world_contract.rule_set.city, so it runs and reproduces without this file.",
+  "order": {
+    "stable": 70,
+    "tense": 50,
+    "unrest": 30,
+    "hunger": -6.0,
+    "short_food": -2.0,
+    "dark": -2.5,
+    "medical_par": 0.5,
+    "medical_weight": 4.0,
+    "administration_par": 0.4,
+    "administration_weight": 6.0,
+    "recovery": 2.0,
+    "riot_neighbour": -1.0,
+    "pressure_per_100k": 1.0,
+    "noise": 3.0,
+    "patrol": [
+      4.0,
+      8.0
+    ]
+  },
+  "food": {
+    "per_10k": 0.08,
+    "short_ticks": 2
+  },
+  "power": {
+    "demand_per_10k": 1.0,
+    "dark_medical": 0.5,
+    "dark_communication": 0.6
+  },
+  "supply": {
+    "delay_factor": 1.0
+  },
+  "repair": {
+    "failure_ticks": 3,
+    "trip_ticks": 1
+  },
+  "recovery": {
+    "industry_up": 0.02,
+    "industry_down": 0.03,
+    "administration_up": 0.01,
+    "administration_down": 0.02,
+    "administer": 0.05
+  },
+  "score": {
+    "weights": {
+      "order": 0.4,
+      "services": 0.3,
+      "administration": 0.15,
+      "trend": 0.15
+    },
+    "window": 0.33,
+    "trend_span": 5
+  }
+}

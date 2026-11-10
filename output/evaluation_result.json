@@ -1,0 +1,78 @@
+{
+  "termination_reason": "duration_limit_reached",
+  "event_count": 528,
+  "active_entities": 6,
+  "destroyed_entities": 9,
+  "active_factions": [
+    "BLUE",
+    "RED"
+  ],
+  "winner_or_result": "no_winner_duration_limit",
+  "key_findings": [
+    "Scenario ended because: duration_limit_reached",
+    "Events recorded: 528",
+    "Destroyed entities: 9",
+    "Overall score 0.29 under profile balanced: fail (confidence 1.00)",
+    "Strongest axis: logistics_burden 1.00",
+    "Weakest axis: recovery_ability 0.00"
+  ],
+  "failure_points": [
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed",
+    "Entity destroyed"
+  ],
+  "scenario_id": "military_urban_001",
+  "profile_id": "balanced",
+  "perspective": "RED",
+  "overall_judgement": {
+    "status": "fail",
+    "confidence": 1.0
+  },
+  "overall_score": 0.295,
+  "scores": {
+    "mission_success": 0.2,
+    "tactical_value": 0.4306,
+    "strategic_value": 0.2,
+    "resource_cost": 0.1119,
+    "time_cost": 0.0,
+    "risk_growth": 0.2,
+    "failure_resistance": 0.08,
+    "recovery_ability": 0.0,
+    "system_robustness": 0.8132,
+    "logistics_burden": 1.0,
+    "stability_impact": 0.4
+  },
+  "failure_causes": [
+    "red_05 destroyed at tick 2 by blue_05",
+    "red_03 destroyed at tick 4 by blue_02",
+    "red_10 destroyed at tick 5 by blue_02",
+    "red_07 destroyed at tick 6 by blue_01",
+    "red_01 destroyed at tick 7 by blue_02",
+    "red_02 destroyed at tick 9 by blue_01",
+    "red_04 destroyed at tick 10 by blue_03",
+    "red_09 destroyed at tick 13 by blue_02",
+    "mission_success 0.20: 1 of 5 opposing entities destroyed; 2 of 10 own entities still active",
+    "strategic_value 0.20: 2 of 10 own entities preserved",
+    "resource_cost 0.11: 254 of 286 own hp lost",
+    "time_cost 0.00: ended at tick 25 of 25",
+    "risk_growth 0.20: 8 risk-relevant events hit own entities (proxy until a risk model exists)",
+    "failure_resistance 0.08: first own loss at tick 2 of 25",
+    "recovery_ability 0.00: 0 hp restored against 254 hp still lost"
+  ],
+  "recommended_next_tests": [],
+  "comparison": {
+    "better_than": [],
+    "worse_than": []
+  },
+  "anti_gaming": {
+    "gaming_detected": false,
+    "flagged_behaviors": [],
+    "penalty_total": 0.0
+  }
+}

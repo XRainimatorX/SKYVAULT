@@ -1,0 +1,279 @@
+{
+  "$defs": {
+    "EngineeringFeasibility": {
+      "additionalProperties": false,
+      "properties": {
+        "bottlenecks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Bottlenecks",
+          "type": "array"
+        },
+        "components": {
+          "additionalProperties": true,
+          "title": "Components",
+          "type": "object"
+        },
+        "maintenance_risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Maintenance Risks",
+          "type": "array"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "score"
+      ],
+      "title": "EngineeringFeasibility",
+      "type": "object"
+    },
+    "EquipmentFailureExploration": {
+      "additionalProperties": false,
+      "properties": {
+        "collapse_sequence": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Collapse Sequence",
+          "type": "array"
+        },
+        "failure_points": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Failure Points",
+          "type": "array"
+        },
+        "redesign_triggers": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Redesign Triggers",
+          "type": "array"
+        }
+      },
+      "title": "EquipmentFailureExploration",
+      "type": "object"
+    },
+    "ExternalSimulation": {
+      "additionalProperties": false,
+      "properties": {
+        "adapter": {
+          "additionalProperties": true,
+          "title": "Adapter",
+          "type": "object"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "required"
+      ],
+      "title": "ExternalSimulation",
+      "type": "object"
+    },
+    "FinalJudgement": {
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "continue",
+            "redesign",
+            "reject",
+            "require_external_simulation"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ],
+      "title": "FinalJudgement",
+      "type": "object"
+    },
+    "PhysicalPossibility": {
+      "additionalProperties": false,
+      "properties": {
+        "checks": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "impossible_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Impossible Flags",
+          "type": "array"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "score"
+      ],
+      "title": "PhysicalPossibility",
+      "type": "object"
+    },
+    "TacticalUsefulness": {
+      "additionalProperties": false,
+      "properties": {
+        "contexts": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Contexts",
+          "type": "array"
+        },
+        "logistics_burden": {
+          "default": "",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            ""
+          ],
+          "title": "Logistics Burden",
+          "type": "string"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Score"
+        },
+        "unit": {
+          "additionalProperties": true,
+          "title": "Unit",
+          "type": "object"
+        },
+        "useful_contexts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Useful Contexts",
+          "type": "array"
+        },
+        "weak_contexts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Weak Contexts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "score"
+      ],
+      "title": "TacticalUsefulness",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/equipment_test_result.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "What the virtual test says about one profile (section 18).",
+  "properties": {
+    "category": {
+      "title": "Category",
+      "type": "string"
+    },
+    "engineering_feasibility": {
+      "$ref": "#/$defs/EngineeringFeasibility"
+    },
+    "equipment_id": {
+      "minLength": 1,
+      "title": "Equipment Id",
+      "type": "string"
+    },
+    "failure_exploration": {
+      "$ref": "#/$defs/EquipmentFailureExploration"
+    },
+    "final_judgement": {
+      "$ref": "#/$defs/FinalJudgement"
+    },
+    "physical_possibility": {
+      "$ref": "#/$defs/PhysicalPossibility"
+    },
+    "require_external_simulation": {
+      "$ref": "#/$defs/ExternalSimulation"
+    },
+    "surrogate": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Surrogate"
+    },
+    "tactical_usefulness": {
+      "$ref": "#/$defs/TacticalUsefulness"
+    }
+  },
+  "required": [
+    "equipment_id",
+    "category",
+    "physical_possibility",
+    "engineering_feasibility",
+    "tactical_usefulness",
+    "failure_exploration",
+    "require_external_simulation",
+    "final_judgement"
+  ],
+  "title": "EquipmentTestResult",
+  "type": "object"
+}

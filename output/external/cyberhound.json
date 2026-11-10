@@ -1,0 +1,8 @@
+{
+  "gaps": [
+    "propagation_model: SKYVAULT has no information environment model (Phases 14-16)",
+    "public_order_pressure: SKYVAULT has no information environment model (Phases 14-16)"
+  ],
+  "supported": false,
+  "system": "CYBERHOUND"
+}

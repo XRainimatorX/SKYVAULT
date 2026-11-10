@@ -1,0 +1,261 @@
+"""Scenario Grammar = how a task is written so SKYVAULT can run it."""
+
+from typing import Any, Literal
+
+from pydantic import Field, model_validator
+
+from .assumption import AssumptionRegistry
+from .base import ContractModel, NonEmptyStr, check
+from .entity import EntityRecord
+from .failure import FailureExplorationSpec
+from .order import Order
+from .provenance import DataProvenance
+from .world import WorldContract
+
+
+class ScheduledAction(Order):
+    """
+    An order an outside system gives one actor for one tick.
+
+    Important:
+    At that tick the actor carries it out instead of asking its policy. The
+    action id is still issued by the run, so ids stay deterministic; the
+    ordering system is recorded as source.system_id on every event it
+    causes. Batch branches use this to play out conflicting orders.
+    """
+
+    tick: int = Field(ge=1)
+    actor_id: NonEmptyStr
+    system_id: NonEmptyStr
+
+
+class PolicyChoice(ContractModel):
+    """
+    The registered policy a run uses, by name, with its parameters.
+
+    Important:
+    Only names registered with skyvault.policies can be chosen here, so a
+    scenario file can pick a policy but never load arbitrary code.
+    """
+
+    name: NonEmptyStr
+    params: dict[str, Any] = Field(default_factory=dict)
+
+
+class Controls(ContractModel):
+    """Which units a participant decides for: whole factions, single units, or both."""
+
+    factions: list[NonEmptyStr] = Field(default_factory=list)
+    entity_ids: list[NonEmptyStr] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _controls_something(self) -> "Controls":
+        if not (self.factions or self.entity_ids):
+            raise ValueError("a participant controls at least one faction or unit")
+        return self
+
+
+class Participant(ContractModel):
+    """
+    One actor slot (Formal Spec section 4, step 4): a registered policy and
+    the units it decides for. Units no participant controls keep the run's
+    default policy.
+    """
+
+    participant_id: NonEmptyStr
+    policy: PolicyChoice
+    controls: Controls
+
+
+class RuntimeSettings(ContractModel):
+    """How the run executes. Formal Spec section 3.3 calls this execution_settings."""
+
+    max_ticks: int = Field(gt=0)
+    random_seed: int
+    deterministic_mode: bool = False
+    random_seed_policy: Literal["fixed", "controlled_random", "stochastic"] | None = (
+        None
+    )
+    repeat_count: int | None = Field(default=None, ge=1)
+    scheduled_actions: list[ScheduledAction] = Field(default_factory=list)
+    policy: PolicyChoice | None = None
+    participants: list[Participant] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _unique_participants(self) -> "RuntimeSettings":
+        ids = [p.participant_id for p in self.participants]
+        if len(set(ids)) != len(ids):
+            raise ValueError("participant_id must be unique")
+        return self
+
+
+class ScenarioEvaluation(ContractModel):
+    """
+    What the run reports, and whose plan it is.
+
+    Important:
+    primary_metrics names the summary fields the run reports (event_count,
+    winner_or_result...). How the run is scored is the evaluation profile's
+    business. perspective is the faction whose plan is judged when the
+    profile does not say; without it, the first entity's faction is used.
+    success_outcomes names the results (winner_or_result) that count as the
+    mission achieved in a world with no opposing faction (Phase 14).
+    """
+
+    primary_metrics: list[str]
+    failure_thresholds: list[str] = Field(default_factory=list)
+    success_outcomes: list[NonEmptyStr] | None = None
+    secondary_metrics: list[str] | None = None
+    anti_gaming_metrics: list[str] | None = None
+    comparison_targets: list[str] | None = None
+    perspective: NonEmptyStr | None = None
+
+
+class ChangedFromPrevious(ContractModel):
+    """Formal Spec section 11: what moved since the parent version, by kind."""
+
+    assumptions_changed: list[str] = Field(default_factory=list)
+    data_changed: list[str] = Field(default_factory=list)
+    rules_changed: list[str] = Field(default_factory=list)
+    metrics_changed: list[str] = Field(default_factory=list)
+    failure_variables_changed: list[str] = Field(default_factory=list)
+
+
+class VersionControl(ContractModel):
+    """
+    Formal Spec section 11 scenario_version_control.
+
+    Important:
+    version must equal the scenario's own scenario_version, so the two can
+    never tell different stories. parent_version is null for a first version.
+    """
+
+    version: NonEmptyStr
+    parent_version: NonEmptyStr | None
+    changed_from_previous: ChangedFromPrevious
+    change_reason: str
+
+
+class Scenario(ContractModel):
+    """
+    Scenario = Formal Spec section 3.
+
+    Important:
+    Version 0.6 keeps the flat layout every scenario already uses. Section 3.3
+    groups the same information under identity / world_binding /
+    initial_conditions; adopting that grouping is a schema version change, not
+    a Phase 1 task. See ADR 004.
+
+    schema_version names the contract the file was written against, so a
+    reader can refuse a file it does not understand instead of misreading it.
+    scenario_version is the content's own version and is unrelated.
+    """
+
+    schema_version: Literal["0.6"]
+    scenario_id: NonEmptyStr
+    scenario_version: NonEmptyStr
+    world_contract: WorldContract
+    entities: list[EntityRecord] = Field(min_length=1)
+    runtime: RuntimeSettings
+    evaluation: ScenarioEvaluation
+
+    scenario_type: str | None = None
+    domain: str | None = None
+    purpose: str | None = None
+    assumption_registry: AssumptionRegistry | None = None
+    data_provenance: DataProvenance | None = None
+    participants: dict[str, Any] | None = None
+    allowed_actions: dict[str, Any] | None = None
+    failure_exploration: FailureExplorationSpec | None = None
+    output: dict[str, Any] | None = None
+    version_control: VersionControl | None = None
+
+    @model_validator(mode="after")
+    def _entity_ids_are_unique(self) -> "Scenario":
+        seen: set[str] = set()
+        for entity in self.entities:
+            if entity.entity_id in seen:
+                raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
+            seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _scheduled_actions_fit_the_run(self) -> "Scenario":
+        ids = {entity.entity_id for entity in self.entities}
+        seen: set[tuple[int, str]] = set()
+        for scheduled in self.runtime.scheduled_actions:
+            if scheduled.actor_id not in ids:
+                raise ValueError(
+                    f"scheduled action for unknown actor {scheduled.actor_id!r}"
+                )
+            if scheduled.tick > self.runtime.max_ticks:
+                raise ValueError(
+                    f"scheduled action at tick {scheduled.tick} is after max_ticks"
+                )
+            key = (scheduled.tick, scheduled.actor_id)
+            if key in seen:
+                raise ValueError(
+                    f"{scheduled.actor_id!r} has two scheduled actions "
+                    f"at tick {scheduled.tick}"
+                )
+            seen.add(key)
+        return self
+
+    @model_validator(mode="after")
+    def _explores_only_declared_failures(self) -> "Scenario":
+        exploration = self.failure_exploration
+        if exploration is None:
+            return self
+        declared = set(self.world_contract.failure_variables)
+        undeclared = sorted(set(exploration.failure_variables) - declared)
+        if undeclared:
+            raise ValueError(
+                f"failure_exploration names {undeclared}, which the world contract "
+                "does not list in failure_variables"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _version_control_names_this_version(self) -> "Scenario":
+        control = self.version_control
+        if control is not None and control.version != self.scenario_version:
+            raise ValueError(
+                f"version_control.version {control.version!r} is not "
+                f"scenario_version {self.scenario_version!r}"
+            )
+        return self
+
+    @model_validator(mode="after")
+    def _entities_stand_in_the_space(self) -> "Scenario":
+        """
+        A grid entity needs an [x, y] cell inside the grid; a graph or network
+        entity needs the id of one of its nodes.
+        """
+        space = self.world_contract.space_model
+        nodes = set(space.nodes or [])
+
+        for entity in self.entities:
+            position = entity.position
+            if position is None:
+                continue
+
+            if space.type == "grid":
+                inside = (
+                    isinstance(position, list)
+                    and 0 <= position[0] < (space.width or 0)
+                    and 0 <= position[1] < (space.height or 0)
+                )
+            else:
+                inside = isinstance(position, str) and position in nodes
+
+            if not inside:
+                raise ValueError(
+                    f"entity {entity.entity_id!r} at {position!r} is outside "
+                    f"the {space.type} space"
+                )
+        return self
+
+
+def validate_scenario(data: dict[str, Any]) -> dict[str, Any]:
+    """Validate a scenario. Raises ContractError when it breaks the contract."""
+    return check(Scenario, "scenario", data)

@@ -1,0 +1,261 @@
+{
+  "$defs": {
+    "AutoStop": {
+      "additionalProperties": false,
+      "description": "When a run stops on its own. no_new_state_change_ticks: that many ticks in\na row with units and resources unchanged. infinite_loop_repeats: the same\nstate reached that many times, not in a row. failure_loss_ratio: the\njudged side has lost at least that share of its units. null switches a\ncondition off.",
+      "properties": {
+        "failure_loss_ratio": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0.0,
+              "maximum": 1.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Failure Loss Ratio"
+        },
+        "infinite_loop_repeats": {
+          "anyOf": [
+            {
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 3,
+          "title": "Infinite Loop Repeats"
+        },
+        "no_new_state_change_ticks": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": 10,
+          "title": "No New State Change Ticks"
+        }
+      },
+      "title": "AutoStop",
+      "type": "object"
+    },
+    "ComputeBudget": {
+      "additionalProperties": false,
+      "properties": {
+        "max_decisions": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Decisions"
+        },
+        "max_events": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Events"
+        }
+      },
+      "title": "ComputeBudget",
+      "type": "object"
+    },
+    "PersistentWorldCap": {
+      "additionalProperties": false,
+      "properties": {
+        "max_checkpoints": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Checkpoints"
+        },
+        "max_events": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Events"
+        },
+        "max_ticks": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Ticks"
+        }
+      },
+      "title": "PersistentWorldCap",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/resource_compute_governance.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A governance policy (data/service/).",
+  "properties": {
+    "auto_stop": {
+      "$ref": "#/$defs/AutoStop"
+    },
+    "compute_budget": {
+      "$ref": "#/$defs/ComputeBudget"
+    },
+    "decision_authorities": {
+      "anyOf": [
+        {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Decision Authorities"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "max_batch_count": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Batch Count"
+    },
+    "max_parallel_runs": {
+      "default": 1,
+      "minimum": 1,
+      "title": "Max Parallel Runs",
+      "type": "integer"
+    },
+    "max_queue_length": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Queue Length"
+    },
+    "max_runtime_seconds": {
+      "anyOf": [
+        {
+          "exclusiveMinimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Runtime Seconds"
+    },
+    "max_scenario_duration": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Scenario Duration"
+    },
+    "partial_result_export": {
+      "default": true,
+      "title": "Partial Result Export",
+      "type": "boolean"
+    },
+    "persistent_world_resource_cap": {
+      "$ref": "#/$defs/PersistentWorldCap"
+    },
+    "policy_id": {
+      "minLength": 1,
+      "title": "Policy Id",
+      "type": "string"
+    },
+    "queue_policy": {
+      "default": "priority_then_fifo",
+      "enum": [
+        "priority_then_fifo",
+        "fifo"
+      ],
+      "title": "Queue Policy",
+      "type": "string"
+    },
+    "run_priority": {
+      "default": "normal",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "critical"
+      ],
+      "title": "Run Priority",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policy_id"
+  ],
+  "title": "ResourceComputeGovernance",
+  "type": "object"
+}

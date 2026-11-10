@@ -1,0 +1,98 @@
+{
+  "$id": "skyvault/0.6/edition.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "decision_authorities": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Decision Authorities",
+      "type": "array"
+    },
+    "description": {
+      "default": "",
+      "title": "Description",
+      "type": "string"
+    },
+    "domains": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Domains",
+      "type": "array"
+    },
+    "edition_id": {
+      "minLength": 1,
+      "title": "Edition Id",
+      "type": "string"
+    },
+    "job_kinds": {
+      "items": {
+        "enum": [
+          "scenario_run",
+          "batch",
+          "failure_exploration",
+          "replay",
+          "persistent_world",
+          "branch_compare"
+        ],
+        "type": "string"
+      },
+      "title": "Job Kinds",
+      "type": "array"
+    },
+    "products": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Products",
+      "type": "array"
+    },
+    "redact": {
+      "additionalProperties": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Redact",
+      "type": "object"
+    },
+    "systems": {
+      "items": {
+        "enum": [
+          "NEXUS",
+          "STARTX",
+          "TAC_ANGEL",
+          "EIDEN_01",
+          "AEROGRID",
+          "SKYFOX",
+          "HADES",
+          "CYBERHOUND",
+          "STAR_GUARD"
+        ],
+        "type": "string"
+      },
+      "title": "Systems",
+      "type": "array"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "edition_id",
+    "title",
+    "decision_authorities"
+  ],
+  "title": "Edition",
+  "type": "object"
+}

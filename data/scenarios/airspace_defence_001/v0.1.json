@@ -1,0 +1,564 @@
+{
+  "schema_version": "0.6",
+  "scenario_id": "airspace_defence_001",
+  "scenario_version": "v0.1",
+  "world_contract": {
+    "world_id": "airspace_defence_001_world",
+    "world_scope": "low_altitude_airspace",
+    "purpose": [
+      "Defend a power station and a command post against two waves of low-flying drones, with a SKYFOX patrol in the same airspace."
+    ],
+    "space_model": {
+      "type": "grid",
+      "width": 20,
+      "height": 20,
+      "distance_model": "chebyshev"
+    },
+    "time_model": {
+      "type": "tick",
+      "max_ticks": 30
+    },
+    "assumption_registry": {
+      "movement_model": "straight_line_flight",
+      "sensing": "probabilistic_detection_with_false_alarms",
+      "command": "tracks_with_reaction_delay",
+      "combat_resolution": "kill_probability_per_shot",
+      "actor_policy": "hades_rules_of_engagement",
+      "distance_model": "chebyshev"
+    },
+    "evaluation_targets": [
+      "world_state_changed",
+      "event_memory_created",
+      "result_package_created"
+    ],
+    "entity_model": {
+      "entity_types": [
+        "asset",
+        "command",
+        "drone",
+        "interceptor",
+        "sensor",
+        "threat"
+      ]
+    },
+    "environment_state": {},
+    "resource_state": {},
+    "rule_set": {
+      "airspace": {
+        "pack_id": "airspace",
+        "version": "0.1",
+        "detection": {
+          "falloff": 0.5
+        },
+        "asset": {
+          "hits_to_destroy": 2
+        },
+        "drone": {
+          "altitude": "medium"
+        },
+        "hades": {
+          "engage_at": 1.0,
+          "priority": "nearest_to_asset",
+          "salvo": 1,
+          "hold_fire_below": 0.0
+        },
+        "command": {
+          "reaction_delay": 1,
+          "track_timeout": 2,
+          "identify": 0.98
+        },
+        "size": [
+          20,
+          20
+        ]
+      }
+    },
+    "failure_variables": [
+      "sensor_failure",
+      "enemy_reaction_speed",
+      "equipment_overheat",
+      "communication_failure"
+    ]
+  },
+  "entities": [
+    {
+      "entity_id": "power_station",
+      "name": "Power Station",
+      "entity_type": "asset",
+      "faction": "DEFENCE",
+      "position": [
+        10,
+        10
+      ],
+      "state": {
+        "status": "active",
+        "hits": 0
+      },
+      "capabilities": {
+        "value": 3.0
+      },
+      "tags": [
+        "ASSET"
+      ]
+    },
+    {
+      "entity_id": "command_post",
+      "name": "Command Post",
+      "entity_type": "asset",
+      "faction": "DEFENCE",
+      "position": [
+        12,
+        9
+      ],
+      "state": {
+        "status": "active",
+        "hits": 0
+      },
+      "capabilities": {
+        "value": 2.0
+      },
+      "tags": [
+        "ASSET"
+      ]
+    },
+    {
+      "entity_id": "radar_north",
+      "name": "Radar North",
+      "entity_type": "sensor",
+      "faction": "DEFENCE",
+      "position": [
+        10,
+        4
+      ],
+      "state": {
+        "status": "active",
+        "online": true
+      },
+      "capabilities": {
+        "range": 8.0,
+        "detection": 0.85,
+        "false_alarm": 0.02,
+        "low_altitude": 0.6
+      },
+      "tags": [
+        "SENSOR"
+      ]
+    },
+    {
+      "entity_id": "radar_south",
+      "name": "Radar South",
+      "entity_type": "sensor",
+      "faction": "DEFENCE",
+      "position": [
+        10,
+        16
+      ],
+      "state": {
+        "status": "active",
+        "online": true
+      },
+      "capabilities": {
+        "range": 6.0,
+        "detection": 0.7,
+        "false_alarm": 0.02,
+        "low_altitude": 0.6
+      },
+      "tags": [
+        "SENSOR"
+      ]
+    },
+    {
+      "entity_id": "eo_tower",
+      "name": "Eo Tower",
+      "entity_type": "sensor",
+      "faction": "DEFENCE",
+      "position": [
+        14,
+        10
+      ],
+      "state": {
+        "status": "active",
+        "online": true
+      },
+      "capabilities": {
+        "range": 4.0,
+        "detection": 0.9,
+        "false_alarm": 0.0,
+        "low_altitude": 1.0
+      },
+      "tags": [
+        "SENSOR"
+      ]
+    },
+    {
+      "entity_id": "radar_spare",
+      "name": "Radar Spare",
+      "entity_type": "sensor",
+      "faction": "DEFENCE",
+      "position": [
+        0,
+        0
+      ],
+      "state": {
+        "status": "active",
+        "online": false
+      },
+      "capabilities": {
+        "range": 7.0,
+        "detection": 0.85,
+        "false_alarm": 0.02,
+        "low_altitude": 0.6
+      },
+      "tags": [
+        "SENSOR"
+      ]
+    },
+    {
+      "entity_id": "gun_west",
+      "name": "Gun West",
+      "entity_type": "interceptor",
+      "faction": "DEFENCE",
+      "position": [
+        9,
+        10
+      ],
+      "state": {
+        "status": "active",
+        "ammo": 30,
+        "ready_at": 0
+      },
+      "capabilities": {
+        "range": 3.0,
+        "kill": 0.75,
+        "reload": 1
+      },
+      "tags": [
+        "INTERCEPTOR"
+      ]
+    },
+    {
+      "entity_id": "gun_north",
+      "name": "Gun North",
+      "entity_type": "interceptor",
+      "faction": "DEFENCE",
+      "position": [
+        12,
+        8
+      ],
+      "state": {
+        "status": "active",
+        "ammo": 30,
+        "ready_at": 0
+      },
+      "capabilities": {
+        "range": 3.0,
+        "kill": 0.75,
+        "reload": 1
+      },
+      "tags": [
+        "INTERCEPTOR"
+      ]
+    },
+    {
+      "entity_id": "missile_east",
+      "name": "Missile East",
+      "entity_type": "interceptor",
+      "faction": "DEFENCE",
+      "position": [
+        11,
+        11
+      ],
+      "state": {
+        "status": "active",
+        "ammo": 4,
+        "ready_at": 0
+      },
+      "capabilities": {
+        "range": 6.0,
+        "kill": 0.7,
+        "reload": 3
+      },
+      "tags": [
+        "INTERCEPTOR"
+      ]
+    },
+    {
+      "entity_id": "command",
+      "name": "Command",
+      "entity_type": "command",
+      "faction": "DEFENCE",
+      "position": [
+        10,
+        10
+      ],
+      "state": {
+        "status": "active",
+        "tracks": {},
+        "next_track": 1
+      },
+      "capabilities": {},
+      "tags": [
+        "COMMAND"
+      ]
+    },
+    {
+      "entity_id": "skyfox_1",
+      "name": "Skyfox 1",
+      "entity_type": "drone",
+      "faction": "DEFENCE",
+      "position": [
+        6,
+        6
+      ],
+      "state": {
+        "status": "active",
+        "leg": 0,
+        "altitude": "medium"
+      },
+      "capabilities": {
+        "speed": 1,
+        "route": [
+          [
+            6,
+            6
+          ],
+          [
+            14,
+            6
+          ],
+          [
+            14,
+            14
+          ],
+          [
+            6,
+            14
+          ]
+        ]
+      },
+      "tags": [
+        "DRONE"
+      ]
+    },
+    {
+      "entity_id": "threat_w1_1",
+      "name": "Threat W1 1",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        0,
+        8
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 1,
+        "launch_tick": 2,
+        "altitude": "low",
+        "target": "power_station",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w1_2",
+      "name": "Threat W1 2",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        0,
+        10
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 1,
+        "launch_tick": 2,
+        "altitude": "low",
+        "target": "power_station",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w1_3",
+      "name": "Threat W1 3",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        0,
+        12
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 1,
+        "launch_tick": 2,
+        "altitude": "low",
+        "target": "power_station",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w2_1",
+      "name": "Threat W2 1",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        19,
+        0
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 2,
+        "launch_tick": 10,
+        "altitude": "medium",
+        "target": "command_post",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w2_2",
+      "name": "Threat W2 2",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        19,
+        2
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 2,
+        "launch_tick": 10,
+        "altitude": "medium",
+        "target": "command_post",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w2_3",
+      "name": "Threat W2 3",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        17,
+        0
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 2,
+        "launch_tick": 10,
+        "altitude": "medium",
+        "target": "command_post",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    },
+    {
+      "entity_id": "threat_w2_4",
+      "name": "Threat W2 4",
+      "entity_type": "threat",
+      "faction": "THREAT",
+      "position": [
+        15,
+        0
+      ],
+      "state": {
+        "status": "reserve",
+        "wave": 2,
+        "launch_tick": 10,
+        "altitude": "medium",
+        "target": "command_post",
+        "carry": 0.0
+      },
+      "capabilities": {
+        "speed": 1.0
+      },
+      "tags": [
+        "THREAT"
+      ]
+    }
+  ],
+  "runtime": {
+    "max_ticks": 30,
+    "random_seed": 42,
+    "deterministic_mode": true
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count",
+      "winner_or_result"
+    ],
+    "failure_thresholds": [],
+    "success_outcomes": [
+      "defended"
+    ],
+    "perspective": "DEFENCE"
+  },
+  "scenario_type": "air_defence",
+  "domain": "airspace",
+  "purpose": "Defend a power station and a command post against two waves of low-flying drones, with a SKYFOX patrol in the same airspace.",
+  "failure_exploration": {
+    "objective": "find_weakness",
+    "failure_variables": [
+      "sensor_failure",
+      "enemy_reaction_speed",
+      "equipment_overheat",
+      "communication_failure"
+    ],
+    "stress_levels": [
+      "mild",
+      "moderate",
+      "severe",
+      "collapse"
+    ],
+    "run_policy": {
+      "repeat_count": 5,
+      "random_seed_policy": "controlled_random",
+      "branch_comparison": true
+    },
+    "survival_threshold": 0.5
+  },
+  "version_control": {
+    "version": "v0.1",
+    "parent_version": null,
+    "changed_from_previous": {
+      "assumptions_changed": [],
+      "data_changed": [],
+      "rules_changed": [],
+      "metrics_changed": [],
+      "failure_variables_changed": []
+    },
+    "change_reason": "Built from the airspace domain pack spec."
+  }
+}

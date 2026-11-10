@@ -1,0 +1,23 @@
+{
+  "coverage": {
+    "final_ratio": 1.0,
+    "mean_ratio": 0.9305,
+    "min_ratio": 0.72,
+    "threshold": 0.8,
+    "ticks_below_threshold": 2
+  },
+  "coverage_gaps": {
+    "final": 0,
+    "max": 1
+  },
+  "gaps": [
+    "airspace configuration has a model only in airspace scenarios (Phase 15)"
+  ],
+  "reaction_window": {
+    "first_contact_tick": 0,
+    "first_hit_tick": 5,
+    "ticks": 5
+  },
+  "supported": true,
+  "system": "AEROGRID"
+}

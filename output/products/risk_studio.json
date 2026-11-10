@@ -1,0 +1,17 @@
+{
+  "conclusion": "The plan survives 100% of runs unstressed; enemy_reaction_speed crushes it first.",
+  "kpis": {
+    "baseline_survival": 1.0,
+    "breaking_level": {
+      "communication_failure": "moderate",
+      "enemy_reaction_speed": "mild",
+      "equipment_overheat": "severe",
+      "sensor_failure": "severe"
+    },
+    "crushing_variable": "enemy_reaction_speed"
+  },
+  "outputs": {},
+  "product": "risk_studio",
+  "question": "Which pressure breaks this plan first, and at what level?",
+  "title": "Risk Simulation Studio"
+}

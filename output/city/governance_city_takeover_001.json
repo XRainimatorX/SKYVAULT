@@ -1,0 +1,314 @@
+{
+  "components": {
+    "administration": 0.6213,
+    "order": 0.9319,
+    "services": 0.8163,
+    "trend": 0.7404
+  },
+  "districts": {
+    "center": {
+      "food": 10.92,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "east": {
+      "food": 6.08,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "harbor": {
+      "food": 5.68,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "market": {
+      "food": 6.8,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "north": {
+      "food": 5.36,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "south": {
+      "food": 12.76,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "west": {
+      "food": 9.24,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    },
+    "works": {
+      "food": 5.12,
+      "order_state": "stable",
+      "power": 1,
+      "public_order": 100.0
+    }
+  },
+  "score": 0.8219,
+  "series": [
+    {
+      "administration": 0.3976,
+      "order": 0.3488,
+      "score": 0.5191,
+      "services": 0.8163,
+      "tick": 0,
+      "trend": 0.5
+    },
+    {
+      "administration": 0.3999,
+      "order": 0.3567,
+      "score": 0.5198,
+      "services": 0.7973,
+      "tick": 1,
+      "trend": 0.5197
+    },
+    {
+      "administration": 0.4022,
+      "order": 0.3549,
+      "score": 0.5084,
+      "services": 0.7627,
+      "tick": 2,
+      "trend": 0.5152
+    },
+    {
+      "administration": 0.3978,
+      "order": 0.3723,
+      "score": 0.5373,
+      "services": 0.8163,
+      "tick": 3,
+      "trend": 0.5588
+    },
+    {
+      "administration": 0.4001,
+      "order": 0.4101,
+      "score": 0.5669,
+      "services": 0.8163,
+      "tick": 4,
+      "trend": 0.6532
+    },
+    {
+      "administration": 0.4063,
+      "order": 0.4413,
+      "score": 0.592,
+      "services": 0.8163,
+      "tick": 5,
+      "trend": 0.7312
+    },
+    {
+      "administration": 0.4059,
+      "order": 0.4735,
+      "score": 0.614,
+      "services": 0.8163,
+      "tick": 6,
+      "trend": 0.792
+    },
+    {
+      "administration": 0.413,
+      "order": 0.5002,
+      "score": 0.6358,
+      "services": 0.8142,
+      "tick": 7,
+      "trend": 0.8634
+    },
+    {
+      "administration": 0.4165,
+      "order": 0.5344,
+      "score": 0.6478,
+      "services": 0.7858,
+      "tick": 8,
+      "trend": 0.9052
+    },
+    {
+      "administration": 0.4293,
+      "order": 0.5619,
+      "score": 0.666,
+      "services": 0.8163,
+      "tick": 9,
+      "trend": 0.8796
+    },
+    {
+      "administration": 0.4354,
+      "order": 0.5977,
+      "score": 0.6829,
+      "services": 0.8163,
+      "tick": 10,
+      "trend": 0.891
+    },
+    {
+      "administration": 0.4439,
+      "order": 0.642,
+      "score": 0.7065,
+      "services": 0.8163,
+      "tick": 11,
+      "trend": 0.9214
+    },
+    {
+      "administration": 0.4488,
+      "order": 0.6645,
+      "score": 0.7146,
+      "services": 0.8163,
+      "tick": 12,
+      "trend": 0.9108
+    },
+    {
+      "administration": 0.4616,
+      "order": 0.6848,
+      "score": 0.7195,
+      "services": 0.8163,
+      "tick": 13,
+      "trend": 0.8761
+    },
+    {
+      "administration": 0.4677,
+      "order": 0.7041,
+      "score": 0.725,
+      "services": 0.8163,
+      "tick": 14,
+      "trend": 0.8554
+    },
+    {
+      "administration": 0.4779,
+      "order": 0.7264,
+      "score": 0.7304,
+      "services": 0.8163,
+      "tick": 15,
+      "trend": 0.8217
+    },
+    {
+      "administration": 0.49,
+      "order": 0.7477,
+      "score": 0.7321,
+      "services": 0.8163,
+      "tick": 16,
+      "trend": 0.7641
+    },
+    {
+      "administration": 0.4978,
+      "order": 0.7641,
+      "score": 0.7375,
+      "services": 0.8163,
+      "tick": 17,
+      "trend": 0.7489
+    },
+    {
+      "administration": 0.5135,
+      "order": 0.7768,
+      "score": 0.7421,
+      "services": 0.8163,
+      "tick": 18,
+      "trend": 0.73
+    },
+    {
+      "administration": 0.5226,
+      "order": 0.7921,
+      "score": 0.7481,
+      "services": 0.8163,
+      "tick": 19,
+      "trend": 0.72
+    },
+    {
+      "administration": 0.5365,
+      "order": 0.8129,
+      "score": 0.758,
+      "services": 0.8163,
+      "tick": 20,
+      "trend": 0.7163
+    },
+    {
+      "administration": 0.5494,
+      "order": 0.8395,
+      "score": 0.7726,
+      "services": 0.8163,
+      "tick": 21,
+      "trend": 0.7297
+    },
+    {
+      "administration": 0.569,
+      "order": 0.8664,
+      "score": 0.7902,
+      "services": 0.8163,
+      "tick": 22,
+      "trend": 0.7558
+    },
+    {
+      "administration": 0.5815,
+      "order": 0.8992,
+      "score": 0.8127,
+      "services": 0.8163,
+      "tick": 23,
+      "trend": 0.806
+    },
+    {
+      "administration": 0.5976,
+      "order": 0.923,
+      "score": 0.8278,
+      "services": 0.8163,
+      "tick": 24,
+      "trend": 0.8273
+    },
+    {
+      "administration": 0.6112,
+      "order": 0.936,
+      "score": 0.8321,
+      "services": 0.8163,
+      "tick": 25,
+      "trend": 0.8077
+    },
+    {
+      "administration": 0.6279,
+      "order": 0.9458,
+      "score": 0.8322,
+      "services": 0.8163,
+      "tick": 26,
+      "trend": 0.7656
+    },
+    {
+      "administration": 0.6483,
+      "order": 0.9553,
+      "score": 0.8326,
+      "services": 0.8163,
+      "tick": 27,
+      "trend": 0.7221
+    },
+    {
+      "administration": 0.6607,
+      "order": 0.9719,
+      "score": 0.835,
+      "services": 0.8163,
+      "tick": 28,
+      "trend": 0.6817
+    },
+    {
+      "administration": 0.6768,
+      "order": 0.9821,
+      "score": 0.8364,
+      "services": 0.8163,
+      "tick": 29,
+      "trend": 0.6478
+    },
+    {
+      "administration": 0.6905,
+      "order": 1.0,
+      "score": 0.8475,
+      "services": 0.8163,
+      "tick": 30,
+      "trend": 0.66
+    }
+  ],
+  "start": 0.5191,
+  "window": [
+    21,
+    30
+  ]
+}

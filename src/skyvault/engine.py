@@ -1,25 +1,55 @@
 """Engine = the tick loop that turns a scenario into a result package."""
 
+import platform
 import random
-from typing import Any
+from datetime import datetime, timezone
+from typing import Any, cast
 
-from .action import Action
-from .consequence import Consequence
+from .action import Action, ActionTarget, location_to_json
+from .actions import MILITARY_ACTION_TYPES, ActionContext, ActionResolver, handlers_for
+from .actors.participants import Participants
+from .actors.view import WorldView
+from .contracts import (
+    ContractError,
+    ungoverned_record,
+    validate_action,
+    validate_evaluation_profile,
+    validate_order,
+    validate_result_package,
+)
+from .domains import DomainPack, load_domain
 from .entity import Entity
+from .evaluation import evaluate_run
 from .evaluator import build_evaluation_summary
-from .tactical_reference_policy import TacticalReferencePolicy
-from .world_state import SpaceModel, WorldState
+from .observation import context_for, load_observer_profile, observe
+from .policies import (
+    AnyPolicy,
+    MultiViewPolicy,
+    ObservingPolicy,
+    Policy,
+    build_policy,
+)
+from .reproducibility import (
+    RUNTIME_VERSION,
+    input_hash,
+    output_hash,
+    ruleset_version,
+    seed_policy,
+)
+from .runtime.snapshots import SnapshotStore
+from .runtime.world import create_world
+from .scenario_loader import default_evaluation_profile, scenario_perspective
+from .world_state import WorldState
 
-ENGINE_SYSTEM_ID = "skyvault_tactical_reference_engine"
+ENGINE_SYSTEM_ID = "skyvault_engine"
+
+# Keep a world snapshot every this many ticks, so a rebuild can start late
+SNAPSHOT_INTERVAL = 5
 
 
-class SkyVaultTacticalReferenceEngine:
+class SkyVaultEngine:
     """
-    First executable SKYVAULT-style tactical reference slice.
-
-    This is not the final SKYVAULT engine.
-
-    It exists to prove:
+    The SKYVAULT engine: turns a scenario into a result package.
 
     Scenario
     → World State
@@ -30,69 +60,257 @@ class SkyVaultTacticalReferenceEngine:
     → World State Mutation
     → Event Memory
     → Evaluation Result
+
+    A scenario says who decides: its runtime.policy names a registered
+    policy, or its domain pack brings one. One that says neither is
+    refused (ContractError) — the engine never falls back to a policy of
+    its own.
     """
 
-    def __init__(self, scenario: dict[str, Any]):
+    def __init__(
+        self,
+        scenario: dict[str, Any],
+        evaluation_profile: dict[str, Any] | None = None,
+        policy: AnyPolicy | None = None,
+        governor: Any = None,
+    ):
         self.scenario = scenario
+        self.evaluation_profile = self.resolve_profile(evaluation_profile)
+        # A governor (the world service's) may stop the run at the end of any
+        # tick; without one the run is never stopped early (Phase 11)
+        self.governor = governor
+        self.decisions = 0
+        self.stop_reason: str | None = None
+        self._began = False
+        self._over = False
+        self._finished = False
+        self._ticks_run = 0
 
-        runtime = scenario["runtime"]
-        random_seed = runtime.get("random_seed")
-
-        self.rng = random.Random(random_seed)
+        # A stochastic run draws an unseeded generator on purpose and records
+        # no seed; every other policy seeds the run's only random source
+        self.seed_policy, self.random_seed, self.replayable = seed_policy(
+            scenario["runtime"]
+        )
+        self.rng = random.Random(self.random_seed)
+        # A scenario that names a domain runs with that pack's handlers,
+        # default policy and upkeep; without one nothing below changes
+        self.domain: DomainPack | None = (
+            load_domain(scenario["domain"]) if scenario.get("domain") else None
+        )
         self.world = self.build_world(scenario)
-        self.policy = TacticalReferencePolicy(self.rng)
+        self.policy = policy or self.choose_policy(scenario)
+        # Each participant decides for the units it controls; the rest keep
+        # the policy above (Formal Spec section 4, step 4)
+        self.participants = Participants(
+            scenario["runtime"].get("participants", []),
+            self.world.entities.values(),
+            lambda choice: build_policy(choice["name"], self.rng, choice.get("params")),
+        )
+        # A policy that names observer profiles decides from observations
+        # only; it is never handed the world (development plan Phase 5)
+        self.observers: dict[int, list[dict[str, Any]]] = {}
+        for candidate in [self.policy] + [
+            slot.policy for slot in self.participants.slots()
+        ]:
+            names = observer_names(candidate)
+            if names:
+                self.observers[id(candidate)] = [
+                    load_observer_profile(name) for name in names
+                ]
+        self.observed: dict[int, dict[str, Any]] = {}
+        # What a world policy reads: the live world, through glass
+        self.world_view = WorldView(self.world)
+        self.snapshots = SnapshotStore(SNAPSHOT_INTERVAL)
+        self.scheduled = {
+            (item["tick"], item["actor_id"]): item
+            for item in scenario["runtime"].get("scheduled_actions", [])
+        }
 
         assumptions = scenario["world_contract"].get("assumption_registry", {})
 
-        self.actor_system_id = assumptions.get(
-            "actor_policy",
-            type(self.policy).__name__,
+        # A policy that names itself (an outside system) is recorded as such
+        self.actor_system_id = getattr(self.policy, "system_id", None) or (
+            assumptions.get("actor_policy", type(self.policy).__name__)
         )
+
+        # Every action goes through the resolver; the military line keeps
+        # move, attack, observe, supply and repair (development plan Phase 3)
+        # Injected faults draw from their own generator, so stressing a plan
+        # never shifts the draws the battle itself makes
+        fault_seed = None if self.random_seed is None else f"faults:{self.random_seed}"
+        self.resolver = ActionResolver(
+            (
+                self.domain.handlers()
+                if self.domain
+                else handlers_for(MILITARY_ACTION_TYPES)
+            ),
+            ActionContext(
+                rng=self.rng,
+                system_id=self.actor_system_id,
+                fault_rng=random.Random(fault_seed),
+            ),
+        )
+
+    def choose_policy(self, scenario: dict[str, Any]) -> AnyPolicy:
+        """
+        The policy when none was handed in: runtime.policy by registered
+        name, else the domain's default (development plan Phase 6: the core
+        imports no policy). ContractError when the scenario names neither.
+        """
+        choice = scenario["runtime"].get("policy")
+        if choice:
+            return build_policy(choice["name"], self.rng, choice.get("params"))
+        if self.domain is None:
+            require_decider(scenario)  # raises: neither a policy nor a domain
+        return cast(DomainPack, self.domain).default_policy(scenario, self.rng)
+
+    def decided_by_factions(self) -> bool:
+        """
+        Whether the run ends when one faction is left: always, unless the
+        domain pack says otherwise (a city has one faction from the start).
+        """
+        return bool(getattr(self.domain, "ends_with_last_faction", True))
+
+    def upkeep(self) -> None:
+        """
+        The domain's start-of-tick actions (recovery and the like).
+
+        Important:
+        They go through the resolver like any action, so the world still
+        changes only through consequences and every change is an event with
+        the action's id. One the world refuses is simply not applied.
+        """
+        if self.domain is None:
+            return
+        for action in self.domain.upkeep(self.world):
+            self.resolver.execute(self.world, action, f"{self.domain.name}_upkeep")
+
+    def scheduled_action(self, actor_id: str, scheduled: dict[str, Any]) -> Action:
+        """
+        The Action an outside system ordered, with an id issued by this run.
+
+        Important:
+        Fields the order leaves out take their contract defaults, so an
+        order only has to say what it wants done.
+        """
+        target = scheduled["target"]
+        location = target.get("location")
+        return Action(
+            action_id=self.world.ids.action(),
+            actor_id=actor_id,
+            action_type=scheduled["action_type"],
+            target=ActionTarget(
+                entity_id=target.get("entity_id"),
+                location=tuple(location) if isinstance(location, list) else location,
+                system_id=target.get("system_id"),
+            ),
+            intent=scheduled.get("intent", ""),
+            required_resources=dict(scheduled.get("required_resources", {})),
+            expected_effect=scheduled.get("expected_effect", ""),
+            risk_profile=dict(scheduled.get("risk_profile", {})),
+            priority=scheduled.get("priority", "normal"),
+            confidence=float(scheduled.get("confidence", 1.0)),
+            metadata=dict(scheduled.get("metadata", {})),
+        )
+
+    def decider(self, actor: Any) -> tuple[AnyPolicy, str]:
+        """The policy deciding for actor and the system id its decisions carry."""
+        slot = self.participants.for_entity(actor.entity_id)
+        if slot is None:
+            return self.policy, self.actor_system_id
+        return slot.policy, slot.system_id
+
+    def decide(self, policy: AnyPolicy, actor: Any) -> Action | None:
+        """
+        What policy proposes for actor, as an Action this run has named.
+
+        Important:
+        A world policy reads the live world through a read-only view: any
+        write raises (development plan Phase 6). An observing policy gets
+        only its observations, built from the units at the end of every
+        earlier tick plus the units as they are now, and answers with an
+        order; the order passes its contract and the action id is issued
+        here, as for an outside system's order.
+        """
+        profiles = self.observers.get(id(policy))
+        if profiles is None:
+            return cast(Policy, policy).decide_action(
+                cast(WorldState, self.world_view),
+                cast(Entity, self.world_view.view_of(actor)),
+            )
+        # The units as they are now stand in for this tick until its end,
+        # when the end-of-tick snapshot replaces them; nothing is copied, so a
+        # long run costs the same per decision at tick 5000 as at tick 5
+        self.observed[self.world.tick] = {
+            entity_id: entity.snapshot()
+            for entity_id, entity in self.world.entities.items()
+        }
+        history = self.observed
+        viewpoint = {"faction": actor.faction, "actor_id": actor.entity_id}
+        context = context_for(
+            self.scenario, actor.faction, self.world.resources.snapshot()
+        )
+        observations = {
+            profile["observer_id"]: observe(
+                history, self.world.tick, profile, viewpoint, context
+            )
+            for profile in profiles
+        }
+        if getattr(policy, "observer_profiles", None):
+            order = cast(MultiViewPolicy, policy).decide_from_observations(observations)
+        else:
+            order = cast(ObservingPolicy, policy).decide_from_observation(
+                next(iter(observations.values()))
+            )
+        if order is None:
+            return None
+        return self.scheduled_action(actor.entity_id, validate_order(order))
+
+    def resolve_profile(self, profile: dict[str, Any] | None) -> dict[str, Any]:
+        """
+        The evaluation profile this run is judged by.
+
+        Important:
+        None means data/evaluation_profiles/balanced.json. A profile without a
+        perspective is judged from the scenario's perspective. Either way the
+        profile is checked against its contract before the run starts, so a
+        broken profile fails fast instead of after a whole simulation.
+        """
+        if profile is None:
+            return default_evaluation_profile(self.scenario)
+
+        resolved = validate_evaluation_profile(profile)
+        if resolved["perspective"] is None:
+            resolved["perspective"] = scenario_perspective(self.scenario)
+        return resolved
 
     def build_world(self, scenario: dict[str, Any]) -> WorldState:
         """
-        Build the tick-0 world the scenario describes.
+        Build the time-zero world the scenario describes.
 
         Important:
+        The world itself comes from runtime.create_world(), which supports any
+        space and clock. The engine steps one tick at a time on a grid unless
+        the scenario's domain pack says its policy and handlers work on
+        another space, so it refuses any other space or clock here instead of
+        misbehaving later.
+
         An entity may omit position, in which case it is built with None.
         Anything that measures distance has to handle that.
         """
         world_contract = scenario["world_contract"]
-        space_model = world_contract["space_model"]
+        space_type = world_contract["space_model"]["type"]
+        time_type = world_contract["time_model"]["type"]
+        # A domain pack whose policy and handlers work on other spaces says so
+        spaces = getattr(getattr(self, "domain", None), "spaces", ("grid",))
 
-        space = SpaceModel(
-            width=int(space_model["width"]),
-            height=int(space_model["height"]),
-            distance_model=space_model.get("distance_model", "chebyshev"),
-        )
-
-        entities: dict[str, Entity] = {}
-
-        for item in scenario["entities"]:
-            position = item.get("position")
-            parsed_position = tuple(position) if position is not None else None
-
-            entity = Entity(
-                entity_id=item["entity_id"],
-                name=item["name"],
-                entity_type=item["entity_type"],
-                faction=item.get("faction"),
-                position=parsed_position,
-                state=dict(item.get("state", {})),
-                capabilities=dict(item.get("capabilities", {})),
-                tags=list(item.get("tags", [])),
+        if space_type not in spaces or time_type != "tick":
+            raise ValueError(
+                f"this engine needs a {' or '.join(spaces)} space and a tick "
+                f"clock, got {space_type!r} space and {time_type!r} time"
             )
 
-            entities[entity.entity_id] = entity
-
-        return WorldState(
-            world_id=world_contract["world_id"],
-            scenario_id=scenario["scenario_id"],
-            tick=0,
-            space=space,
-            entities=entities,
-            assumptions=world_contract.get("assumption_registry", {}),
-        )
+        return create_world(scenario)
 
     def run(self) -> dict[str, Any]:
         """
@@ -102,97 +320,193 @@ class SkyVaultTacticalReferenceEngine:
         The initial world state is captured before the first tick, so the
         package carries both where the run started and where it ended. Every
         derived output is built from the package, never from the scenario file.
+        run() is begin(), step() until the run is over, then finish(); a
+        persistent world calls the three itself (development plan Phase 11).
         """
-        max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
-        termination_reason = "duration_limit_reached"
+        self.begin()
+        while self.step():
+            pass
+        return self.finish()
 
-        initial_world_state = self.world.snapshot()
+    def begin(self) -> None:
+        """Record where the run starts; the first tick is the first step()."""
+        if self._began:
+            raise RuntimeError("this run has already begun")
+        self._began = True
+        self._started_at = utc_now()
+        self._max_ticks = int(self.scenario["runtime"].get("max_ticks", 10))
+        self._termination = "duration_limit_reached"
+        self._initial = self.world.snapshot()
+        self.snapshots.record(self.world.tick, self._initial)
+        if self.observers:
+            self.observed[self.world.tick] = self._initial["entities"]
+        if self.governor is not None:
+            self.governor.start()
 
-        for tick in range(1, max_ticks + 1):
-            self.world.tick = tick
+    @property
+    def over(self) -> bool:
+        """True once no further tick will run."""
+        return self._over
 
-            if len(self.world.active_factions()) <= 1:
-                termination_reason = "termination_condition_met"
-                break
+    def step(self) -> bool:
+        """
+        Run one tick; True while another tick can follow.
 
-            actors = list(self.world.active_entities())
+        Important:
+        The governor, when there is one, is asked at the end of every tick
+        that would not have ended the run anyway; a stop reason ends the run
+        with termination_reason "auto_stop:<reason>".
+        """
+        if not self._began:
+            raise RuntimeError("begin() the run before stepping it")
+        if self._over:
+            return False
+        self._ticks_run += 1
+        self.world.advance_time()
 
-            for actor in actors:
-                if not actor.is_active():
-                    continue
+        if self.decided_by_factions() and len(self.world.active_factions()) <= 1:
+            self._termination = "termination_condition_met"
+            self._over = True
+            return False
 
-                action = self.policy.decide_action(self.world, actor)
+        self.upkeep()
+        acts = getattr(self.domain, "acts", None)
+        actors = [
+            entity
+            for entity in self.world.active_entities()
+            if acts is None or acts(entity, self.world)
+        ]
 
-                if action is None:
-                    self.world.record_event(
-                        event_type="NO_ACTION",
-                        actor_id=actor.entity_id,
-                        system_id=self.actor_system_id,
-                        target_entity_id=None,
-                        source_action_id=None,
-                        before_state=actor.snapshot(),
-                        after_state=actor.snapshot(),
-                        affected_entities=[actor.entity_id],
-                        data={"reason": "policy_returned_no_action"},
-                        tags=["no_action"],
-                    )
-                    continue
+        for actor in actors:
+            if not actor.is_active():
+                continue
 
-                action_entities = [actor.entity_id]
+            # An action an outside system ordered for this tick replaces
+            # the policy's decision; its events carry that system's id
+            scheduled = self.scheduled.get((self.world.tick, actor.entity_id))
+            deciding, decider_id = self.decider(actor)
+            system_id = scheduled["system_id"] if scheduled else decider_id
+            action = (
+                self.scheduled_action(actor.entity_id, scheduled)
+                if scheduled
+                else self.decide(deciding, actor)
+            )
 
-                if action.target_entity_id is not None:
-                    action_entities.append(action.target_entity_id)
-
+            self.decisions += 1
+            if action is None:
                 self.world.record_event(
-                    event_type="ACTION_SELECTED",
+                    event_type="NO_ACTION",
                     actor_id=actor.entity_id,
-                    system_id=self.actor_system_id,
-                    target_entity_id=action.target_entity_id,
-                    source_action_id=action.action_id,
+                    system_id=decider_id,
+                    target_entity_id=None,
+                    source_action_id=None,
                     before_state=actor.snapshot(),
                     after_state=actor.snapshot(),
+                    affected_entities=[actor.entity_id],
+                    data={"reason": "policy_returned_no_action"},
+                    tags=["no_action"],
+                )
+                continue
+
+            # A malformed action is a broken policy, not a rejected move:
+            # it raises here and is never recorded or resolved.
+            validate_action(action.to_dict())
+
+            target_entity_id = action.target.entity_id
+            action_entities = [actor.entity_id]
+
+            if target_entity_id is not None:
+                action_entities.append(target_entity_id)
+
+            self.world.record_event(
+                event_type="ACTION_SELECTED",
+                actor_id=actor.entity_id,
+                system_id=system_id,
+                target_entity_id=target_entity_id,
+                source_action_id=action.action_id,
+                before_state=actor.snapshot(),
+                after_state=actor.snapshot(),
+                affected_entities=action_entities,
+                data={
+                    "action_type": action.action_type,
+                    "intent": action.intent,
+                    "target_position": location_to_json(action.target.location),
+                },
+                tags=["action_selection"],
+            )
+
+            # Validation, resolution, world mutation and the resulting
+            # events all happen inside the resolver
+            consequence = self.resolver.execute(self.world, action, system_id)
+
+            if not consequence.accepted:
+                self.world.record_event(
+                    event_type="ACTION_REJECTED",
+                    actor_id=action.actor_id,
+                    system_id=system_id,
+                    target_entity_id=target_entity_id,
+                    source_action_id=action.action_id,
+                    before_state={},
+                    after_state={},
                     affected_entities=action_entities,
                     data={
+                        "reason": consequence.reason,
                         "action_type": action.action_type,
-                        "intent": action.intent,
-                        "target_position": (
-                            list(action.target_position)
-                            if action.target_position
-                            else None
-                        ),
                     },
-                    tags=["action_selection"],
+                    tags=["action_rejected"],
                 )
 
-                consequence = self.resolve_action(action)
-
-                if not consequence.accepted:
-                    self.world.record_event(
-                        event_type="ACTION_REJECTED",
-                        actor_id=action.actor_id,
-                        system_id=self.actor_system_id,
-                        target_entity_id=action.target_entity_id,
-                        source_action_id=action.action_id,
-                        before_state={},
-                        after_state={},
-                        affected_entities=action_entities,
-                        data={
-                            "reason": consequence.reason,
-                            "action_type": action.action_type,
-                        },
-                        tags=["action_rejected"],
-                    )
-
-                if len(self.world.active_factions()) <= 1:
-                    termination_reason = "termination_condition_met"
-                    break
-
-            if termination_reason == "termination_condition_met":
+            if self.decided_by_factions() and len(self.world.active_factions()) <= 1:
+                self._termination = "termination_condition_met"
                 break
 
+        # Snapshots are taken at the end of a tick, after all its events
+        end_of_tick = self.world.snapshot()
+        self.snapshots.record(self.world.tick, end_of_tick)
+        if self.observers:
+            self.observed[self.world.tick] = end_of_tick["entities"]
+
+        finished = getattr(self.domain, "finished", None)
+        reason = finished(self.world) if finished is not None else None
+        if reason is not None:
+            self._termination = f"termination_condition_met:{reason}"
+            self._over = True
+            return False
+        if self._termination == "termination_condition_met":
+            self._over = True
+            return False
+        if self._ticks_run >= self._max_ticks:
+            self._over = True
+            return False
+        if self.governor is not None:
+            reason = self.governor.after_tick(
+                end_of_tick,
+                self.decisions,
+                len(self.world.event_memory),
+                self._ticks_run,
+            )
+            if reason is not None:
+                self.stop(reason)
+                return False
+        return True
+
+    def stop(self, reason: str) -> None:
+        """End the run after the current tick, for reason (auto-stop, cancel, cap)."""
+        self.stop_reason = reason
+        self._termination = f"auto_stop:{reason}"
+        self._over = True
+
+    def finish(self) -> dict[str, Any]:
+        """Close the run (SCENARIO_END, evaluation) and return its result package."""
+        if not self._began:
+            raise RuntimeError("begin() the run before finishing it")
+        if self._finished:
+            raise RuntimeError("this run has already finished")
+        self._finished = True
+        self._over = True
         total_events = len(self.world.event_memory) + 1
 
-        evaluation = self.evaluate(termination_reason, total_events)
+        evaluation = self.evaluate(self._termination, total_events)
 
         self.world.record_event(
             event_type="SCENARIO_END",
@@ -208,272 +522,99 @@ class SkyVaultTacticalReferenceEngine:
             tags=["scenario_end"],
         )
 
-        return {
+        event_memory = [event.to_dict() for event in self.world.event_memory]
+        final_world_state = self.world.snapshot()
+
+        # The multi-axis verdict is derived from what was recorded, after the
+        # run; SCENARIO_END keeps the run-end summary it was given above
+        evaluated = evaluate_run(
+            self._initial,
+            event_memory,
+            final_world_state,
+            evaluation,
+            self.evaluation_profile,
+            self._max_ticks,
+            self.scenario["evaluation"].get("failure_thresholds", []),
+            self.scenario["evaluation"].get("success_outcomes"),
+            tuple(getattr(self.domain, "end_reasons", ())),
+        )
+
+        package = {
             "scenario_id": self.scenario["scenario_id"],
             "scenario_version": self.scenario["scenario_version"],
-            "initial_world_state": initial_world_state,
-            "final_world_state": self.world.snapshot(),
-            "event_memory": [event.to_dict() for event in self.world.event_memory],
-            "evaluation": evaluation,
+            "initial_world_state": self._initial,
+            "final_world_state": final_world_state,
+            "event_memory": event_memory,
+            **evaluated,
+        }
+        package["reproducibility"] = self.reproducibility(self._started_at, utc_now())
+
+        # The package is checked against its contract before it leaves the
+        # engine; every derived output is built from it alone. Validation
+        # normalises values (a whole-number score becomes 3.0), so the output
+        # hash is taken over the validated package, the one callers receive.
+        validated = validate_result_package(package)
+        validated["reproducibility"]["output_hash"] = output_hash(validated)
+        return validated
+
+    def reproducibility(
+        self, started_at: datetime, ended_at: datetime
+    ) -> dict[str, Any]:
+        """
+        Formal Spec section 12: what it takes to rerun this run.
+
+        Important:
+        output_hash is a placeholder here; run() fills it in from the validated
+        package. The block itself records when the run happened, which no rerun
+        repeats, so it is never part of the output hash. run_id combines the
+        start time and the input, so two runs of the same input stay
+        distinguishable in a run registry.
+        """
+        inputs = input_hash(self.scenario, self.evaluation_profile)
+        return {
+            "run_id": f"run_{started_at:%Y%m%dT%H%M%S%fZ}_{inputs[:8]}",
+            "scenario_id": self.scenario["scenario_id"],
+            "scenario_version": self.scenario["scenario_version"],
+            "random_seed_policy": self.seed_policy,
+            "random_seed": self.random_seed,
+            "runtime_version": RUNTIME_VERSION,
+            "ruleset_version": ruleset_version(
+                self.scenario, sorted(self.resolver.handlers)
+            ),
+            "input_hash": inputs,
+            "output_hash": "0" * 64,
+            "deterministic_replay_available": self.replayable,
+            "run_metadata": {
+                "started_at": started_at.isoformat(),
+                "ended_at": ended_at.isoformat(),
+                "resource_compute_governance": self.governance_record(
+                    (ended_at - started_at).total_seconds()
+                ),
+                "compute_profile": f"python {platform.python_version()}",
+                "operator_system": platform.platform(),
+            },
         }
 
-    def resolve_action(self, action: Action) -> Consequence:
+    def governance_record(self, runtime_seconds: float) -> dict[str, Any]:
         """
-        Route an action to the resolver for its type.
+        What this run used, and under which policy (every run has one).
 
         Important:
-        An unsupported action type is rejected as a Consequence rather than
-        raised, so the run records the refusal and carries on.
+        It lives in run_metadata, outside the output hash: the same run
+        governed or not, stopped or not, is told apart here, while a run that
+        was not stopped hashes exactly as before.
         """
-        if action.action_type == "move":
-            return self.resolve_move(action)
-
-        if action.action_type == "attack":
-            return self.resolve_attack(action)
-
-        return Consequence(
-            action_id=action.action_id,
-            accepted=False,
-            reason=f"Unsupported action type: {action.action_type}",
-        )
-
-    def resolve_move(self, action: Action) -> Consequence:
-        """
-        Decide whether a move happens, and what it changes if it does.
-
-        Important:
-        Validation comes first and can reject the action. Only an accepted
-        Consequence is allowed to mutate the world.
-        """
-        actor = self.world.get_entity(action.actor_id)
-
-        if action.target_position is None:
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason="Move action missing target_position",
-            )
-
-        if not self.world.space.is_inside(action.target_position):
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason="Move target outside world boundary",
-            )
-
-        if self.world.is_occupied(action.target_position):
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason="Move target occupied",
-            )
-
-        before = actor.snapshot()
-        old_position = actor.position
-
-        actor.position = action.target_position
-        actor.state["last_action"] = "move"
-
-        after = actor.snapshot()
-
-        move_locations = []
-
-        if old_position is not None:
-            move_locations.append(list(old_position))
-
-        move_locations.append(list(action.target_position))
-
-        self.world.record_event(
-            event_type="MOVE",
-            actor_id=actor.entity_id,
-            system_id=self.actor_system_id,
-            target_entity_id=None,
-            source_action_id=action.action_id,
-            before_state=before,
-            after_state=after,
-            affected_entities=[actor.entity_id],
-            affected_locations=move_locations,
-            evaluation_relevance={"affects_cost": True},
-            data={
-                "from": list(old_position) if old_position else None,
-                "to": list(action.target_position),
-            },
-            tags=["movement", "world_state_mutation"],
-        )
-
-        return Consequence(
-            action_id=action.action_id,
-            accepted=True,
-            reason="Move resolved",
-            direct_effects=[
-                {
-                    "type": "position_change",
-                    "entity_id": actor.entity_id,
-                    "from": old_position,
-                    "to": action.target_position,
-                }
-            ],
-            evaluation_impact={"time_cost": 1},
-        )
-
-    def resolve_attack(self, action: Action) -> Consequence:
-        """
-        Decide whether an attack lands, and what it changes if it does.
-
-        Important:
-        The hit roll draws from the engine's seeded rng, so the same seed
-        produces the same hits and misses on every run.
-        """
-        actor = self.world.get_entity(action.actor_id)
-
-        if action.target_entity_id is None:
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason="Attack action missing target_entity_id",
-            )
-
-        target = self.world.get_entity(action.target_entity_id)
-
-        if actor.position is None or target.position is None:
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason="Actor or target has no position",
-            )
-
-        attack_range = int(actor.capabilities.get("attack_range", 1))
-        distance = self.world.space.distance(actor.position, target.position)
-
-        if distance > attack_range:
-            return Consequence(
-                action_id=action.action_id,
-                accepted=False,
-                reason=(
-                    f"Target out of range: "
-                    f"distance={distance}, range={attack_range}"
-                ),
-            )
-
-        accuracy = float(actor.capabilities.get("accuracy", 1.0))
-        damage = int(actor.capabilities.get("attack_damage", 0))
-
-        before = target.snapshot()
-        target_locations = [list(target.position)]
-
-        if self.rng.random() > accuracy:
-            self.world.record_event(
-                event_type="MISS",
-                actor_id=actor.entity_id,
-                system_id=self.actor_system_id,
-                target_entity_id=target.entity_id,
-                source_action_id=action.action_id,
-                before_state=before,
-                after_state=target.snapshot(),
-                affected_entities=[actor.entity_id, target.entity_id],
-                affected_locations=target_locations,
-                evaluation_relevance={"affects_cost": True},
-                data={
-                    "accuracy": accuracy,
-                    "distance": distance,
-                },
-                tags=["attack", "miss"],
-            )
-
-            return Consequence(
-                action_id=action.action_id,
-                accepted=True,
-                reason="Attack missed",
-                direct_effects=[
-                    {
-                        "type": "miss",
-                        "actor_id": actor.entity_id,
-                        "target_entity_id": target.entity_id,
-                    }
-                ],
-            )
-
-        hp_before = int(target.state.get("hp", 0))
-        hp_after = hp_before - damage
-
-        target.state["hp"] = hp_after
-        target.state["last_damage_taken"] = damage
-
-        if hp_after <= 0:
-            target.state["status"] = "destroyed"
-
-        after = target.snapshot()
-
-        self.world.record_event(
-            event_type="ATTACK",
-            actor_id=actor.entity_id,
-            system_id=self.actor_system_id,
-            target_entity_id=target.entity_id,
-            source_action_id=action.action_id,
-            before_state=before,
-            after_state=after,
-            affected_entities=[target.entity_id],
-            affected_locations=target_locations,
-            evaluation_relevance={
-                "affects_success": True,
-                "affects_cost": True,
-            },
-            data={
-                "damage": damage,
-                "hp_before": hp_before,
-                "hp_after": hp_after,
-                "distance": distance,
-            },
-            tags=["attack", "world_state_mutation", "state_change"],
-        )
-
-        direct_effects = [
-            {
-                "type": "hp_change",
-                "entity_id": target.entity_id,
-                "from": hp_before,
-                "to": hp_after,
-            }
-        ]
-
-        if target.state.get("status") == "destroyed":
-            self.world.record_event(
-                event_type="ENTITY_DESTROYED",
-                actor_id=actor.entity_id,
-                system_id=self.actor_system_id,
-                target_entity_id=target.entity_id,
-                source_action_id=action.action_id,
-                before_state=before,
-                after_state=after,
-                affected_entities=[target.entity_id],
-                affected_locations=target_locations,
-                evaluation_relevance={
-                    "affects_success": True,
-                    "affects_cost": True,
-                    "affects_risk": True,
-                },
-                data={
-                    "destroyed_entity": target.entity_id,
-                    "faction": target.faction,
-                },
-                tags=["entity_lifecycle", "failure", "state_change"],
-            )
-
-            direct_effects.append(
-                {
-                    "type": "status_change",
-                    "entity_id": target.entity_id,
-                    "to": "destroyed",
-                }
-            )
-
-        return Consequence(
-            action_id=action.action_id,
-            accepted=True,
-            reason="Attack resolved",
-            direct_effects=direct_effects,
-            evaluation_impact={"damage_done": damage},
-        )
+        usage = {
+            "runs": 1,
+            "ticks": self.world.tick,
+            "decisions": self.decisions,
+            "events": len(self.world.event_memory),
+            "runtime_seconds": round(max(runtime_seconds, 0.0), 6),
+        }
+        if self.governor is None:
+            return ungoverned_record(usage)
+        record: dict[str, Any] = self.governor.record(usage, self.stop_reason)
+        return record
 
     def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:
         """
@@ -482,6 +623,42 @@ class SkyVaultTacticalReferenceEngine:
         Important:
         event_count is passed in rather than read from event memory, because
         this summary is built before SCENARIO_END is recorded and has to count
-        that event too.
+        that event too. A domain pack that names its own outcomes (a city
+        has one faction, so "CITY_survived" says nothing) gives the result
+        its name through outcome_label.
         """
-        return build_evaluation_summary(self.world, termination_reason, event_count)
+        summary = build_evaluation_summary(self.world, termination_reason, event_count)
+        label = getattr(self.domain, "outcome_label", None)
+        named = label(self.world) if label is not None else None
+        if named is not None:
+            summary["winner_or_result"] = named
+        return summary
+
+
+def require_decider(scenario: dict[str, Any]) -> None:
+    """
+    ContractError unless the scenario says who decides: runtime.policy
+    names a registered policy, or its domain pack brings a default one.
+    """
+    if not scenario["runtime"].get("policy") and not scenario.get("domain"):
+        raise ContractError(
+            "scenario",
+            [
+                f"scenario {scenario['scenario_id']} names no runtime.policy and no "
+                "domain: SKYVAULT has no policy to fall back on"
+            ],
+        )
+
+
+def utc_now() -> datetime:
+    """The current time in UTC. Only the reproducibility block records it."""
+    return datetime.now(timezone.utc)
+
+
+def observer_names(policy: Any) -> tuple[str, ...]:
+    """The observer profiles a policy decides from; empty for a world policy."""
+    several = getattr(policy, "observer_profiles", None)
+    if several:
+        return tuple(several)
+    single = getattr(policy, "observer_profile", None)
+    return (single,) if single else ()

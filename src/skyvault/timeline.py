@@ -76,7 +76,8 @@ def write_event(
 
         # Every branch resolves its own actor and target from the event itself,
         # so no sentence can inherit a name left over from an earlier event
-        actor_name = entity_names.get(event["actor_id"], event["actor_id"])
+        actor_id = event["source"]["actor_id"]
+        actor_name = entity_names.get(actor_id, actor_id)
         target_name = entity_names.get(
             event["target_entity_id"],
             event["target_entity_id"],
@@ -119,8 +120,8 @@ def write_event(
         elif event["event_type"] == "MOVE":
 
             # Record positions before and after to write into sentence
-            pos_before = tuple(event["data"]["from"])
-            pos_after = tuple(event["data"]["to"])
+            pos_before = _place(event["data"]["from"])
+            pos_after = _place(event["data"]["to"])
 
             # Write sentence for MOVE
             sentence = f"- {actor_name} moved from {pos_before} to {pos_after}."
@@ -133,11 +134,11 @@ def write_event(
             hp_after = event["data"]["hp_after"]
             damage = event["data"]["damage"]
 
-            # Eliminate any negative hp
+            # Clamp negative hp for display only. damage stays the value the
+            # engine applied: deriving it from the clamped hp_after would
+            # report less damage than event memory recorded.
             if hp_after <= 0:
-
                 hp_after = 0
-                damage = hp_before - hp_after
 
             # Write sentence for ATTACK
             sentence = (
@@ -253,3 +254,8 @@ def render_timeline(
             lines.append(sentence + "\n")
 
     return "".join(lines)
+
+
+def _place(position: Any) -> Any:
+    """A grid cell as (x, y); a place on a graph by its name."""
+    return tuple(position) if isinstance(position, list) else position

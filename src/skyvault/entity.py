@@ -5,6 +5,9 @@ from typing import Any
 
 Position = tuple[int, int]
 
+# Where an entity can be: a grid cell, or a node id on a graph or network space.
+Location = Position | str
+
 
 @dataclass
 class Entity:
@@ -21,7 +24,7 @@ class Entity:
     name: str
     entity_type: str
     faction: str | None
-    position: Position | None
+    position: Location | None
     state: dict[str, Any] = field(default_factory=dict)
     capabilities: dict[str, Any] = field(default_factory=dict)
     tags: list[str] = field(default_factory=list)
@@ -49,8 +52,21 @@ class Entity:
             "name": self.name,
             "entity_type": self.entity_type,
             "faction": self.faction,
-            "position": list(self.position) if self.position else None,
+            "position": _location_snapshot(self.position),
             "state": dict(self.state),
             "capabilities": dict(self.capabilities),
             "tags": list(self.tags),
         }
+
+
+def _location_snapshot(position: Location | None) -> list[int] | str | None:
+    """
+    A location as JSON-safe data.
+
+    Important:
+    A grid cell becomes a list; a node id stays a string. list() on a node id
+    would split it into characters, turning "depot" into ["d", "e", "p", ...].
+    """
+    if position is None or isinstance(position, str):
+        return position
+    return list(position)

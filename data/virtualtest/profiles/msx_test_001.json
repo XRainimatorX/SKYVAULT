@@ -1,0 +1,42 @@
+{
+  "equipment_id": "MSX_TEST_001",
+  "category": "MSX",
+  "description": "The Formal Spec's example id: a 12 m bipedal machine. Narrow stance for its height, joints far past their rating, a battery for 1.5 of its declared 2 hours.",
+  "physical_parameters": {
+    "mass": 18000,
+    "height": 12.0,
+    "center_of_gravity": 7.0,
+    "base_width": 3.0,
+    "footprint": 4.0,
+    "joint_load": 250.0,
+    "load_bearing_joints": 2,
+    "power_requirement": 400.0,
+    "heat_output": 300.0,
+    "cooling_capacity": 320.0,
+    "energy_capacity": 600.0,
+    "endurance": 2
+  },
+  "engineering_parameters": {
+    "material_complexity": "exotic",
+    "maintenance_time": 30.0,
+    "part_replacement_difficulty": "hard",
+    "supply_chain_risk": 0.8,
+    "repair_environment_required": "factory"
+  },
+  "operational_parameters": {
+    "operator_fatigue": 0.2,
+    "terrain_accessibility": [
+      "open",
+      "road"
+    ],
+    "transport_requirement": "heavy_lift",
+    "deployment_time": 240,
+    "mission_role": "assault"
+  },
+  "test_targets": [
+    "movement_viability",
+    "energy_burden",
+    "maintenance_pressure",
+    "mission_value"
+  ]
+}

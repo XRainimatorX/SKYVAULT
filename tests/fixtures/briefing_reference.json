@@ -1,0 +1,57 @@
+{
+  "description": "What the briefing report of the reference workspace must say, frozen before the report generator was written (Phase 17, issue §6). The workspace is tactical_reference_001 v0.1 under balanced, its failure exploration and the reference batch.",
+  "title": "SKYVAULT briefing — tactical_reference_001 v0.1",
+  "sections": [
+    "Summary",
+    "What happened",
+    "Losses",
+    "Evaluation",
+    "Trade-offs",
+    "Failure exploration",
+    "Plan comparison",
+    "Reproducibility"
+  ],
+  "sections_without_optional_inputs": [
+    "Summary",
+    "What happened",
+    "Losses",
+    "Evaluation",
+    "Trade-offs",
+    "Reproducibility"
+  ],
+  "must_state": {
+    "Summary": [
+      "Result: RED_survived",
+      "Verdict: risky",
+      "Score: 0.50",
+      "Profile: balanced, seen from RED",
+      "97 events over 10 ticks"
+    ],
+    "What happened": [
+      "Tick 6",
+      "Blue Commander destroyed by Red Rifleman",
+      "Red Commander destroyed by Blue Support"
+    ],
+    "Losses": [
+      "RED lost 1 of 3: Red Commander at tick 6",
+      "BLUE lost 3 of 3"
+    ],
+    "Evaluation": [
+      "mission_success",
+      "recovery_ability 0.00"
+    ],
+    "Failure exploration": [
+      "Survives without stress: 60%",
+      "Crushed by: communication_failure",
+      "Best alternative: v0.1-support-rear"
+    ],
+    "Plan comparison": [
+      "Best mean score: support-rear",
+      "Decision required: yes"
+    ],
+    "Reproducibility": [
+      "7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70",
+      "seed 42"
+    ]
+  }
+}

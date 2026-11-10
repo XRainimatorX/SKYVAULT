@@ -1,0 +1,1294 @@
+{
+  "$defs": {
+    "AntiGamingCheck": {
+      "additionalProperties": false,
+      "description": "One anti-gaming check as it ran.",
+      "properties": {
+        "behavior": {
+          "minLength": 1,
+          "title": "Behavior",
+          "type": "string"
+        },
+        "forbidden": {
+          "title": "Forbidden",
+          "type": "boolean"
+        },
+        "metric": {
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "penalty": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Penalty",
+          "type": "number"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "threshold": {
+          "minimum": 0.0,
+          "title": "Threshold",
+          "type": "number"
+        },
+        "triggered": {
+          "title": "Triggered",
+          "type": "boolean"
+        },
+        "value": {
+          "title": "Value",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric",
+        "reason",
+        "value",
+        "threshold",
+        "triggered",
+        "behavior",
+        "forbidden",
+        "penalty"
+      ],
+      "title": "AntiGamingCheck",
+      "type": "object"
+    },
+    "AntiGamingReport": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 16, plus what each check found.",
+      "properties": {
+        "anti_gaming_metrics": {
+          "items": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "title": "Anti Gaming Metrics",
+          "type": "array"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/AntiGamingCheck"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "flagged_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flagged Behaviors",
+          "type": "array"
+        },
+        "forbidden_optimization_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Forbidden Optimization Behaviors",
+          "type": "array"
+        },
+        "gaming_detected": {
+          "title": "Gaming Detected",
+          "type": "boolean"
+        },
+        "penalty_total": {
+          "minimum": 0.0,
+          "title": "Penalty Total",
+          "type": "number"
+        },
+        "primary_metric": {
+          "minLength": 1,
+          "title": "Primary Metric",
+          "type": "string"
+        },
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "secondary_metrics": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Secondary Metrics",
+          "type": "array"
+        },
+        "tradeoff_report_required": {
+          "title": "Tradeoff Report Required",
+          "type": "boolean"
+        },
+        "triggered_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Triggered Behaviors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "profile_id",
+        "primary_metric",
+        "secondary_metrics",
+        "anti_gaming_metrics",
+        "forbidden_optimization_behaviors",
+        "tradeoff_report_required",
+        "checks",
+        "triggered_behaviors",
+        "flagged_behaviors",
+        "gaming_detected",
+        "penalty_total"
+      ],
+      "title": "AntiGamingReport",
+      "type": "object"
+    },
+    "AntiGamingSummary": {
+      "additionalProperties": false,
+      "description": "Whether the score was earned by a behaviour the profile forbids.",
+      "properties": {
+        "flagged_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flagged Behaviors",
+          "type": "array"
+        },
+        "gaming_detected": {
+          "title": "Gaming Detected",
+          "type": "boolean"
+        },
+        "penalty_total": {
+          "minimum": 0.0,
+          "title": "Penalty Total",
+          "type": "number"
+        }
+      },
+      "required": [
+        "gaming_detected",
+        "flagged_behaviors",
+        "penalty_total"
+      ],
+      "title": "AntiGamingSummary",
+      "type": "object"
+    },
+    "CausalLinks": {
+      "additionalProperties": false,
+      "description": "Which recorded events led to this one, and which followed it.",
+      "properties": {
+        "caused_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused By",
+          "type": "array"
+        },
+        "caused_events": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Caused Events",
+          "type": "array"
+        }
+      },
+      "title": "CausalLinks",
+      "type": "object"
+    },
+    "Comparison": {
+      "additionalProperties": false,
+      "description": "Which other runs this one beat or lost to. Empty for a single run.",
+      "properties": {
+        "better_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Better Than",
+          "type": "array"
+        },
+        "worse_than": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Worse Than",
+          "type": "array"
+        }
+      },
+      "title": "Comparison",
+      "type": "object"
+    },
+    "EntityRecord": {
+      "additionalProperties": false,
+      "description": "Entity = something that exists inside the world.\n\nImportant:\nposition is an [x, y] cell on a grid space, or a node id on a graph or\nnetwork space.\n\nstate holds what changes (hp, ap, status); capabilities holds what the\nentity can do (attack_damage, attack_range, accuracy). The contract keeps\nthem as open mappings because their keys belong to the domain, not to core.",
+      "properties": {
+        "capabilities": {
+          "additionalProperties": true,
+          "title": "Capabilities",
+          "type": "object"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "faction": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Faction"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Position"
+        },
+        "state": {
+          "additionalProperties": true,
+          "title": "State",
+          "type": "object"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        }
+      },
+      "required": [
+        "entity_id",
+        "name",
+        "entity_type",
+        "faction",
+        "position"
+      ],
+      "title": "EntityRecord",
+      "type": "object"
+    },
+    "EvaluationRelevance": {
+      "additionalProperties": false,
+      "description": "Whether this event matters to the scenario verdict.",
+      "properties": {
+        "affects_cost": {
+          "default": false,
+          "title": "Affects Cost",
+          "type": "boolean"
+        },
+        "affects_risk": {
+          "default": false,
+          "title": "Affects Risk",
+          "type": "boolean"
+        },
+        "affects_success": {
+          "default": false,
+          "title": "Affects Success",
+          "type": "boolean"
+        }
+      },
+      "title": "EvaluationRelevance",
+      "type": "object"
+    },
+    "EvaluationResult": {
+      "additionalProperties": false,
+      "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe first eight fields are the run-end summary the engine records in\nSCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR\n004 promised, and adds what the verdict was reached under (profile_id,\nperspective), the overall score, and the anti-gaming summary that shows\nwhether a high score was earned by gaming.\n\nscores holds every axis that had data, each in [0, 1], higher better.",
+      "properties": {
+        "active_entities": {
+          "minimum": 0,
+          "title": "Active Entities",
+          "type": "integer"
+        },
+        "active_factions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Active Factions",
+          "type": "array"
+        },
+        "anti_gaming": {
+          "$ref": "#/$defs/AntiGamingSummary"
+        },
+        "comparison": {
+          "$ref": "#/$defs/Comparison"
+        },
+        "destroyed_entities": {
+          "minimum": 0,
+          "title": "Destroyed Entities",
+          "type": "integer"
+        },
+        "event_count": {
+          "minimum": 0,
+          "title": "Event Count",
+          "type": "integer"
+        },
+        "failure_causes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Causes",
+          "type": "array"
+        },
+        "failure_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Points",
+          "type": "array"
+        },
+        "key_findings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Key Findings",
+          "type": "array"
+        },
+        "overall_judgement": {
+          "$ref": "#/$defs/OverallJudgement"
+        },
+        "overall_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Overall Score",
+          "type": "number"
+        },
+        "perspective": {
+          "minLength": 1,
+          "title": "Perspective",
+          "type": "string"
+        },
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "recommended_next_tests": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Recommended Next Tests",
+          "type": "array"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scores": {
+          "additionalProperties": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Scores",
+          "type": "object"
+        },
+        "termination_reason": {
+          "minLength": 1,
+          "title": "Termination Reason",
+          "type": "string"
+        },
+        "winner_or_result": {
+          "minLength": 1,
+          "title": "Winner Or Result",
+          "type": "string"
+        }
+      },
+      "required": [
+        "termination_reason",
+        "event_count",
+        "active_entities",
+        "destroyed_entities",
+        "active_factions",
+        "winner_or_result",
+        "key_findings",
+        "failure_points",
+        "scenario_id",
+        "profile_id",
+        "perspective",
+        "overall_judgement",
+        "overall_score",
+        "scores",
+        "failure_causes",
+        "recommended_next_tests",
+        "comparison",
+        "anti_gaming"
+      ],
+      "title": "EvaluationResult",
+      "type": "object"
+    },
+    "EventAffected": {
+      "additionalProperties": false,
+      "description": "What the event touched.",
+      "properties": {
+        "entities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
+        "locations": {
+          "items": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              {
+                "minLength": 1,
+                "type": "string"
+              }
+            ]
+          },
+          "title": "Locations",
+          "type": "array"
+        },
+        "resources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Resources",
+          "type": "array"
+        },
+        "risks": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Risks",
+          "type": "array"
+        }
+      },
+      "title": "EventAffected",
+      "type": "object"
+    },
+    "EventRecord": {
+      "additionalProperties": false,
+      "description": "Event = something that actually happened inside the world.\n\nImportant:\nThis is the nested shape of Formal Spec section 7.2. target_entity_id and\ndata are additions recorded in ADR 002 and kept by ADR 003.\n\nbefore_state and after_state have no default. An event without them cannot\nbe replayed, so leaving either out is a contract violation.",
+      "properties": {
+        "affected": {
+          "$ref": "#/$defs/EventAffected"
+        },
+        "after_state": {
+          "additionalProperties": true,
+          "title": "After State",
+          "type": "object"
+        },
+        "before_state": {
+          "additionalProperties": true,
+          "title": "Before State",
+          "type": "object"
+        },
+        "causal_links": {
+          "$ref": "#/$defs/CausalLinks"
+        },
+        "data": {
+          "additionalProperties": true,
+          "title": "Data",
+          "type": "object"
+        },
+        "evaluation_relevance": {
+          "$ref": "#/$defs/EvaluationRelevance"
+        },
+        "event_id": {
+          "minLength": 1,
+          "title": "Event Id",
+          "type": "string"
+        },
+        "event_type": {
+          "title": "Event Type",
+          "type": "string"
+        },
+        "source": {
+          "$ref": "#/$defs/EventSource"
+        },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
+        "target_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Target Entity Id"
+        },
+        "time": {
+          "minimum": 0,
+          "title": "Time",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "event_id",
+        "time",
+        "event_type",
+        "source",
+        "target_entity_id",
+        "affected",
+        "before_state",
+        "after_state",
+        "causal_links",
+        "evaluation_relevance"
+      ],
+      "title": "EventRecord",
+      "type": "object"
+    },
+    "EventSource": {
+      "additionalProperties": false,
+      "description": "Who caused the event: the actor, the system that decided, the action.",
+      "properties": {
+        "action_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Action Id"
+        },
+        "actor_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Actor Id"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "actor_id",
+        "system_id",
+        "action_id"
+      ],
+      "title": "EventSource",
+      "type": "object"
+    },
+    "GovernanceRecord": {
+      "additionalProperties": false,
+      "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
+      "properties": {
+        "duration_clamped_from": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Clamped From"
+        },
+        "estimated_cost": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Limits"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "policy_id": {
+          "minLength": 1,
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "run_priority": {
+          "default": "normal",
+          "enum": [
+            "low",
+            "normal",
+            "high",
+            "critical"
+          ],
+          "title": "Run Priority",
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "budget_exceeded",
+                "infinite_loop_detected",
+                "no_new_state_change",
+                "failure_threshold_reached",
+                "max_runtime_exceeded",
+                "resource_cap_reached",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stop Reason"
+        },
+        "stopped": {
+          "title": "Stopped",
+          "type": "boolean"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        }
+      },
+      "required": [
+        "policy_id",
+        "limits",
+        "usage",
+        "stopped",
+        "stop_reason",
+        "partial"
+      ],
+      "title": "GovernanceRecord",
+      "type": "object"
+    },
+    "OverallJudgement": {
+      "additionalProperties": false,
+      "description": "The single-line verdict of Formal Spec section 8.3.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "risky",
+            "needs_more_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "confidence"
+      ],
+      "title": "OverallJudgement",
+      "type": "object"
+    },
+    "RankedAxis": {
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "minLength": 1,
+          "title": "Metric",
+          "type": "string"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric",
+        "score"
+      ],
+      "title": "RankedAxis",
+      "type": "object"
+    },
+    "ReproducibilityMetadata": {
+      "additionalProperties": false,
+      "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nEvery result package carries this from Phase 8 on. input_hash covers the\nscenario and the evaluation profile; output_hash covers the whole result\npackage except this block, which records when the run happened and so can\nnever repeat. Two runs with the same output_hash produced the same result.\n\nrandom_seed is null for a stochastic run, which cannot be replayed.",
+      "properties": {
+        "deterministic_replay_available": {
+          "title": "Deterministic Replay Available",
+          "type": "boolean"
+        },
+        "input_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Input Hash",
+          "type": "string"
+        },
+        "output_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Output Hash",
+          "type": "string"
+        },
+        "random_seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Random Seed"
+        },
+        "random_seed_policy": {
+          "enum": [
+            "fixed",
+            "controlled_random",
+            "stochastic"
+          ],
+          "title": "Random Seed Policy",
+          "type": "string"
+        },
+        "ruleset_version": {
+          "minLength": 1,
+          "title": "Ruleset Version",
+          "type": "string"
+        },
+        "run_id": {
+          "minLength": 1,
+          "title": "Run Id",
+          "type": "string"
+        },
+        "run_metadata": {
+          "$ref": "#/$defs/RunMetadata"
+        },
+        "runtime_version": {
+          "minLength": 1,
+          "title": "Runtime Version",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "run_id",
+        "scenario_id",
+        "scenario_version",
+        "random_seed_policy",
+        "random_seed",
+        "runtime_version",
+        "ruleset_version",
+        "input_hash",
+        "output_hash",
+        "deterministic_replay_available",
+        "run_metadata"
+      ],
+      "title": "ReproducibilityMetadata",
+      "type": "object"
+    },
+    "RunMetadata": {
+      "additionalProperties": false,
+      "description": "When and where a run happened, and what it used (Phase 11: every run\ncarries its resource_compute_governance record).",
+      "properties": {
+        "compute_profile": {
+          "default": "",
+          "title": "Compute Profile",
+          "type": "string"
+        },
+        "ended_at": {
+          "minLength": 1,
+          "title": "Ended At",
+          "type": "string"
+        },
+        "operator_system": {
+          "default": "",
+          "title": "Operator System",
+          "type": "string"
+        },
+        "resource_compute_governance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GovernanceRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "started_at": {
+          "minLength": 1,
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "started_at",
+        "ended_at"
+      ],
+      "title": "RunMetadata",
+      "type": "object"
+    },
+    "ScoreEntry": {
+      "additionalProperties": false,
+      "description": "One evaluation axis: its score, the raw number behind it, and why.",
+      "properties": {
+        "applicable": {
+          "title": "Applicable",
+          "type": "boolean"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "raw": {
+          "title": "Raw",
+          "type": "number"
+        },
+        "score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Score",
+          "type": "number"
+        },
+        "unit": {
+          "title": "Unit",
+          "type": "string"
+        },
+        "weight": {
+          "minimum": 0.0,
+          "title": "Weight",
+          "type": "number"
+        }
+      },
+      "required": [
+        "score",
+        "raw",
+        "unit",
+        "weight",
+        "applicable",
+        "description",
+        "explanation"
+      ],
+      "title": "ScoreEntry",
+      "type": "object"
+    },
+    "TradeoffAntiGaming": {
+      "additionalProperties": false,
+      "properties": {
+        "flagged_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Flagged Behaviors",
+          "type": "array"
+        },
+        "gaming_detected": {
+          "title": "Gaming Detected",
+          "type": "boolean"
+        },
+        "triggered_behaviors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Triggered Behaviors",
+          "type": "array"
+        }
+      },
+      "required": [
+        "gaming_detected",
+        "flagged_behaviors",
+        "triggered_behaviors"
+      ],
+      "title": "TradeoffAntiGaming",
+      "type": "object"
+    },
+    "TradeoffItem": {
+      "additionalProperties": false,
+      "description": "Two axes that pull against each other, and how this run balanced them.",
+      "properties": {
+        "assessment": {
+          "minLength": 1,
+          "title": "Assessment",
+          "type": "string"
+        },
+        "cost": {
+          "minLength": 1,
+          "title": "Cost",
+          "type": "string"
+        },
+        "cost_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Cost Score",
+          "type": "number"
+        },
+        "gain": {
+          "minLength": 1,
+          "title": "Gain",
+          "type": "string"
+        },
+        "gain_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Gain Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "gain",
+        "gain_score",
+        "cost",
+        "cost_score",
+        "assessment"
+      ],
+      "title": "TradeoffItem",
+      "type": "object"
+    },
+    "TradeoffJudgement": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "overall_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Overall Score",
+          "type": "number"
+        },
+        "status": {
+          "enum": [
+            "pass",
+            "fail",
+            "risky",
+            "needs_more_test"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "confidence",
+        "overall_score"
+      ],
+      "title": "TradeoffJudgement",
+      "type": "object"
+    },
+    "TradeoffReport": {
+      "additionalProperties": false,
+      "description": "What the plan gained and what it paid for it (development plan Phase 7).",
+      "properties": {
+        "anti_gaming": {
+          "$ref": "#/$defs/TradeoffAntiGaming"
+        },
+        "judgement": {
+          "$ref": "#/$defs/TradeoffJudgement"
+        },
+        "perspective": {
+          "minLength": 1,
+          "title": "Perspective",
+          "type": "string"
+        },
+        "profile_id": {
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "strongest": {
+          "items": {
+            "$ref": "#/$defs/RankedAxis"
+          },
+          "title": "Strongest",
+          "type": "array"
+        },
+        "tradeoffs": {
+          "items": {
+            "$ref": "#/$defs/TradeoffItem"
+          },
+          "title": "Tradeoffs",
+          "type": "array"
+        },
+        "weakest": {
+          "items": {
+            "$ref": "#/$defs/RankedAxis"
+          },
+          "title": "Weakest",
+          "type": "array"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "profile_id",
+        "perspective",
+        "required",
+        "judgement",
+        "tradeoffs",
+        "strongest",
+        "weakest",
+        "anti_gaming"
+      ],
+      "title": "TradeoffReport",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "description": "What was used. A batch or an exploration counts runs and events; ticks\nand decisions are counted for single runs only (null otherwise).",
+      "properties": {
+        "decisions": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Decisions"
+        },
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "runs": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Runs",
+          "type": "integer"
+        },
+        "runtime_seconds": {
+          "minimum": 0.0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "ticks": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ticks"
+        }
+      },
+      "required": [
+        "ticks",
+        "decisions",
+        "events",
+        "runtime_seconds"
+      ],
+      "title": "Usage",
+      "type": "object"
+    },
+    "WorldSnapshot": {
+      "additionalProperties": false,
+      "description": "The whole world at one moment, as WorldState.snapshot() writes it.\n\nImportant:\nresources is part of the snapshot so event sourcing can check a rebuilt\nworld against a recorded one, stock for stock.",
+      "properties": {
+        "assumptions": {
+          "additionalProperties": true,
+          "title": "Assumptions",
+          "type": "object"
+        },
+        "entities": {
+          "additionalProperties": {
+            "$ref": "#/$defs/EntityRecord"
+          },
+          "title": "Entities",
+          "type": "object"
+        },
+        "resources": {
+          "additionalProperties": {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Resources",
+          "type": "object"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "space": {
+          "additionalProperties": true,
+          "title": "Space",
+          "type": "object"
+        },
+        "tick": {
+          "minimum": 0,
+          "title": "Tick",
+          "type": "integer"
+        },
+        "world_id": {
+          "minLength": 1,
+          "title": "World Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "world_id",
+        "scenario_id",
+        "tick",
+        "space",
+        "entities",
+        "resources"
+      ],
+      "title": "WorldSnapshot",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/result_package.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility is required from schema 0.5 (Phase 8): a result that\ncannot say where it came from cannot be audited.\n\nSchema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report\nand tradeoff_report. The development plan requires the trade-off report\nin every result package, so all three are mandatory.",
+  "properties": {
+    "anti_gaming_report": {
+      "$ref": "#/$defs/AntiGamingReport"
+    },
+    "evaluation_result": {
+      "$ref": "#/$defs/EvaluationResult"
+    },
+    "event_memory": {
+      "items": {
+        "$ref": "#/$defs/EventRecord"
+      },
+      "title": "Event Memory",
+      "type": "array"
+    },
+    "final_world_state": {
+      "$ref": "#/$defs/WorldSnapshot"
+    },
+    "initial_world_state": {
+      "$ref": "#/$defs/WorldSnapshot"
+    },
+    "reproducibility": {
+      "$ref": "#/$defs/ReproducibilityMetadata"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_version": {
+      "minLength": 1,
+      "title": "Scenario Version",
+      "type": "string"
+    },
+    "score_breakdown": {
+      "additionalProperties": {
+        "$ref": "#/$defs/ScoreEntry"
+      },
+      "title": "Score Breakdown",
+      "type": "object"
+    },
+    "tradeoff_report": {
+      "$ref": "#/$defs/TradeoffReport"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "scenario_version",
+    "initial_world_state",
+    "final_world_state",
+    "event_memory",
+    "evaluation_result",
+    "score_breakdown",
+    "anti_gaming_report",
+    "tradeoff_report",
+    "reproducibility"
+  ],
+  "title": "ResultPackage",
+  "type": "object"
+}

@@ -1,0 +1,15 @@
+{
+  "description": "Reference scenario with two participants: RED decided by the rule-based actor from its TAC ANGEL observation, BLUE by the tactical reference policy. Phase 6 acceptance: another actor policy, no core change.",
+  "participants": [
+    {
+      "participant_id": "red_rules",
+      "policy": {"name": "rule_based", "params": {"rules": ["attack_in_range", "close_on_known"]}},
+      "controls": {"factions": ["RED"]}
+    },
+    {
+      "participant_id": "blue_reference",
+      "policy": {"name": "tactical_reference"},
+      "controls": {"factions": ["BLUE"]}
+    }
+  ]
+}

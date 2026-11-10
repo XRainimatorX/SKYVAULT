@@ -1,0 +1,132 @@
+{
+  "baseline": {
+    "action_set": [],
+    "branch_id": "none",
+    "evaluation_delta": {
+      "failure_frequency": 0.0,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.0,
+      "win_rate": 0.0
+    },
+    "metrics": {
+      "failure_frequency": 0.4,
+      "mean_hp_lost": 65.2,
+      "mean_risk_events": 2.0,
+      "mean_score": 0.3704,
+      "win_rate": 0.4
+    },
+    "result_summary": "5 runs: win 40% (95% CI 12%\u201377%), loss 40%, draw 20%; fail verdict 40%; mean hp lost 65.2, risk events 2, score 0.370"
+  },
+  "branch_runs": [
+    {
+      "action_set": [
+        "TAC_ANGEL:1"
+      ],
+      "branch_id": "TAC_ANGEL:1",
+      "evaluation_delta": {
+        "failure_frequency": -0.2,
+        "mean_hp_lost": 4.6,
+        "mean_risk_events": 0.0,
+        "mean_score": 0.0349,
+        "win_rate": -0.4
+      },
+      "metrics": {
+        "failure_frequency": 0.2,
+        "mean_hp_lost": 69.8,
+        "mean_risk_events": 2.0,
+        "mean_score": 0.4053,
+        "win_rate": 0.0
+      },
+      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 69.8, risk events 2, score 0.405"
+    },
+    {
+      "action_set": [
+        "STARTX:2",
+        "HADES:3"
+      ],
+      "branch_id": "STARTX:2+HADES:3",
+      "evaluation_delta": {
+        "failure_frequency": -0.2,
+        "mean_hp_lost": 9.8,
+        "mean_risk_events": 0.0,
+        "mean_score": -0.0176,
+        "win_rate": -0.4
+      },
+      "metrics": {
+        "failure_frequency": 0.2,
+        "mean_hp_lost": 75.0,
+        "mean_risk_events": 2.0,
+        "mean_score": 0.3528,
+        "win_rate": 0.0
+      },
+      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 75, risk events 2, score 0.353"
+    }
+  ],
+  "conflict_id": "conflict:tactical_reference_001:v0.1:TAC_ANGEL:1+STARTX:2+HADES:3",
+  "conflict_type": [
+    "objective_conflict",
+    "location_conflict",
+    "priority_conflict"
+  ],
+  "conflicting_actions": [
+    {
+      "action_id": "TAC_ANGEL:1",
+      "actor_id": "red_001",
+      "conflict_with": [
+        "STARTX:2",
+        "HADES:3"
+      ],
+      "intent": "advance",
+      "system_id": "TAC_ANGEL"
+    },
+    {
+      "action_id": "STARTX:2",
+      "actor_id": "red_001",
+      "conflict_with": [
+        "TAC_ANGEL:1"
+      ],
+      "intent": "hold_line",
+      "system_id": "STARTX"
+    },
+    {
+      "action_id": "HADES:3",
+      "actor_id": "red_002",
+      "conflict_with": [
+        "TAC_ANGEL:1"
+      ],
+      "intent": "cover",
+      "system_id": "HADES"
+    }
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "C1",
+      "conflict_types": [
+        "objective_conflict"
+      ],
+      "proposals": [
+        "TAC_ANGEL:1",
+        "STARTX:2"
+      ],
+      "reason": "TAC_ANGEL:1 vs STARTX:2 at tick 1: both order red_001"
+    },
+    {
+      "conflict_id": "C2",
+      "conflict_types": [
+        "location_conflict",
+        "priority_conflict"
+      ],
+      "proposals": [
+        "TAC_ANGEL:1",
+        "HADES:3"
+      ],
+      "reason": "TAC_ANGEL:1 vs HADES:3 at tick 1: both send a unit to [1, 1]; both normal priority"
+    }
+  ],
+  "recommendation_to_nexus": {
+    "decision_reason": "Conflicting orders: TAC_ANGEL:1 vs STARTX:2 (objective); TAC_ANGEL:1 vs HADES:3 (location, priority). Highest win_rate: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0). Lowest failure_frequency: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0.2). Lowest mean_hp_lost: branch TAC_ANGEL:1 (69.8). Lowest mean_risk_events: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (2). Highest mean_score: branch TAC_ANGEL:1 (0.4053). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep.",
+    "required_decision": true
+  },
+  "scenario_id": "tactical_reference_001"
+}

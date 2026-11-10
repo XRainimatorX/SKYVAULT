@@ -9,15 +9,23 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.causal_chain import build_causal_chain
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 
 def run_reference_scenario() -> dict:
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     return engine.run()
 
@@ -45,9 +53,9 @@ def test_every_source_action_id_is_grouped():
     )
 
     expected = {
-        event["source_action_id"]
+        event["source"]["action_id"]
         for event in result_package["event_memory"]
-        if event["source_action_id"] is not None
+        if event["source"]["action_id"] is not None
         and event["event_type"] != "SCENARIO_END"
     }
 

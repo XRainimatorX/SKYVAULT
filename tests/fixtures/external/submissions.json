@@ -1,0 +1,212 @@
+{
+  "description": "What outside systems submit to SKYVAULT in the Phase 12 tests (Formal Spec section 9). Run once on the Phase 11 system: the TAC ANGEL orders ran as scheduled actions (three moves accepted); the conflicting orders were refused by the scenario contract ('red_001 has two scheduled actions at tick 1') instead of becoming a conflict package; as batch proposals the same orders produced conflict package branches P1 and P2+P3 (objective, location and priority conflicts) with required_decision true.",
+  "nexus_task": {
+    "system": "NEXUS",
+    "task_type": "scenario_run",
+    "scenario": "tactical_reference_001/v0.1",
+    "report_format": "markdown"
+  },
+  "tac_angel_plan": {
+    "system": "TAC_ANGEL",
+    "scenario": "tactical_reference_001/v0.1",
+    "actions": [
+      {
+        "tick": 1,
+        "actor_id": "red_001",
+        "action_type": "move",
+        "target": {
+          "location": [
+            1,
+            1
+          ]
+        },
+        "intent": "tac_angel_probe"
+      },
+      {
+        "tick": 2,
+        "actor_id": "red_001",
+        "action_type": "move",
+        "target": {
+          "location": [
+            2,
+            2
+          ]
+        },
+        "intent": "tac_angel_probe"
+      },
+      {
+        "tick": 3,
+        "actor_id": "red_001",
+        "action_type": "move",
+        "target": {
+          "location": [
+            3,
+            3
+          ]
+        },
+        "intent": "tac_angel_probe"
+      }
+    ]
+  },
+  "conflicting_actions": [
+    {
+      "system": "TAC_ANGEL",
+      "tick": 1,
+      "actor_id": "red_001",
+      "action_type": "move",
+      "target": {
+        "location": [
+          1,
+          1
+        ]
+      },
+      "intent": "advance"
+    },
+    {
+      "system": "STARTX",
+      "tick": 1,
+      "actor_id": "red_001",
+      "action_type": "move",
+      "target": {
+        "location": [
+          0,
+          1
+        ]
+      },
+      "intent": "hold_line",
+      "priority": "high"
+    },
+    {
+      "system": "HADES",
+      "tick": 1,
+      "actor_id": "red_002",
+      "action_type": "move",
+      "target": {
+        "location": [
+          1,
+          1
+        ]
+      },
+      "intent": "cover"
+    }
+  ],
+  "startx_branches": {
+    "system": "STARTX",
+    "scenario": "tactical_reference_001/v0.1",
+    "branches": [
+      {
+        "branch_id": "press",
+        "actions": [
+          {
+            "tick": 1,
+            "actor_id": "red_002",
+            "action_type": "move",
+            "target": {
+              "location": [
+                2,
+                1
+              ]
+            },
+            "intent": "press"
+          }
+        ]
+      },
+      {
+        "branch_id": "hold",
+        "actions": [
+          {
+            "tick": 1,
+            "actor_id": "red_002",
+            "action_type": "move",
+            "target": {
+              "location": [
+                0,
+                1
+              ]
+            },
+            "intent": "hold"
+          }
+        ]
+      }
+    ],
+    "repeat_count": 5
+  },
+  "eiden_intel": {
+    "system": "EIDEN_01",
+    "scenario": "tactical_reference_001/v0.1",
+    "source_id": "eiden_report_017",
+    "confidence": 0.7,
+    "parameters": [
+      {
+        "entity_id": "blue_002",
+        "capability": "accuracy",
+        "value": 0.75
+      },
+      {
+        "entity_id": "blue_009",
+        "capability": "accuracy",
+        "value": 0.9
+      },
+      {
+        "world": "weather",
+        "value": "storm"
+      }
+    ]
+  },
+  "cyberhound_environment": {
+    "system": "CYBERHOUND",
+    "scenario": "tactical_reference_001/v0.1",
+    "parameters": {
+      "public_order_pressure": 0.4,
+      "propagation_model": "rumour"
+    }
+  },
+  "starguard_equipment": {
+    "system": "STAR_GUARD",
+    "scenario": "military_squad_001/v0.1",
+    "replace": "red_02",
+    "profile": {
+      "name": "EXO-1",
+      "capabilities": {
+        "move_range": 3,
+        "attack_range": 3,
+        "attack_damage": 14,
+        "accuracy": 0.7,
+        "sensor_range": 7
+      },
+      "state": {
+        "hp": 50
+      }
+    }
+  },
+  "skyfox_mission": {
+    "system": "SKYFOX",
+    "scenario": "military_squad_001/v0.1",
+    "drone": "red_01",
+    "route": [
+      [
+        3,
+        3
+      ],
+      [
+        5,
+        1
+      ]
+    ],
+    "repeat_count": 3
+  },
+  "hades_defence": {
+    "system": "HADES",
+    "scenario": "military_squad_001/v0.1",
+    "units": [
+      "red_04"
+    ],
+    "repeat_count": 3
+  },
+  "aerogrid_airspace": {
+    "system": "AEROGRID",
+    "scenario": "military_squad_001/v0.1",
+    "faction": "RED",
+    "coverage_threshold": 0.8
+  }
+}

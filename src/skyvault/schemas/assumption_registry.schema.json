@@ -1,0 +1,110 @@
+{
+  "$defs": {
+    "Assumption": {
+      "additionalProperties": false,
+      "description": "One assumption, with how much it is trusted and how much rides on it.",
+      "properties": {
+        "assumption_id": {
+          "minLength": 1,
+          "title": "Assumption Id",
+          "type": "string"
+        },
+        "category": {
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "criticality": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Criticality",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value"
+        }
+      },
+      "required": [
+        "assumption_id",
+        "description",
+        "category",
+        "value",
+        "confidence",
+        "criticality"
+      ],
+      "title": "Assumption",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/assumption_registry.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Assumption Registry = Formal Spec section 11.2.\n\nImportant:\nThis is the structured registry a scenario carries at its top level. It is\nnot world_contract.assumption_registry, which stays the flat name-to-value\nmapping of Formal Spec section 2.3 that the engine reads its actor_policy\nfrom. See ADR 004.\n\nassumption_confidence comes from the scenario grammar of section 3.3.",
+  "properties": {
+    "assumption_confidence": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Assumption Confidence"
+    },
+    "assumption_risks": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Assumption Risks",
+      "type": "array"
+    },
+    "assumptions": {
+      "items": {
+        "$ref": "#/$defs/Assumption"
+      },
+      "title": "Assumptions",
+      "type": "array"
+    },
+    "critical_assumptions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Critical Assumptions",
+      "type": "array"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    }
+  },
+  "title": "AssumptionRegistry",
+  "type": "object"
+}

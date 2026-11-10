@@ -1,0 +1,391 @@
+{
+  "$defs": {
+    "DecisionContext": {
+      "additionalProperties": false,
+      "properties": {
+        "available_actions": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Available Actions",
+          "type": "array"
+        },
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Constraints",
+          "type": "array"
+        },
+        "mission_goal": {
+          "title": "Mission Goal"
+        }
+      },
+      "required": [
+        "mission_goal",
+        "constraints",
+        "available_actions"
+      ],
+      "title": "DecisionContext",
+      "type": "object"
+    },
+    "HiddenState": {
+      "additionalProperties": false,
+      "description": "Only that something is out of sight, and why: never what or how much.",
+      "properties": {
+        "exists": {
+          "title": "Exists",
+          "type": "boolean"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "exists",
+        "reason"
+      ],
+      "title": "HiddenState",
+      "type": "object"
+    },
+    "KnownEntity": {
+      "additionalProperties": false,
+      "description": "One unit as the observer knows it.\n\nImportant:\nOwn units (self, ally) are exact and carry their state and capabilities\n(state since Phase 6: energy, ammunition, morale...). An enemy\nis visible, destroyed (a wreck in sight) or stale (lost from sight: where\nand how it was at last_seen, age ticks ago); hp or hp_band follow the\nprofile's enemy_detail, and its state and capabilities are never given.",
+      "properties": {
+        "age": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Age"
+        },
+        "capabilities": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Capabilities"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "faction": {
+          "minLength": 1,
+          "title": "Faction",
+          "type": "string"
+        },
+        "hp": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Hp"
+        },
+        "hp_band": {
+          "anyOf": [
+            {
+              "enum": [
+                "intact",
+                "damaged",
+                "critical"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Hp Band"
+        },
+        "last_seen": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Seen"
+        },
+        "position": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "maxItems": 2,
+              "minItems": 2,
+              "type": "array"
+            },
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Position"
+        },
+        "relation": {
+          "enum": [
+            "self",
+            "ally",
+            "enemy"
+          ],
+          "title": "Relation",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
+        },
+        "status": {
+          "enum": [
+            "active",
+            "destroyed",
+            "visible",
+            "stale"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "faction",
+        "relation",
+        "status",
+        "position",
+        "hp",
+        "hp_band",
+        "confidence"
+      ],
+      "title": "KnownEntity",
+      "type": "object"
+    },
+    "Uncertainty": {
+      "additionalProperties": false,
+      "properties": {
+        "confidence_level": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence Level",
+          "type": "number"
+        },
+        "delay_ticks": {
+          "minimum": 0,
+          "title": "Delay Ticks",
+          "type": "integer"
+        },
+        "observed_at": {
+          "minimum": 0,
+          "title": "Observed At",
+          "type": "integer"
+        },
+        "source_quality": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Source Quality",
+          "type": "string"
+        },
+        "stale_after": {
+          "minimum": 0,
+          "title": "Stale After",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "confidence_level",
+        "stale_after",
+        "source_quality",
+        "delay_ticks",
+        "observed_at"
+      ],
+      "title": "Uncertainty",
+      "type": "object"
+    },
+    "Viewpoint": {
+      "additionalProperties": false,
+      "properties": {
+        "actor_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Actor Id"
+        },
+        "faction": {
+          "minLength": 1,
+          "title": "Faction",
+          "type": "string"
+        }
+      },
+      "required": [
+        "faction"
+      ],
+      "title": "Viewpoint",
+      "type": "object"
+    },
+    "VisibleWorldState": {
+      "additionalProperties": false,
+      "properties": {
+        "known_entities": {
+          "items": {
+            "$ref": "#/$defs/KnownEntity"
+          },
+          "title": "Known Entities",
+          "type": "array"
+        },
+        "known_risks": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Known Risks",
+          "type": "array"
+        },
+        "local_area": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Local Area"
+        },
+        "resources_visible": {
+          "additionalProperties": true,
+          "title": "Resources Visible",
+          "type": "object"
+        },
+        "summary": {
+          "additionalProperties": true,
+          "title": "Summary",
+          "type": "object"
+        }
+      },
+      "required": [
+        "local_area",
+        "known_entities",
+        "known_risks",
+        "resources_visible",
+        "summary"
+      ],
+      "title": "VisibleWorldState",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/observation.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "What one observer gets at one tick (Formal Spec section 5).",
+  "properties": {
+    "decision_context": {
+      "$ref": "#/$defs/DecisionContext"
+    },
+    "hidden_state": {
+      "$ref": "#/$defs/HiddenState"
+    },
+    "observer_id": {
+      "minLength": 1,
+      "title": "Observer Id",
+      "type": "string"
+    },
+    "time": {
+      "minimum": 0,
+      "title": "Time",
+      "type": "integer"
+    },
+    "uncertainty": {
+      "$ref": "#/$defs/Uncertainty"
+    },
+    "view": {
+      "enum": [
+        "local",
+        "aggregate",
+        "mission",
+        "threat",
+        "coverage"
+      ],
+      "title": "View",
+      "type": "string"
+    },
+    "viewpoint": {
+      "$ref": "#/$defs/Viewpoint"
+    },
+    "visible_world_state": {
+      "$ref": "#/$defs/VisibleWorldState"
+    }
+  },
+  "required": [
+    "observer_id",
+    "time",
+    "view",
+    "viewpoint",
+    "visible_world_state",
+    "hidden_state",
+    "uncertainty",
+    "decision_context"
+  ],
+  "title": "Observation",
+  "type": "object"
+}

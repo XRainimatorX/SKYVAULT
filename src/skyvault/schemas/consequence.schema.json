@@ -1,0 +1,255 @@
+{
+  "$defs": {
+    "ChainReactionRecord": {
+      "additionalProperties": false,
+      "description": "A further event one effect set off. event_id is null until applied.",
+      "properties": {
+        "cause": {
+          "minLength": 1,
+          "title": "Cause",
+          "type": "string"
+        },
+        "effect": {
+          "minLength": 1,
+          "title": "Effect",
+          "type": "string"
+        },
+        "event_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Event Id"
+        }
+      },
+      "required": [
+        "event_id",
+        "cause",
+        "effect"
+      ],
+      "title": "ChainReactionRecord",
+      "type": "object"
+    },
+    "DirectEffectsRecord": {
+      "additionalProperties": false,
+      "description": "Formal Spec section 6.3 direct effects.\n\nImportant:\nstate_changes is the world environment. No environment model exists yet,\nso the list is accepted here but applying a non-empty one raises.",
+      "properties": {
+        "entity_changes": {
+          "items": {
+            "$ref": "#/$defs/EntityChangeRecord"
+          },
+          "title": "Entity Changes",
+          "type": "array"
+        },
+        "resource_changes": {
+          "items": {
+            "$ref": "#/$defs/ResourceChangeRecord"
+          },
+          "title": "Resource Changes",
+          "type": "array"
+        },
+        "state_changes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "State Changes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "state_changes",
+        "resource_changes",
+        "entity_changes"
+      ],
+      "title": "DirectEffectsRecord",
+      "type": "object"
+    },
+    "EntityChangeRecord": {
+      "additionalProperties": false,
+      "description": "One entity change and the event that records it. changes may be empty.",
+      "properties": {
+        "changes": {
+          "additionalProperties": true,
+          "title": "Changes",
+          "type": "object"
+        },
+        "entity_id": {
+          "minLength": 1,
+          "title": "Entity Id",
+          "type": "string"
+        },
+        "event_type": {
+          "minLength": 1,
+          "title": "Event Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entity_id",
+        "event_type",
+        "changes"
+      ],
+      "title": "EntityChangeRecord",
+      "type": "object"
+    },
+    "EvaluationImpactRecord": {
+      "additionalProperties": false,
+      "description": "How the action moves the verdict. Scored from Phase 7.",
+      "properties": {
+        "cost_delta": {
+          "title": "Cost Delta",
+          "type": "number"
+        },
+        "risk_delta": {
+          "title": "Risk Delta",
+          "type": "number"
+        },
+        "stability_delta": {
+          "title": "Stability Delta",
+          "type": "number"
+        },
+        "strategic_value_delta": {
+          "title": "Strategic Value Delta",
+          "type": "number"
+        },
+        "tactical_value_delta": {
+          "title": "Tactical Value Delta",
+          "type": "number"
+        }
+      },
+      "required": [
+        "cost_delta",
+        "risk_delta",
+        "stability_delta",
+        "tactical_value_delta",
+        "strategic_value_delta"
+      ],
+      "title": "EvaluationImpactRecord",
+      "type": "object"
+    },
+    "ResourceChangeRecord": {
+      "additionalProperties": false,
+      "description": "One change to a world resource stock.",
+      "properties": {
+        "delta": {
+          "title": "Delta",
+          "type": "number"
+        },
+        "event_type": {
+          "minLength": 1,
+          "title": "Event Type",
+          "type": "string"
+        },
+        "resource_id": {
+          "minLength": 1,
+          "title": "Resource Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource_id",
+        "delta",
+        "event_type"
+      ],
+      "title": "ResourceChangeRecord",
+      "type": "object"
+    },
+    "SecondaryEffectsRecord": {
+      "additionalProperties": false,
+      "description": "Descriptive wider effects; nothing here changes the world yet.",
+      "properties": {
+        "logistical_changes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Logistical Changes",
+          "type": "array"
+        },
+        "public_order_changes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Public Order Changes",
+          "type": "array"
+        },
+        "risk_changes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Risk Changes",
+          "type": "array"
+        },
+        "stability_changes": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Stability Changes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "risk_changes",
+        "stability_changes",
+        "public_order_changes",
+        "logistical_changes"
+      ],
+      "title": "SecondaryEffectsRecord",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/consequence.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Consequence = what resolving one action will do to the world.\n\nImportant:\nSchema 0.3 adopts Formal Spec section 6.3: effects are grouped, and\nsecondary effects, chain reactions and the five evaluation deltas are\nrequired. A rejected consequence carries them all empty.",
+  "properties": {
+    "accepted": {
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "action_id": {
+      "minLength": 1,
+      "title": "Action Id",
+      "type": "string"
+    },
+    "chain_reactions": {
+      "items": {
+        "$ref": "#/$defs/ChainReactionRecord"
+      },
+      "title": "Chain Reactions",
+      "type": "array"
+    },
+    "direct_effects": {
+      "$ref": "#/$defs/DirectEffectsRecord"
+    },
+    "evaluation_impact": {
+      "$ref": "#/$defs/EvaluationImpactRecord"
+    },
+    "reason": {
+      "title": "Reason",
+      "type": "string"
+    },
+    "secondary_effects": {
+      "$ref": "#/$defs/SecondaryEffectsRecord"
+    }
+  },
+  "required": [
+    "action_id",
+    "accepted",
+    "reason",
+    "direct_effects",
+    "secondary_effects",
+    "chain_reactions",
+    "evaluation_impact"
+  ],
+  "title": "ConsequenceRecord",
+  "type": "object"
+}

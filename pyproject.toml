@@ -1,3 +1,65 @@
+# Declares what SKYVAULT needs to run. The package is not installable yet (no
+# build-system table): scripts and tests still put src/ on sys.path. Install
+# the dependencies with:
+#   python3 -m pip install pydantic pyyaml networkx pandas fastapi uvicorn \
+#       websockets python-docx reportlab pyarrow
+[project]
+name = "skyvault"
+version = "2.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    # Contracts and JSON Schema generation (Phase 1, ADR 004).
+    "pydantic>=2,<3",
+    # YAML scenario files (Phase 1, ADR 004).
+    "PyYAML>=6",
+    # Graph and network spaces (Phase 2).
+    "networkx>=3",
+    # Batch aggregation (Phase 10). pandas 3 needs Python 3.11; pip picks 2.x on 3.10.
+    "pandas>=2",
+    # UI backend and briefing export (Phase 17).
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    # uvicorn has no WebSocket support of its own; the replay needs it.
+    "websockets>=12",
+    "python-docx>=1",
+    "reportlab>=4",
+    # The v2 acceptance talks to the world service over HTTP in process (Phase 20).
+    "httpx>=0.27",
+    # The virtual test's constraint solver (Phase 16); numpy for its surrogate.
+    "scipy>=1.10",
+    "numpy>=1.24",
+    # Parquet export of training datasets (Phase 18).
+    "pyarrow>=14",
+    # Background world service (Phase 11): job queue and workers on Redis,
+    # jobs and results in PostgreSQL (SQLite is the default store).
+    "rq>=1.16",
+    "redis>=5",
+    "psycopg[binary]>=3.1",
+]
+
+[project.scripts]
+# The one command SKYVAULT is started and used with (Phase 21).
+skyvault = "skyvault.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+    "mypy",
+    "bandit",
+    "types-PyYAML",
+    "types-networkx",
+    "pandas-stubs",
+    "types-reportlab",
+    "pyarrow-stubs",
+    "scipy-stubs",
+    # FastAPI's TestClient and reading briefing PDFs in tests (Phase 17).
+    "httpx",
+    "pypdf",
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py310"]
@@ -14,7 +76,7 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 # imports cannot sit at the top of the file. The permanent fix is to make the
 # package installable and drop the sys.path block; until then E402 here is
 # expected rather than a defect.
-"tests/*.py" = ["E402"]
+"tests/**/*.py" = ["E402"]
 "scripts/*.py" = ["E402"]
 
 [tool.mypy]

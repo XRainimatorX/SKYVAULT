@@ -1,0 +1,218 @@
+{
+  "$defs": {
+    "BranchRun": {
+      "additionalProperties": false,
+      "properties": {
+        "action_set": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Action Set",
+          "type": "array"
+        },
+        "branch_id": {
+          "minLength": 1,
+          "title": "Branch Id",
+          "type": "string"
+        },
+        "evaluation_delta": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Evaluation Delta",
+          "type": "object"
+        },
+        "metrics": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Metrics",
+          "type": "object"
+        },
+        "result_summary": {
+          "minLength": 1,
+          "title": "Result Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "branch_id",
+        "action_set",
+        "result_summary",
+        "evaluation_delta",
+        "metrics"
+      ],
+      "title": "BranchRun",
+      "type": "object"
+    },
+    "Conflict": {
+      "additionalProperties": false,
+      "properties": {
+        "conflict_id": {
+          "minLength": 1,
+          "title": "Conflict Id",
+          "type": "string"
+        },
+        "conflict_types": {
+          "items": {
+            "enum": [
+              "resource_conflict",
+              "timing_conflict",
+              "objective_conflict",
+              "risk_conflict",
+              "location_conflict",
+              "priority_conflict"
+            ],
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Conflict Types",
+          "type": "array"
+        },
+        "proposals": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 2,
+          "title": "Proposals",
+          "type": "array"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "conflict_id",
+        "proposals",
+        "conflict_types",
+        "reason"
+      ],
+      "title": "Conflict",
+      "type": "object"
+    },
+    "ConflictingAction": {
+      "additionalProperties": false,
+      "properties": {
+        "action_id": {
+          "minLength": 1,
+          "title": "Action Id",
+          "type": "string"
+        },
+        "actor_id": {
+          "minLength": 1,
+          "title": "Actor Id",
+          "type": "string"
+        },
+        "conflict_with": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Conflict With",
+          "type": "array"
+        },
+        "intent": {
+          "title": "Intent",
+          "type": "string"
+        },
+        "system_id": {
+          "minLength": 1,
+          "title": "System Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "actor_id",
+        "action_id",
+        "system_id",
+        "intent",
+        "conflict_with"
+      ],
+      "title": "ConflictingAction",
+      "type": "object"
+    },
+    "Recommendation": {
+      "additionalProperties": false,
+      "properties": {
+        "decision_reason": {
+          "title": "Decision Reason",
+          "type": "string"
+        },
+        "required_decision": {
+          "title": "Required Decision",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "required_decision",
+        "decision_reason"
+      ],
+      "title": "Recommendation",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/conflict_package.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Formal Spec section 13 conflict package.\n\nImportant:\nSKYVAULT never picks a side. Every compatible set of proposals ran as its\nown branch; the package shows what each branch led to, relative to a\nbaseline with no proposals, and leaves the decision to NEXUS or the user.",
+  "properties": {
+    "baseline": {
+      "$ref": "#/$defs/BranchRun"
+    },
+    "branch_runs": {
+      "items": {
+        "$ref": "#/$defs/BranchRun"
+      },
+      "title": "Branch Runs",
+      "type": "array"
+    },
+    "conflict_id": {
+      "minLength": 1,
+      "title": "Conflict Id",
+      "type": "string"
+    },
+    "conflict_type": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Conflict Type",
+      "type": "array"
+    },
+    "conflicting_actions": {
+      "items": {
+        "$ref": "#/$defs/ConflictingAction"
+      },
+      "title": "Conflicting Actions",
+      "type": "array"
+    },
+    "conflicts": {
+      "items": {
+        "$ref": "#/$defs/Conflict"
+      },
+      "title": "Conflicts",
+      "type": "array"
+    },
+    "recommendation_to_nexus": {
+      "$ref": "#/$defs/Recommendation"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "conflict_id",
+    "scenario_id",
+    "conflicting_actions",
+    "conflict_type",
+    "conflicts",
+    "branch_runs",
+    "baseline",
+    "recommendation_to_nexus"
+  ],
+  "title": "ConflictPackage",
+  "type": "object"
+}

@@ -37,6 +37,9 @@ def build_evaluation_summary(
         winner_or_result = "draw_all_destroyed"
     elif len(active_factions) == 1:
         winner_or_result = f"{next(iter(active_factions))}_survived"
+    elif termination_reason.startswith("auto_stop:"):
+        # stopped by the world service's governance before the duration ran out
+        winner_or_result = "no_winner_stopped_early"
     else:
         winner_or_result = "no_winner_duration_limit"
 

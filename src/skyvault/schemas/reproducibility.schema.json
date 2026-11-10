@@ -1,0 +1,284 @@
+{
+  "$defs": {
+    "GovernanceRecord": {
+      "additionalProperties": false,
+      "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
+      "properties": {
+        "duration_clamped_from": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Clamped From"
+        },
+        "estimated_cost": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Cost"
+        },
+        "limits": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Limits"
+        },
+        "partial": {
+          "title": "Partial",
+          "type": "boolean"
+        },
+        "policy_id": {
+          "minLength": 1,
+          "title": "Policy Id",
+          "type": "string"
+        },
+        "run_priority": {
+          "default": "normal",
+          "enum": [
+            "low",
+            "normal",
+            "high",
+            "critical"
+          ],
+          "title": "Run Priority",
+          "type": "string"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "budget_exceeded",
+                "infinite_loop_detected",
+                "no_new_state_change",
+                "failure_threshold_reached",
+                "max_runtime_exceeded",
+                "resource_cap_reached",
+                "cancelled"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Stop Reason"
+        },
+        "stopped": {
+          "title": "Stopped",
+          "type": "boolean"
+        },
+        "usage": {
+          "$ref": "#/$defs/Usage"
+        }
+      },
+      "required": [
+        "policy_id",
+        "limits",
+        "usage",
+        "stopped",
+        "stop_reason",
+        "partial"
+      ],
+      "title": "GovernanceRecord",
+      "type": "object"
+    },
+    "RunMetadata": {
+      "additionalProperties": false,
+      "description": "When and where a run happened, and what it used (Phase 11: every run\ncarries its resource_compute_governance record).",
+      "properties": {
+        "compute_profile": {
+          "default": "",
+          "title": "Compute Profile",
+          "type": "string"
+        },
+        "ended_at": {
+          "minLength": 1,
+          "title": "Ended At",
+          "type": "string"
+        },
+        "operator_system": {
+          "default": "",
+          "title": "Operator System",
+          "type": "string"
+        },
+        "resource_compute_governance": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/GovernanceRecord"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "started_at": {
+          "minLength": 1,
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "started_at",
+        "ended_at"
+      ],
+      "title": "RunMetadata",
+      "type": "object"
+    },
+    "Usage": {
+      "additionalProperties": false,
+      "description": "What was used. A batch or an exploration counts runs and events; ticks\nand decisions are counted for single runs only (null otherwise).",
+      "properties": {
+        "decisions": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Decisions"
+        },
+        "events": {
+          "minimum": 0,
+          "title": "Events",
+          "type": "integer"
+        },
+        "runs": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Runs",
+          "type": "integer"
+        },
+        "runtime_seconds": {
+          "minimum": 0.0,
+          "title": "Runtime Seconds",
+          "type": "number"
+        },
+        "ticks": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Ticks"
+        }
+      },
+      "required": [
+        "ticks",
+        "decisions",
+        "events",
+        "runtime_seconds"
+      ],
+      "title": "Usage",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/reproducibility.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Reproducibility Metadata = Formal Spec section 12.2.\n\nImportant:\nEvery result package carries this from Phase 8 on. input_hash covers the\nscenario and the evaluation profile; output_hash covers the whole result\npackage except this block, which records when the run happened and so can\nnever repeat. Two runs with the same output_hash produced the same result.\n\nrandom_seed is null for a stochastic run, which cannot be replayed.",
+  "properties": {
+    "deterministic_replay_available": {
+      "title": "Deterministic Replay Available",
+      "type": "boolean"
+    },
+    "input_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Input Hash",
+      "type": "string"
+    },
+    "output_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Output Hash",
+      "type": "string"
+    },
+    "random_seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Random Seed"
+    },
+    "random_seed_policy": {
+      "enum": [
+        "fixed",
+        "controlled_random",
+        "stochastic"
+      ],
+      "title": "Random Seed Policy",
+      "type": "string"
+    },
+    "ruleset_version": {
+      "minLength": 1,
+      "title": "Ruleset Version",
+      "type": "string"
+    },
+    "run_id": {
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "run_metadata": {
+      "$ref": "#/$defs/RunMetadata"
+    },
+    "runtime_version": {
+      "minLength": 1,
+      "title": "Runtime Version",
+      "type": "string"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_version": {
+      "minLength": 1,
+      "title": "Scenario Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "scenario_id",
+    "scenario_version",
+    "random_seed_policy",
+    "random_seed",
+    "runtime_version",
+    "ruleset_version",
+    "input_hash",
+    "output_hash",
+    "deterministic_replay_available",
+    "run_metadata"
+  ],
+  "title": "ReproducibilityMetadata",
+  "type": "object"
+}

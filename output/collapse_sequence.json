@@ -1,0 +1,47 @@
+{
+  "scenario_id": "military_urban_001",
+  "stress": "communication_failure:collapse",
+  "scenario_version": "v0.2+communication_failure:collapse",
+  "seed": 42,
+  "outcome": "no_winner_duration_limit",
+  "status": "fail",
+  "score": 0.2681,
+  "sequence": [
+    {
+      "tick": 2,
+      "entity": "red_10",
+      "by": "blue_05"
+    },
+    {
+      "tick": 3,
+      "entity": "red_05",
+      "by": "blue_02"
+    },
+    {
+      "tick": 4,
+      "entity": "red_03",
+      "by": "blue_05"
+    },
+    {
+      "tick": 8,
+      "entity": "red_08",
+      "by": "blue_03"
+    },
+    {
+      "tick": 9,
+      "entity": "red_06",
+      "by": "blue_03"
+    },
+    {
+      "tick": 11,
+      "entity": "red_01",
+      "by": "blue_02"
+    },
+    {
+      "tick": 13,
+      "entity": "red_02",
+      "by": "blue_02"
+    }
+  ],
+  "output_hash": "5102bce7193e89f1d82597537d70c1df8ff43be5accf412e5e3a30fba54ced35"
+}

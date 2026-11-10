@@ -2,18 +2,6 @@
 
 from dataclasses import dataclass, field
 from typing import Any
-from uuid import uuid4
-
-
-def new_event_id() -> str:
-    """
-    A fresh event id.
-
-    Important:
-    This uses uuid4 and is therefore not controlled by the scenario
-    random_seed. Behaviour repeats across runs; these ids do not.
-    """
-    return f"event_{uuid4().hex[:10]}"
 
 
 def build_causal_links(
@@ -61,8 +49,10 @@ class Event:
     Event is a recorded fact.
 
     Important:
-    Every event carries the full Phase 4 shape, matching the event format in
-    section 7.2 of the formal spec.
+    The attributes here are flat for the engine's convenience. to_dict() writes
+    the nested shape of Formal Spec section 7.2 (source / affected), which is
+    what event memory stores and what the event contract checks. See ADR 003.
+
     A field with nothing to report keeps its empty structure instead of
     disappearing, so timeline, replay, entity history and causal chain can read
     every event the same way.
@@ -99,14 +89,22 @@ class Event:
             "event_id": self.event_id,
             "time": self.time,
             "event_type": self.event_type,
-            "actor_id": self.actor_id,
-            "system_id": self.system_id,
+            "source": {
+                "actor_id": self.actor_id,
+                "system_id": self.system_id,
+                "action_id": self.source_action_id,
+            },
             "target_entity_id": self.target_entity_id,
-            "source_action_id": self.source_action_id,
-            "affected_entities": list(self.affected_entities),
-            "affected_locations": list(self.affected_locations),
-            "affected_resources": list(self.affected_resources),
-            "affected_risks": list(self.affected_risks),
+            "affected": {
+                "entities": list(self.affected_entities),
+                # A grid cell becomes a list; a node id stays a string
+                "locations": [
+                    location if isinstance(location, str) else list(location)
+                    for location in self.affected_locations
+                ],
+                "resources": list(self.affected_resources),
+                "risks": list(self.affected_risks),
+            },
             "before_state": dict(self.before_state),
             "after_state": dict(self.after_state),
             "causal_links": build_causal_links(self.causal_links),

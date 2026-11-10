@@ -1,0 +1,456 @@
+{
+  "$defs": {
+    "AlternativeResult": {
+      "additionalProperties": false,
+      "properties": {
+        "baseline_survival_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Baseline Survival Rate",
+          "type": "number"
+        },
+        "breaking_levels": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "enum": [
+                  "mild",
+                  "moderate",
+                  "severe",
+                  "collapse"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Breaking Levels",
+          "type": "object"
+        },
+        "breaks_sooner_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Breaks Sooner On",
+          "type": "array"
+        },
+        "holds_longer_on": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Holds Longer On",
+          "type": "array"
+        },
+        "scenario_version": {
+          "minLength": 1,
+          "title": "Scenario Version",
+          "type": "string"
+        },
+        "verdict": {
+          "enum": [
+            "holds_longer",
+            "breaks_sooner",
+            "mixed",
+            "same"
+          ],
+          "title": "Verdict",
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenario_version",
+        "baseline_survival_rate",
+        "breaking_levels",
+        "holds_longer_on",
+        "breaks_sooner_on",
+        "verdict"
+      ],
+      "title": "AlternativeResult",
+      "type": "object"
+    },
+    "Baseline": {
+      "additionalProperties": false,
+      "properties": {
+        "fails_without_stress": {
+          "title": "Fails Without Stress",
+          "type": "boolean"
+        },
+        "mean_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "outcomes": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Outcomes",
+          "type": "object"
+        },
+        "survival_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Survival Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "survival_rate",
+        "mean_score",
+        "outcomes",
+        "fails_without_stress"
+      ],
+      "title": "Baseline",
+      "type": "object"
+    },
+    "BranchResult": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "mild",
+            "moderate",
+            "severe",
+            "collapse"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "mean_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "survival_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Survival Rate",
+          "type": "number"
+        },
+        "variables": {
+          "items": {
+            "enum": [
+              "supply_delay",
+              "sensor_failure",
+              "communication_failure",
+              "weather_degradation",
+              "enemy_reaction_speed",
+              "equipment_overheat",
+              "civilian_pressure",
+              "resource_shortage"
+            ],
+            "type": "string"
+          },
+          "title": "Variables",
+          "type": "array"
+        }
+      },
+      "required": [
+        "variables",
+        "level",
+        "survival_rate",
+        "mean_score"
+      ],
+      "title": "BranchResult",
+      "type": "object"
+    },
+    "LevelResult": {
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "enum": [
+            "mild",
+            "moderate",
+            "severe",
+            "collapse"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "mean_first_loss_tick": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean First Loss Tick"
+        },
+        "mean_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Mean Score",
+          "type": "number"
+        },
+        "most_common_failure": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Most Common Failure"
+        },
+        "survival_rate": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Survival Rate",
+          "type": "number"
+        }
+      },
+      "required": [
+        "level",
+        "survival_rate",
+        "mean_score",
+        "mean_first_loss_tick",
+        "most_common_failure"
+      ],
+      "title": "LevelResult",
+      "type": "object"
+    },
+    "VariableResult": {
+      "additionalProperties": false,
+      "properties": {
+        "applicable": {
+          "title": "Applicable",
+          "type": "boolean"
+        },
+        "assumption": {
+          "title": "Assumption",
+          "type": "string"
+        },
+        "breaking_level": {
+          "anyOf": [
+            {
+              "enum": [
+                "mild",
+                "moderate",
+                "severe",
+                "collapse"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Breaking Level"
+        },
+        "levels": {
+          "items": {
+            "$ref": "#/$defs/LevelResult"
+          },
+          "title": "Levels",
+          "type": "array"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "sensitivity": {
+          "title": "Sensitivity",
+          "type": "number"
+        },
+        "variable": {
+          "enum": [
+            "supply_delay",
+            "sensor_failure",
+            "communication_failure",
+            "weather_degradation",
+            "enemy_reaction_speed",
+            "equipment_overheat",
+            "civilian_pressure",
+            "resource_shortage"
+          ],
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable",
+        "applicable",
+        "reason",
+        "assumption",
+        "levels",
+        "breaking_level",
+        "sensitivity"
+      ],
+      "title": "VariableResult",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/0.6/failure_map.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The failure map a failure exploration produces (development plan Phase 9).\n\nImportant:\nIt answers the section 14 questions in fixed places: where the plan fails\n(failure_points), why (failure_causes), how fast (how_fast), which\nvariable crushes it and which assumption that attacks (crushing_variable,\ncrushing_assumption), and which alternative lasts longer (alternatives).",
+  "properties": {
+    "alternatives": {
+      "items": {
+        "$ref": "#/$defs/AlternativeResult"
+      },
+      "title": "Alternatives",
+      "type": "array"
+    },
+    "baseline": {
+      "$ref": "#/$defs/Baseline"
+    },
+    "best_alternative": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Best Alternative"
+    },
+    "branches": {
+      "items": {
+        "$ref": "#/$defs/BranchResult"
+      },
+      "title": "Branches",
+      "type": "array"
+    },
+    "crushing_assumption": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Crushing Assumption"
+    },
+    "crushing_variable": {
+      "anyOf": [
+        {
+          "enum": [
+            "supply_delay",
+            "sensor_failure",
+            "communication_failure",
+            "weather_degradation",
+            "enemy_reaction_speed",
+            "equipment_overheat",
+            "civilian_pressure",
+            "resource_shortage"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Crushing Variable"
+    },
+    "failure_causes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Causes",
+      "type": "array"
+    },
+    "failure_points": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Points",
+      "type": "array"
+    },
+    "how_fast": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "title": "How Fast",
+      "type": "object"
+    },
+    "objective": {
+      "minLength": 1,
+      "title": "Objective",
+      "type": "string"
+    },
+    "perspective": {
+      "minLength": 1,
+      "title": "Perspective",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "repeat_count": {
+      "minimum": 1,
+      "title": "Repeat Count",
+      "type": "integer"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "scenario_version": {
+      "minLength": 1,
+      "title": "Scenario Version",
+      "type": "string"
+    },
+    "seeds": {
+      "items": {
+        "type": "integer"
+      },
+      "title": "Seeds",
+      "type": "array"
+    },
+    "survival_threshold": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Survival Threshold",
+      "type": "number"
+    },
+    "variables": {
+      "items": {
+        "$ref": "#/$defs/VariableResult"
+      },
+      "title": "Variables",
+      "type": "array"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "scenario_version",
+    "perspective",
+    "profile_id",
+    "objective",
+    "repeat_count",
+    "seeds",
+    "survival_threshold",
+    "baseline",
+    "variables",
+    "crushing_variable",
+    "crushing_assumption",
+    "failure_points",
+    "failure_causes",
+    "how_fast",
+    "branches",
+    "alternatives",
+    "best_alternative"
+  ],
+  "title": "FailureMap",
+  "type": "object"
+}

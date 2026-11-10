@@ -1,0 +1,96 @@
+{
+  "metrics": {
+    "win_rate": "higher is better",
+    "failure_frequency": "lower is better",
+    "mean_hp_lost": "lower is better",
+    "mean_risk_events": "lower is better",
+    "mean_score": "higher is better"
+  },
+  "variants": [
+    "aggressive",
+    "overwatch",
+    "defensive"
+  ],
+  "table": {
+    "aggressive": {
+      "win_rate": 0.18,
+      "failure_frequency": 0.12,
+      "mean_hp_lost": 201.64,
+      "mean_risk_events": 6.36,
+      "mean_score": 0.3794
+    },
+    "overwatch": {
+      "win_rate": 0.0,
+      "failure_frequency": 0.22,
+      "mean_hp_lost": 209.8,
+      "mean_risk_events": 6.82,
+      "mean_score": 0.3567
+    },
+    "defensive": {
+      "win_rate": 0.1,
+      "failure_frequency": 0.84,
+      "mean_hp_lost": 189.24,
+      "mean_risk_events": 6.16,
+      "mean_score": 0.2183
+    }
+  },
+  "best": {
+    "win_rate": "aggressive",
+    "failure_frequency": "aggressive",
+    "mean_hp_lost": "defensive",
+    "mean_risk_events": "defensive",
+    "mean_score": "aggressive"
+  },
+  "deltas_vs_first": {
+    "aggressive": {
+      "win_rate": 0.0,
+      "failure_frequency": 0.0,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.0
+    },
+    "overwatch": {
+      "win_rate": -0.18,
+      "failure_frequency": 0.1,
+      "mean_hp_lost": 8.16,
+      "mean_risk_events": 0.46,
+      "mean_score": -0.0227
+    },
+    "defensive": {
+      "win_rate": -0.08,
+      "failure_frequency": 0.72,
+      "mean_hp_lost": -12.4,
+      "mean_risk_events": -0.2,
+      "mean_score": -0.1611
+    }
+  },
+  "ranking": [
+    "aggressive",
+    "overwatch",
+    "defensive"
+  ],
+  "comparison": {
+    "aggressive": {
+      "better_than": [
+        "overwatch",
+        "defensive"
+      ],
+      "worse_than": []
+    },
+    "overwatch": {
+      "better_than": [
+        "defensive"
+      ],
+      "worse_than": [
+        "aggressive"
+      ]
+    },
+    "defensive": {
+      "better_than": [],
+      "worse_than": [
+        "aggressive",
+        "overwatch"
+      ]
+    }
+  }
+}

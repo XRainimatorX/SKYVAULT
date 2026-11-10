@@ -1,0 +1,100 @@
+{
+  "batch_id": "tactical_reference_001_doctrine",
+  "description": "Compare the v0.1 plan with its two alternative deployments and a sweep of Blue support accuracy, 100 runs each; branch the three conflicting tick-1 orders.",
+  "scenario_id": "tactical_reference_001",
+  "base_version": "v0.1",
+  "profile": "balanced",
+  "run_policy": {
+    "repeat_count": 100,
+    "random_seed_policy": "controlled_random"
+  },
+  "workers": 4,
+  "variants": [
+    {
+      "variant_id": "plan",
+      "scenario_version": "v0.1"
+    },
+    {
+      "variant_id": "support-rear",
+      "scenario_version": "v0.1-support-rear"
+    },
+    {
+      "variant_id": "spread",
+      "scenario_version": "v0.1-spread"
+    }
+  ],
+  "sweeps": [
+    {
+      "parameter": "entities[blue_002].capabilities.accuracy",
+      "values": [
+        0.55,
+        0.65,
+        0.75
+      ]
+    }
+  ],
+  "conflicts": {
+    "proposals": [
+      {
+        "proposal_id": "P1",
+        "tick": 1,
+        "system_id": "TAC_ANGEL",
+        "actor_id": "red_002",
+        "action_type": "move",
+        "target": {
+          "entity_id": null,
+          "location": [
+            1,
+            1
+          ],
+          "system_id": null
+        },
+        "intent": "advance the support team",
+        "priority": "high",
+        "risk_profile": {
+          "level": "medium"
+        }
+      },
+      {
+        "proposal_id": "P2",
+        "tick": 1,
+        "system_id": "HADES",
+        "actor_id": "red_002",
+        "action_type": "move",
+        "target": {
+          "entity_id": null,
+          "location": [
+            0,
+            1
+          ],
+          "system_id": null
+        },
+        "intent": "pull the support team back",
+        "priority": "high",
+        "risk_profile": {
+          "level": "low"
+        }
+      },
+      {
+        "proposal_id": "P3",
+        "tick": 1,
+        "system_id": "TAC_ANGEL",
+        "actor_id": "red_001",
+        "action_type": "move",
+        "target": {
+          "entity_id": null,
+          "location": [
+            1,
+            1
+          ],
+          "system_id": null
+        },
+        "intent": "advance the rifleman",
+        "priority": "normal",
+        "risk_profile": {
+          "level": "medium"
+        }
+      }
+    ]
+  }
+}

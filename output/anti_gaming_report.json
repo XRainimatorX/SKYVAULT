@@ -1,0 +1,103 @@
+{
+  "scenario_id": "military_urban_001",
+  "profile_id": "balanced",
+  "primary_metric": "mission_success",
+  "secondary_metrics": [
+    "tactical_value",
+    "strategic_value",
+    "resource_cost",
+    "time_cost",
+    "risk_growth",
+    "failure_resistance",
+    "recovery_ability",
+    "system_robustness",
+    "logistics_burden",
+    "stability_impact"
+  ],
+  "anti_gaming_metrics": [
+    {
+      "metric": "inaction_penalty",
+      "reason": "prevent doing nothing to preserve resources"
+    },
+    {
+      "metric": "stability_penalty",
+      "reason": "prevent fast success that destroys long-term order"
+    },
+    {
+      "metric": "risk_spike_penalty",
+      "reason": "prevent extreme high-risk optimization"
+    },
+    {
+      "metric": "hidden_risk_penalty",
+      "reason": "prevent a visible success that hides critically damaged survivors"
+    },
+    {
+      "metric": "long_term_cost_penalty",
+      "reason": "prevent short-term tactical value that destroys strategic value"
+    }
+  ],
+  "forbidden_optimization_behaviors": [
+    "maximize_score_by_inaction",
+    "sacrifice_long_term_stability_for_short_term_success",
+    "extreme_high_risk_optimization",
+    "ignore_hidden_risk_to_improve_visible_score",
+    "sacrifice_strategic_value_for_short_term_tactical_value"
+  ],
+  "tradeoff_report_required": true,
+  "checks": [
+    {
+      "metric": "inaction_penalty",
+      "reason": "prevent doing nothing to preserve resources",
+      "value": 0.3774,
+      "threshold": 0.5,
+      "triggered": false,
+      "behavior": "maximize_score_by_inaction",
+      "forbidden": true,
+      "penalty": 0.0
+    },
+    {
+      "metric": "stability_penalty",
+      "reason": "prevent fast success that destroys long-term order",
+      "value": 0.4,
+      "threshold": 0.5,
+      "triggered": false,
+      "behavior": "sacrifice_long_term_stability_for_short_term_success",
+      "forbidden": true,
+      "penalty": 0.0
+    },
+    {
+      "metric": "risk_spike_penalty",
+      "reason": "prevent extreme high-risk optimization",
+      "value": 0.1,
+      "threshold": 0.34,
+      "triggered": false,
+      "behavior": "extreme_high_risk_optimization",
+      "forbidden": true,
+      "penalty": 0.0
+    },
+    {
+      "metric": "hidden_risk_penalty",
+      "reason": "prevent a visible success that hides critically damaged survivors",
+      "value": 0.0,
+      "threshold": 0.3,
+      "triggered": false,
+      "behavior": "ignore_hidden_risk_to_improve_visible_score",
+      "forbidden": true,
+      "penalty": 0.0
+    },
+    {
+      "metric": "long_term_cost_penalty",
+      "reason": "prevent short-term tactical value that destroys strategic value",
+      "value": 0.2,
+      "threshold": 0.5,
+      "triggered": false,
+      "behavior": "sacrifice_strategic_value_for_short_term_tactical_value",
+      "forbidden": true,
+      "penalty": 0.0
+    }
+  ],
+  "triggered_behaviors": [],
+  "flagged_behaviors": [],
+  "gaming_detected": false,
+  "penalty_total": 0.0
+}
