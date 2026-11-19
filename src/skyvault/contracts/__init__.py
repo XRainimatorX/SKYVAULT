@@ -44,8 +44,11 @@ from .external import (
     TRIGGERS,
     AuthorityHandoff,
     ExternalSubmission,
+    MissionPlan,
+    NexusMission,
     validate_authority_handoff,
     validate_external_submission,
+    validate_nexus_mission,
 )
 from .failure import (
     FAILURE_VARIABLE_NAMES,
@@ -147,6 +150,9 @@ __all__ = [
     "validate_evaluation_result",
     "validate_event",
     "validate_external_submission",
+    "validate_nexus_mission",
+    "NexusMission",
+    "MissionPlan",
     "validate_failure_exploration",
     "validate_failure_map",
     "validate_governance",

@@ -180,6 +180,47 @@ def replay(args: argparse.Namespace, client: Client) -> None:
         print(f"{done['job_id']}  reproduced: {done['summary'].get('reproduced')}")
 
 
+def mission(args: argparse.Namespace, client: Client) -> None:
+    """Hand SKYVAULT a NEXUS mission (a JSON file) and print what comes back."""
+    try:
+        given = json.loads(Path(args.file).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise Failed(f"cannot read the mission {args.file}: {error}") from None
+    submission = {
+        "system": "NEXUS",
+        "kind": "task",
+        "content": {"task_type": "mission", "mission": given},
+    }
+    answer = client.call("POST", "/scenario/submit", submission)
+    print(f"mission {given.get('mission_id')}: {len(answer['run_ids'])} job(s) queued")
+    returned = answer["returned"]
+    if returned is None:
+        if args.no_wait:
+            return
+        for job_id in answer["run_ids"]:
+            done = client.wait(job_id)
+            print(f"{done['job_id']}  {done['lifecycle_state']}")
+        returned = client.call("GET", f"/submission/{answer['submission_id']}")
+    assessment = returned.get("mission", {}).get("assessment")
+    if assessment:
+        print(
+            f"needs SKYVAULT: {assessment['needs_skyvault']} — {assessment['reason']}"
+        )
+    if returned.get("scenario_report"):
+        print(returned["scenario_report"])
+    handoff = returned.get("authority_handoff")
+    if handoff:
+        print(f"handoff: {handoff['package_to_nexus']['required_decision']}")
+        print(f"decided by: {', '.join(handoff['decision_authority'])}")
+    for gap in returned.get("gaps", []):
+        print(f"gap: {gap}")
+    if args.out:
+        Path(args.out).write_text(
+            json.dumps(returned, indent=2, ensure_ascii=False, sort_keys=True),
+            encoding="utf-8",
+        )
+
+
 def cancel(args: argparse.Namespace, client: Client) -> None:
     job = client.call("POST", f"/api/jobs/{args.job}/cancel")
     print(f"{job['job_id']}  {job['lifecycle_state']}")
@@ -356,6 +397,10 @@ def parser() -> argparse.ArgumentParser:
     replay_ = remote("replay", "re-run a finished run and check it reproduces", replay)
     replay_.add_argument("job")
     no_wait(replay_)
+    mission_ = remote("mission", "hand SKYVAULT a NEXUS mission (JSON file)", mission)
+    mission_.add_argument("file")
+    mission_.add_argument("--out")
+    no_wait(mission_)
     remote("cancel", "cancel a job", cancel).add_argument("job")
     world_ = remote("world", "create, advance or finish a persistent world", world)
     world_.add_argument("action", choices=["create", "advance", "finish"])

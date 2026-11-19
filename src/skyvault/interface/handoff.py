@@ -129,6 +129,8 @@ def authority_handoff(
     failure_map: dict[str, Any] | None = None,
     conflict_package: dict[str, Any] | None = None,
     authorities: tuple[str, ...] = AUTHORITIES,
+    scenario_id: str | None = None,
+    decision: str | None = None,
 ) -> dict[str, Any] | None:
     """
     The handoff package for triggers (None when nothing triggered).
@@ -136,7 +138,10 @@ def authority_handoff(
     Important:
     handoff_id is named by content, so the same inputs always hand off the
     same package. The recommended tests are the run's own recommendations
-    (Phase 7) or, for a failure map, the variables that break it.
+    (Phase 7) or, for a failure map, the variables that break it. A caller
+    that knows the decision better than the trigger's own wording — a NEXUS
+    mission choosing among its plans — names it (decision) and the
+    scenario it is about (scenario_id).
     """
     if not triggers:
         return None
@@ -156,13 +161,17 @@ def authority_handoff(
     tests += [
         f"stress {name} below {level}" for name, level in sorted(breaking.items())
     ]
-    statement = "; ".join(f"{t}: {DECISIONS[t]}" for t in triggers)
+    wording = {t: DECISIONS[t] for t in triggers}
+    if decision is not None:
+        wording = {t: decision for t in triggers}
+    statement = "; ".join(f"{t}: {wording[t]}" for t in triggers)
     if conflict_package is not None:
         statement += (
             ". " + conflict_package["recommendation_to_nexus"]["decision_reason"]
         )
     scenario_id = (
-        (result or {}).get("scenario_id")
+        scenario_id
+        or (result or {}).get("scenario_id")
         or (failure_map or {}).get("scenario_id")
         or (conflict_package or {}).get("scenario_id")
         or "unknown"
@@ -179,7 +188,7 @@ def authority_handoff(
                 if failure_map is not None
                 else None
             ),
-            "required_decision": "; ".join(DECISIONS[t] for t in triggers),
+            "required_decision": "; ".join(dict.fromkeys(wording.values())),
         },
         "skyvault_position": {
             "may_recommend": True,

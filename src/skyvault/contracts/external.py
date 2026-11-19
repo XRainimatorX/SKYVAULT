@@ -140,3 +140,64 @@ def validate_external_submission(data: dict[str, Any]) -> dict[str, Any]:
 def validate_authority_handoff(data: dict[str, Any]) -> dict[str, Any]:
     """An authority handoff package, or ContractError listing every violation."""
     return check(AuthorityHandoff, "authority_handoff", data)
+
+
+class MissionPlan(ContractModel):
+    """
+    One plan a mission tries: orders (scheduled actions), unit changes and
+    rule changes on the mission's world. system_id names who wrote it
+    (NEXUS, or STARTX / TAC ANGEL in the triangle loop).
+    """
+
+    plan_id: str = Field(pattern=r"^[A-Za-z0-9_.-]+$")
+    description: str = ""
+    system_id: NonEmptyStr | None = None
+    actions: list[dict[str, Any]] = Field(default_factory=list)
+    entity_changes: dict[str, dict[str, Any]] | None = None
+    rule_changes: dict[str, dict[str, Any]] | None = None
+
+
+class NexusMission(ContractModel):
+    """
+    What NEXUS hands SKYVAULT when an order needs a world (Formal Spec 21
+    Phase I: NEXUS command interface).
+
+    Important:
+    order is 陛下's order as NEXUS received it, kept word for word: it
+    becomes each compiled scenario's purpose. compare_plans needs at least
+    two plans and test_plan at most one; every objective but report_status
+    names the world (scenario) it runs in.
+    """
+
+    mission_id: str = Field(pattern=r"^[A-Za-z0-9_.-]+$")
+    order: NonEmptyStr
+    objective: Literal[
+        "compare_plans", "test_plan", "stress_test", "explore_failures", "report_status"
+    ]
+    scenario: str | None = Field(default=None, pattern=NAME)
+    plans: list[MissionPlan] = Field(default_factory=list)
+    repeat_count: int | None = Field(default=None, ge=1)
+    max_ticks: int | None = Field(default=None, ge=1)
+    stress_level: Literal["mild", "moderate", "severe", "collapse"] = "severe"
+    report_format: Literal["markdown", "none"] = "markdown"
+    priority: Literal["low", "medium", "high", "urgent"] | None = None
+
+    @model_validator(mode="after")
+    def _plans_fit_the_objective(self) -> "NexusMission":
+        if self.objective != "report_status" and self.scenario is None:
+            raise ValueError(f"a {self.objective} mission names its scenario")
+        if self.objective == "compare_plans" and len(self.plans) < 2:
+            raise ValueError("compare_plans needs at least two plans")
+        if self.objective in ("test_plan", "stress_test") and len(self.plans) > 1:
+            raise ValueError(f"{self.objective} tries one plan at most")
+        ids = [p.plan_id for p in self.plans]
+        if len(ids) != len(set(ids)):
+            raise ValueError("plan ids must be unique")
+        return self
+
+
+def validate_nexus_mission(data: dict[str, Any]) -> dict[str, Any]:
+    """A NEXUS mission with every default filled, or ContractError."""
+    check(NexusMission, "nexus_mission", data)
+    full: dict[str, Any] = NexusMission.model_validate(data).model_dump(mode="json")
+    return full

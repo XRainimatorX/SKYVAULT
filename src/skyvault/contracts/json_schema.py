@@ -13,7 +13,7 @@ from .equipment import EquipmentProfile, EquipmentTestResult
 from .evaluation import EvaluationResult
 from .evaluation_profile import EvaluationProfile
 from .event import EventRecord
-from .external import AuthorityHandoff, ExternalSubmission
+from .external import AuthorityHandoff, ExternalSubmission, NexusMission
 from .failure import FailureMap
 from .governance import ResourceComputeGovernance
 from .job import Job
@@ -56,6 +56,7 @@ CONTRACTS: dict[str, type[ContractModel]] = {
     "resource_compute_governance": ResourceComputeGovernance,
     "job": Job,
     "external_submission": ExternalSubmission,
+    "nexus_mission": NexusMission,
     "authority_handoff": AuthorityHandoff,
     "equipment_profile": EquipmentProfile,
     "equipment_test_result": EquipmentTestResult,

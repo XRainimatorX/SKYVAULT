@@ -21,7 +21,7 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from ..contracts import validate_external_submission
+from ..contracts import validate_external_submission, validate_nexus_mission
 from ..domains import load_domain
 from ..domains.city.information import DEFAULTS as INFORMATION_DEFAULTS
 from ..failure.variables import variable_for
@@ -34,6 +34,8 @@ from ..training.transitions import build_transitions
 from ..virtualtest.profile import GROUPS, has_equipment_parameters, load_rules
 from ..virtualtest.run import virtual_test
 from ..virtualtest.tactical import unit_changes
+from .handoff import authority_handoff
+from .missions import compile_mission
 
 SCENARIOS_DIR = Path(__file__).resolve().parents[3] / "data" / "scenarios"
 DEFAULT_REPEATS = 3
@@ -334,6 +336,9 @@ class NEXUSAdapter:
     ) -> Request:
         content = submission["content"]
         kind = content.get("task_type", "scenario_run")
+        if kind == "mission":
+            compiled = compile_mission(content["mission"], scenarios_dir)
+            return request(self.system, compiled["jobs"], gaps=compiled["gaps"])
         if kind not in NEXUS_TASKS:
             raise ValueError(f"NEXUS task_type must be one of {NEXUS_TASKS}")
         job: dict[str, Any] = {"kind": kind}
@@ -345,6 +350,8 @@ class NEXUSAdapter:
         return request(self.system, [job])
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
+        if submission["content"].get("task_type") == "mission":
+            return self.mission_return(results, submission)
         (entry,) = results
         job, stored = entry["job"], entry["result"]
         report = None
@@ -372,6 +379,168 @@ class NEXUSAdapter:
             },
             "gaps": gaps,
         }
+
+    def mission_return(self, results: Results, submission: dict[str, Any]) -> dict:
+        """
+        A mission's return (Formal Spec 21 Phase I): the mission as SKYVAULT
+        read it (assessment, the scenario documents it compiled), what ran,
+        the report, and the authority handoff when a decision is NEXUS's /
+        陛下's — always for compare_plans, which plan to take.
+        """
+        mission = validate_nexus_mission(submission["content"]["mission"])
+        compiled = compile_mission(mission)
+        objective = mission["objective"]
+        status = [
+            {
+                "job_id": e["job"]["job_id"],
+                "lifecycle_state": e["job"]["lifecycle_state"],
+                "governance": e["job"]["governance"],
+                "handoff": e["job"]["summary"].get("handoff"),
+                "error": e["job"]["error"],
+            }
+            for e in results
+        ]
+        returned: dict[str, Any] = {
+            "system": self.system,
+            "supported": True,
+            "mission": {
+                "mission_id": mission["mission_id"],
+                "order": mission["order"],
+                "objective": objective,
+                "assessment": compiled["assessment"],
+                "scenarios": compiled["scenarios"],
+            },
+            "result_package": None,
+            "scenario_report": None,
+            "system_status": status,
+            "authority_handoff": next(
+                (s["handoff"] for s in status if s["handoff"]), None
+            ),
+            "gaps": list(compiled["gaps"]),
+        }
+        markdown = mission["report_format"] == "markdown"
+        if not compiled["assessment"]["needs_skyvault"]:
+            returned["gaps"] += [
+                "result_package: no world was needed, so nothing ran",
+                "scenario_report: no world was needed, so nothing ran",
+            ]
+            return returned
+        if objective == "compare_plans":
+            (entry,) = results
+            stats = branch_stats(entry["result"])
+            baseline = stats["none"]
+            records = entry["result"].get("runs", [])
+            plans = []
+            for plan in mission["plans"]:
+                s = stats[plan["plan_id"]]
+                scores = [
+                    float(r["score"])
+                    for r in records
+                    if r["variant_id"] == f"branch:{plan['plan_id']}"
+                ]
+                plans.append(
+                    {
+                        "plan_id": plan["plan_id"],
+                        "description": plan["description"],
+                        "runs": s["runs"],
+                        "consequences": {
+                            "outcomes": s["outcomes"],
+                            "win_rate": s["win_rate"],
+                            "loss_rate": s["loss_rate"],
+                        },
+                        "risk": {
+                            "failure_frequency": s["failure_frequency"],
+                            "mean_risk_events": s["mean_risk_events"],
+                        },
+                        "risk_curve": risk_curve(scores),
+                        "score": {"mean": s["mean_score"], "stdev": s["score_stdev"]},
+                        "versus_as_is": delta(s, baseline),
+                    }
+                )
+            returned["plans"] = plans
+            handoff = authority_handoff(
+                ["conflicting_branches"],
+                branch_comparison=entry["result"]["branch_comparison"],
+                scenario_id=mission["mission_id"],
+                decision="choose which plan goes ahead (the plans exclude each other)",
+            )
+            returned["authority_handoff"] = handoff
+            returned["gaps"].append(
+                "result_package: a comparison is many runs; each plan's scenario is "
+                "in mission.scenarios and reruns as a test_plan"
+            )
+            if markdown:
+                returned["scenario_report"] = plans_markdown(mission, plans, handoff)
+            return returned
+        entry = results[0]
+        returned["result_package"] = entry["result"]
+        if markdown and objective != "explore_failures":
+            returned["scenario_report"] = render_markdown(
+                build_briefing({"result_package": entry["result"]})
+            )
+        if objective == "stress_test":
+            base = entry["result"]["evaluation_result"]["overall_score"]
+            returned["stress_test"] = [
+                {
+                    "stress": e["job"]["request"]["stress"],
+                    **verdict(e["result"]),
+                    "score_versus_unstressed": round(
+                        e["result"]["evaluation_result"]["overall_score"] - base, 4
+                    ),
+                }
+                for e in results[1:]
+            ]
+        if objective == "explore_failures":
+            returned["result_package"] = None
+            returned["failure_map"] = entry["result"]
+            returned["gaps"].append(
+                "result_package: a failure exploration is many runs; its failure map "
+                "is returned instead"
+            )
+            if markdown:
+                returned["scenario_report"] = failure_markdown(mission, entry["result"])
+        if returned["scenario_report"] is None:
+            returned["gaps"].append("scenario_report: report_format is none")
+        return returned
+
+
+def plans_markdown(
+    mission: dict[str, Any],
+    plans: list[dict[str, Any]],
+    handoff: dict[str, Any] | None,
+) -> str:
+    """A plan comparison as NEXUS presents it: the order, the plans, who decides."""
+    lines = [f"# {mission['mission_id']}", "", f"> {mission['order']}", ""]
+    lines += ["| plan | runs | win rate | failure | mean score | vs as is |"]
+    lines.append("|---|---|---|---|---|---|")
+    for p in plans:
+        lines.append(
+            f"| {p['plan_id']} | {p['runs']} | {p['consequences']['win_rate']:.2f} | "
+            f"{p['risk']['failure_frequency']:.2f} | {p['score']['mean']:.3f} | "
+            f"{p['versus_as_is']['mean_score']:+.3f} |"
+        )
+    if handoff is not None:
+        lines += [
+            "",
+            "## Decision",
+            "",
+            handoff["package_to_nexus"]["required_decision"],
+            "",
+            f"Decided by: {', '.join(handoff['decision_authority'])}. "
+            "SKYVAULT simulated and recommends; it does not decide.",
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def failure_markdown(mission: dict[str, Any], failure_map: dict[str, Any]) -> str:
+    """A failure exploration in brief: what crushes the plan, and at what level."""
+    lines = [f"# {mission['mission_id']}", "", f"> {mission['order']}", ""]
+    crushing = failure_map["crushing_variable"] or "nothing within the levels tried"
+    lines.append(f"Crushed first by: {crushing}")
+    lines += ["", "| variable | breaking level |", "|---|---|"]
+    for v in failure_map["variables"]:
+        lines.append(f"| {v['variable']} | {v['breaking_level'] or 'holds'} |")
+    return "\n".join(lines) + "\n"
 
 
 class STARTXAdapter:
@@ -1529,7 +1698,15 @@ def to_request(
             f"{submission['system']} submits {KINDS[submission['system']]}, "
             f"not {submission['kind']}"
         )
-    if submission["system"] != "CYBERHOUND" and not submission.get("scenario"):
+    mission = submission["content"].get("task_type") == "mission"
+    if mission:
+        named = submission["content"].get("mission", {}).get("scenario")
+        if submission.get("scenario") not in (None, named):
+            raise ValueError(
+                f"the submission names {submission['scenario']} but its mission "
+                f"runs in {named}"
+            )
+    elif submission["system"] != "CYBERHOUND" and not submission.get("scenario"):
         raise ValueError(f"a {submission['system']} submission names a scenario")
     planned: Request = ADAPTERS[submission["system"]].to_request(
         submission, scenarios_dir

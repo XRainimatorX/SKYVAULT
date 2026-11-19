@@ -27,6 +27,7 @@ from ..worldservice.queues import JobQueue
 from ..worldservice.store import JobStore
 from ..worldservice.worlds import PersistentWorld, WorldClosed
 from .handoff import decide
+from .missions import compile_mission
 from .systems import to_request, to_return
 
 JSONBody = Annotated[dict[str, Any], Body()]
@@ -223,17 +224,33 @@ def add_external_routes(
             "run_ids": run_ids,
             "proposals": proposals,
             "gaps": planned["gaps"],
-            # what has no model is answered now: nothing will run for it
+            # what has no model, or needs no run, is answered now
             "returned": (
-                None
-                if planned["supported"]
-                else {
+                {
                     "system": planned["system"],
                     "supported": False,
                     "gaps": planned["gaps"],
                 }
+                if not planned["supported"]
+                else (
+                    to_return([], submission)
+                    if not run_ids and target is None
+                    else None
+                )
             ),
         }
+
+    @app.post("/nexus/mission/assess")
+    def assess_nexus_mission(mission: JSONBody) -> dict[str, Any]:
+        """
+        What SKYVAULT makes of a NEXUS mission without running it: whether
+        it needs a world, the section 3.3 scenario documents it compiles to
+        and the jobs it would queue (Formal Spec 21 Phase I).
+        """
+        try:
+            return compile_mission(mission)
+        except (ContractError, ValueError) as error:
+            raise refuse(error) from None
 
     @app.get("/submission/{submission_id}")
     def submission_return(submission_id: str) -> dict[str, Any]:

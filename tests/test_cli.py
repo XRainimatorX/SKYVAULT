@@ -236,3 +236,48 @@ def test_the_command_is_installed_and_names_its_version():
     assert (
         'skyvault = "skyvault.cli:main"' in (REPO_ROOT / "pyproject.toml").read_text()
     )
+
+
+def test_a_nexus_mission_is_handed_over_and_its_decision_shown(
+    service, capsys, tmp_path
+):
+    move = {"action_type": "move", "intent": "advance", "tick": 1}
+    mission = {
+        "mission_id": "cli_m",
+        "order": "compare two approaches",
+        "objective": "compare_plans",
+        "scenario": BASELINE,
+        "plans": [
+            {
+                "plan_id": "a",
+                "actions": [
+                    {**move, "actor_id": "red_01", "target": {"location": [1, 1]}}
+                ],
+            },
+            {
+                "plan_id": "b",
+                "actions": [
+                    {**move, "actor_id": "red_05", "target": {"location": [6, 1]}}
+                ],
+            },
+        ],
+        "repeat_count": 1,
+    }
+    path = tmp_path / "mission.json"
+    path.write_text(json.dumps(mission), encoding="utf-8")
+    out_file = tmp_path / "returned.json"
+
+    assert skyvault(service, "mission", str(path), "--out", str(out_file)) == 0
+    out = capsys.readouterr().out
+    assert "mission cli_m: 1 job(s) queued" in out
+    assert "needs SKYVAULT: True" in out
+    assert "| a | 1 |" in out and "| b | 1 |" in out
+    assert "handoff: choose which plan goes ahead" in out
+    assert "decided by: NEXUS, SOVEREIGN" in out
+    returned = json.loads(out_file.read_text(encoding="utf-8"))
+    assert returned["authority_handoff"]["reason"] == ["conflicting_branches"]
+
+
+def test_a_mission_that_cannot_be_read_fails_with_the_reason(service, capsys, tmp_path):
+    assert skyvault(service, "mission", str(tmp_path / "missing.json")) == 1
+    assert "cannot read the mission" in capsys.readouterr().err

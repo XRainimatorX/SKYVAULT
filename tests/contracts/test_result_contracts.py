@@ -242,6 +242,7 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "resource_compute_governance",
     "job",
     "external_submission",
+    "nexus_mission",
     "authority_handoff",
     "equipment_profile",
     "equipment_test_result",
