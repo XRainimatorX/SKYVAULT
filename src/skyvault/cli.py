@@ -7,12 +7,13 @@
     skyvault runs                           # what the UI can show
     skyvault briefing latest --format pdf
     skyvault acceptance                     # the v2.0 acceptance, in this process
+    skyvault calibration                    # where the city's coefficients come from
 
 Important:
 serve and worker start the service; every command after them talks to a
 running service over HTTP (--url, or SKYVAULT_URL; default
-http://127.0.0.1:8000), the way an outside system does. virtual-test and
-acceptance compute in this process: they need no service. Nothing here
+http://127.0.0.1:8000), the way an outside system does. virtual-test,
+acceptance and calibration compute in this process: they need no service. Nothing here
 reads a development script or the tests' fixtures; a deployment adds its
 own scenarios, batches and policies through SKYVAULT_SCENARIO_PATH,
 SKYVAULT_BATCH_PATH and SKYVAULT_POLICY_MODULES.
@@ -341,6 +342,49 @@ def acceptance(args: argparse.Namespace) -> None:
         raise Failed("the acceptance found a check that failed")
 
 
+def calibration(args: argparse.Namespace) -> None:
+    """
+    The city's coefficients: value, confidence and criticality (Phase 23).
+    --sweep runs the sensitivity analysis again (minutes) instead of
+    reading the committed one; --out writes the report.
+    """
+    from .domains.city.calibration import load_calibration, summary
+    from .domains.city.reference import reference_scenarios
+    from .domains.city.sensitivity import load_sensitivity, sweep
+
+    registry = load_calibration()
+    if args.sweep:
+        report = sweep(
+            reference_scenarios(),
+            registry,
+            only=args.only or None,
+            progress=lambda name: print(f"  sweeping {name}", file=sys.stderr),
+        )
+    else:
+        report = load_sensitivity()
+    rows = {row["coefficient"]: row for row in report["coefficients"]}
+    print(summary(registry))
+    for entry in registry["coefficients"]:
+        name = entry["coefficient"]
+        if args.only and name not in args.only:
+            continue
+        row = rows.get(name)
+        flipped = (
+            (row["ends"]["low"]["flips"] + row["ends"]["high"]["flips"]) if row else []
+        )
+        print(
+            f"{name:<44} {entry['value']!s:<8} {entry['confidence']:<9}"
+            f" {row['criticality'] if row else '—':<7}"
+            + (f" flips: {'; '.join(flipped)}" if flipped else "")
+        )
+    print("measure first: " + (", ".join(report["data_first"]) or "none"))
+    if args.out:
+        Path(args.out).write_text(
+            json.dumps(report, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(f"wrote {args.out}")
+
+
 # ── the command line ─────────────────────────────────────────────────────────
 
 
@@ -425,6 +469,15 @@ def parser() -> argparse.ArgumentParser:
     accept = commands.add_parser("acceptance", help="run the v2.0 acceptance")
     accept.add_argument("--out")
     accept.set_defaults(handler=acceptance)
+    calibrate = commands.add_parser(
+        "calibration", help="where the city's coefficients come from"
+    )
+    calibrate.add_argument("--sweep", action="store_true", help="rerun the sensitivity")
+    calibrate.add_argument(
+        "--only", action="append", help="one coefficient (repeatable)"
+    )
+    calibrate.add_argument("--out")
+    calibrate.set_defaults(handler=calibration)
     return top
 
 

@@ -1,0 +1,546 @@
+{
+  "pack_id": "city",
+  "version": "0.1",
+  "description": "Where every coefficient of the city's information, disaster and recovery models comes from (Phase 23). confidence: anchored = a study's value converts directly; derived = a study's value through a stated conversion assumption; assumed = no study gives a value (some support a direction). Sources were read from search abstracts; full texts were not reachable from the build environment. range is the span the sensitivity analysis sweeps.",
+  "time": {
+    "step_hours": 6,
+    "night_from": 18,
+    "night_to": 6,
+    "note": "Formal Spec 2.3: six-hour phases. A tick-clock city counts a tick as six hours for these conversions (assumption) and, having no time of day, half of each tick as night."
+  },
+  "sources": {
+    "hazus_substation": {
+      "title": "Decision Automation for Electric Power Network Recovery — substation repair times synthesized from HAZUS-MH (about 1, 3, 7 and 30 days by damage state; earthquake functions)",
+      "url": "https://arxiv.org/html/1910.00699v3",
+      "read_from": "search abstract"
+    },
+    "utility_storms": {
+      "title": "Dobson et al., case studies of large storm outages — AEP restored about 50% of customers in 5 days, 10% waited over two weeks; FPL full restoration over two weeks",
+      "url": "https://iandobson.ece.iastate.edu/PAPERS/carringtonPS21.pdf",
+      "read_from": "search abstract"
+    },
+    "katrina_lam_2009": {
+      "title": "Lam et al. 2009, Business Return in New Orleans (PLOS ONE) — about 65% of businesses reopened by October 2007, 26 months after Katrina",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2727799/",
+      "read_from": "search abstract"
+    },
+    "katrina_lam_2012": {
+      "title": "Lam et al. 2012, Predictors of Business Return after Katrina (PLOS ONE) — flood depth is the strongest predictor; the first 6–9 months matter most",
+      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3480509/",
+      "read_from": "search abstract"
+    },
+    "north_rhine_2024": {
+      "title": "Wiesehahn & Kaifie 2024, The impact of the 2021 flood on outpatient care in the North Rhine region (BMC Public Health) — 97% of affected practices lost power, over half had water supply damage, nearly 40% lost patient records; about 120 practices could not operate or only partly, over 40 were destroyed",
+      "url": "https://bmcpublichealth.biomedcentral.com/articles/10.1186/s12889-023-17279-y",
+      "read_from": "search abstract"
+    },
+    "oxford_roads_2025": {
+      "title": "Oxford study of the 2025 monsoon floods in Sindh and Punjab — road segments with at least 60% inundation are unusable",
+      "url": "https://ora.ox.ac.uk/objects/uuid:ae6718c7-1f93-4a4f-9dec-f18a9e685198/files/r5h73pz93f",
+      "read_from": "search abstract"
+    },
+    "cape_town_2024": {
+      "title": "Imelda & Guo 2024, Crime in the dark: electricity rationing (Graduate Institute working paper) — 10 more outage hours a month raise crime by 2.6%, at night only",
+      "url": "https://repec.graduateinstitute.ch/pdfs/Working_papers/HEIDWP18-2024.pdf",
+      "read_from": "search abstract"
+    },
+    "texas_outages": {
+      "title": "Lee et al., power outages and crime (draft) — no effect of the 2021 Texas rolling blackouts or short Austin outages on crime",
+      "url": "https://loganmlee.sites.grinnell.edu/Power%20Outage%20Paper%20R&R.pdf",
+      "read_from": "search abstract"
+    },
+    "walter_murphy_2018": {
+      "title": "Walter & Murphy 2018, How to unring the bell: a meta-analysis of correcting misinformation (Communication Monographs) — r = .35 overall, r = .14 for real-world misinformation",
+      "url": "https://drglinks.org/sites/default/files/2023-12/Walter_Murphy%20-%20Correcting%20Misinformation.pdf",
+      "read_from": "search abstract"
+    },
+    "debunking_2023": {
+      "title": "Meta-analysis of debunking science-relevant misinformation (Nature Human Behaviour 2023) — on average not successful, d = 0.19, P = 0.131",
+      "url": "https://link.springer.com/10.1038/s41562-023-01623-8",
+      "read_from": "search abstract"
+    },
+    "mcguirk_burke": {
+      "title": "McGuirk & Burke, food prices and conflict in Africa (VoxEU) — one standard deviation higher consumer prices raise the probability of riots, demonstrations and violence against civilians by 14.4%",
+      "url": "https://cepr.org/index%2ephp/voxeu/columns/war-ukraine-world-food-prices-and-conflict-africa",
+      "read_from": "search abstract"
+    },
+    "lagi_2011": {
+      "title": "Lagi, Bertrand & Bar-Yam 2011, The food crises and political instability in North Africa and the Middle East — food riots occur above an FAO food price index of 210",
+      "url": "https://arxiv.org/abs/1108.2455",
+      "read_from": "search abstract"
+    },
+    "vosoughi_2018": {
+      "title": "Vosoughi, Roy & Aral 2018, The spread of true and false news online (Science) — falsehood spreads farther, faster, deeper and more broadly than truth",
+      "url": "https://politics.media.mit.edu/papers/Vosoughi_Science.pdf",
+      "read_from": "search abstract"
+    },
+    "jiang_2021": {
+      "title": "Jiang, Gao & Zhuang 2021, Reciprocal spreading and debunking processes of online misinformation (Physica A 565) — SIR-type model fitted to the Hurricane Harvey immigration rumor; fitted values not obtained",
+      "url": "https://ideas.repec.org/a/eee/phsmap/v565y2021ics0378437120308700.html",
+      "read_from": "search abstract"
+    },
+    "repression_hicn_417": {
+      "title": "The Backlash Effect of State Coercion (HiCN working paper 417) — repression brings backlash in Uganda; findings across the literature contradict each other",
+      "url": "https://hicn.org/working-paper/417/",
+      "read_from": "search abstract"
+    },
+    "repression_pvg_2020": {
+      "title": "The Political Backlash of Repressive Policing (Political Violence at a Glance, 2020) — arrests and beatings raise protest in Chile, rubber bullets deter; effects fade within weeks in the US",
+      "url": "https://politicalviolenceataglance.org/2020/06/10/the-political-backlash-of-repressive-policing/",
+      "read_from": "search abstract"
+    },
+    "hazus_flood_manual": {
+      "title": "FEMA Hazus Flood Model Technical Manual 6.1 — depth–damage functions by occupancy (IND1–IND6); tables not read",
+      "url": "https://www.fema.gov/sites/default/files/documents/fema_hazus-flood-model-technical-manual-6-1.pdf",
+      "read_from": "search abstract"
+    }
+  },
+  "coefficients": [
+    {
+      "coefficient": "information_defaults.shortage",
+      "value": 4.0,
+      "unit": "pressure points per step while a district has less than a step's food",
+      "confidence": "assumed",
+      "finding": "Food price rises raise the probability of riots and demonstrations (+14.4% per standard deviation), above a threshold.",
+      "sources": [
+        "mcguirk_burke",
+        "lagi_2011"
+      ],
+      "method": "Direction and the threshold form (shortage is on or off) follow the studies; the size is not converted: the studies give a probability change, the model a pressure score.",
+      "range": [
+        1.0,
+        8.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.dark",
+      "value": 3.0,
+      "unit": "pressure points per step without power, times the night share of the step",
+      "confidence": "assumed",
+      "finding": "Outages raise crime at night only (Cape Town, +2.6% per 10 hours a month); the Texas blackouts show no effect.",
+      "sources": [
+        "cape_town_2024",
+        "texas_outages"
+      ],
+      "method": "Timing follows the Cape Town study (night share of the step, see time.night_from / night_to); the size is not converted and may be zero (Texas).",
+      "range": [
+        0.0,
+        6.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.unrest",
+      "value": 2.0,
+      "unit": "pressure points per step in unrest (twice in riot)",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Chosen in Phase 22 so a district in unrest grows uneasy within a few steps.",
+      "range": [
+        0.0,
+        4.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.spread",
+      "value": 0.25,
+      "unit": "share of a neighbour's higher pressure taken per step, times its communication",
+      "confidence": "assumed",
+      "finding": "False news spreads farther and faster than true news; an SIR-type model was fitted to a Harvey rumor, but its fitted rates could not be read.",
+      "sources": [
+        "vosoughi_2018",
+        "jiang_2021"
+      ],
+      "method": "Direction only; the rate is a Phase 22 choice.",
+      "range": [
+        0.05,
+        0.5
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.decay",
+      "value": 0.1,
+      "unit": "share of a district's own pressure that fades per step",
+      "confidence": "assumed",
+      "finding": "Rumor models carry forgetting rates; none with a value was read.",
+      "sources": [
+        "jiang_2021"
+      ],
+      "method": "A Phase 22 choice: pressure halves in about 7 steps (42 hours) without new causes.",
+      "range": [
+        0.02,
+        0.3
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.order_weight",
+      "value": 2.0,
+      "unit": "public order points lost per step per 100 pressure",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "A Phase 22 choice, softened from 4 after the crisis city collapsed in a smoke run.",
+      "range": [
+        0.5,
+        4.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.backlash_threshold",
+      "value": 60.0,
+      "unit": "pressure at or above which a patrol backfires",
+      "confidence": "assumed",
+      "finding": "Studies of repression and protest contradict each other.",
+      "sources": [
+        "repression_hicn_417",
+        "repression_pvg_2020"
+      ],
+      "method": "Mechanism kept; threshold is a Phase 22 choice.",
+      "range": [
+        40.0,
+        80.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.backlash",
+      "value": 5.0,
+      "unit": "pressure points a backfiring patrol adds",
+      "confidence": "assumed",
+      "finding": "Arrests and beatings raised protest in Chile and Uganda; rubber bullets deterred; effects fade within weeks.",
+      "sources": [
+        "repression_hicn_417",
+        "repression_pvg_2020"
+      ],
+      "method": "Mechanism kept; size is a Phase 22 choice; the range includes no backlash.",
+      "range": [
+        0.0,
+        10.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.backlash_dampen",
+      "value": 0.6,
+      "unit": "share of a backfiring patrol's order gain lost",
+      "confidence": "assumed",
+      "finding": "As backlash.",
+      "sources": [
+        "repression_hicn_417",
+        "repression_pvg_2020"
+      ],
+      "method": "A Phase 22 choice.",
+      "range": [
+        0.0,
+        0.9
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.counter_share",
+      "value": 0.14,
+      "unit": "share of a district's pressure removed by one counter-message",
+      "confidence": "derived",
+      "finding": "Corrections move belief in misinformation by r = .35 on average, r = .14 for real-world misinformation; a 2023 meta-analysis finds debunking on average not successful (d = 0.19).",
+      "sources": [
+        "walter_murphy_2018",
+        "debunking_2023"
+      ],
+      "method": "The real-world effect size r = .14 is read as the share of pressure removed (an assumption: r is a correlation, not a share); the range runs to the overall r = .35. Replaces Phase 22's fixed 12 points.",
+      "range": [
+        0.05,
+        0.35
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "information_defaults.inform_at",
+      "value": 50.0,
+      "unit": "pressure at which the city office starts counter-messaging",
+      "confidence": "assumed",
+      "finding": "None: a policy threshold, not a property of the world.",
+      "sources": [],
+      "method": "A Phase 22 choice for the baseline policy.",
+      "range": [
+        25.0,
+        75.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.flood.food_loss",
+      "value": 1.0,
+      "unit": "share of severity lost from a flooded district's food",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 22: food × (1 − severity).",
+      "range": [
+        0.5,
+        1.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.flood.medical_loss",
+      "value": 0.5,
+      "unit": "share of severity lost from a flooded district's medical care",
+      "confidence": "derived",
+      "finding": "2021 North Rhine flood: about 120 practices could not operate or only partly, over 40 were destroyed (about a third).",
+      "sources": [
+        "north_rhine_2024"
+      ],
+      "method": "At severity 0.6 medical care keeps 70% of itself, and the power cut (power_cut_at) halves what it can give (power.dark_medical): about a third left, near the study's picture of a third destroyed and the rest limited.",
+      "range": [
+        0.25,
+        0.75
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.flood.order_drop",
+      "value": 10.0,
+      "unit": "public order points lost at full severity",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 22: 10 × severity.",
+      "range": [
+        5.0,
+        20.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.flood.road_cut_at",
+      "value": 0.6,
+      "unit": "severity at or above which a flood cuts every road into its district",
+      "confidence": "derived",
+      "finding": "Road segments with at least 60% inundation are unusable (2025 Pakistan floods).",
+      "sources": [
+        "oxford_roads_2025"
+      ],
+      "method": "Severity is read as the inundated share of the district's roads (an assumption). Phase 22 cut roads at any severity.",
+      "range": [
+        0.3,
+        0.9
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.flood.power_cut_at",
+      "value": 0.0,
+      "unit": "severity at or above which a flooded district has no power while the flood lasts",
+      "confidence": "anchored",
+      "finding": "97% of practices hit by the 2021 North Rhine flood lost power.",
+      "sources": [
+        "north_rhine_2024"
+      ],
+      "method": "97% of affected sites is read as every flooded district (any severity). Phase 22 floods never cut power.",
+      "range": [
+        0.0,
+        1.01
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.fire.industry_loss",
+      "value": 1.0,
+      "unit": "share of severity lost from a burning district's industry and its capacity",
+      "confidence": "assumed",
+      "finding": "Hazus has occupancy depth–damage tables for floods; no fire table and no table values were read.",
+      "sources": [
+        "hazus_flood_manual"
+      ],
+      "method": "Phase 22: industry × (1 − severity); Phase 23 burns the capacity behind it too, so it must be rebuilt (recovery.rebuild).",
+      "range": [
+        0.5,
+        1.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.fire.administration_loss",
+      "value": 0.5,
+      "unit": "share of severity lost from a burning district's administration",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 22.",
+      "range": [
+        0.25,
+        0.75
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.fire.medical_loss",
+      "value": 0.5,
+      "unit": "share of severity lost from a burning district's medical care",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 22.",
+      "range": [
+        0.25,
+        0.75
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "disaster_effects.fire.order_drop",
+      "value": 5.0,
+      "unit": "public order points lost at full severity",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 22: 5 × severity.",
+      "range": [
+        2.0,
+        10.0
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "recovery.industry_up",
+      "value": 0.02,
+      "unit": "industry a working district resumes per step, up to its capacity",
+      "confidence": "assumed",
+      "finding": "None found: this is output resuming once power and order are back, not capacity being rebuilt.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        0.005,
+        0.05
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "recovery.industry_down",
+      "value": 0.03,
+      "unit": "industry lost per step without power or in unrest or riot",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        0.01,
+        0.06
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "recovery.rebuild",
+      "value": 0.0002,
+      "unit": "industry capacity rebuilt per step after war or fire destroyed it",
+      "confidence": "derived",
+      "finding": "About 65% of New Orleans businesses had reopened 26 months after Katrina; flood depth was the strongest predictor.",
+      "sources": [
+        "katrina_lam_2009",
+        "katrina_lam_2012"
+      ],
+      "method": "0.65 over 26 months = 0.65 / (26 × 30.44 days × 4 steps a day) = 0.000206 a step at 6 hours a step. The range runs to ten times faster for damage lighter than Katrina's flooding.",
+      "range": [
+        0.0002,
+        0.002
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "recovery.administration_up",
+      "value": 0.01,
+      "unit": "administration regained per step while stable",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        0.005,
+        0.02
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "recovery.administration_down",
+      "value": 0.02,
+      "unit": "administration lost per step in riot",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        0.01,
+        0.04
+      ],
+      "criticality": "medium"
+    },
+    {
+      "coefficient": "recovery.administer",
+      "value": 0.05,
+      "unit": "administration one administer action adds",
+      "confidence": "assumed",
+      "finding": "None found.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        0.02,
+        0.1
+      ],
+      "criticality": "high"
+    },
+    {
+      "coefficient": "repair.failure_ticks",
+      "value": 4,
+      "unit": "steps of crew work to bring a failed substation back",
+      "confidence": "derived",
+      "finding": "Hazus-based restoration of a substation takes about 1 day for slight and 3 days for moderate damage (earthquake functions); after large storms about half of customers wait up to 5 days.",
+      "sources": [
+        "hazus_substation",
+        "utility_storms"
+      ],
+      "method": "Slight damage, 1 day = 24 hours / 6 hours a step = 4 steps; the range runs to moderate damage (3 days = 12 steps). Phase 14 used 3.",
+      "range": [
+        4,
+        12
+      ],
+      "criticality": "medium"
+    },
+    {
+      "coefficient": "repair.trip_ticks",
+      "value": 1,
+      "unit": "steps to reset a substation its protection tripped",
+      "confidence": "assumed",
+      "finding": "None found: a trip is reset, not repaired.",
+      "sources": [],
+      "method": "Phase 14.",
+      "range": [
+        1,
+        2
+      ],
+      "criticality": "low"
+    },
+    {
+      "coefficient": "order.dark",
+      "value": -2.5,
+      "unit": "public order points per step without power, times the night share of the step",
+      "confidence": "assumed",
+      "finding": "Outages raise crime at night only (Cape Town, +2.6% per 10 hours a month); the Texas blackouts show no effect.",
+      "sources": [
+        "cape_town_2024",
+        "texas_outages"
+      ],
+      "method": "Timing follows the Cape Town study (night share of the step); the size is Phase 14's and may be zero (Texas). On a tick clock, which has no time of day, a step counts half night.",
+      "range": [
+        -2.5,
+        0.0
+      ],
+      "criticality": "high"
+    }
+  ]
+}

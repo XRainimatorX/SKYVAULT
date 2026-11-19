@@ -42,7 +42,9 @@ def order_delta(conditions: dict[str, Any], rules: dict[str, Any]) -> dict[str, 
 
     conditions: food_left (after eating), eaten (this tick's consumption),
     powered, medical and administration (effective, 0–1), population,
-    riot_next_door. Returns each part and their sum ("total").
+    riot_next_door, and night (the share of the tick that is night, 1 when
+    absent: darkness costs order at night only, Phase 23). Returns each part
+    and their sum ("total").
 
     Important:
     Hunger hurts more where more people live (pressure_per_100k). A fed,
@@ -70,7 +72,7 @@ def order_delta(conditions: dict[str, Any], rules: dict[str, Any]) -> dict[str, 
     elif conditions["food_left"] < conditions["eaten"] * rules["food"]["short_ticks"]:
         parts["short_food"] = order["short_food"]
     if not conditions["powered"]:
-        parts["dark"] = order["dark"]
+        parts["dark"] = order["dark"] * float(conditions.get("night", 1.0))
     if fed and conditions["powered"]:
         parts["recovery"] = order["recovery"]
     parts = {key: round(value, 4) for key, value in parts.items()}
@@ -132,3 +134,24 @@ def eta(distance: float, factor: float) -> int:
     if math.isinf(distance):
         raise ValueError("no road leads there")
     return max(1, math.ceil(round(float(distance) * float(factor), 6)))
+
+
+def night_share(
+    start_hour: float | None, hours: float, night_from: float, night_to: float
+) -> float:
+    """
+    The share of a step of hours, starting at start_hour of the day, that
+    falls between night_from and night_to (night_to < night_from: the night
+    crosses midnight). start_hour None (the clock has no time of day): the
+    share of a whole day that is night.
+    """
+    night = (night_to - night_from) % 24
+    if start_hour is None or hours <= 0:
+        return round(night / 24, 4)
+    covered = 0.0
+    for day in range(int((start_hour + hours) // 24) + 2):
+        begin = night_from + 24 * (day - 1)
+        covered += max(
+            0.0, min(begin + night, start_hour + hours) - max(begin, start_hour)
+        )
+    return round(min(1.0, covered / hours), 4)

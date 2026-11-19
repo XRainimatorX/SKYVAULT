@@ -161,6 +161,35 @@ def test_acceptance_runs_here_and_writes_its_report(capsys, tmp_path):
     )
 
 
+def test_calibration_shows_each_coefficient_and_what_to_measure_first(
+    capsys, tmp_path, monkeypatch
+):
+    assert cli.main(["calibration"]) == 0
+    out = capsys.readouterr().out
+    assert out.startswith("city calibration v0.1: 1 anchored, 5 derived, 23 assumed")
+    assert "repair.failure_ticks" in out and "measure first: " in out
+    # --sweep reruns the analysis (here a stand-in) and --out writes it
+    import skyvault.domains.city.sensitivity as sensitivity
+
+    report = sensitivity.load_sensitivity()
+    seen = {}
+
+    def fake_sweep(scenarios, registry, only=None, progress=None):
+        seen["only"] = only
+        progress("repair.failure_ticks")
+        return report
+
+    monkeypatch.setattr(sensitivity, "sweep", fake_sweep)
+    out_file = tmp_path / "sensitivity.json"
+    argv = ["calibration", "--sweep", "--only", "repair.failure_ticks"]
+    assert cli.main([*argv, "--out", str(out_file)]) == 0
+    printed = capsys.readouterr()
+    assert seen["only"] == ["repair.failure_ticks"]
+    assert "sweeping repair.failure_ticks" in printed.err
+    assert "information_defaults.shortage" not in printed.out  # --only filters
+    assert json.loads(out_file.read_text()) == report
+
+
 def test_a_failing_acceptance_exits_1(capsys, monkeypatch):
     import skyvault.acceptance.run as run_module
 

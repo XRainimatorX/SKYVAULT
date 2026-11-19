@@ -537,7 +537,243 @@
         "value": "slow",
         "confidence": 0.7,
         "criticality": "medium"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.shortage",
+        "description": "pressure points per step while a district has less than a step's food (assumed). Direction and the threshold form (shortage is on or off) follow the studies; the size is not converted: the studies give a probability change, the model a pressure score.",
+        "category": "coefficient",
+        "value": 4.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.dark",
+        "description": "pressure points per step without power, times the night share of the step (assumed). Timing follows the Cape Town study (night share of the step, see time.night_from / night_to); the size is not converted and may be zero (Texas).",
+        "category": "coefficient",
+        "value": 3.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.unrest",
+        "description": "pressure points per step in unrest (twice in riot) (assumed). Chosen in Phase 22 so a district in unrest grows uneasy within a few steps.",
+        "category": "coefficient",
+        "value": 2.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.spread",
+        "description": "share of a neighbour's higher pressure taken per step, times its communication (assumed). Direction only; the rate is a Phase 22 choice.",
+        "category": "coefficient",
+        "value": 0.25,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.decay",
+        "description": "share of a district's own pressure that fades per step (assumed). A Phase 22 choice: pressure halves in about 7 steps (42 hours) without new causes.",
+        "category": "coefficient",
+        "value": 0.1,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.order_weight",
+        "description": "public order points lost per step per 100 pressure (assumed). A Phase 22 choice, softened from 4 after the crisis city collapsed in a smoke run.",
+        "category": "coefficient",
+        "value": 2.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.backlash_threshold",
+        "description": "pressure at or above which a patrol backfires (assumed). Mechanism kept; threshold is a Phase 22 choice.",
+        "category": "coefficient",
+        "value": 60.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.backlash",
+        "description": "pressure points a backfiring patrol adds (assumed). Mechanism kept; size is a Phase 22 choice; the range includes no backlash.",
+        "category": "coefficient",
+        "value": 5.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.backlash_dampen",
+        "description": "share of a backfiring patrol's order gain lost (assumed). A Phase 22 choice.",
+        "category": "coefficient",
+        "value": 0.6,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.counter_share",
+        "description": "share of a district's pressure removed by one counter-message (derived). The real-world effect size r = .14 is read as the share of pressure removed (an assumption: r is a correlation, not a share); the range runs to the overall r = .35. Replaces Phase 22's fixed 12 points.",
+        "category": "coefficient",
+        "value": 0.14,
+        "confidence": 0.5,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.information_defaults.inform_at",
+        "description": "pressure at which the city office starts counter-messaging (assumed). A Phase 22 choice for the baseline policy.",
+        "category": "coefficient",
+        "value": 50.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.flood.food_loss",
+        "description": "share of severity lost from a flooded district's food (assumed). Phase 22: food × (1 − severity).",
+        "category": "coefficient",
+        "value": 1.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.flood.medical_loss",
+        "description": "share of severity lost from a flooded district's medical care (derived). At severity 0.6 medical care keeps 70% of itself, and the power cut (power_cut_at) halves what it can give (power.dark_medical): about a third left, near the study's picture of a third destroyed and the rest limited.",
+        "category": "coefficient",
+        "value": 0.5,
+        "confidence": 0.5,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.flood.order_drop",
+        "description": "public order points lost at full severity (assumed). Phase 22: 10 × severity.",
+        "category": "coefficient",
+        "value": 10.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.flood.road_cut_at",
+        "description": "severity at or above which a flood cuts every road into its district (derived). Severity is read as the inundated share of the district's roads (an assumption). Phase 22 cut roads at any severity.",
+        "category": "coefficient",
+        "value": 0.6,
+        "confidence": 0.5,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.flood.power_cut_at",
+        "description": "severity at or above which a flooded district has no power while the flood lasts (anchored). 97% of affected sites is read as every flooded district (any severity). Phase 22 floods never cut power.",
+        "category": "coefficient",
+        "value": 0.0,
+        "confidence": 0.7,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.fire.industry_loss",
+        "description": "share of severity lost from a burning district's industry and its capacity (assumed). Phase 22: industry × (1 − severity); Phase 23 burns the capacity behind it too, so it must be rebuilt (recovery.rebuild).",
+        "category": "coefficient",
+        "value": 1.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.fire.administration_loss",
+        "description": "share of severity lost from a burning district's administration (assumed). Phase 22.",
+        "category": "coefficient",
+        "value": 0.5,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.fire.medical_loss",
+        "description": "share of severity lost from a burning district's medical care (assumed). Phase 22.",
+        "category": "coefficient",
+        "value": 0.5,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.disaster_effects.fire.order_drop",
+        "description": "public order points lost at full severity (assumed). Phase 22: 5 × severity.",
+        "category": "coefficient",
+        "value": 5.0,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.recovery.industry_up",
+        "description": "industry a working district resumes per step, up to its capacity (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 0.02,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.recovery.industry_down",
+        "description": "industry lost per step without power or in unrest or riot (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 0.03,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.recovery.rebuild",
+        "description": "industry capacity rebuilt per step after war or fire destroyed it (derived). 0.65 over 26 months = 0.65 / (26 × 30.44 days × 4 steps a day) = 0.000206 a step at 6 hours a step. The range runs to ten times faster for damage lighter than Katrina's flooding.",
+        "category": "coefficient",
+        "value": 0.0002,
+        "confidence": 0.5,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.recovery.administration_up",
+        "description": "administration regained per step while stable (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 0.01,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.recovery.administration_down",
+        "description": "administration lost per step in riot (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 0.02,
+        "confidence": 0.3,
+        "criticality": "medium"
+      },
+      {
+        "assumption_id": "coefficient.recovery.administer",
+        "description": "administration one administer action adds (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 0.05,
+        "confidence": 0.3,
+        "criticality": "high"
+      },
+      {
+        "assumption_id": "coefficient.repair.failure_ticks",
+        "description": "steps of crew work to bring a failed substation back (derived). Slight damage, 1 day = 24 hours / 6 hours a step = 4 steps; the range runs to moderate damage (3 days = 12 steps). Phase 14 used 3.",
+        "category": "coefficient",
+        "value": 4,
+        "confidence": 0.5,
+        "criticality": "medium"
+      },
+      {
+        "assumption_id": "coefficient.repair.trip_ticks",
+        "description": "steps to reset a substation its protection tripped (assumed). Phase 14.",
+        "category": "coefficient",
+        "value": 1,
+        "confidence": 0.3,
+        "criticality": "low"
+      },
+      {
+        "assumption_id": "coefficient.order.dark",
+        "description": "public order points per step without power, times the night share of the step (assumed). Timing follows the Cape Town study (night share of the step); the size is Phase 14's and may be zero (Texas). On a tick clock, which has no time of day, a step counts half night.",
+        "category": "coefficient",
+        "value": -2.5,
+        "confidence": 0.3,
+        "criticality": "high"
       }
+    ],
+    "critical_assumptions": [
+      "coefficient.recovery.administer",
+      "coefficient.order.dark"
     ]
   },
   "data_provenance": {
@@ -553,14 +789,157 @@
         "source_id": "city_takeover_001_districts",
         "source_type": "historical_record",
         "confidence": 0.6
+      },
+      {
+        "source_id": "calibration.cape_town_2024",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.debunking_2023",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.hazus_flood_manual",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.hazus_substation",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.jiang_2021",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.katrina_lam_2009",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.katrina_lam_2012",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.lagi_2011",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.mcguirk_burke",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.north_rhine_2024",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.oxford_roads_2025",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.repression_hicn_417",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.repression_pvg_2020",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.texas_outages",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.utility_storms",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.vosoughi_2018",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
+      },
+      {
+        "source_id": "calibration.walter_murphy_2018",
+        "source_type": "external_data",
+        "confidence": 0.5,
+        "version": "0.1",
+        "modified_by": "SKYVAULT Phase 23"
       }
     ],
     "reliability_notes": [
-      "districts, roads and power come from city_takeover_001"
+      "districts, roads and power come from city_takeover_001",
+      "city coefficients (calibration.json v0.1): 1 anchored, 5 derived, 23 assumed; sources read from search abstracts, full texts not read"
     ],
     "missing_data": [
       "rainfall per district",
-      "real road capacities"
+      "real road capacities",
+      "a measured value for information_defaults.shortage",
+      "a measured value for information_defaults.dark",
+      "a measured value for information_defaults.unrest",
+      "a measured value for information_defaults.spread",
+      "a measured value for information_defaults.decay",
+      "a measured value for information_defaults.order_weight",
+      "a measured value for information_defaults.backlash_threshold",
+      "a measured value for information_defaults.backlash",
+      "a measured value for information_defaults.backlash_dampen",
+      "a measured value for information_defaults.inform_at",
+      "a measured value for disaster_effects.flood.food_loss",
+      "a measured value for disaster_effects.flood.order_drop",
+      "a measured value for disaster_effects.fire.industry_loss",
+      "a measured value for disaster_effects.fire.administration_loss",
+      "a measured value for disaster_effects.fire.medical_loss",
+      "a measured value for disaster_effects.fire.order_drop",
+      "a measured value for recovery.industry_up",
+      "a measured value for recovery.industry_down",
+      "a measured value for recovery.administration_up",
+      "a measured value for recovery.administration_down",
+      "a measured value for recovery.administer",
+      "a measured value for repair.trip_ticks",
+      "a measured value for order.dark"
     ]
   },
   "participants": {

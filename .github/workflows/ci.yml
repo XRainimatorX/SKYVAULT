@@ -434,6 +434,9 @@ jobs:
           if skyvault run tactical_reference_001/v0.1; then echo "SKYVAULT ran the Phase 0 slice"; exit 1; fi
           skyvault acceptance | tee acceptance.txt
           tail -1 acceptance.txt | grep -qx ACCEPTED
+          skyvault calibration | tee calibration.txt
+          grep -q "^city calibration v0.1: 1 anchored, 5 derived, 23 assumed" calibration.txt
+          grep -q "^measure first: " calibration.txt
           test ! -e output
 
       # Phase 18: training data from the sources file, filtered for score gaming

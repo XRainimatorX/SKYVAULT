@@ -9,7 +9,8 @@ city.information, so a city without it runs exactly as before.
 
 Each district carries emotional_pressure (0–100). Every tick it moves by:
   shortage   less than a tick's food left
-  dark       no power
+  dark       no power, by the share of the step that is night (Phase 23:
+             darkness moves crime at night only)
   unrest     its order is in unrest (twice that in riot)
   rumor      sources active this tick (rules.information.sources)
   spread     from each neighbour on the road network with more pressure:
@@ -18,7 +19,13 @@ Each district carries emotional_pressure (0–100). Every tick it moves by:
 Pressure pulls public order down (order_weight per 100 pressure, in
 order_delta); police patrolling a district at or above backlash_threshold
 gain less order and raise pressure (backlash); the city office can answer
-with counter-messaging (inform).
+with counter-messaging (inform), which removes counter_share of a
+district's pressure.
+
+The coefficients are the city rules' information_defaults (Phase 23: each
+one's source and confidence is in data/domains/city/calibration.json); a
+scenario's own information rules override them. DEFAULTS is the same set,
+for rules written without information_defaults.
 """
 
 from typing import Any
@@ -34,7 +41,7 @@ DEFAULTS: dict[str, Any] = {
     "backlash_threshold": 60.0,
     "backlash": 5.0,
     "backlash_dampen": 0.6,
-    "counter": 12.0,
+    "counter_share": 0.14,
     "inform_at": 50.0,
     "initial": {},
     "sources": [],
@@ -46,7 +53,7 @@ def information_rules(rules: dict[str, Any]) -> dict[str, Any] | None:
     given = rules.get("information")
     if given is None:
         return None
-    return {**DEFAULTS, **given}
+    return {**DEFAULTS, **rules.get("information_defaults", {}), **given}
 
 
 def opinion_state(pressure: float) -> str:
@@ -84,7 +91,8 @@ def pressure_step(
     """
     One tick of the information environment.
 
-    districts: {id: {pressure, short, powered, order_state, communication}};
+    districts: {id: {pressure, short, powered, order_state, communication,
+    night}} — night is the share of the step that is night (1 when absent);
     neighbours: {id: [ids]} on the road network; rumors: active_sources.
     Returns {id: {before, after, parts, spread_from}}: spread_from lists
     the neighbours pressure came from and how much, largest first — the
@@ -105,7 +113,11 @@ def pressure_step(
         spread_from.sort(key=lambda row: (-row["amount"], row["from"]))
         parts = {
             "shortage": float(info["shortage"]) if d["short"] else 0.0,
-            "dark": 0.0 if d["powered"] else float(info["dark"]),
+            "dark": (
+                0.0
+                if d["powered"]
+                else float(info["dark"]) * float(d.get("night", 1.0))
+            ),
             "unrest": float(info["unrest"])
             * {"unrest": 1, "riot": 2}.get(d["order_state"], 0),
             "rumor": float(rumors.get(did, 0.0)),
@@ -132,3 +144,8 @@ def order_pull(pressure: float, info: dict[str, Any]) -> float:
 def backlash(pressure: float, info: dict[str, Any]) -> bool:
     """Does a patrol here backfire? At or above backlash_threshold."""
     return float(pressure) >= float(info["backlash_threshold"])
+
+
+def counter(pressure: float, info: dict[str, Any]) -> float:
+    """Pressure left after counter-messaging: counter_share of it is removed."""
+    return round(float(pressure) * (1 - float(info["counter_share"])), 4)

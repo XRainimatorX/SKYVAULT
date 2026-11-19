@@ -25,17 +25,26 @@ from ...action import Action
 from ...actions import ActionContext, ActionValidation
 from ...consequence import Consequence, DirectEffect
 from ...world_state import WorldState
-from .disasters import closed_roads, damage
+from .disasters import closed_roads, damage, flooded_dark
 from .information import (
     active_sources,
     backlash,
+    counter,
     information_rules,
     opinion_state,
     order_pull,
     pressure_of,
     pressure_step,
 )
-from .model import consumption, demand, eta, order_delta, order_state, power_flow
+from .model import (
+    consumption,
+    demand,
+    eta,
+    night_share,
+    order_delta,
+    order_state,
+    power_flow,
+)
 
 ACTION_TYPES = (
     "travel",
@@ -68,6 +77,22 @@ def step_of(world: Any) -> int:
     """
     length = world.phase_length
     return int(world.tick) // int(length) if length else int(world.tick)
+
+
+def night_of(world: Any) -> float:
+    """
+    The share of this step that is night (rules.time): on a clock of phases
+    in hours that starts at midnight, from the hours the phase covers; on a
+    tick clock, which has no time of day, the share of a day that is night.
+    """
+    time = world.rules.require("city").get("time") or {}
+    night_from = float(time.get("night_from", 18))
+    night_to = float(time.get("night_to", 6))
+    length = world.phase_length
+    clock = getattr(world, "clock", None)
+    if not length or getattr(clock, "time_unit", None) != "hours":
+        return night_share(None, 0, night_from, night_to)
+    return night_share(float(int(world.tick) % 24), float(length), night_from, night_to)
 
 
 def road_distance(world: Any, a: Any, b: Any) -> float:
@@ -438,8 +463,8 @@ class AdministerHandler:
 class InformHandler:
     """
     inform: the city office answers rumor in one district with
-    counter-messaging, lowering its emotional pressure by
-    rules.information.counter. Only with the information model.
+    counter-messaging, removing rules.information.counter_share of its
+    emotional pressure. Only with the information model.
     """
 
     action_type = "inform"
@@ -465,7 +490,7 @@ class InformHandler:
             raise ValueError("this city has no information model")
         target = world.get_entity(str(action.target.entity_id))
         before = pressure_of(target.state, info, target.entity_id)
-        after = round(max(0.0, before - float(info["counter"])), 4)
+        after = counter(before, info)
         return _done(
             action,
             "Inform resolved",
@@ -604,8 +629,11 @@ class PowerUpdateHandler:
                     )
                 )
 
+        flooded = flooded_dark(rules, step_of(world))
         for district in districts(world):
             feeder = after["feeds"].get(district.entity_id)
+            if district.entity_id in flooded:
+                feeder = None
             powered = int(feeder is not None)
             if (
                 powered != int(district.state["power"])
@@ -659,7 +687,7 @@ class DisasterUpdateHandler:
             ):
                 continue
             district = world.get_entity(disaster["district"])
-            changes = damage(disaster, district.state)
+            changes = damage(disaster, district.state, rules)
             changes["order_state"] = order_state(changes["public_order"], rules)
             effects.append(
                 _state(
@@ -801,6 +829,7 @@ class InformationUpdateHandler:
             raise ValueError("this city has no information model")
         every = districts(world)
         by_place = {d.position: d.entity_id for d in every}
+        night = night_of(world)
         current = {
             d.entity_id: {
                 "pressure": pressure_of(d.state, info, d.entity_id),
@@ -809,6 +838,7 @@ class InformationUpdateHandler:
                 "powered": bool(d.state["power"]),
                 "order_state": d.state["order_state"],
                 "communication": float(d.state["communication"]),
+                "night": night,
             }
             for d in every
         }
@@ -856,6 +886,10 @@ class DistrictUpdateHandler:
     administration drift with power and order, and its public order moves
     by order_delta plus a small draw (rules.order.noise). A change of band
     is recorded as from_state → to_state.
+
+    Industry resumes at recovery.industry_up but never above the capacity
+    behind it (industry_capacity, 1 unless war or fire destroyed some);
+    destroyed capacity is rebuilt at recovery.rebuild a step (Phase 23).
     """
 
     action_type = "district_update"
@@ -895,6 +929,7 @@ class DistrictUpdateHandler:
                 "administration": administration,
                 "population": float(state["population"]),
                 "riot_next_door": riot_next_door,
+                "night": night_of(world),
             },
             rules,
         )
@@ -910,8 +945,12 @@ class DistrictUpdateHandler:
         band = order_state(after, rules)
         recovery = rules["recovery"]
         working = powered and band in ("stable", "tense")
-        industry = float(state["industry"]) + (
-            recovery["industry_up"] if working else -recovery["industry_down"]
+        capacity = float(state.get("industry_capacity", 1.0))
+        rebuilt = round(min(1.0, capacity + float(recovery.get("rebuild", 0.0))), 6)
+        industry = min(
+            rebuilt,
+            float(state["industry"])
+            + (recovery["industry_up"] if working else -recovery["industry_down"]),
         )
         admin = float(state["administration"]) + (
             recovery["administration_up"]
@@ -930,6 +969,11 @@ class DistrictUpdateHandler:
                         "order_state": band,
                         "industry": round(min(1.0, max(0.0, industry)), 4),
                         "administration": round(min(1.0, max(0.0, admin)), 4),
+                        **(
+                            {"industry_capacity": rebuilt}
+                            if "industry_capacity" in state
+                            else {}
+                        ),
                     },
                     ["district_update", "public_order", "state_change"],
                     {

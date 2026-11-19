@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from ...compiler import publish
+from .calibration import load_calibration
 from .scenario import build_city_scenario
 
 DATA = Path(__file__).resolve().parents[4] / "data"
@@ -20,10 +21,11 @@ def load_rules() -> dict[str, Any]:
 def reference_scenarios() -> dict[str, dict[str, Any]]:
     """Every city spec, built: {scenario_id: scenario}."""
     rules = load_rules()
+    calibration = load_calibration()
     built = {}
     for path in sorted(SPECS.glob("*.json")):
         spec = json.loads(path.read_text(encoding="utf-8"))
-        built[spec["scenario_id"]] = build_city_scenario(spec, rules)
+        built[spec["scenario_id"]] = build_city_scenario(spec, rules, calibration)
     return built
 
 

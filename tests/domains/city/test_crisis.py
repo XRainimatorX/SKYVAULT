@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from skyvault.domains.city.disasters import active, closed_roads, damage
+from skyvault.domains.city.disasters import active, closed_roads, damage, flooded_dark
 from skyvault.domains.city.reference import load_rules, reference_scenarios
 from skyvault.domains.city.scenario import build_city_scenario
 from skyvault.domains.city.score import recovery_outcome
@@ -56,7 +56,13 @@ def test_a_disaster_lasts_from_its_tick_for_its_duration():
 def test_floods_cut_every_road_into_their_district_and_closures_one_road():
     rules = {
         "disasters": [
-            {"type": "flood", "tick": 0, "duration": 2, "district": "a"},
+            {
+                "type": "flood",
+                "tick": 0,
+                "duration": 2,
+                "district": "a",
+                "severity": 0.6,
+            },
             {"type": "road_closure", "tick": 1, "duration": 1, "road": ["b", "c"]},
             {"type": "fire", "tick": 0, "duration": 5, "district": "c"},
         ]
@@ -70,6 +76,18 @@ def test_floods_cut_every_road_into_their_district_and_closures_one_road():
     assert closed_roads(rules, 2, EDGES) == set()
     rules["disasters"][2]["closes_roads"] = True
     assert frozenset("bc") in closed_roads(rules, 3, EDGES)
+
+
+def test_a_flood_cuts_roads_from_road_cut_at_and_power_from_power_cut_at():
+    shallow = {"type": "flood", "tick": 0, "duration": 1, "district": "a"}
+    rules = {"disasters": [{**shallow, "severity": 0.59}]}
+    # Phase 23: roads go at 60% inundation (calibration.json road_cut_at)
+    assert closed_roads(rules, 0, EDGES) == set()
+    assert flooded_dark(rules, 0) == {"a"}  # 97% of flooded sites lost power
+    assert flooded_dark(rules, 1) == set()
+    rules["disaster_effects"] = {"flood": {"road_cut_at": 0.5, "power_cut_at": 0.6}}
+    assert closed_roads(rules, 0, EDGES) == {frozenset("ab"), frozenset("ac")}
+    assert flooded_dark(rules, 0) == set()
 
 
 def test_floods_and_fires_damage_what_they_say():
@@ -87,11 +105,18 @@ def test_floods_and_fires_damage_what_they_say():
     }
     assert damage({"type": "fire", "severity": 0.5}, state) == {
         "industry": 0.3,
+        "industry_capacity": 0.5,  # what burns has to be rebuilt
         "administration": 0.3,
         "medical": 0.6,
         "public_order": 47.5,
     }
     assert damage({"type": "road_closure", "road": ["a", "b"]}, state) == {}
+    halved = {"disaster_effects": {"flood": {"food_loss": 0.5, "order_drop": 0.0}}}
+    assert damage({"type": "flood", "severity": 0.5}, state, halved) == {
+        "food": 7.5,
+        "medical": 0.6,
+        "public_order": 50.0,
+    }
 
 
 def test_the_builder_refuses_a_disaster_naming_nothing():

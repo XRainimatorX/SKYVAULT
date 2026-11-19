@@ -105,7 +105,7 @@
   "rule_set": {
     "city": {
       "pack_id": "city",
-      "version": "0.1",
+      "version": "0.2",
       "order": {
         "stable": 70,
         "tense": 50,
@@ -139,7 +139,7 @@
         "delay_factor": 1.0
       },
       "repair": {
-        "failure_ticks": 3,
+        "failure_ticks": 4,
         "trip_ticks": 1
       },
       "recovery": {
@@ -147,7 +147,41 @@
         "industry_down": 0.03,
         "administration_up": 0.01,
         "administration_down": 0.02,
-        "administer": 0.05
+        "administer": 0.05,
+        "rebuild": 0.0002
+      },
+      "time": {
+        "step_hours": 6,
+        "night_from": 18,
+        "night_to": 6
+      },
+      "information_defaults": {
+        "shortage": 4.0,
+        "dark": 3.0,
+        "unrest": 2.0,
+        "spread": 0.25,
+        "decay": 0.1,
+        "order_weight": 2.0,
+        "backlash_threshold": 60.0,
+        "backlash": 5.0,
+        "backlash_dampen": 0.6,
+        "counter_share": 0.14,
+        "inform_at": 50.0
+      },
+      "disaster_effects": {
+        "flood": {
+          "food_loss": 1.0,
+          "medical_loss": 0.5,
+          "order_drop": 10.0,
+          "road_cut_at": 0.6,
+          "power_cut_at": 0.0
+        },
+        "fire": {
+          "industry_loss": 1.0,
+          "administration_loss": 0.5,
+          "medical_loss": 0.5,
+          "order_drop": 5.0
+        }
       },
       "score": {
         "weights": {
@@ -185,6 +219,7 @@
     "logistics_recovery"
   ],
   "assumption_registry": {
+    "coefficients": "city calibration v0.1: 1 anchored, 5 derived, 23 assumed",
     "movement_model": "road_network_travel_ticks",
     "public_order": "banded_state_machine",
     "power": "substation_backup_with_overload_trip",

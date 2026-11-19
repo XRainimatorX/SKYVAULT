@@ -58,10 +58,12 @@ def test_a_city_measures_governance_and_crisis_in_its_own_terms(city):
     scores = city["evaluation_result"]["scores"]
     breakdown = city["score_breakdown"]
 
-    assert scores["governance_stability"] == pytest.approx(0.4691, abs=1e-4)
-    assert scores["crisis_resilience"] == pytest.approx(0.535, abs=1e-3)
+    # Phase 23: darkness costs order at night only (Phase 22: 0.4691, 0.535,
+    # lowest 0.28 at tick 13)
+    assert scores["governance_stability"] == pytest.approx(0.5028, abs=1e-4)
+    assert scores["crisis_resilience"] == pytest.approx(0.582, abs=1e-3)
     assert breakdown["crisis_resilience"]["explanation"].startswith(
-        "lowest governance score 0.28 at tick 13"
+        "lowest governance score 0.30 at tick 11"
     )
 
 

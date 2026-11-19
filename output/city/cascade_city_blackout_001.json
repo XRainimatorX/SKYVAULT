@@ -11,8 +11,10 @@
       "west"
     ],
     "11": [
+      "center",
       "east",
       "harbor",
+      "market",
       "north",
       "south",
       "west"
@@ -32,8 +34,11 @@
       "west"
     ],
     "14": [
+      "east",
       "harbor",
-      "south"
+      "north",
+      "south",
+      "west"
     ],
     "15": [
       "harbor",
@@ -52,6 +57,10 @@
       "south"
     ],
     "19": [
+      "harbor",
+      "south"
+    ],
+    "20": [
       "harbor",
       "south"
     ],
@@ -141,15 +150,15 @@
   "restored": [
     {
       "substation": "sub_center",
-      "tick": 10
+      "tick": 11
     },
     {
       "substation": "sub_north",
-      "tick": 13
+      "tick": 14
     },
     {
       "substation": "sub_south",
-      "tick": 19
+      "tick": 20
     }
   ]
 }

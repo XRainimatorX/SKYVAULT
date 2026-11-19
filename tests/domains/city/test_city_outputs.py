@@ -93,7 +93,9 @@ def test_a_restored_city_scores_above_a_blacked_out_one_and_above_its_start():
 
 def test_rising_order_trends_above_one_half_and_falling_below():
     series = governance_stability(BLACKOUT_RUN, BLACKOUT)["series"]
-    falling = [r for r in series if 6 <= r["tick"] <= 9]
+    # Phase 23: darkness costs order at night only, so the fall starts at
+    # tick 8 rather than 6 (Phase 14: 6–9)
+    falling = [r for r in series if 8 <= r["tick"] <= 14]
     assert all(r["trend"] < 0.5 for r in falling)
     rising = governance_stability(TAKEOVER_RUN, TAKEOVER)["series"][5:10]
     assert all(r["trend"] > 0.5 for r in rising)

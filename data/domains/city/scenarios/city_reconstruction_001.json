@@ -34,7 +34,8 @@
    "food": 5,
    "medical": 0.35,
    "industry": 0.12,
-   "administration": 0.25
+   "administration": 0.25,
+   "industry_capacity": 0.12
   },
   {
    "id": "market",
@@ -44,7 +45,8 @@
    "food": 5,
    "medical": 0.25,
    "industry": 0.15,
-   "administration": 0.2
+   "administration": 0.2,
+   "industry_capacity": 0.15
   },
   {
    "id": "harbor",
@@ -54,7 +56,8 @@
    "food": 5,
    "medical": 0.15,
    "industry": 0.18,
-   "administration": 0.15
+   "administration": 0.15,
+   "industry_capacity": 0.18
   },
   {
    "id": "north",
@@ -64,7 +67,8 @@
    "food": 5,
    "medical": 0.3,
    "industry": 0.06,
-   "administration": 0.25
+   "administration": 0.25,
+   "industry_capacity": 0.06
   },
   {
    "id": "east",
@@ -74,7 +78,8 @@
    "food": 5,
    "medical": 0.2,
    "industry": 0.06,
-   "administration": 0.2
+   "administration": 0.2,
+   "industry_capacity": 0.06
   },
   {
    "id": "south",
@@ -84,7 +89,8 @@
    "food": 5,
    "medical": 0.1,
    "industry": 0.05,
-   "administration": 0.1
+   "administration": 0.1,
+   "industry_capacity": 0.05
   },
   {
    "id": "west",
@@ -94,7 +100,8 @@
    "food": 5,
    "medical": 0.25,
    "industry": 0.09,
-   "administration": 0.3
+   "administration": 0.3,
+   "industry_capacity": 0.09
   },
   {
    "id": "works",
@@ -104,7 +111,8 @@
    "food": 5,
    "medical": 0.15,
    "industry": 0.24,
-   "administration": 0.15
+   "administration": 0.15,
+   "industry_capacity": 0.24
   }
  ],
  "roads": [

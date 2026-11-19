@@ -12,6 +12,13 @@ import copy
 from typing import Any
 
 from ...contracts import SCHEMA_VERSION, validate_compiled_scenario
+from .calibration import (
+    coefficient_assumptions,
+    coefficient_provenance,
+    load_calibration,
+    registry_problems,
+    summary,
+)
 from .disasters import DISASTERS
 from .model import order_state
 
@@ -27,7 +34,11 @@ FAILURE_VARIABLES = (
 )
 
 
-def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]:
+def build_city_scenario(
+    spec: dict[str, Any],
+    rules: dict[str, Any],
+    calibration: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     The scenario spec describes, validated against the scenario contract.
 
@@ -45,6 +56,13 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
     to the model's own), data_provenance, and the scenario's own
     assumption_registry and scenario_provenance (section 11); without them
     the city is built as before.
+
+    Phase 23: when the rules are the ones the coefficient registry describes
+    (calibration.json, by default the pack's), every coefficient joins the
+    scenario's assumption_registry with its confidence, the registry's
+    sources join its data_provenance, and the world's assumption_registry
+    names the registry. Rules that differ from it are recorded as custom.
+    A district may carry industry_capacity (war has destroyed the rest).
     """
     nodes = [d["id"] for d in spec["districts"]]
     known = set(nodes)
@@ -107,6 +125,14 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
         world.get("time_model") or {"type": "tick", "max_ticks": spec["max_ticks"]}
     )
     variables = list(spec.get("failure_variables") or FAILURE_VARIABLES)
+    calibration = load_calibration() if calibration is None else calibration
+    differs = registry_problems(rules, calibration)
+    calibrated = not differs
+    coefficients = (
+        summary(calibration)
+        if calibrated
+        else f"custom: differs from the city calibration at {len(differs)} points"
+    )
     scenario = {
         "schema_version": SCHEMA_VERSION,
         "scenario_id": spec["scenario_id"],
@@ -133,6 +159,7 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             "space_model": space,
             "time_model": time_model,
             "assumption_registry": {
+                "coefficients": coefficients,
                 "movement_model": "road_network_travel_ticks",
                 "public_order": "banded_state_machine",
                 "power": "substation_backup_with_overload_trip",
@@ -180,26 +207,7 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             },
             "survival_threshold": 0.5,
         },
-        **(
-            {
-                "assumption_registry": {
-                    "scenario_id": spec["scenario_id"],
-                    "assumptions": copy.deepcopy(spec["assumption_registry"]),
-                }
-            }
-            if spec.get("assumption_registry")
-            else {}
-        ),
-        **(
-            {
-                "data_provenance": {
-                    "scenario_id": spec["scenario_id"],
-                    **copy.deepcopy(spec["scenario_provenance"]),
-                }
-            }
-            if spec.get("scenario_provenance")
-            else {}
-        ),
+        **_registries(spec, calibration if calibrated else None),
         "entities": entities,
         "runtime": {
             "max_ticks": spec["max_ticks"],
@@ -214,6 +222,40 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
         },
     }
     return validate_compiled_scenario(scenario)
+
+
+def _registries(
+    spec: dict[str, Any], calibration: dict[str, Any] | None
+) -> dict[str, Any]:
+    """The scenario's assumption_registry and data_provenance (section 11)."""
+    assumptions = copy.deepcopy(spec.get("assumption_registry") or [])
+    provenance = copy.deepcopy(spec.get("scenario_provenance") or {})
+    out: dict[str, Any] = {}
+    if calibration is not None:
+        coefficients = coefficient_assumptions(calibration)
+        assumptions += coefficients
+        sources = coefficient_provenance(calibration)
+        for key in ("sources", "reliability_notes", "missing_data"):
+            provenance[key] = list(provenance.get(key, [])) + sources[key]
+    if assumptions:
+        out["assumption_registry"] = {
+            "scenario_id": spec["scenario_id"],
+            "assumptions": assumptions,
+            **(
+                {
+                    "critical_assumptions": [
+                        a["assumption_id"]
+                        for a in assumptions
+                        if a["category"] == "coefficient" and a["criticality"] == "high"
+                    ]
+                }
+                if calibration is not None
+                else {}
+            ),
+        }
+    if provenance:
+        out["data_provenance"] = {"scenario_id": spec["scenario_id"], **provenance}
+    return out
 
 
 def _entity(
@@ -245,6 +287,14 @@ def _district(district: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]
         raise ValueError(f"{district['id']}: public order {order} is outside 0–100")
     if float(district["population"]) < 0:
         raise ValueError(f"{district['id']}: negative population")
+    capacity = {}
+    if "industry_capacity" in district:
+        cap = float(district["industry_capacity"])
+        if not float(district["industry"]) <= cap <= 1:
+            raise ValueError(
+                f"{district['id']}: industry capacity {cap} is outside industry–1"
+            )
+        capacity["industry_capacity"] = cap
     return _entity(
         district["id"],
         "district",
@@ -262,6 +312,7 @@ def _district(district: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any]
             "power": 1,
             "communication": 1.0,
             "substation": None,
+            **capacity,
         },
     )
 

@@ -1,61 +1,61 @@
 {
   "components": {
-    "administration": 0.2136,
-    "order": 0.2488,
+    "administration": 0.2761,
+    "order": 0.3024,
     "services": 0.8163,
-    "trend": 0.6176
+    "trend": 0.6368
   },
   "districts": {
     "center": {
       "food": 10.92,
       "order_state": "unrest",
       "power": 1,
-      "public_order": 34.7741
+      "public_order": 37.8893
     },
     "east": {
       "food": 6.08,
       "order_state": "riot",
       "power": 1,
-      "public_order": 22.8613
+      "public_order": 16.4377
     },
     "harbor": {
       "food": 5.68,
       "order_state": "riot",
       "power": 1,
-      "public_order": 27.591
+      "public_order": 18.5348
     },
     "market": {
       "food": 6.8,
       "order_state": "riot",
       "power": 1,
-      "public_order": 23.4481
+      "public_order": 20.3998
     },
     "north": {
       "food": 5.36,
-      "order_state": "riot",
+      "order_state": "tense",
       "power": 1,
-      "public_order": 23.5777
+      "public_order": 66.1911
     },
     "south": {
       "food": 12.76,
       "order_state": "riot",
       "power": 1,
-      "public_order": 18.7929
+      "public_order": 20.3139
     },
     "west": {
       "food": 9.24,
       "order_state": "tense",
       "power": 1,
-      "public_order": 51.7253
+      "public_order": 58.1626
     },
     "works": {
       "food": 5.12,
       "order_state": "riot",
       "power": 1,
-      "public_order": 27.4965
+      "public_order": 16.526
     }
   },
-  "score": 0.4691,
+  "score": 0.5028,
   "series": [
     {
       "administration": 0.3976,
@@ -98,212 +98,212 @@
       "trend": 0.6532
     },
     {
-      "administration": 0.3982,
-      "order": 0.378,
-      "score": 0.4249,
+      "administration": 0.4063,
+      "order": 0.3924,
+      "score": 0.4373,
       "services": 0.4268,
       "tick": 5,
-      "trend": 0.573
+      "trend": 0.6091
     },
     {
-      "administration": 0.4005,
-      "order": 0.3521,
-      "score": 0.4022,
+      "administration": 0.4044,
+      "order": 0.3787,
+      "score": 0.4234,
       "services": 0.4268,
       "tick": 6,
-      "trend": 0.4886
+      "trend": 0.5551
     },
     {
-      "administration": 0.3985,
-      "order": 0.3229,
-      "score": 0.3794,
+      "administration": 0.4106,
+      "order": 0.3641,
+      "score": 0.4131,
       "services": 0.4248,
       "tick": 7,
-      "trend": 0.42
+      "trend": 0.5231
     },
     {
-      "administration": 0.3962,
-      "order": 0.2822,
-      "score": 0.3324,
+      "administration": 0.4083,
+      "order": 0.3358,
+      "score": 0.3758,
       "services": 0.3963,
       "tick": 8,
-      "trend": 0.2748
+      "trend": 0.4087
     },
     {
-      "administration": 0.3882,
-      "order": 0.2514,
-      "score": 0.3023,
+      "administration": 0.4017,
+      "order": 0.3172,
+      "score": 0.3554,
       "services": 0.4268,
       "tick": 9,
-      "trend": 0.1033
+      "trend": 0.268
     },
     {
-      "administration": 0.3844,
-      "order": 0.2051,
-      "score": 0.2779,
+      "administration": 0.3912,
+      "order": 0.2668,
+      "score": 0.3213,
       "services": 0.4268,
       "tick": 10,
-      "trend": 0.0678
+      "trend": 0.186
     },
     {
-      "administration": 0.369,
-      "order": 0.1758,
-      "score": 0.3009,
-      "services": 0.5545,
+      "administration": 0.3874,
+      "order": 0.2361,
+      "score": 0.3021,
+      "services": 0.4268,
       "tick": 11,
-      "trend": 0.0592
+      "trend": 0.1434
     },
     {
-      "administration": 0.3561,
-      "order": 0.146,
-      "score": 0.2868,
+      "administration": 0.3794,
+      "order": 0.2136,
+      "score": 0.3273,
       "services": 0.5545,
       "tick": 12,
-      "trend": 0.0579
+      "trend": 0.1237
     },
     {
-      "administration": 0.3474,
-      "order": 0.1163,
-      "score": 0.2777,
+      "administration": 0.3689,
+      "order": 0.1901,
+      "score": 0.3181,
       "services": 0.5545,
       "tick": 13,
-      "trend": 0.0851
+      "trend": 0.1358
     },
     {
-      "administration": 0.3321,
-      "order": 0.1175,
-      "score": 0.3353,
-      "services": 0.7122,
+      "administration": 0.3566,
+      "order": 0.1711,
+      "score": 0.3085,
+      "services": 0.5545,
       "tick": 14,
-      "trend": 0.1654
+      "trend": 0.1345
     },
     {
-      "administration": 0.3198,
-      "order": 0.1339,
-      "score": 0.3635,
+      "administration": 0.3528,
+      "order": 0.1773,
+      "score": 0.3789,
       "services": 0.7122,
       "tick": 15,
-      "trend": 0.3221
+      "trend": 0.2762
     },
     {
-      "administration": 0.3068,
-      "order": 0.1498,
-      "score": 0.3848,
+      "administration": 0.3482,
+      "order": 0.1971,
+      "score": 0.4051,
       "services": 0.7122,
       "tick": 16,
-      "trend": 0.4349
+      "trend": 0.4024
     },
     {
-      "administration": 0.2982,
-      "order": 0.1502,
-      "score": 0.395,
+      "administration": 0.3367,
+      "order": 0.205,
+      "score": 0.418,
       "services": 0.7122,
       "tick": 17,
-      "trend": 0.5103
+      "trend": 0.4786
     },
     {
-      "administration": 0.2828,
-      "order": 0.1703,
-      "score": 0.4195,
+      "administration": 0.3283,
+      "order": 0.2144,
+      "score": 0.4328,
       "services": 0.7122,
       "tick": 18,
-      "trend": 0.6352
+      "trend": 0.5607
     },
     {
-      "administration": 0.2705,
-      "order": 0.1721,
-      "score": 0.4185,
+      "administration": 0.3235,
+      "order": 0.2204,
+      "score": 0.4439,
       "services": 0.7122,
       "tick": 19,
-      "trend": 0.6364
+      "trend": 0.6234
     },
     {
-      "administration": 0.2576,
-      "order": 0.1848,
-      "score": 0.4515,
-      "services": 0.8163,
+      "administration": 0.3145,
+      "order": 0.2301,
+      "score": 0.4477,
+      "services": 0.7122,
       "tick": 20,
-      "trend": 0.6273
+      "trend": 0.632
     },
     {
-      "administration": 0.2509,
-      "order": 0.2213,
-      "score": 0.4729,
+      "administration": 0.3018,
+      "order": 0.247,
+      "score": 0.4827,
       "services": 0.8163,
       "tick": 21,
-      "trend": 0.6789
+      "trend": 0.6247
     },
     {
-      "administration": 0.2374,
-      "order": 0.2366,
-      "score": 0.4826,
+      "administration": 0.2938,
+      "order": 0.2769,
+      "score": 0.5017,
       "services": 0.8163,
       "tick": 22,
-      "trend": 0.7161
+      "trend": 0.6797
     },
     {
-      "administration": 0.2305,
-      "order": 0.243,
-      "score": 0.4789,
+      "administration": 0.2888,
+      "order": 0.2851,
+      "score": 0.5038,
       "services": 0.8163,
       "tick": 23,
-      "trend": 0.6816
+      "trend": 0.6767
     },
     {
-      "administration": 0.2229,
-      "order": 0.2469,
-      "score": 0.4801,
+      "administration": 0.2874,
+      "order": 0.2909,
+      "score": 0.5058,
       "services": 0.8163,
       "tick": 24,
-      "trend": 0.6869
+      "trend": 0.6763
     },
     {
-      "administration": 0.2196,
-      "order": 0.2428,
-      "score": 0.4717,
+      "administration": 0.2818,
+      "order": 0.3095,
+      "score": 0.5157,
       "services": 0.8163,
       "tick": 25,
-      "trend": 0.645
+      "trend": 0.6986
     },
     {
-      "administration": 0.2096,
-      "order": 0.247,
-      "score": 0.4598,
+      "administration": 0.2726,
+      "order": 0.3145,
+      "score": 0.5119,
       "services": 0.8163,
       "tick": 26,
-      "trend": 0.5643
+      "trend": 0.6689
     },
     {
-      "administration": 0.2017,
-      "order": 0.2521,
-      "score": 0.4568,
+      "administration": 0.2645,
+      "order": 0.3239,
+      "score": 0.5068,
       "services": 0.8163,
       "tick": 27,
-      "trend": 0.5389
+      "trend": 0.6175
     },
     {
-      "administration": 0.1941,
-      "order": 0.2591,
-      "score": 0.4587,
+      "administration": 0.2595,
+      "order": 0.3185,
+      "score": 0.4987,
       "services": 0.8163,
       "tick": 28,
-      "trend": 0.5402
+      "trend": 0.5835
     },
     {
-      "administration": 0.1868,
-      "order": 0.2633,
-      "score": 0.4594,
+      "administration": 0.2582,
+      "order": 0.3284,
+      "score": 0.504,
       "services": 0.8163,
       "tick": 29,
-      "trend": 0.5411
+      "trend": 0.5936
     },
     {
-      "administration": 0.1826,
-      "order": 0.2762,
-      "score": 0.4703,
+      "administration": 0.2526,
+      "order": 0.329,
+      "score": 0.4967,
       "services": 0.8163,
       "tick": 30,
-      "trend": 0.5833
+      "trend": 0.5487
     }
   ],
   "start": 0.5191,
