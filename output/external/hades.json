@@ -8,8 +8,13 @@
     "mean_damage_dealt": 16.0,
     "mean_side_losses": 3
   },
-  "gaps": [],
-  "mean_reaction_ticks": 1.0,
+  "gaps": [
+    "misjudgement_rate: a grid scenario has no identification; misjudgement is modelled in airspace scenarios"
+  ],
+  "misjudgement_rate": null,
+  "reaction_time": {
+    "mean_reaction_ticks": 1.0
+  },
   "runs": [
     {
       "coverage_gaps": [],

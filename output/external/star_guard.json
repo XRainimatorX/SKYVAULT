@@ -1,6 +1,9 @@
 {
-  "gaps": [],
-  "physical_feasibility": {
+  "engineering_feasibility": null,
+  "gaps": [
+    "engineering_feasibility: give the profile its section 18 groups (physical_parameters, engineering_parameters, operational_parameters) to have it judged"
+  ],
+  "physical_possibility": {
     "capability_limits": [],
     "feasible": true,
     "situational_rejections": [
@@ -30,21 +33,21 @@
     "baseline": {
       "mean_damage_dealt": 6.6667,
       "mean_hp_lost": 30.0,
-      "mean_score": 0.1703,
+      "mean_score": 0.1522,
       "mission_achieved_rate": 0.0,
       "unit_survival_rate": 0.0
     },
     "equipped": {
       "mean_damage_dealt": 9.3333,
       "mean_hp_lost": 50.0,
-      "mean_score": 0.297,
+      "mean_score": 0.2818,
       "mission_achieved_rate": 0.0,
       "unit_survival_rate": 0.0
     },
     "versus_baseline": {
       "mean_damage_dealt": 2.6666,
       "mean_hp_lost": 20.0,
-      "mean_score": 0.1267,
+      "mean_score": 0.1296,
       "mission_achieved_rate": 0.0,
       "unit_survival_rate": 0.0
     }

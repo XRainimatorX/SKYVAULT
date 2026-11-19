@@ -150,14 +150,14 @@
       "reward": {
         "damage_dealt": 0.0,
         "damage_taken": 0.0,
-        "episode_score": 0.5743,
+        "episode_score": 0.5626,
         "own_destroyed": false,
         "target_destroyed": false
       },
       "scenario": {
         "domain": null,
-        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
-        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
+        "input_hash": "90c6dca7da9529f8ff9607e3764d0ca296e18014c4b89ac7b74f0c4cb4c52dc6",
+        "output_hash": "723708e478ac91553e8967897e770a5211a0491bb49f7f33e9de756e5aea3bf1",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -341,14 +341,14 @@
       "reward": {
         "damage_dealt": 0.0,
         "damage_taken": 0.0,
-        "episode_score": 0.5743,
+        "episode_score": 0.5626,
         "own_destroyed": false,
         "target_destroyed": false
       },
       "scenario": {
         "domain": null,
-        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
-        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
+        "input_hash": "90c6dca7da9529f8ff9607e3764d0ca296e18014c4b89ac7b74f0c4cb4c52dc6",
+        "output_hash": "723708e478ac91553e8967897e770a5211a0491bb49f7f33e9de756e5aea3bf1",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -533,14 +533,14 @@
       "reward": {
         "damage_dealt": 0.0,
         "damage_taken": 0.0,
-        "episode_score": 0.5743,
+        "episode_score": 0.5626,
         "own_destroyed": false,
         "target_destroyed": false
       },
       "scenario": {
         "domain": null,
-        "input_hash": "46c9cbf5ad2c274f783b786d740da9781c91f1634e2789e19fc36ea2916b064d",
-        "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
+        "input_hash": "90c6dca7da9529f8ff9607e3764d0ca296e18014c4b89ac7b74f0c4cb4c52dc6",
+        "output_hash": "723708e478ac91553e8967897e770a5211a0491bb49f7f33e9de756e5aea3bf1",
         "perspective": "RED",
         "profile_id": "balanced",
         "scenario_id": "tactical_reference_001",
@@ -577,18 +577,104 @@
       "violations": []
     }
   ],
+  "stress_test": [
+    {
+      "orders_rejected": 0,
+      "output_hash": "b1a618065f8dc92d3456e46a6f2524d7bb5a0bd8afc58a0299ec37b877aa8511",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "needs_more_test"
+      },
+      "overall_score": 0.4834,
+      "score_versus_unstressed": -0.0792,
+      "stress": {
+        "sensor_failure": "severe"
+      },
+      "winner_or_result": "no_winner_duration_limit"
+    },
+    {
+      "orders_rejected": 0,
+      "output_hash": "7eca5c6ed6f792c0bf366abe7ba6e97c85625acd4b114012ec825d2d8de816f8",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "risky"
+      },
+      "overall_score": 0.3496,
+      "score_versus_unstressed": -0.213,
+      "stress": {
+        "communication_failure": "severe"
+      },
+      "winner_or_result": "no_winner_duration_limit"
+    },
+    {
+      "orders_rejected": 0,
+      "output_hash": "e6286eded700ce02089cecaf7808f54f7dd6a878c9061f0c3a7a2b1163bdbf13",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "needs_more_test"
+      },
+      "overall_score": 0.4914,
+      "score_versus_unstressed": -0.0712,
+      "stress": {
+        "weather_degradation": "severe"
+      },
+      "winner_or_result": "no_winner_duration_limit"
+    },
+    {
+      "orders_rejected": 0,
+      "output_hash": "890d456421715072c68de2fdf2a8273e3d080301cf1e288bce9c17f06d4ddaea",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "risky"
+      },
+      "overall_score": 0.4482,
+      "score_versus_unstressed": -0.1144,
+      "stress": {
+        "enemy_reaction_speed": "severe"
+      },
+      "winner_or_result": "no_winner_duration_limit"
+    },
+    {
+      "orders_rejected": 0,
+      "output_hash": "9cb4ff2d69372fe0da02b7ddbc11e28f142c3ce6ff0ef8796781810b8725d190",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "needs_more_test"
+      },
+      "overall_score": 0.4773,
+      "score_versus_unstressed": -0.0853,
+      "stress": {
+        "equipment_overheat": "severe"
+      },
+      "winner_or_result": "no_winner_duration_limit"
+    },
+    {
+      "orders_rejected": 0,
+      "output_hash": "0f3355d187d0f7b90ad63e1e0394529c3b5fe71191de4b693b942837b01bd86b",
+      "overall_judgement": {
+        "confidence": 0.9286,
+        "status": "fail"
+      },
+      "overall_score": 0.2109,
+      "score_versus_unstressed": -0.3517,
+      "stress": {
+        "civilian_pressure": "severe"
+      },
+      "winner_or_result": "BLUE_survived"
+    }
+  ],
   "supported": true,
   "system": "TAC_ANGEL",
   "tactical_outcome": {
     "missions": null,
     "orders_carried_out": 3,
     "orders_rejected": [],
-    "output_hash": "931023bdffc586441974b24a389f728af3498c22fe866cd4c7d19b66d7ce8401",
+    "output_hash": "723708e478ac91553e8967897e770a5211a0491bb49f7f33e9de756e5aea3bf1",
     "overall_judgement": {
-      "confidence": 0.9231,
+      "confidence": 0.9286,
       "status": "needs_more_test"
     },
-    "overall_score": 0.5743,
+    "overall_score": 0.5626,
     "units": [
       {
         "attacks_received": 0,

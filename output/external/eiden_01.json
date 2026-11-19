@@ -3,19 +3,19 @@
     "baseline": {
       "failure_frequency": 0.3333,
       "mean_hp_lost": 55.6667,
-      "mean_score": 0.4144,
+      "mean_score": 0.4058,
       "win_rate": 0.6667
     },
     "versus_baseline": {
       "failure_frequency": 0.0,
       "mean_hp_lost": 12.6666,
-      "mean_score": -0.0174,
+      "mean_score": -0.0315,
       "win_rate": -0.3334
     },
     "with_intel": {
       "failure_frequency": 0.3333,
       "mean_hp_lost": 68.3333,
-      "mean_score": 0.397,
+      "mean_score": 0.3743,
       "win_rate": 0.3333
     }
   },
@@ -24,10 +24,13 @@
     "world parameter weather='storm': tactical_reference_001 has no model for it"
   ],
   "provenance": {
+    "confidence": {},
+    "input_version": "",
     "missing_data": [
       "blue_009: no such unit in tactical_reference_001",
       "world parameter weather='storm': tactical_reference_001 has no model for it"
     ],
+    "modified_by": "",
     "reliability_notes": [
       "blue_002.accuracy = 0.75"
     ],
@@ -41,7 +44,8 @@
         "timestamp": "",
         "version": ""
       }
-    ]
+    ],
+    "timestamps": {}
   },
   "sensitive_variables": [
     {
@@ -49,7 +53,7 @@
       "versus_baseline": {
         "failure_frequency": 0.0,
         "mean_hp_lost": 12.6666,
-        "mean_score": -0.0174,
+        "mean_score": -0.0315,
         "win_rate": -0.3334
       }
     }

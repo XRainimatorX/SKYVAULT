@@ -5,8 +5,8 @@
 Scenario tactical_reference_001 v0.1: 97 events over 10 ticks.
 
 - Result: RED_survived
-- Verdict: risky (confidence 0.92)
-- Score: 0.50
+- Verdict: risky (confidence 0.93)
+- Score: 0.49
 - Profile: balanced, seen from RED
 
 ## What happened
@@ -37,22 +37,28 @@ Events recorded: 97
 
 Destroyed entities: 4
 
-Overall score 0.50 under profile balanced: risky (confidence 0.92)
+Overall score 0.49 under profile balanced: risky (confidence 0.93)
 
 Strongest axis: mission_success 1.00
 
 Weakest axis: recovery_ability 0.00
 
+- crisis_resilience 0.52
 - failure_resistance 0.60
-- mission_success 1.00
 - recovery_ability 0.00
+- resource_efficiency 0.59
+- risk_control 0.67
+- strategic_value 0.67
+- system_robustness 1.00
+- tactical_usefulness 1.00
+- commercial_demonstrability 0.67
+- imperial_core_value 1.00
+- mission_success 1.00
 - resource_cost 0.59
 - risk_growth 0.67
 - stability_impact 0.33
-- strategic_value 0.67
-- system_robustness 1.00
-- tactical_value 1.00
 - time_cost 0.00
+- Not judged in this world: engineering_feasibility, governance_stability, physical_possibility
 - Failure cause: red_003 destroyed at tick 6 by blue_002
 - Failure cause: time_cost 0.00: ended at tick 10 of 10
 - Failure cause: recovery_ability 0.00: 0 hp restored against 40 hp still lost
@@ -63,15 +69,15 @@ Weakest axis: recovery_ability 0.00
 
 ## Trade-offs
 
-- tactical_value 1.00 against strategic_value 0.67: both strong
+- tactical_usefulness 1.00 against strategic_value 0.67: both strong
 - mission_success 1.00 against resource_cost 0.59: balanced
 - time_cost 0.00 against risk_growth 0.67: risk_growth kept at the expense of time_cost
 - mission_success 1.00 against stability_impact 0.33: mission_success bought at the expense of stability_impact
 
 ## Reproducibility
 
-- Run: run_20261110T052507969981Z_3840afe2
+- Run: run_20261119T153506277225Z_a1ae6133
 - Random: seed 42 (fixed)
-- Runtime 2.1.0, rules rules-2438b4a50419
-- Input hash: 3840afe2dbd8a5f47e6beb2f0e734e8940fdcdffa5d4f8fa2d39421648c2c98a
-- Output hash: 7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70
+- Runtime 2.3.0, rules rules-f8f8b883e670
+- Input hash: a1ae613344fe0a298eb1d9cb52551ed1efcdbc6693345efcac097850e2a96dd3
+- Output hash: b238dee873ee09c187d248fa77711356403188dfef900ac443bbb923b2a5cc71

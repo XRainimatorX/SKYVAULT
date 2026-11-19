@@ -1,5 +1,4 @@
 {
-  "briefing": "# SKYVAULT briefing \u2014 tactical_reference_001 v0.1\n\n## Summary\n\nScenario tactical_reference_001 v0.1: 97 events over 10 ticks.\n\n- Result: RED_survived\n- Verdict: risky (confidence 0.92)\n- Score: 0.50\n- Profile: balanced, seen from RED\n\n## What happened\n\nEach tick: what was done, and who was destroyed by whom.\n\n- Tick 1: 6 moves\n- Tick 2: 6 moves\n- Tick 3: 6 moves\n- Tick 4: 1 miss; 5 moves\n- Tick 5: 4 attacks; 2 misses\n- Tick 6: 4 attacks; 1 move; Blue Commander destroyed by Red Rifleman; Red Commander destroyed by Blue Support\n- Tick 7: 1 attack; 2 moves; Blue Support destroyed by Red Support\n- Tick 8: 2 attacks; 1 miss\n- Tick 9: 1 attack; 2 misses\n- Tick 10: 2 attacks; Blue Rifleman destroyed by Red Support\n\n## Losses\n\n- BLUE lost 3 of 3: Blue Commander at tick 6, Blue Support at tick 7, Blue Rifleman at tick 10\n- RED lost 1 of 3: Red Commander at tick 6\n\n## Evaluation\n\nScenario ended because: termination_condition_met\n\nEvents recorded: 97\n\nDestroyed entities: 4\n\nOverall score 0.50 under profile balanced: risky (confidence 0.92)\n\nStrongest axis: mission_success 1.00\n\nWeakest axis: recovery_ability 0.00\n\n- failure_resistance 0.60\n- mission_success 1.00\n- recovery_ability 0.00\n- resource_cost 0.59\n- risk_growth 0.67\n- stability_impact 0.33\n- strategic_value 0.67\n- system_robustness 1.00\n- tactical_value 1.00\n- time_cost 0.00\n- Failure cause: red_003 destroyed at tick 6 by blue_002\n- Failure cause: time_cost 0.00: ended at tick 10 of 10\n- Failure cause: recovery_ability 0.00: 0 hp restored against 40 hp still lost\n- Failure cause: Anti-gaming: sacrifice_long_term_stability_for_short_term_success\n- Next test: Exercise logistics_burden: the world holds no resources to spend\n- Next test: Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order\n- Flagged: sacrifice_long_term_stability_for_short_term_success\n\n## Trade-offs\n\n- tactical_value 1.00 against strategic_value 0.67: both strong\n- mission_success 1.00 against resource_cost 0.59: balanced\n- time_cost 0.00 against risk_growth 0.67: risk_growth kept at the expense of time_cost\n- mission_success 1.00 against stability_impact 0.33: mission_success bought at the expense of stability_impact\n\n## Reproducibility\n\n- Run: run_20261110T052507969981Z_3840afe2\n- Random: seed 42 (fixed)\n- Runtime 2.1.0, rules rules-2438b4a50419\n- Input hash: 3840afe2dbd8a5f47e6beb2f0e734e8940fdcdffa5d4f8fa2d39421648c2c98a\n- Output hash: 7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70\n",
   "domain_outcome": null,
   "gaps": [],
   "result_package": {
@@ -94,7 +93,7 @@
       "profile_id": "balanced",
       "scenario_id": "tactical_reference_001",
       "secondary_metrics": [
-        "tactical_value",
+        "tactical_usefulness",
         "strategic_value",
         "resource_cost",
         "time_cost",
@@ -103,7 +102,13 @@
         "recovery_ability",
         "system_robustness",
         "logistics_burden",
-        "stability_impact"
+        "stability_impact",
+        "physical_possibility",
+        "engineering_feasibility",
+        "governance_stability",
+        "crisis_resilience",
+        "commercial_demonstrability",
+        "imperial_core_value"
       ],
       "tradeoff_report_required": true,
       "triggered_behaviors": [
@@ -115,6 +120,16 @@
       "active_factions": [
         "RED"
       ],
+      "additional_axes": {
+        "commercial_demonstrability": 0.6667,
+        "imperial_core_value": 1.0,
+        "logistics_burden": null,
+        "mission_success": 1.0,
+        "resource_cost": 0.5876,
+        "risk_growth": 0.6667,
+        "stability_impact": 0.3333,
+        "time_cost": 0.0
+      },
       "anti_gaming": {
         "flagged_behaviors": [
           "sacrifice_long_term_stability_for_short_term_success"
@@ -144,15 +159,15 @@
         "Scenario ended because: termination_condition_met",
         "Events recorded: 97",
         "Destroyed entities: 4",
-        "Overall score 0.50 under profile balanced: risky (confidence 0.92)",
+        "Overall score 0.49 under profile balanced: risky (confidence 0.93)",
         "Strongest axis: mission_success 1.00",
         "Weakest axis: recovery_ability 0.00"
       ],
       "overall_judgement": {
-        "confidence": 0.9231,
+        "confidence": 0.9286,
         "status": "risky"
       },
-      "overall_score": 0.5045,
+      "overall_score": 0.4938,
       "perspective": "RED",
       "profile_id": "balanced",
       "recommended_next_tests": [
@@ -161,16 +176,17 @@
       ],
       "scenario_id": "tactical_reference_001",
       "scores": {
+        "crisis_resilience": 0.5155,
+        "engineering_feasibility": null,
         "failure_resistance": 0.6,
-        "mission_success": 1.0,
+        "governance_stability": null,
+        "physical_possibility": null,
         "recovery_ability": 0.0,
-        "resource_cost": 0.5876,
-        "risk_growth": 0.6667,
-        "stability_impact": 0.3333,
+        "resource_efficiency": 0.5876,
+        "risk_control": 0.6667,
         "strategic_value": 0.6667,
         "system_robustness": 1.0,
-        "tactical_value": 1.0,
-        "time_cost": 0.0
+        "tactical_usefulness": 1.0
       },
       "termination_reason": "termination_condition_met",
       "winner_or_result": "RED_survived"
@@ -9563,6 +9579,92 @@
         "time": 10
       }
     ],
+    "execution_protocol": [
+      {
+        "detail": "NEXUS job job_000001 (scenario_run)",
+        "name": "receive_task",
+        "status": "done",
+        "step": 1
+      },
+      {
+        "detail": "tactical_reference_001/v0.1 bound to tactical_reference_world_001 (environment baseline, rules baseline)",
+        "name": "compile_scenario",
+        "status": "done",
+        "step": 2
+      },
+      {
+        "detail": "6 entities in a grid space on a tick clock",
+        "name": "instantiate_world",
+        "status": "done",
+        "step": 3
+      },
+      {
+        "detail": "deciders: TacticalReferencePolicy",
+        "name": "register_participants",
+        "status": "done",
+        "step": 4
+      },
+      {
+        "detail": "deciders read the world through a read-only view",
+        "name": "generate_observations",
+        "status": "done",
+        "step": 5
+      },
+      {
+        "detail": "46 decisions taken",
+        "name": "receive_actions",
+        "status": "done",
+        "step": 6
+      },
+      {
+        "detail": "0 actions rejected with a reason",
+        "name": "validate_actions",
+        "status": "done",
+        "step": 7
+      },
+      {
+        "detail": "96 events caused by actions",
+        "name": "resolve_consequences",
+        "status": "done",
+        "step": 8
+      },
+      {
+        "detail": "45 events changed the world",
+        "name": "mutate_world_state",
+        "status": "done",
+        "step": 9
+      },
+      {
+        "detail": "97 events recorded",
+        "name": "record_events",
+        "status": "done",
+        "step": 10
+      },
+      {
+        "detail": "risky: RED_survived",
+        "name": "evaluate_current_state",
+        "status": "done",
+        "step": 11
+      },
+      {
+        "detail": "declared: 6 variables at 4 levels, run as a failure exploration job",
+        "name": "explore_failure_branches",
+        "status": "separate_job",
+        "step": 12
+      },
+      {
+        "detail": "termination_condition_met",
+        "name": "continue_branch_terminate",
+        "status": "done",
+        "step": 13
+      },
+      {
+        "detail": "this result package",
+        "name": "generate_result_package",
+        "status": "done",
+        "step": 14
+      }
+    ],
     "final_world_state": {
       "assumptions": {
         "actor_policy": "temporary_tactical_reference_policy",
@@ -9904,71 +10006,133 @@
     },
     "reproducibility": {
       "deterministic_replay_available": true,
-      "input_hash": "3840afe2dbd8a5f47e6beb2f0e734e8940fdcdffa5d4f8fa2d39421648c2c98a",
-      "output_hash": "7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70",
+      "input_hash": "a1ae613344fe0a298eb1d9cb52551ed1efcdbc6693345efcac097850e2a96dd3",
+      "output_hash": "b238dee873ee09c187d248fa77711356403188dfef900ac443bbb923b2a5cc71",
       "random_seed": 42,
       "random_seed_policy": "fixed",
-      "ruleset_version": "rules-2438b4a50419",
-      "run_id": "run_20261110T052507969981Z_3840afe2",
+      "ruleset_version": "rules-f8f8b883e670",
+      "run_id": "run_20261119T153506277225Z_a1ae6133",
       "run_metadata": {
         "compute_profile": "python 3.11.18",
-        "ended_at": "2026-11-10T05:25:07.995591+00:00",
-        "operator_system": "Linux-6.18.44-fc-v338-x86_64-with-glibc2.39",
+        "ended_at": "2026-11-19T15:35:06.292116+00:00",
+        "operator_system": "Linux-6.18.44-fc-v653-x86_64-with-glibc2.39",
         "resource_compute_governance": {
-          "duration_clamped_from": null,
-          "estimated_cost": {
-            "decisions": 60,
-            "runs": 1,
-            "seconds": 0.042
-          },
-          "limits": {
-            "auto_stop": {
-              "failure_loss_ratio": null,
-              "infinite_loop_repeats": 3,
-              "no_new_state_change_ticks": 10
+          "auto_stop_conditions": [
+            "budget_exceeded",
+            "infinite_loop_detected",
+            "no_new_state_change",
+            "max_runtime_exceeded"
+          ],
+          "compute_budget": {
+            "estimated_cost": {
+              "decisions": 60,
+              "runs": 1,
+              "seconds": 0.042
             },
-            "compute_budget": {
-              "max_decisions": 5000,
-              "max_events": 20000
-            },
-            "max_runtime_seconds": 60.0,
+            "max_batch_count": 1000,
+            "max_decisions": 5000,
+            "max_events": 20000,
+            "max_parallel_runs": 2,
+            "max_runtime": 60.0,
             "max_scenario_duration": 200
           },
+          "duration_clamped_from": null,
           "partial": false,
           "policy_id": "default",
-          "run_priority": "normal",
+          "priority": {
+            "level": "medium",
+            "reason": "policy default default"
+          },
+          "queue_policy": {
+            "allow_defer": true,
+            "allow_partial_result": true,
+            "order": "priority_then_fifo"
+          },
+          "scenario_id": "tactical_reference_001",
           "stop_reason": null,
           "stopped": false,
           "usage": {
             "decisions": 46,
             "events": 97,
             "runs": 1,
-            "runtime_seconds": 0.02561,
+            "runtime_seconds": 0.014891,
             "ticks": 10
           }
         },
-        "started_at": "2026-11-10T05:25:07.969981+00:00"
+        "started_at": "2026-11-19T15:35:06.277225+00:00"
       },
-      "runtime_version": "2.1.0",
+      "runtime_version": "2.3.0",
       "scenario_id": "tactical_reference_001",
       "scenario_version": "v0.1"
     },
     "scenario_id": "tactical_reference_001",
     "scenario_version": "v0.1",
     "score_breakdown": {
+      "commercial_demonstrability": {
+        "applicable": true,
+        "description": "Could the run be shown to an outside client as it is?",
+        "explanation": "2 of 3: yes it replays exactly; yes own actions to show; no outside systems can enter the world",
+        "in_scope": true,
+        "raw": 2.0,
+        "score": 0.6667,
+        "unit": "checks",
+        "weight": 0.0
+      },
+      "crisis_resilience": {
+        "applicable": true,
+        "description": "Own strength left at the worst moment",
+        "explanation": "own strength at its lowest 50 of 97 hp (tick 9)",
+        "in_scope": true,
+        "raw": 50.0,
+        "score": 0.5155,
+        "unit": "hp",
+        "weight": 1.0
+      },
+      "engineering_feasibility": {
+        "applicable": false,
+        "description": "Is the equipment worth engineering?",
+        "explanation": "no equipment profile entered this scenario (participants.equipment_profiles)",
+        "in_scope": false,
+        "raw": 0.0,
+        "score": 0.0,
+        "unit": "score",
+        "weight": 1.0
+      },
       "failure_resistance": {
         "applicable": true,
         "description": "How long the plan held before its first loss",
         "explanation": "first own loss at tick 6 of 10",
+        "in_scope": true,
         "raw": 6.0,
         "score": 0.6,
         "unit": "ticks",
         "weight": 1.0
       },
+      "governance_stability": {
+        "applicable": false,
+        "description": "Does the plan improve or damage order?",
+        "explanation": "this world models no public order or governance",
+        "in_scope": false,
+        "raw": 0.0,
+        "score": 0.0,
+        "unit": "score",
+        "weight": 1.0
+      },
+      "imperial_core_value": {
+        "applicable": true,
+        "description": "Does the run keep the long-term architecture?",
+        "explanation": "4 of 4: yes assumptions declared; yes data provenance declared; yes failure variables declared; yes it replays exactly",
+        "in_scope": true,
+        "raw": 4.0,
+        "score": 1.0,
+        "unit": "checks",
+        "weight": 0.0
+      },
       "logistics_burden": {
         "applicable": false,
         "description": "World resources spent (1 = nothing spent)",
         "explanation": "the world holds no resources to spend",
+        "in_scope": true,
         "raw": 0.0,
         "score": 0.0,
         "unit": "units",
@@ -9978,15 +10142,27 @@
         "applicable": true,
         "description": "Did the perspective faction achieve its aim?",
         "explanation": "3 of 3 opposing entities destroyed; 2 of 3 own entities still active",
+        "in_scope": true,
         "raw": 3.0,
         "score": 1.0,
         "unit": "entities",
         "weight": 3.0
       },
+      "physical_possibility": {
+        "applicable": false,
+        "description": "Is the equipment physically roughly possible?",
+        "explanation": "no equipment profile entered this scenario (participants.equipment_profiles)",
+        "in_scope": false,
+        "raw": 0.0,
+        "score": 0.0,
+        "unit": "score",
+        "weight": 1.0
+      },
       "recovery_ability": {
         "applicable": true,
         "description": "Lost hp that was restored",
         "explanation": "0 hp restored against 40 hp still lost",
+        "in_scope": true,
         "raw": 0.0,
         "score": 0.0,
         "unit": "hp",
@@ -9996,6 +10172,7 @@
         "applicable": true,
         "description": "Own hp lost (1 = nothing lost)",
         "explanation": "40 of 97 own hp lost",
+        "in_scope": true,
         "raw": 40.0,
         "score": 0.5876,
         "unit": "hp",
@@ -10005,6 +10182,7 @@
         "applicable": true,
         "description": "Risk-relevant events against own entities",
         "explanation": "1 risk-relevant events hit own entities (proxy until a risk model exists)",
+        "in_scope": true,
         "raw": 1.0,
         "score": 0.6667,
         "unit": "events",
@@ -10014,6 +10192,7 @@
         "applicable": true,
         "description": "How much of the world survived (1 = nothing destroyed)",
         "explanation": "4 of 6 entities destroyed (proxy until a stability model exists)",
+        "in_scope": true,
         "raw": 4.0,
         "score": 0.3333,
         "unit": "entities",
@@ -10023,6 +10202,7 @@
         "applicable": true,
         "description": "Own force preserved for what comes next",
         "explanation": "2 of 3 own entities preserved",
+        "in_scope": true,
         "raw": 2.0,
         "score": 0.6667,
         "unit": "entities",
@@ -10032,15 +10212,17 @@
         "applicable": true,
         "description": "Own actions the world accepted",
         "explanation": "0 of 26 own actions rejected",
+        "in_scope": true,
         "raw": 0.0,
         "score": 1.0,
         "unit": "actions",
         "weight": 1.0
       },
-      "tactical_value": {
+      "tactical_usefulness": {
         "applicable": true,
         "description": "Damage dealt against the opposing hp pool",
         "explanation": "111 damage dealt against 97 opposing hp",
+        "in_scope": true,
         "raw": 111.0,
         "score": 1.0,
         "unit": "hp",
@@ -10050,6 +10232,7 @@
         "applicable": true,
         "description": "Time used against the limit (1 = no time used)",
         "explanation": "ended at tick 10 of 10",
+        "in_scope": true,
         "raw": 10.0,
         "score": 0.0,
         "unit": "ticks",
@@ -10067,8 +10250,8 @@
         ]
       },
       "judgement": {
-        "confidence": 0.9231,
-        "overall_score": 0.5045,
+        "confidence": 0.9286,
+        "overall_score": 0.4938,
         "status": "risky"
       },
       "perspective": "RED",
@@ -10085,7 +10268,7 @@
           "score": 1.0
         },
         {
-          "metric": "tactical_value",
+          "metric": "tactical_usefulness",
           "score": 1.0
         }
       ],
@@ -10094,7 +10277,7 @@
           "assessment": "both strong",
           "cost": "strategic_value",
           "cost_score": 0.6667,
-          "gain": "tactical_value",
+          "gain": "tactical_usefulness",
           "gain_score": 1.0
         },
         {
@@ -10135,86 +10318,101 @@
       ]
     }
   },
+  "scenario_report": "# SKYVAULT briefing \u2014 tactical_reference_001 v0.1\n\n## Summary\n\nScenario tactical_reference_001 v0.1: 97 events over 10 ticks.\n\n- Result: RED_survived\n- Verdict: risky (confidence 0.93)\n- Score: 0.49\n- Profile: balanced, seen from RED\n\n## What happened\n\nEach tick: what was done, and who was destroyed by whom.\n\n- Tick 1: 6 moves\n- Tick 2: 6 moves\n- Tick 3: 6 moves\n- Tick 4: 1 miss; 5 moves\n- Tick 5: 4 attacks; 2 misses\n- Tick 6: 4 attacks; 1 move; Blue Commander destroyed by Red Rifleman; Red Commander destroyed by Blue Support\n- Tick 7: 1 attack; 2 moves; Blue Support destroyed by Red Support\n- Tick 8: 2 attacks; 1 miss\n- Tick 9: 1 attack; 2 misses\n- Tick 10: 2 attacks; Blue Rifleman destroyed by Red Support\n\n## Losses\n\n- BLUE lost 3 of 3: Blue Commander at tick 6, Blue Support at tick 7, Blue Rifleman at tick 10\n- RED lost 1 of 3: Red Commander at tick 6\n\n## Evaluation\n\nScenario ended because: termination_condition_met\n\nEvents recorded: 97\n\nDestroyed entities: 4\n\nOverall score 0.49 under profile balanced: risky (confidence 0.93)\n\nStrongest axis: mission_success 1.00\n\nWeakest axis: recovery_ability 0.00\n\n- crisis_resilience 0.52\n- failure_resistance 0.60\n- recovery_ability 0.00\n- resource_efficiency 0.59\n- risk_control 0.67\n- strategic_value 0.67\n- system_robustness 1.00\n- tactical_usefulness 1.00\n- commercial_demonstrability 0.67\n- imperial_core_value 1.00\n- mission_success 1.00\n- resource_cost 0.59\n- risk_growth 0.67\n- stability_impact 0.33\n- time_cost 0.00\n- Not judged in this world: engineering_feasibility, governance_stability, physical_possibility\n- Failure cause: red_003 destroyed at tick 6 by blue_002\n- Failure cause: time_cost 0.00: ended at tick 10 of 10\n- Failure cause: recovery_ability 0.00: 0 hp restored against 40 hp still lost\n- Failure cause: Anti-gaming: sacrifice_long_term_stability_for_short_term_success\n- Next test: Exercise logistics_burden: the world holds no resources to spend\n- Next test: Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order\n- Flagged: sacrifice_long_term_stability_for_short_term_success\n\n## Trade-offs\n\n- tactical_usefulness 1.00 against strategic_value 0.67: both strong\n- mission_success 1.00 against resource_cost 0.59: balanced\n- time_cost 0.00 against risk_growth 0.67: risk_growth kept at the expense of time_cost\n- mission_success 1.00 against stability_impact 0.33: mission_success bought at the expense of stability_impact\n\n## Reproducibility\n\n- Run: run_20261119T153506277225Z_a1ae6133\n- Random: seed 42 (fixed)\n- Runtime 2.3.0, rules rules-f8f8b883e670\n- Input hash: a1ae613344fe0a298eb1d9cb52551ed1efcdbc6693345efcac097850e2a96dd3\n- Output hash: b238dee873ee09c187d248fa77711356403188dfef900ac443bbb923b2a5cc71\n",
   "supported": true,
   "system": "NEXUS",
   "system_status": {
     "error": null,
     "governance": {
-      "duration_clamped_from": null,
-      "estimated_cost": {
-        "decisions": 60,
-        "runs": 1,
-        "seconds": 0.042
-      },
-      "limits": {
-        "auto_stop": {
-          "failure_loss_ratio": null,
-          "infinite_loop_repeats": 3,
-          "no_new_state_change_ticks": 10
+      "auto_stop_conditions": [
+        "budget_exceeded",
+        "infinite_loop_detected",
+        "no_new_state_change",
+        "max_runtime_exceeded"
+      ],
+      "compute_budget": {
+        "estimated_cost": {
+          "decisions": 60,
+          "runs": 1,
+          "seconds": 0.042
         },
-        "compute_budget": {
-          "max_decisions": 5000,
-          "max_events": 20000
-        },
-        "max_runtime_seconds": 60.0,
+        "max_batch_count": 1000,
+        "max_decisions": 5000,
+        "max_events": 20000,
+        "max_parallel_runs": 2,
+        "max_runtime": 60.0,
         "max_scenario_duration": 200
       },
+      "duration_clamped_from": null,
       "partial": false,
       "policy_id": "default",
-      "run_priority": "normal",
+      "priority": {
+        "level": "medium",
+        "reason": "policy default default"
+      },
+      "queue_policy": {
+        "allow_defer": true,
+        "allow_partial_result": true,
+        "order": "priority_then_fifo"
+      },
+      "scenario_id": "tactical_reference_001",
       "stop_reason": null,
       "stopped": false,
       "usage": {
         "decisions": 46,
         "events": 97,
         "runs": 1,
-        "runtime_seconds": 0.02561,
+        "runtime_seconds": 0.014891,
         "ticks": 10
       }
     },
     "handoff": {
-      "branch_comparison": null,
       "decided_by": null,
       "decision": null,
       "decision_authority": [
         "NEXUS",
         "SOVEREIGN"
       ],
-      "failure_map": null,
-      "handoff_id": "handoff_b4e9f35172cc1f8b",
-      "may_execute_final_decision": false,
-      "may_recommend": true,
-      "required_decision": "accept or reject a short-term gain bought with long-term stability or strategic value",
-      "result_summary": {
-        "run": {
-          "failure_causes": [
-            "red_003 destroyed at tick 6 by blue_002",
-            "time_cost 0.00: ended at tick 10 of 10",
-            "recovery_ability 0.00: 0 hp restored against 40 hp still lost",
-            "Anti-gaming: sacrifice_long_term_stability_for_short_term_success"
-          ],
-          "flagged_behaviors": [
-            "sacrifice_long_term_stability_for_short_term_success"
-          ],
-          "output_hash": "7debca2af33238c212dadff175c8cb331b583fc6e7e2605ed8551c3ac7636a70",
-          "overall_score": 0.5045,
-          "result": "RED_survived",
-          "scenario_id": "tactical_reference_001",
-          "scenario_version": "v0.1",
-          "status": "risky"
+      "handoff_id": "handoff_344cc48c6a7e8ad8",
+      "handoff_required": true,
+      "package_to_nexus": {
+        "branch_comparison": null,
+        "failure_map": null,
+        "required_decision": "accept or reject a short-term gain bought with long-term stability or strategic value",
+        "result_summary": {
+          "run": {
+            "failure_causes": [
+              "red_003 destroyed at tick 6 by blue_002",
+              "time_cost 0.00: ended at tick 10 of 10",
+              "recovery_ability 0.00: 0 hp restored against 40 hp still lost",
+              "Anti-gaming: sacrifice_long_term_stability_for_short_term_success"
+            ],
+            "flagged_behaviors": [
+              "sacrifice_long_term_stability_for_short_term_success"
+            ],
+            "output_hash": "b238dee873ee09c187d248fa77711356403188dfef900ac443bbb923b2a5cc71",
+            "overall_score": 0.4938,
+            "result": "RED_survived",
+            "scenario_id": "tactical_reference_001",
+            "scenario_version": "v0.1",
+            "status": "risky"
+          }
         }
       },
+      "reason": [
+        "strategic_tradeoff"
+      ],
+      "scenario_id": "tactical_reference_001",
       "skyvault_position": {
+        "may_execute_final_decision": false,
+        "may_recommend": true,
         "recommended_next_tests": [
           "Exercise logistics_burden: the world holds no resources to spend",
           "Check whether sacrifice_long_term_stability_for_short_term_success was intended: prevent fast success that destroys long-term order"
         ],
         "statement": "SKYVAULT simulated and recommends; it does not decide. strategic_tradeoff: accept or reject a short-term gain bought with long-term stability or strategic value"
       },
-      "status": "awaiting_decision",
-      "triggers": [
-        "strategic_tradeoff"
-      ]
+      "status": "awaiting_decision"
     },
     "job_id": "job_000001",
     "lifecycle_state": "completed"

@@ -526,11 +526,57 @@
           "public_order_decay_rate",
           "supply_delay_model",
           "civilian_pressure_model",
-          "infrastructure_recovery_speed"
+          "infrastructure_recovery_speed",
+          "coefficient.information_defaults.shortage",
+          "coefficient.information_defaults.dark",
+          "coefficient.information_defaults.unrest",
+          "coefficient.information_defaults.spread",
+          "coefficient.information_defaults.decay",
+          "coefficient.information_defaults.order_weight",
+          "coefficient.information_defaults.backlash_threshold",
+          "coefficient.information_defaults.backlash",
+          "coefficient.information_defaults.backlash_dampen",
+          "coefficient.information_defaults.counter_share",
+          "coefficient.information_defaults.inform_at",
+          "coefficient.disaster_effects.flood.food_loss",
+          "coefficient.disaster_effects.flood.medical_loss",
+          "coefficient.disaster_effects.flood.order_drop",
+          "coefficient.disaster_effects.flood.road_cut_at",
+          "coefficient.disaster_effects.flood.power_cut_at",
+          "coefficient.disaster_effects.fire.industry_loss",
+          "coefficient.disaster_effects.fire.administration_loss",
+          "coefficient.disaster_effects.fire.medical_loss",
+          "coefficient.disaster_effects.fire.order_drop",
+          "coefficient.recovery.industry_up",
+          "coefficient.recovery.industry_down",
+          "coefficient.recovery.rebuild",
+          "coefficient.recovery.administration_up",
+          "coefficient.recovery.administration_down",
+          "coefficient.recovery.administer",
+          "coefficient.repair.failure_ticks",
+          "coefficient.repair.trip_ticks",
+          "coefficient.order.dark"
         ],
         "資料來源": [
           "formal_spec_2_3",
-          "city_takeover_001_districts"
+          "city_takeover_001_districts",
+          "calibration.cape_town_2024",
+          "calibration.debunking_2023",
+          "calibration.hazus_flood_manual",
+          "calibration.hazus_substation",
+          "calibration.jiang_2021",
+          "calibration.katrina_lam_2009",
+          "calibration.katrina_lam_2012",
+          "calibration.lagi_2011",
+          "calibration.mcguirk_burke",
+          "calibration.north_rhine_2024",
+          "calibration.oxford_roads_2025",
+          "calibration.repression_hicn_417",
+          "calibration.repression_pvg_2020",
+          "calibration.texas_outages",
+          "calibration.utility_storms",
+          "calibration.vosoughi_2018",
+          "calibration.walter_murphy_2018"
         ]
       }
     },
@@ -541,7 +587,7 @@
       "passed": true,
       "evidence": {
         "runs": 2,
-        "events": 625,
+        "events": 618,
         "same_output": true,
         "verdict": "fail"
       }
@@ -693,7 +739,7 @@
           "risk simulation studio": true
         },
         "core_systems_in_commercial": [],
-        "fed_back": "contribution_372d478f2593"
+        "fed_back": "contribution_cd49b295168b"
       }
     }
   ],

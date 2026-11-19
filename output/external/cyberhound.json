@@ -1,8 +1,232 @@
 {
+  "backlash_risk": {
+    "backlash_per_run": 0.0,
+    "counter_messages_per_run": 9.5,
+    "counter_messaging_effect": {
+      "final_mean_pressure": -35.2263,
+      "mean_order": 5.5487
+    },
+    "patrols_backfired": 0.0
+  },
+  "environment": {
+    "backlash_threshold": 55,
+    "initial": {
+      "harbor": 30
+    },
+    "sources": [
+      {
+        "district": "market",
+        "magnitude": 12,
+        "tick": 3,
+        "until": 9
+      }
+    ],
+    "spread": 0.3
+  },
   "gaps": [
-    "propagation_model: SKYVAULT has no information environment model (Phases 14-16)",
-    "public_order_pressure: SKYVAULT has no information environment model (Phases 14-16)"
+    "propagation_model: the information model has no such parameter"
   ],
-  "supported": false,
+  "opinion_change": {
+    "final_pressure": {
+      "center": 43.7755,
+      "east": 44.5675,
+      "harbor": 45.0429,
+      "market": 45.3453,
+      "north": 43.9359,
+      "south": 45.8982,
+      "west": 41.2032,
+      "works": 40.6864
+    },
+    "inflamed_districts": [],
+    "mean_pressure_series": [
+      {
+        "mean_pressure": 9.0,
+        "tick": 1
+      },
+      {
+        "mean_pressure": 14.0375,
+        "tick": 2
+      },
+      {
+        "mean_pressure": 19.6575,
+        "tick": 3
+      },
+      {
+        "mean_pressure": 25.0615,
+        "tick": 4
+      },
+      {
+        "mean_pressure": 29.4826,
+        "tick": 5
+      },
+      {
+        "mean_pressure": 32.9939,
+        "tick": 6
+      },
+      {
+        "mean_pressure": 35.8672,
+        "tick": 7
+      },
+      {
+        "mean_pressure": 38.5717,
+        "tick": 8
+      },
+      {
+        "mean_pressure": 41.2854,
+        "tick": 9
+      },
+      {
+        "mean_pressure": 42.8008,
+        "tick": 10
+      },
+      {
+        "mean_pressure": 43.746,
+        "tick": 11
+      },
+      {
+        "mean_pressure": 44.6075,
+        "tick": 12
+      },
+      {
+        "mean_pressure": 45.1336,
+        "tick": 13
+      },
+      {
+        "mean_pressure": 45.9617,
+        "tick": 14
+      },
+      {
+        "mean_pressure": 46.2246,
+        "tick": 15
+      },
+      {
+        "mean_pressure": 45.7195,
+        "tick": 16
+      },
+      {
+        "mean_pressure": 45.2861,
+        "tick": 17
+      },
+      {
+        "mean_pressure": 45.4256,
+        "tick": 18
+      },
+      {
+        "mean_pressure": 45.3419,
+        "tick": 19
+      },
+      {
+        "mean_pressure": 45.3445,
+        "tick": 20
+      },
+      {
+        "mean_pressure": 45.3836,
+        "tick": 21
+      },
+      {
+        "mean_pressure": 45.1923,
+        "tick": 22
+      },
+      {
+        "mean_pressure": 44.6144,
+        "tick": 23
+      },
+      {
+        "mean_pressure": 44.287,
+        "tick": 24
+      },
+      {
+        "mean_pressure": 43.9611,
+        "tick": 25
+      },
+      {
+        "mean_pressure": 43.6352,
+        "tick": 26
+      },
+      {
+        "mean_pressure": 43.3117,
+        "tick": 27
+      },
+      {
+        "mean_pressure": 42.9935,
+        "tick": 28
+      },
+      {
+        "mean_pressure": 42.6842,
+        "tick": 29
+      },
+      {
+        "mean_pressure": 42.3874,
+        "tick": 30
+      }
+    ],
+    "spread_paths": [
+      {
+        "carried": 48.685,
+        "from": "south",
+        "to": "west"
+      },
+      {
+        "carried": 46.7594,
+        "from": "harbor",
+        "to": "works"
+      },
+      {
+        "carried": 45.5353,
+        "from": "market",
+        "to": "center"
+      },
+      {
+        "carried": 21.6988,
+        "from": "harbor",
+        "to": "south"
+      },
+      {
+        "carried": 21.6786,
+        "from": "center",
+        "to": "north"
+      },
+      {
+        "carried": 20.5577,
+        "from": "harbor",
+        "to": "market"
+      },
+      {
+        "carried": 18.0622,
+        "from": "center",
+        "to": "west"
+      },
+      {
+        "carried": 16.7993,
+        "from": "works",
+        "to": "east"
+      },
+      {
+        "carried": 15.444,
+        "from": "market",
+        "to": "south"
+      },
+      {
+        "carried": 14.3887,
+        "from": "market",
+        "to": "harbor"
+      }
+    ]
+  },
+  "order_pressure": {
+    "mean_order_with_information": 17.1143,
+    "mean_order_without": 43.8886,
+    "order_lost_to_pressure": 128.1791,
+    "outcomes": {
+      "governance_collapsed": 1,
+      "order_not_restored": 1
+    },
+    "outcomes_without": {
+      "order_not_restored": 2
+    },
+    "versus_without": -26.7743
+  },
+  "repeat_count": 2,
+  "supported": true,
   "system": "CYBERHOUND"
 }

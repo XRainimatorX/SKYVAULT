@@ -1,5 +1,13 @@
 {
-  "gaps": [],
+  "collision_or_link_loss_risk": {
+    "collision_rate": 0.0,
+    "link_loss_rate": 0.0,
+    "mean_link_losses": 0.0
+  },
+  "energy_pressure": null,
+  "gaps": [
+    "energy_pressure: the drone carries no energy state"
+  ],
   "mission_success_rate": 1.0,
   "path_risk": {
     "loss_rate": 0.0,
@@ -8,7 +16,10 @@
   "rejected_moves": 9,
   "runs": [
     {
+      "collided": false,
+      "energy": null,
       "job_id": "job_000001",
+      "link_losses": 0,
       "mission_success": true,
       "path_risk": {
         "attacks_received": 0,
@@ -41,7 +52,10 @@
       ]
     },
     {
+      "collided": false,
+      "energy": null,
       "job_id": "job_000002",
+      "link_losses": 0,
       "mission_success": true,
       "path_risk": {
         "attacks_received": 0,
@@ -74,7 +88,10 @@
       ]
     },
     {
+      "collided": false,
+      "energy": null,
       "job_id": "job_000003",
+      "link_losses": 0,
       "mission_success": true,
       "path_risk": {
         "attacks_received": 0,

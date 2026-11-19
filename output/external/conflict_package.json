@@ -13,10 +13,10 @@
       "failure_frequency": 0.4,
       "mean_hp_lost": 65.2,
       "mean_risk_events": 2.0,
-      "mean_score": 0.3704,
+      "mean_score": 0.3584,
       "win_rate": 0.4
     },
-    "result_summary": "5 runs: win 40% (95% CI 12%\u201377%), loss 40%, draw 20%; fail verdict 40%; mean hp lost 65.2, risk events 2, score 0.370"
+    "result_summary": "5 runs: win 40% (95% CI 12%\u201377%), loss 40%, draw 20%; fail verdict 40%; mean hp lost 65.2, risk events 2, score 0.358"
   },
   "branch_runs": [
     {
@@ -28,17 +28,17 @@
         "failure_frequency": -0.2,
         "mean_hp_lost": 4.6,
         "mean_risk_events": 0.0,
-        "mean_score": 0.0349,
+        "mean_score": 0.0323,
         "win_rate": -0.4
       },
       "metrics": {
         "failure_frequency": 0.2,
         "mean_hp_lost": 69.8,
         "mean_risk_events": 2.0,
-        "mean_score": 0.4053,
+        "mean_score": 0.3907,
         "win_rate": 0.0
       },
-      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 69.8, risk events 2, score 0.405"
+      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 69.8, risk events 2, score 0.391"
     },
     {
       "action_set": [
@@ -50,17 +50,17 @@
         "failure_frequency": -0.2,
         "mean_hp_lost": 9.8,
         "mean_risk_events": 0.0,
-        "mean_score": -0.0176,
+        "mean_score": -0.0167,
         "win_rate": -0.4
       },
       "metrics": {
         "failure_frequency": 0.2,
         "mean_hp_lost": 75.0,
         "mean_risk_events": 2.0,
-        "mean_score": 0.3528,
+        "mean_score": 0.3417,
         "win_rate": 0.0
       },
-      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 75, risk events 2, score 0.353"
+      "result_summary": "5 runs: win 0% (95% CI 0%\u201343%), loss 20%, draw 80%; fail verdict 20%; mean hp lost 75, risk events 2, score 0.342"
     }
   ],
   "conflict_id": "conflict:tactical_reference_001:v0.1:TAC_ANGEL:1+STARTX:2+HADES:3",
@@ -125,7 +125,7 @@
     }
   ],
   "recommendation_to_nexus": {
-    "decision_reason": "Conflicting orders: TAC_ANGEL:1 vs STARTX:2 (objective); TAC_ANGEL:1 vs HADES:3 (location, priority). Highest win_rate: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0). Lowest failure_frequency: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0.2). Lowest mean_hp_lost: branch TAC_ANGEL:1 (69.8). Lowest mean_risk_events: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (2). Highest mean_score: branch TAC_ANGEL:1 (0.4053). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep.",
+    "decision_reason": "Conflicting orders: TAC_ANGEL:1 vs STARTX:2 (objective); TAC_ANGEL:1 vs HADES:3 (location, priority). Highest win_rate: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0). Lowest failure_frequency: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (0.2). Lowest mean_hp_lost: branch TAC_ANGEL:1 (69.8). Lowest mean_risk_events: tied between TAC_ANGEL:1, STARTX:2+HADES:3 (2). Highest mean_score: branch TAC_ANGEL:1 (0.3907). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep.",
     "required_decision": true
   },
   "scenario_id": "tactical_reference_001"

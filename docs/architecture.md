@@ -2076,3 +2076,22 @@ domains/city/score.py         recovery_outcome        工業、行政、醫療�
 Failure exploration：`failure/taxonomy.py` 把 §14.2 每一列對到變量或檢查；failure map 帶 §14.3 `output` 與 §14.4 七問 `answers`。Job 可以帶 `rule_changes`（合併進世界規則）與 `stress`（failure variable 與等級）。
 
 `skyvault acceptance`：`acceptance/run.py` 先跑 Phase 20 的 40 條（regression），再跑 `data/v2/spec_acceptance.json` 的 50 條（`acceptance/spec_checks.py`）；`acceptance/spec_fields.py` 是原文 YAML 範例的欄位，契約逐欄比對 JSON Schema（§2.3 比對範例世界本身）。
+
+## 城市係數的來源（Phase 23）
+
+規則（`rules.json`）是引擎執行的唯一來源；`calibration.json` 說明每個值從哪裡來。`domains/city/calibration.py` 的 `registry_problems` 確認兩者一致：
+
+- 值相同，且在範圍內
+- 來源已列出
+- 四組（information_defaults、disaster_effects、recovery、repair）與 order.dark 的每個係數都有一筆
+
+`build_city_scenario` 在規則與登記檔一致時，把每個係數寫進 scenario 的 §11.2 assumption_registry（confidence：anchored 0.7、derived 0.5、assumed 0.3；criticality 來自敏感度），來源寫進 §11.3 data_provenance；不一致時 world 記為 custom。
+
+| 機制 | 位置 | 說明 |
+|---|---|---|
+| 夜間比例 | `model.night_share`、`handlers.night_of` | 六小時 phase 從午夜開始時，00–06 與 18–24 是夜間；tick 時鐘算一半。停電的治安扣分與情緒壓力乘上它 |
+| 工業產能 | district `industry_capacity` | 戰爭或火災摧毀的產能以 `recovery.rebuild` 重建；產出以 `industry_up` 恢復但不超過產能 |
+| 洪水 | `disasters.flooded_dark`、`closed_roads` | 嚴重度 ≥ power_cut_at 時停電，≥ road_cut_at 時封路 |
+| 反制訊息 | `information.counter` | 移除 counter_share 的壓力 |
+
+敏感度（`domains/city/sensitivity.py`）：每個係數推到範圍兩端，四個參考城市與接管四方案各跑 3 個 seed。翻轉多數決結果或最佳方案是 high；治理分數移動 ≥ 0.05 是 medium。

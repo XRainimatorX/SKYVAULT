@@ -50,6 +50,8 @@ scenario → world state → actor policy → action → validation
 
 以兩份創始文件驗收（Phase 22）：`skyvault acceptance` 直接以《Long-Term Framework & Formal Spec》（§0 九條硬性要求、§2–§18 的契約逐欄、§21 Phase A–J 的通過標準）與《SKYVAULT Definition》（Ⅰ–Ⅸ）逐條驗收，每條附原文章節與證據；開發計劃的 15 / 14 / 6 / 5 先跑，作為回歸。契約照原文：scenario 是 §3.3 的分組格式、世界是獨立的 §2 World Contract（`data/worlds/`），由 `compile_scenario` 編成引擎的形式，每個 result package 帶 §4.2 的十四步執行紀錄；評估分數是 §8.3 的十一個 key；service、governance、handoff、failure exploration 都照 §10.4、§15.3、§17.2、§14.3 逐欄。NEXUS 可以交一個任務（mission）：SKYVAULT 判斷是否需要世界、把每個方案編成一個 scenario 版本、跑完、交回報告，選哪個方案交回 NEXUS / 陛下；STARTX → SKYVAULT → TAC ANGEL → 模擬 → STARTX 重評 → TAC ANGEL 調整 → NEXUS 的三角包循環經同一個介面跑完。
 
+城市模型的係數說得出來源（Phase 23）：信息環境、災害、重建的 29 個係數記在 `data/domains/city/calibration.json`，每個附值、單位、可信度（anchored / derived / assumed）、研究結果與來源、換算方法。有研究依據的照研究調整（變電站修一天、戰後產能依 Katrina 的速度重建、洪水斷電、淹水 60% 才封路、反制訊息移除 14% 的壓力、停電只在夜間影響治安）；每個城市 scenario 把它們帶進 assumption_registry 與 data_provenance。敏感度分析把每個係數推到範圍兩端，找出會翻轉結論的係數：`skyvault calibration` 印出結果與該先找資料的項目。
+
 世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。scenario 必須說明誰做決定：`runtime.policy` 指名一個 policy，或它的 domain pack 帶預設 policy —— 都沒有就被拒絕，SKYVAULT 不替它挑一個。系統的基線是 `military_urban_001` v0.2。
 
 actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
@@ -128,6 +130,7 @@ skyvault status
 ```bash
 skyvault virtual-test pax_test_001                # 一份裝備 profile 的三重篩查與判斷
 skyvault acceptance                               # Formal Spec 9 / 19 / 10 + Definition 12，回歸 15 / 14 / 6 / 5 → ACCEPTED
+skyvault calibration                              # 城市係數的值、可信度、重要度；--sweep 重跑敏感度分析
 ```
 
 部署自己的 scenario、batch 與 policy 不需要改 SKYVAULT：`SKYVAULT_SCENARIO_PATH`、`SKYVAULT_BATCH_PATH` 加資料夾（排在 `data/` 之後），`SKYVAULT_POLICY_MODULES` 加 policy 模組。用 Redis 與 PostgreSQL：`skyvault serve --queue rq --redis … --store postgresql://…` 加上 `skyvault worker`；或 `docker compose up --build`。
@@ -248,7 +251,7 @@ docs/               文件
 
 | 項目 | 影響 | 留待 |
 |---|---|---|
-| 信息環境、災害、重建的係數是假設 | 情緒壓力的傳播與反噬、洪水 / 火災的損害依手調的預設值；醫療在城市模型裡不會自行恢復 | 有真實資料時 |
+| 城市係數多數仍是假設 | 29 個裡 1 anchored、5 derived、23 assumed（`skyvault calibration`）；來源只讀了搜尋摘要；會翻轉結論的 `recovery.administer`、`order.dark` 都是 assumed；醫療在城市模型裡不會自行恢復 | 有真實資料時，先找這兩個 |
 | 三角包與驗收裡的 STARTX / TAC ANGEL 是替身 | `acceptance/standins.py` 的固定規則；真正的系統以 NEXUS mission 或各自的提交接入 | 真正的系統出現時 |
 | 契約逐欄的驗收比的是欄位名稱 | 欄位的值域與巢狀位置由各契約的測試把關 | — |
 | EIDEN-01 的世界參數 | 只有對得到單位能力的參數成為變體，其餘回報缺口（job 已能帶 rule_changes） | 需要時 |
@@ -258,7 +261,7 @@ docs/               文件
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
 | 商業版的 redact 是字串層級 | 新增內部名稱要加進 data/editions/commercial.json；CI 掃描外洩 | 需要時 |
 | 裝備篩查的係數是假設 | physics-lite 門檻、一個軍事 tick = 10 分鐘、hp 係數代表防護；FMI / FMU 尚未接上 | 有真實資料時 |
-| 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
+| 城市不是真實城市 | 研究來自 Katrina、德國洪水、開普敦等不同事件；一步 = 6 小時的換算是假設；沒有 GIS | 有真實資料時 |
 | 空域只有 2D、兩種高度，威脅只會直線飛 | 沒有閃避、改目標；HADES 不能指定攔截器、AEROGRID 不能新增感測器 | 計劃寫 3D later |
 | briefing 不敘述城市的狀態變化 | 「What happened」只數行動；NEXUS 拿 domain_outcome，人讀 output/city/city_report.md | 需要時 |
 | 軍事 baseline policy 用自己的感測 | 每個單位自己看；觀測層是整個陣營共享；沒有視線 | 需要時 |
