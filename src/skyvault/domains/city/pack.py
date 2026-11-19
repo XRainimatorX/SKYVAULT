@@ -7,10 +7,17 @@ from ...action import Action, ActionTarget
 from ...actions import ActionHandler
 from ...world_state import WorldState
 from .failures import city_failure_variables
-from .handlers import ACTION_TYPES, MOBILE, city_handlers, districts, rules_of
+from .handlers import (
+    ACTION_TYPES,
+    MOBILE,
+    city_handlers,
+    districts,
+    rules_of,
+    step_of,
+)
 from .information import information_rules
 from .policy import CityAdministrationPolicy
-from .score import governance_stability, population_order
+from .score import governance_stability, population_order, recovery_outcome
 
 ACTORS = MOBILE + ("city_office",)
 
@@ -27,7 +34,9 @@ class CityPack:
 
     name = "city"
     action_types = ACTION_TYPES
-    spaces = ("network", "graph")
+    spaces = ("network", "graph", "district_network")
+    # one step is one tick or one phase; the city's rules are per step
+    clocks = ("tick", "phase", "phase_event_hybrid")
     ends_with_last_faction = False
     end_reasons = ("governance_collapsed",)
 
@@ -65,12 +74,14 @@ class CityPack:
         actions = []
         if grid is not None:
             actions.append(action(grid.entity_id, "power_update"))
+        every = districts(world)
+        if every and rules_of(world).get("disasters"):
+            actions.append(action(every[0].entity_id, "disaster_update"))
         actions += [
             action(e.entity_id, "arrive", e.entity_id)
             for e in world.entities.values()
-            if e.entity_type in MOBILE and e.state.get("arrives_at") == world.tick
+            if e.entity_type in MOBILE and e.state.get("arrives_at") == step_of(world)
         ]
-        every = districts(world)
         if every and information_rules(rules_of(world)) is not None:
             actions.append(action(every[0].entity_id, "information_update"))
         actions += [action(d.entity_id, "district_update", d.entity_id) for d in every]
@@ -107,6 +118,12 @@ class CityPack:
     ) -> dict[str, Any]:
         """The governance stability score of a finished run (score.py)."""
         return governance_stability(package, scenario)
+
+    def recovery_outcome(
+        self, package: dict[str, Any], scenario: dict[str, Any]
+    ) -> dict[str, Any]:
+        """How fast the city recovers, measure by measure (score.py)."""
+        return recovery_outcome(package, scenario)
 
     def evaluation_axes(
         self,

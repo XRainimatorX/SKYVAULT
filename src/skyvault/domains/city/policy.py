@@ -11,6 +11,7 @@ entity id, so the policy itself draws nothing at random.
 from typing import Any
 
 from ...action import Action, ActionTarget
+from .handlers import road_distance
 from .information import information_rules, pressure_of
 from .model import consumption
 
@@ -66,7 +67,7 @@ class CityAdministrationPolicy:
             d
             for d in _of(world, "district")
             if d.position not in taken
-            and world.space.distance(actor.position, d.position) != float("inf")
+            and road_distance(world, actor.position, d.position) != float("inf")
         ]
         if not reachable:
             return None

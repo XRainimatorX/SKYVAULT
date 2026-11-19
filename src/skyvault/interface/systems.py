@@ -209,14 +209,20 @@ def missions(package: dict[str, Any], scenario: dict[str, Any]) -> dict | None:
 def domain_outcome(package: dict[str, Any], scenario: dict[str, Any]) -> dict | None:
     """
     What the scenario's domain pack judges after the run, through its hooks:
-    the military mission outcome, the city's governance stability score.
+    the military mission outcome, the city's governance stability score and
+    recovery, the airspace outcome.
     None without a domain.
     """
     if not scenario.get("domain"):
         return None
     pack = load_domain(scenario["domain"])
     judged = {}
-    for hook in ("mission_outcome", "governance_outcome", "airspace_outcome"):
+    for hook in (
+        "mission_outcome",
+        "governance_outcome",
+        "recovery_outcome",
+        "airspace_outcome",
+    ):
         if hasattr(pack, hook):
             judged[hook] = getattr(pack, hook)(package, scenario)
     return judged

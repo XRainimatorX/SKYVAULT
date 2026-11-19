@@ -403,6 +403,10 @@ class WorldView(_Guarded):
         return int(self._world.tick)
 
     @property
+    def phase_length(self) -> int | None:
+        return self._world.phase_length
+
+    @property
     def space(self) -> SpaceView:
         return self._space
 

@@ -1,0 +1,152 @@
+{
+  "mission_id": "city_takeover_branches_001",
+  "order": "打下城市後如何快速接管：比較強攻、封鎖、談判、先恢復供應四個方案",
+  "objective": "compare_plans",
+  "scenario": "city_takeover_001/v0.1",
+  "repeat_count": 3,
+  "plans": [
+    {
+      "plan_id": "assault",
+      "description": "強攻: police patrol hard (larger order gains) in a city already under occupation pressure; coercion where pressure is high backfires (information environment on, backlash from 35).",
+      "rule_changes": {
+        "city": {
+          "order": {
+            "patrol": [
+              6,
+              12
+            ]
+          },
+          "information": {
+            "backlash_threshold": 35,
+            "initial": {
+              "center": 30,
+              "market": 30,
+              "harbor": 30,
+              "north": 30,
+              "east": 30,
+              "south": 30,
+              "west": 30,
+              "works": 30
+            }
+          }
+        }
+      }
+    },
+    {
+      "plan_id": "blockade",
+      "description": "封鎖: the South Slums, where the holdouts are, are sealed off: every road into them is cut for the whole run.",
+      "rule_changes": {
+        "city": {
+          "disasters": [
+            {
+              "type": "road_closure",
+              "tick": 0,
+              "road": [
+                "market",
+                "south"
+              ],
+              "duration": 30
+            },
+            {
+              "type": "road_closure",
+              "tick": 0,
+              "road": [
+                "harbor",
+                "south"
+              ],
+              "duration": 30
+            },
+            {
+              "type": "road_closure",
+              "tick": 0,
+              "road": [
+                "south",
+                "west"
+              ],
+              "duration": 30
+            }
+          ]
+        }
+      }
+    },
+    {
+      "plan_id": "negotiate",
+      "description": "談判: local authorities cooperate: every district's administration starts 0.2 higher.",
+      "entity_changes": {
+        "center": {
+          "state": {
+            "administration": 0.7
+          }
+        },
+        "market": {
+          "state": {
+            "administration": 0.6
+          }
+        },
+        "harbor": {
+          "state": {
+            "administration": 0.5
+          }
+        },
+        "north": {
+          "state": {
+            "administration": 0.7
+          }
+        },
+        "east": {
+          "state": {
+            "administration": 0.6
+          }
+        },
+        "south": {
+          "state": {
+            "administration": 0.4
+          }
+        },
+        "west": {
+          "state": {
+            "administration": 0.8
+          }
+        },
+        "works": {
+          "state": {
+            "administration": 0.5
+          }
+        }
+      }
+    },
+    {
+      "plan_id": "restore_supply_first",
+      "description": "先恢復供應: supply first: convoys carry 10, the depot holds 200 and deliveries are a quarter faster.",
+      "entity_changes": {
+        "convoy_1": {
+          "capabilities": {
+            "capacity": 10
+          }
+        },
+        "convoy_2": {
+          "capabilities": {
+            "capacity": 10
+          }
+        },
+        "convoy_3": {
+          "capabilities": {
+            "capacity": 10
+          }
+        },
+        "depot_harbor": {
+          "state": {
+            "food": 200.0
+          }
+        }
+      },
+      "rule_changes": {
+        "city": {
+          "supply": {
+            "delay_factor": 0.75
+          }
+        }
+      }
+    }
+  ]
+}

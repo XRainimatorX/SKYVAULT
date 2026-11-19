@@ -12,6 +12,7 @@ import copy
 from typing import Any
 
 from ...contracts import SCHEMA_VERSION, validate_compiled_scenario
+from .disasters import DISASTERS
 from .model import order_state
 
 DOMAIN = "city"
@@ -32,7 +33,17 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
 
     Raises ValueError for a road, facility or actor at a place the city
     does not have, a substation serving or backed up by something unknown,
-    a district served by two substations, or an incident naming nothing.
+    a district served by two substations, or an incident or disaster naming
+    nothing.
+
+    Important:
+    Phase 22: a spec may describe its world (world: world_id, world_scope,
+    purpose, space_type, units, time_model), its environment_state, an
+    information environment (information), disasters, entity_model flags
+    (added to the entity types), its own
+    failure_variables, actor_slots, evaluation_targets, assumptions (added
+    to the model's own) and data_provenance; without them the city is
+    built as before.
     """
     nodes = [d["id"] for d in spec["districts"]]
     known = set(nodes)
@@ -66,10 +77,35 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             raise ValueError(f"unknown incident {incident['type']!r}")
         if incident["target"] not in ids:
             raise ValueError(f"incident names nothing: {incident['target']!r}")
+    roads = {frozenset((a, b)) for a, b, _ in spec["roads"]}
+    for disaster in spec.get("disasters", []):
+        if disaster["type"] not in DISASTERS:
+            raise ValueError(f"unknown disaster {disaster['type']!r}")
+        if disaster["type"] == "road_closure":
+            if frozenset(disaster["road"]) not in roads:
+                raise ValueError(f"no road {disaster['road']} to close")
+        elif disaster["district"] not in known:
+            raise ValueError(f"disaster in no district: {disaster['district']!r}")
 
     city_rules = copy.deepcopy(rules)
     city_rules.pop("description", None)
     city_rules["incidents"] = copy.deepcopy(spec.get("incidents", []))
+    if spec.get("disasters"):
+        city_rules["disasters"] = copy.deepcopy(spec["disasters"])
+    if spec.get("information") is not None:
+        city_rules["information"] = copy.deepcopy(spec["information"])
+    world = spec.get("world", {})
+    space: dict[str, Any] = {
+        "type": world.get("space_type", "network"),
+        "nodes": nodes,
+        "edges": [[a, b, float(ticks)] for a, b, ticks in spec["roads"]],
+    }
+    if world.get("units"):
+        space["units"] = list(world["units"])
+    time_model = copy.deepcopy(
+        world.get("time_model") or {"type": "tick", "max_ticks": spec["max_ticks"]}
+    )
+    variables = list(spec.get("failure_variables") or FAILURE_VARIABLES)
     scenario = {
         "schema_version": SCHEMA_VERSION,
         "scenario_id": spec["scenario_id"],
@@ -90,15 +126,11 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             "change_reason": "Built from the city domain pack spec.",
         },
         "world_contract": {
-            "world_id": f"{spec['scenario_id']}_world",
-            "world_scope": "city_governance",
-            "purpose": [spec.get("purpose", "")],
-            "space_model": {
-                "type": "network",
-                "nodes": nodes,
-                "edges": [[a, b, float(ticks)] for a, b, ticks in spec["roads"]],
-            },
-            "time_model": {"type": "tick", "max_ticks": spec["max_ticks"]},
+            "world_id": world.get("world_id", f"{spec['scenario_id']}_world"),
+            "world_scope": world.get("world_scope", "city_governance"),
+            "purpose": list(world.get("purpose") or [spec.get("purpose", "")]),
+            "space_model": space,
+            "time_model": time_model,
             "assumption_registry": {
                 "movement_model": "road_network_travel_ticks",
                 "public_order": "banded_state_machine",
@@ -106,30 +138,39 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
                 "supply": "convoys_on_shortest_road",
                 "actor_policy": "city_administration_baseline",
                 "distance_model": "travel_ticks",
+                **copy.deepcopy(spec.get("assumptions", {})),
             },
-            "evaluation_targets": [
-                "world_state_changed",
-                "event_memory_created",
-                "result_package_created",
-            ],
+            "evaluation_targets": list(
+                spec.get("evaluation_targets")
+                or [
+                    "world_state_changed",
+                    "event_memory_created",
+                    "result_package_created",
+                ]
+            ),
             "entity_model": {
-                "entity_types": sorted({e["entity_type"] for e in entities})
+                **copy.deepcopy(spec.get("entity_model", {})),
+                "entity_types": sorted({e["entity_type"] for e in entities}),
             },
-            "environment_state": {},
+            "environment_state": copy.deepcopy(spec.get("environment_state", {})),
             "resource_state": {},
             "rule_set": {"city": city_rules},
-            "failure_variables": list(FAILURE_VARIABLES),
-            "actor_slots": ["NEXUS", "STARTX", "TAC_ANGEL", "EIDEN_01", "CYBERHOUND"],
+            "failure_variables": variables,
+            "actor_slots": list(
+                spec.get("actor_slots")
+                or ["NEXUS", "STARTX", "TAC_ANGEL", "EIDEN_01", "CYBERHOUND"]
+            ),
             "event_memory": {"format": "event_sourcing", "snapshot_every": 5},
             "data_provenance": {
                 "source_type": "city_domain_pack",
                 "source_quality": "medium",
+                **copy.deepcopy(spec.get("data_provenance", {})),
                 "version": spec["scenario_version"],
             },
         },
         "failure_exploration": {
             "objective": "find_weakness",
-            "failure_variables": list(FAILURE_VARIABLES),
+            "failure_variables": variables,
             "stress_levels": ["mild", "moderate", "severe", "collapse"],
             "run_policy": {
                 "repeat_count": 5,

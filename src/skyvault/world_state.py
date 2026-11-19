@@ -75,6 +75,12 @@ class WorldState:
             if entity.faction is not None
         }
 
+    @property
+    def phase_length(self) -> int | None:
+        """How long one phase is on a phased clock (None on a tick clock)."""
+        length = getattr(self.clock, "phase_length", None)
+        return int(length) if length is not None else None
+
     def advance_time(self) -> int:
         """
         Move the world's clock forward once and return the new time.

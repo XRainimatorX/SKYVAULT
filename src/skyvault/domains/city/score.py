@@ -129,3 +129,69 @@ def governance_stability(
             for district_id, state in sorted(last.items())
         },
     }
+
+
+RECOVERY_MEASURES = ("industry", "administration", "medical", "power", "logistics")
+
+
+def recovery_outcome(package: dict[str, Any], scenario: dict[str, Any]) -> dict:
+    """
+    How fast the city recovers (SKYVAULT Definition VI.C, 戰後重建: industry,
+    infrastructure, medical care and logistics), measure by measure.
+
+    Important:
+    industry, administration and medical are population-weighted means;
+    power is the share of people with power; logistics the food delivered in
+    the step (SUPPLY events). For each: where it started, its lowest point
+    and when, where it ended, and the first time after the lowest point it
+    was back at its start (recovered_at; None if it never was). A measure
+    that never fell recovers at its start.
+    """
+    history = history_from_package(package)
+    delivered: dict[int, float] = {}
+    for event in package["event_memory"]:
+        if event["event_type"] == "SUPPLY":
+            time = int(event["time"])
+            delivered[time] = delivered.get(time, 0.0) + float(
+                event["data"]["delivered"]
+            )
+
+    def values(units: dict[str, Any], tick: int) -> dict[str, float]:
+        states = {
+            k: u["state"] for k, u in units.items() if u["entity_type"] == "district"
+        }
+        return {
+            "industry": _weighted(states, lambda s: float(s["industry"])),
+            "administration": _weighted(states, lambda s: float(s["administration"])),
+            "medical": _weighted(states, lambda s: float(s["medical"])),
+            "power": _weighted(states, lambda s: float(s["power"])),
+            "logistics": delivered.get(tick, 0.0),
+        }
+
+    series = [(tick, values(units, tick)) for tick, units in sorted(history.items())]
+    measures = {}
+    for name in RECOVERY_MEASURES:
+        points = [(tick, round(v[name], 4)) for tick, v in series]
+        start = points[0][1]
+        low_tick, low = min(points, key=lambda p: (p[1], p[0]))
+        back = next(
+            (tick for tick, value in points if tick >= low_tick and value >= start),
+            None,
+        )
+        measures[name] = {
+            "start": start,
+            "lowest": low,
+            "lowest_at": low_tick,
+            "end": points[-1][1],
+            "recovered_at": back,
+        }
+    return {
+        "measures": measures,
+        "recovered": sorted(
+            n for n, m in measures.items() if m["recovered_at"] is not None
+        ),
+        "not_recovered": sorted(
+            n for n, m in measures.items() if m["recovered_at"] is None
+        ),
+        "end_tick": series[-1][0],
+    }

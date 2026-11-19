@@ -178,6 +178,26 @@
           2.0,
           3.0
         ]
+      },
+      "stairs": {
+        "parameter": "base_width",
+        "group": "physical_parameters",
+        "factors": [
+          0.85,
+          0.7,
+          0.55,
+          0.4
+        ]
+      },
+      "impact": {
+        "parameter": "joint_load",
+        "group": "physical_parameters",
+        "factors": [
+          0.9,
+          0.75,
+          0.6,
+          0.45
+        ]
       }
     }
   }

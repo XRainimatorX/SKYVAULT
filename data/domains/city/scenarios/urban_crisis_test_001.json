@@ -1,0 +1,370 @@
+{
+ "scenario_id": "urban_crisis_test_001",
+ "scenario_version": "v0.1",
+ "purpose": "Formal Spec 2.3: a city in crisis for fourteen days in six-hour phases — heavy rain floods the Harbor, a fire takes the Industrial Works, the market road is cut and rumor spreads — does the administration hold order, and how fast does the city recover?",
+ "description": "The world of Formal Spec section 2.3 (urban_crisis_test_001) on the city model: district network, phase/event clock, unstable grid, low order, heavy rain and degraded communication; floods, a fire and a cut road as disasters; the information environment on.",
+ "max_ticks": 56,
+ "random_seed": 42,
+ "world": {
+  "world_id": "urban_crisis_test_001",
+  "world_scope": "city_environment",
+  "purpose": [
+   "crisis_response",
+   "system_stress_test",
+   "governance_recovery"
+  ],
+  "space_type": "district_network",
+  "units": [
+   "district",
+   "road_node",
+   "facility",
+   "supply_point"
+  ],
+  "time_model": {
+   "type": "phase_event_hybrid",
+   "phase_length": "6_hours",
+   "max_duration": "14_days"
+  }
+ },
+ "environment_state": {
+  "power_grid": "unstable",
+  "public_order": "low",
+  "weather": "heavy_rain",
+  "communication": "degraded"
+ },
+ "entity_model": {
+  "humans": true,
+  "vehicles": true,
+  "infrastructure": true,
+  "resources": true,
+  "ai_systems": true
+ },
+ "actor_slots": [
+  "NEXUS",
+  "STARTX",
+  "TAC_ANGEL",
+  "EIDEN_01",
+  "AEROGRID",
+  "HADES"
+ ],
+ "assumptions": {
+  "public_order_decay_rate": "medium",
+  "supply_delay_model": "regional_disruption",
+  "civilian_pressure_model": "high_sensitivity",
+  "infrastructure_recovery_speed": "slow"
+ },
+ "data_provenance": {
+  "source_type": "mixed_input",
+  "source_quality": "medium"
+ },
+ "failure_variables": [
+  "supply_delay",
+  "communication_failure",
+  "public_order_collapse",
+  "weather_degradation"
+ ],
+ "evaluation_targets": [
+  "stability_recovery",
+  "resource_cost",
+  "civilian_pressure",
+  "system_performance",
+  "risk_growth"
+ ],
+ "districts": [
+  {
+   "id": "center",
+   "name": "Old Center",
+   "population": 42000,
+   "public_order": 35,
+   "food": 3,
+   "medical": 0.7,
+   "industry": 0.4,
+   "administration": 0.5
+  },
+  {
+   "id": "market",
+   "name": "Market Quarter",
+   "population": 30000,
+   "public_order": 30,
+   "food": 2,
+   "medical": 0.5,
+   "industry": 0.5,
+   "administration": 0.4
+  },
+  {
+   "id": "harbor",
+   "name": "Harbor",
+   "population": 18000,
+   "public_order": 25,
+   "food": 4,
+   "medical": 0.3,
+   "industry": 0.6,
+   "administration": 0.3
+  },
+  {
+   "id": "north",
+   "name": "North Residential",
+   "population": 36000,
+   "public_order": 45,
+   "food": 2,
+   "medical": 0.6,
+   "industry": 0.2,
+   "administration": 0.5
+  },
+  {
+   "id": "east",
+   "name": "East Residential",
+   "population": 33000,
+   "public_order": 40,
+   "food": 2,
+   "medical": 0.4,
+   "industry": 0.2,
+   "administration": 0.4
+  },
+  {
+   "id": "south",
+   "name": "South Slums",
+   "population": 51000,
+   "public_order": 20,
+   "food": 1,
+   "medical": 0.2,
+   "industry": 0.1,
+   "administration": 0.2
+  },
+  {
+   "id": "west",
+   "name": "West Suburbs",
+   "population": 24000,
+   "public_order": 55,
+   "food": 3,
+   "medical": 0.5,
+   "industry": 0.3,
+   "administration": 0.6
+  },
+  {
+   "id": "works",
+   "name": "Industrial Works",
+   "population": 12000,
+   "public_order": 40,
+   "food": 2,
+   "medical": 0.3,
+   "industry": 0.8,
+   "administration": 0.3
+  }
+ ],
+ "roads": [
+  [
+   "center",
+   "market",
+   1
+  ],
+  [
+   "center",
+   "north",
+   2
+  ],
+  [
+   "center",
+   "east",
+   2
+  ],
+  [
+   "center",
+   "west",
+   2
+  ],
+  [
+   "market",
+   "harbor",
+   1
+  ],
+  [
+   "market",
+   "south",
+   2
+  ],
+  [
+   "harbor",
+   "south",
+   2
+  ],
+  [
+   "harbor",
+   "works",
+   3
+  ],
+  [
+   "north",
+   "east",
+   2
+  ],
+  [
+   "east",
+   "works",
+   2
+  ],
+  [
+   "south",
+   "west",
+   3
+  ],
+  [
+   "west",
+   "north",
+   3
+  ]
+ ],
+ "power": {
+  "plants": [
+   {
+    "id": "plant_works",
+    "at": "works",
+    "output": 100
+   }
+  ],
+  "substations": [
+   {
+    "id": "sub_center",
+    "at": "center",
+    "capacity": 9,
+    "serves": [
+     "center",
+     "market"
+    ],
+    "backup": [
+     "sub_north",
+     "sub_south"
+    ]
+   },
+   {
+    "id": "sub_north",
+    "at": "north",
+    "capacity": 11,
+    "serves": [
+     "north",
+     "east",
+     "west"
+    ],
+    "backup": [
+     "sub_center"
+    ]
+   },
+   {
+    "id": "sub_south",
+    "at": "south",
+    "capacity": 8,
+    "serves": [
+     "south",
+     "harbor"
+    ],
+    "backup": [
+     "sub_center"
+    ]
+   },
+   {
+    "id": "sub_works",
+    "at": "works",
+    "capacity": 2,
+    "serves": [
+     "works"
+    ],
+    "backup": []
+   }
+  ]
+ },
+ "depots": [
+  {
+   "id": "depot_harbor",
+   "at": "harbor",
+   "food": 120
+  }
+ ],
+ "forces": {
+  "administration": {
+   "id": "city_office",
+   "at": "center"
+  },
+  "police": [
+   {
+    "id": "police_1",
+    "at": "center"
+   },
+   {
+    "id": "police_2",
+    "at": "market"
+   },
+   {
+    "id": "police_3",
+    "at": "west"
+   }
+  ],
+  "convoys": [
+   {
+    "id": "convoy_1",
+    "at": "harbor",
+    "capacity": 6
+   },
+   {
+    "id": "convoy_2",
+    "at": "harbor",
+    "capacity": 6
+   },
+   {
+    "id": "convoy_3",
+    "at": "harbor",
+    "capacity": 6
+   }
+  ],
+  "repair_crews": [
+   {
+    "id": "crew_1",
+    "at": "works"
+   }
+  ]
+ },
+ "incidents": [
+  {
+   "tick": 6,
+   "type": "substation_failure",
+   "target": "sub_south"
+  }
+ ],
+ "disasters": [
+  {
+   "type": "flood",
+   "tick": 2,
+   "district": "harbor",
+   "severity": 0.6,
+   "duration": 8
+  },
+  {
+   "type": "fire",
+   "tick": 10,
+   "district": "works",
+   "severity": 0.5,
+   "duration": 4
+  },
+  {
+   "type": "road_closure",
+   "tick": 4,
+   "road": [
+    "center",
+    "market"
+   ],
+   "duration": 12
+  }
+ ],
+ "information": {
+  "sources": [
+   {
+    "district": "market",
+    "tick": 3,
+    "until": 12,
+    "magnitude": 8
+   }
+  ],
+  "initial": {
+   "south": 20
+  }
+ }
+}

@@ -1,0 +1,291 @@
+{
+ "scenario_id": "city_reconstruction_001",
+ "scenario_version": "v0.1",
+ "purpose": "After the fighting: industry at a third, administration and hospitals at half, the southern substation wrecked — how fast do industry, power, medical care and supply come back, and does order hold while they do?",
+ "description": "SKYVAULT Definition VI.C 戰後重建: city_takeover_001 after the war. The city's recovery is measured by recovery_outcome (industry, administration, medical, power, logistics).",
+ "max_ticks": 40,
+ "random_seed": 42,
+ "world": {
+  "world_scope": "post_war_reconstruction",
+  "purpose": [
+   "reconstruction",
+   "governance_recovery"
+  ]
+ },
+ "environment_state": {
+  "power_grid": "damaged",
+  "public_order": "fragile",
+  "infrastructure": "war_damaged"
+ },
+ "assumptions": {
+  "infrastructure_recovery_speed": "slow"
+ },
+ "evaluation_targets": [
+  "recovery_speed",
+  "stability_recovery",
+  "logistics_recovery"
+ ],
+ "districts": [
+  {
+   "id": "center",
+   "name": "Old Center",
+   "population": 42000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.35,
+   "industry": 0.12,
+   "administration": 0.25
+  },
+  {
+   "id": "market",
+   "name": "Market Quarter",
+   "population": 30000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.25,
+   "industry": 0.15,
+   "administration": 0.2
+  },
+  {
+   "id": "harbor",
+   "name": "Harbor",
+   "population": 18000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.15,
+   "industry": 0.18,
+   "administration": 0.15
+  },
+  {
+   "id": "north",
+   "name": "North Residential",
+   "population": 36000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.3,
+   "industry": 0.06,
+   "administration": 0.25
+  },
+  {
+   "id": "east",
+   "name": "East Residential",
+   "population": 33000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.2,
+   "industry": 0.06,
+   "administration": 0.2
+  },
+  {
+   "id": "south",
+   "name": "South Slums",
+   "population": 51000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.1,
+   "industry": 0.05,
+   "administration": 0.1
+  },
+  {
+   "id": "west",
+   "name": "West Suburbs",
+   "population": 24000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.25,
+   "industry": 0.09,
+   "administration": 0.3
+  },
+  {
+   "id": "works",
+   "name": "Industrial Works",
+   "population": 12000,
+   "public_order": 60,
+   "food": 5,
+   "medical": 0.15,
+   "industry": 0.24,
+   "administration": 0.15
+  }
+ ],
+ "roads": [
+  [
+   "center",
+   "market",
+   1
+  ],
+  [
+   "center",
+   "north",
+   2
+  ],
+  [
+   "center",
+   "east",
+   2
+  ],
+  [
+   "center",
+   "west",
+   2
+  ],
+  [
+   "market",
+   "harbor",
+   1
+  ],
+  [
+   "market",
+   "south",
+   2
+  ],
+  [
+   "harbor",
+   "south",
+   2
+  ],
+  [
+   "harbor",
+   "works",
+   3
+  ],
+  [
+   "north",
+   "east",
+   2
+  ],
+  [
+   "east",
+   "works",
+   2
+  ],
+  [
+   "south",
+   "west",
+   3
+  ],
+  [
+   "west",
+   "north",
+   3
+  ]
+ ],
+ "power": {
+  "plants": [
+   {
+    "id": "plant_works",
+    "at": "works",
+    "output": 100
+   }
+  ],
+  "substations": [
+   {
+    "id": "sub_center",
+    "at": "center",
+    "capacity": 9,
+    "serves": [
+     "center",
+     "market"
+    ],
+    "backup": [
+     "sub_north",
+     "sub_south"
+    ]
+   },
+   {
+    "id": "sub_north",
+    "at": "north",
+    "capacity": 11,
+    "serves": [
+     "north",
+     "east",
+     "west"
+    ],
+    "backup": [
+     "sub_center"
+    ]
+   },
+   {
+    "id": "sub_south",
+    "at": "south",
+    "capacity": 8,
+    "serves": [
+     "south",
+     "harbor"
+    ],
+    "backup": [
+     "sub_center"
+    ]
+   },
+   {
+    "id": "sub_works",
+    "at": "works",
+    "capacity": 2,
+    "serves": [
+     "works"
+    ],
+    "backup": []
+   }
+  ]
+ },
+ "depots": [
+  {
+   "id": "depot_harbor",
+   "at": "harbor",
+   "food": 200
+  }
+ ],
+ "forces": {
+  "administration": {
+   "id": "city_office",
+   "at": "center"
+  },
+  "police": [
+   {
+    "id": "police_1",
+    "at": "center"
+   },
+   {
+    "id": "police_2",
+    "at": "market"
+   },
+   {
+    "id": "police_3",
+    "at": "west"
+   }
+  ],
+  "convoys": [
+   {
+    "id": "convoy_1",
+    "at": "harbor",
+    "capacity": 6
+   },
+   {
+    "id": "convoy_2",
+    "at": "harbor",
+    "capacity": 6
+   },
+   {
+    "id": "convoy_3",
+    "at": "harbor",
+    "capacity": 6
+   }
+  ],
+  "repair_crews": [
+   {
+    "id": "crew_1",
+    "at": "works"
+   },
+   {
+    "id": "crew_2",
+    "at": "center"
+   }
+  ]
+ },
+ "incidents": [
+  {
+   "tick": 1,
+   "type": "substation_failure",
+   "target": "sub_south"
+  }
+ ]
+}

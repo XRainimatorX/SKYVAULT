@@ -306,13 +306,16 @@ class SkyVaultEngine:
         world_contract = scenario["world_contract"]
         space_type = world_contract["space_model"]["type"]
         time_type = world_contract["time_model"]["type"]
-        # A domain pack whose policy and handlers work on other spaces says so
+        # A domain pack whose policy and handlers work on other spaces or
+        # clocks says so; the engine takes one clock step at a time
         spaces = getattr(getattr(self, "domain", None), "spaces", ("grid",))
+        clocks = getattr(getattr(self, "domain", None), "clocks", ("tick",))
 
-        if space_type not in spaces or time_type != "tick":
+        if space_type not in spaces or time_type not in clocks:
             raise ValueError(
-                f"this engine needs a {' or '.join(spaces)} space and a tick "
-                f"clock, got {space_type!r} space and {time_type!r} time"
+                f"this engine needs a {' or '.join(spaces)} space and a "
+                f"{' or '.join(clocks)} clock, got {space_type!r} space and "
+                f"{time_type!r} time"
             )
 
         return create_world(scenario)

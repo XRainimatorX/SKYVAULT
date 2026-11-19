@@ -300,7 +300,9 @@ def test_a_graph_world_without_a_domain_is_still_refused():
 def test_the_city_pack_is_loaded_by_name_and_says_what_it_supports():
     pack = load_domain("city")
     assert pack is CITY
-    assert pack.spaces == ("network", "graph") and pack.ends_with_last_faction is False
+    assert pack.spaces == ("network", "graph", "district_network")
+    assert pack.clocks == ("tick", "phase", "phase_event_hybrid")
+    assert pack.ends_with_last_faction is False
 
 
 def test_a_city_runs_to_its_time_limit_with_one_faction():

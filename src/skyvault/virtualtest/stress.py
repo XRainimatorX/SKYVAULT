@@ -10,6 +10,10 @@ heat                cooling_capacity × 0.9 / 0.75 / 0.5 / 0.25 (a hot day)
 soft_ground         every terrain's bearing × 0.75 / 0.5 / 0.25 / 0.1
 extended_mission    the endurance asked of it × 1.25 / 1.5 / 2 / 3
 supply_disruption   maintenance_time × 1.25 / 1.5 / 2 / 3
+stairs              base_width × 0.85 / 0.7 / 0.55 / 0.4 (a step narrows the
+                    footing it balances on: the stability check)
+impact              joint rating × 0.9 / 0.75 / 0.6 / 0.45 (a collision or a
+                    fall loads the joints past their static rating)
 
 A condition breaks the equipment at the first level where a check that was
 not impossible becomes so, or where the engineering score falls below

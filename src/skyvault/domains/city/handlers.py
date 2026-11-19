@@ -9,7 +9,8 @@ restore_power (a repair crew works on an offline substation), administer
 city office answers rumor with counter-messaging; information model only).
 
 Upkeep, in this order at the start of every tick: power_update (incidents,
-overload trips, who is fed power), arrive (whoever's trip ends now),
+overload trips, who is fed power), disaster_update (floods, fires and cut
+roads; only with rules.city.disasters), arrive (whoever's trip ends now),
 information_update (emotional pressure spreads; only with
 rules.city.information), district_update (each district eats, and its
 public order moves). Every change is an effect, so every change is an
@@ -18,10 +19,13 @@ event with the action's id.
 
 from typing import Any
 
+import networkx as nx
+
 from ...action import Action
 from ...actions import ActionContext, ActionValidation
 from ...consequence import Consequence, DirectEffect
 from ...world_state import WorldState
+from .disasters import closed_roads, damage
 from .information import (
     active_sources,
     backlash,
@@ -41,6 +45,7 @@ ACTION_TYPES = (
     "administer",
     "inform",
     "power_update",
+    "disaster_update",
     "arrive",
     "information_update",
     "district_update",
@@ -52,6 +57,40 @@ def rules_of(world: WorldState) -> dict[str, Any]:
     """The city rules the scenario carries."""
     rules: dict[str, Any] = world.rules.require("city")
     return rules
+
+
+def step_of(world: Any) -> int:
+    """
+    The city's step: the tick on a tick clock, the phase on a phased one
+    (Formal Spec 2.3: six-hour phases). Arrivals, incidents, disasters and
+    rumor sources are all counted in steps, so a trip of two steps takes two
+    phases however many hours a phase is.
+    """
+    length = world.phase_length
+    return int(world.tick) // int(length) if length else int(world.tick)
+
+
+def road_distance(world: Any, a: Any, b: Any) -> float:
+    """
+    Travel ticks from a to b on the roads open now: the space's distance,
+    or the shortest path round the roads a disaster has cut (disasters.py).
+    """
+    rules = world.rules.require("city")
+    if not rules.get("disasters"):
+        return float(world.space.distance(a, b))
+    edges = world.space.describe().get("edges") or []
+    closed = closed_roads(rules, step_of(world), edges)
+    if not closed:
+        return float(world.space.distance(a, b))
+    graph: nx.Graph[str] = nx.Graph()
+    graph.add_nodes_from(world.space.describe().get("nodes") or [])
+    for u, v, weight in edges:
+        if frozenset((u, v)) not in closed:
+            graph.add_edge(u, v, weight=float(weight))
+    try:
+        return float(nx.shortest_path_length(graph, a, b, weight="weight"))
+    except (nx.NetworkXNoPath, nx.NodeNotFound):
+        return float("inf")
 
 
 def districts(world: WorldState) -> list[Any]:
@@ -119,7 +158,7 @@ class TravelHandler:
             return ActionValidation.reject("Travel needs a place in the city")
         if goal == actor.position:
             return ActionValidation.reject("Already there")
-        if world.space.distance(actor.position, goal) == float("inf"):
+        if road_distance(world, actor.position, goal) == float("inf"):
             return ActionValidation.reject("No road leads there")
         return ActionValidation.ok()
 
@@ -133,7 +172,7 @@ class TravelHandler:
             if actor.entity_type == "convoy"
             else 1.0
         )
-        ticks = eta(world.space.distance(actor.position, goal), factor)
+        ticks = eta(road_distance(world, actor.position, goal), factor)
         return _done(
             action,
             "Travel resolved",
@@ -142,7 +181,7 @@ class TravelHandler:
                     actor.entity_id,
                     {
                         "destination": goal,
-                        "arrives_at": world.tick + ticks,
+                        "arrives_at": step_of(world) + ticks,
                         "origin": actor.position,
                     },
                     ["travel", "departure", "world_state_mutation"],
@@ -242,7 +281,7 @@ class DispatchHandler:
         target = world.entities.get(str(action.target.entity_id))
         if target is None or target.entity_type != "district":
             return ActionValidation.reject("Dispatch needs a district")
-        if world.space.distance(actor.position, target.position) == float("inf"):
+        if road_distance(world, actor.position, target.position) == float("inf"):
             return ActionValidation.reject("No road leads there")
         return ActionValidation.ok()
 
@@ -261,7 +300,7 @@ class DispatchHandler:
         # a delivery takes at least a tick, even next door: arrivals for this
         # tick have already happened
         ticks = max(
-            1, eta(world.space.distance(actor.position, target.position), factor)
+            1, eta(road_distance(world, actor.position, target.position), factor)
         )
         return _done(
             action,
@@ -279,10 +318,10 @@ class DispatchHandler:
                     {
                         "cargo": cargo,
                         "destination": target.position,
-                        "arrives_at": world.tick + ticks,
+                        "arrives_at": step_of(world) + ticks,
                         "leg": "outbound",
                         "origin": actor.position,
-                        "dispatched_at": world.tick,
+                        "dispatched_at": step_of(world),
                     },
                     ["dispatch", "travel", "departure", "world_state_mutation"],
                     {
@@ -494,7 +533,7 @@ class PowerUpdateHandler:
 
         for incident in rules.get("incidents", []):
             target = incident["target"]
-            if int(incident["tick"]) == world.tick and grid[target]["online"]:
+            if int(incident["tick"]) == step_of(world) and grid[target]["online"]:
                 grid[target]["online"] = False
                 effects.append(
                     _state(
@@ -591,6 +630,69 @@ class PowerUpdateHandler:
         return _done(action, "Power update resolved", effects)
 
 
+class DisasterUpdateHandler:
+    """
+    disaster_update: a flood or a fire that starts this step damages its
+    district (disasters.damage); every district records the roads out of it
+    that are cut (cut_off_from) whenever that changes. Only with
+    rules.city.disasters.
+    """
+
+    action_type = "disaster_update"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if not rules_of(world).get("disasters"):
+            return ActionValidation.reject("This city has no disasters")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        rules = rules_of(world)
+        effects: list[DirectEffect] = []
+        for disaster in rules["disasters"]:
+            if (
+                int(disaster["tick"]) != step_of(world)
+                or disaster["type"] == "road_closure"
+            ):
+                continue
+            district = world.get_entity(disaster["district"])
+            changes = damage(disaster, district.state)
+            changes["order_state"] = order_state(changes["public_order"], rules)
+            effects.append(
+                _state(
+                    district.entity_id,
+                    changes,
+                    ["disaster", disaster["type"], "state_change"],
+                    {
+                        "disaster": disaster["type"],
+                        "severity": float(disaster.get("severity", 0.5)),
+                        "duration": int(disaster.get("duration", 1)),
+                    },
+                )
+            )
+        edges = world.space.describe().get("edges") or []
+        closed = closed_roads(rules, step_of(world), edges)
+        for district in districts(world):
+            cut = sorted(
+                b if a == district.entity_id else a
+                for a, b, *_ in edges
+                if district.entity_id in (a, b) and frozenset((a, b)) in closed
+            )
+            if cut != list(district.state.get("cut_off_from", [])):
+                effects.append(
+                    _state(
+                        district.entity_id,
+                        {"cut_off_from": cut},
+                        ["disaster", "roads", "state_change"],
+                        {"cut_off_from": cut},
+                    )
+                )
+        return _done(action, "Disaster update resolved", effects)
+
+
 class ArriveHandler:
     """
     arrive: the actor's trip ends this tick. Police and crews stand at
@@ -605,7 +707,7 @@ class ArriveHandler:
         self, world: WorldState, action: Action, context: ActionContext
     ) -> ActionValidation:
         actor = world.get_entity(action.actor_id)
-        if actor.state.get("arrives_at") != world.tick:
+        if actor.state.get("arrives_at") != step_of(world):
             return ActionValidation.reject("Not arriving now")
         return ActionValidation.ok()
 
@@ -636,7 +738,10 @@ class ArriveHandler:
         cargo = float(actor.state["cargo"])
         home = actor.state["home"]
         factor = float(rules_of(world)["supply"]["delay_factor"])
-        back = max(1, eta(world.space.distance(here, home), factor))
+        distance = road_distance(world, here, home)
+        if distance == float("inf"):  # cut off: the convoy waits where it is
+            distance = float(world.space.distance(here, home))
+        back = max(1, eta(distance, factor))
         return _done(
             action,
             "Delivery resolved",
@@ -658,7 +763,7 @@ class ArriveHandler:
                     {
                         "cargo": 0.0,
                         "destination": home,
-                        "arrives_at": world.tick + back,
+                        "arrives_at": step_of(world) + back,
                         "leg": "returning",
                         "origin": here,
                     },
@@ -716,7 +821,7 @@ class InformationUpdateHandler:
             for d in every
         }
         step = pressure_step(
-            current, neighbours, active_sources(info, world.tick), info
+            current, neighbours, active_sources(info, step_of(world)), info
         )
         effects = []
         for d in every:
@@ -865,6 +970,7 @@ def city_handlers() -> dict[str, Any]:
         AdministerHandler(),
         InformHandler(),
         PowerUpdateHandler(),
+        DisasterUpdateHandler(),
         ArriveHandler(),
         InformationUpdateHandler(),
         DistrictUpdateHandler(),
