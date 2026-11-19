@@ -403,6 +403,12 @@ jobs:
           result = json.loads(Path("output/v2/acceptance.json").read_text())
           counts = result["counts"]
           assert result["passed"], counts
+          # Phase 22: accepted against the Formal Spec and the Definition
+          assert counts["formal_spec_0"] == {"passed": 9, "of": 9}, counts
+          assert counts["contracts"] == {"passed": 19, "of": 19}, counts
+          assert counts["phases"] == {"passed": 10, "of": 10}, counts
+          assert counts["definition"] == {"passed": 12, "of": 12}, counts
+          # the Phase 20 checks, as regression
           assert counts["acceptance"] == {"passed": 15, "of": 15}, counts
           assert counts["may_not"] == {"passed": 5, "of": 5}, counts
           print("v2 accepted:", counts)

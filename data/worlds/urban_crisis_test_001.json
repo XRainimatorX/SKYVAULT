@@ -254,6 +254,7 @@
   "data_provenance": {
     "source_type": "mixed_input",
     "source_quality": "medium",
+    "timestamp": "2026-11-19",
     "version": "v0.1"
   },
   "failure_variables": [

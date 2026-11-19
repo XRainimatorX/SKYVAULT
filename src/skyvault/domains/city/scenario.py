@@ -42,8 +42,9 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
     information environment (information), disasters, entity_model flags
     (added to the entity types), its own
     failure_variables, actor_slots, evaluation_targets, assumptions (added
-    to the model's own) and data_provenance; without them the city is
-    built as before.
+    to the model's own), data_provenance, and the scenario's own
+    assumption_registry and scenario_provenance (section 11); without them
+    the city is built as before.
     """
     nodes = [d["id"] for d in spec["districts"]]
     known = set(nodes)
@@ -179,6 +180,26 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             },
             "survival_threshold": 0.5,
         },
+        **(
+            {
+                "assumption_registry": {
+                    "scenario_id": spec["scenario_id"],
+                    "assumptions": copy.deepcopy(spec["assumption_registry"]),
+                }
+            }
+            if spec.get("assumption_registry")
+            else {}
+        ),
+        **(
+            {
+                "data_provenance": {
+                    "scenario_id": spec["scenario_id"],
+                    **copy.deepcopy(spec["scenario_provenance"]),
+                }
+            }
+            if spec.get("scenario_provenance")
+            else {}
+        ),
         "entities": entities,
         "runtime": {
             "max_ticks": spec["max_ticks"],

@@ -53,9 +53,66 @@
   "civilian_pressure_model": "high_sensitivity",
   "infrastructure_recovery_speed": "slow"
  },
+ "assumption_registry": [
+  {
+   "assumption_id": "public_order_decay_rate",
+   "description": "Public order decays at a medium rate without food, power or police.",
+   "category": "public_order",
+   "value": "medium",
+   "confidence": 0.6,
+   "criticality": "high"
+  },
+  {
+   "assumption_id": "supply_delay_model",
+   "description": "Supply is disrupted regionally: floods and cut roads lengthen routes.",
+   "category": "logistics",
+   "value": "regional_disruption",
+   "confidence": 0.5,
+   "criticality": "high"
+  },
+  {
+   "assumption_id": "civilian_pressure_model",
+   "description": "Civilians are highly sensitive: rumor spreads along roads and pulls order down.",
+   "category": "civilian_pressure",
+   "value": "high_sensitivity",
+   "confidence": 0.5,
+   "criticality": "medium"
+  },
+  {
+   "assumption_id": "infrastructure_recovery_speed",
+   "description": "Infrastructure recovers slowly: one repair crew for the grid.",
+   "category": "infrastructure",
+   "value": "slow",
+   "confidence": 0.7,
+   "criticality": "medium"
+  }
+ ],
+ "scenario_provenance": {
+  "sources": [
+   {
+    "source_id": "formal_spec_2_3",
+    "source_type": "manual_input",
+    "confidence": 0.7,
+    "modified_by": "SKYVAULT Phase 22"
+   },
+   {
+    "source_id": "city_takeover_001_districts",
+    "source_type": "historical_record",
+    "confidence": 0.6
+   }
+  ],
+  "reliability_notes": [
+   "districts, roads and power come from city_takeover_001"
+  ],
+  "missing_data": [
+   "rainfall per district",
+   "real road capacities"
+  ]
+ },
  "data_provenance": {
   "source_type": "mixed_input",
-  "source_quality": "medium"
+  "source_quality": "medium",
+  "timestamp": "2026-11-19"
  },
  "failure_variables": [
   "supply_delay",

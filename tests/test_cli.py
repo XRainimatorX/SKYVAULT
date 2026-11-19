@@ -157,9 +157,7 @@ def test_acceptance_runs_here_and_writes_its_report(capsys, tmp_path):
     out = capsys.readouterr().out
     assert "acceptance  15/15" in out and out.strip().endswith("ACCEPTED")
     assert (
-        (tmp_path / "acceptance.md")
-        .read_text()
-        .startswith("# SKYVAULT v2.0 acceptance")
+        (tmp_path / "acceptance.md").read_text().startswith("# SKYVAULT 2.0 acceptance")
     )
 
 

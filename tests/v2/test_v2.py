@@ -160,23 +160,86 @@ def test_both_editions_state_the_boundary(edition_id):
 def test_every_criterion_must_have_and_boundary_check_passes_with_evidence():
     result = accepted()
     assert result["counts"] == {
+        "formal_spec_0": {"passed": 9, "of": 9},
+        "contracts": {"passed": 19, "of": 19},
+        "phases": {"passed": 10, "of": 10},
+        "definition": {"passed": 12, "of": 12},
         "acceptance": {"passed": 15, "of": 15},
         "must_have": {"passed": 14, "of": 14},
         "may": {"passed": 6, "of": 6},
         "may_not": {"passed": 5, "of": 5},
     }
     assert result["passed"] is True
+    regression = result["regression"]
     rows = (
-        result["acceptance"]
-        + result["must_have"]
-        + result["boundary"]["may"]
-        + result["boundary"]["may_not"]
+        result["formal_spec_0"]
+        + result["contracts"]
+        + result["phases"]
+        + result["definition"]
+        + regression["acceptance"]
+        + regression["must_have"]
+        + regression["boundary"]["may"]
+        + regression["boundary"]["may_not"]
     )
     assert all(row["evidence"] and "error" not in row["evidence"] for row in rows)
 
 
+def test_every_founding_criterion_names_its_section():
+    result = accepted()
+    sources = {
+        group: {row["source"].split(" §")[0].split(" Ⅰ")[0] for row in result[group]}
+        for group in ("formal_spec_0", "contracts", "phases", "definition")
+    }
+    assert sources["formal_spec_0"] == {"Formal Spec"}
+    assert sources["contracts"] == {"Formal Spec"}
+    assert sources["phases"] == {"Formal Spec"}
+    assert all(r["source"].startswith("Definition ") for r in result["definition"])
+    assert [r["source"] for r in result["phases"]] == [
+        f"Formal Spec §21 Phase {letter}" for letter in "ABCDEFGHIJ"
+    ]
+
+
+def test_the_contracts_are_checked_field_by_field_against_the_spec_examples():
+    rows = {r["id"]: r["evidence"] for r in accepted()["contracts"]}
+    assert rows["spec_2_3"]["checked_against"] == "urban_crisis_test_001"
+    assert rows["spec_3_3"]["fields"] > 50 and rows["spec_3_3"]["missing"] == []
+    assert all(r["missing"] == [] for r in rows.values())
+
+
+def test_a_contract_missing_a_spec_field_fails_its_check(monkeypatch):
+    import skyvault.acceptance.spec_checks as checks
+
+    root, contract, fields = checks.SPEC_FIELDS["6.2"]
+    monkeypatch.setitem(
+        checks.SPEC_FIELDS, "6.2", (root, contract, (*fields, "telepathy"))
+    )
+    outcome = checks._contract_check("6.2")(None, {})
+    assert outcome["passed"] is False and outcome["evidence"]["missing"] == [
+        "telepathy"
+    ]
+
+
+def test_the_founding_evidence_is_what_a_reader_can_look_up():
+    result = accepted()
+    phases = {r["id"]: r["evidence"] for r in result["phases"]}
+    definition = {r["id"]: r["evidence"] for r in result["definition"]}
+    assert phases["phase_i"]["status_report_needs_skyvault"] is False
+    assert phases["phase_i"]["handed_to"] == ["NEXUS", "SOVEREIGN"]
+    assert phases["phase_c"]["scenario_version"] == {"before": "v0.1", "after": "v0.2"}
+    assert len(phases["phase_f"]) == 6
+    assert definition["def_triangle"]["steps"][0] == "1. STARTX"
+    assert definition["def_triangle"]["steps"][-1] == "7. NEXUS"
+    assert set(definition["def_uses_b"]["branches_failure_frequency"]) == {
+        "assault",
+        "blockade",
+        "negotiate",
+        "restore_supply_first",
+    }
+    assert "flood" in definition["def_uses_c"]["災害應變"]
+
+
 def test_the_evidence_is_what_a_reader_can_look_up():
-    rows = {r["id"]: r["evidence"] for r in accepted()["acceptance"]}
+    rows = {r["id"]: r["evidence"] for r in accepted()["regression"]["acceptance"]}
     # the system baseline (Phase 21): military_urban_001 v0.2
     assert rows["normal_simulation"]["output_hash"] == "1f0a2ea2641a"
     assert rows["normal_simulation"]["events"] == 528
@@ -185,20 +248,26 @@ def test_the_evidence_is_what_a_reader_can_look_up():
     assert rows["failure_to_authority"]["decision_authority"] == ["NEXUS", "SOVEREIGN"]
     assert rows["replay"]["reproduced"] is True
     assert rows["role_boundary"]["skyvault_deciding"] == 403
-    may_not = {r["id"]: r["evidence"] for r in accepted()["boundary"]["may_not"]}
+    may_not = {
+        r["id"]: r["evidence"] for r in accepted()["regression"]["boundary"]["may_not"]
+    }
     assert may_not["override_nexus"]["decided_by"] == "NEXUS"
     assert may_not["override_startx"]["intent_as_submitted"] == ["hold_line"]
 
 
 def test_every_listed_item_has_a_check():
-    listed = load_list()
+    from skyvault.acceptance.run import SPEC_GROUPS, load_spec_list
+
+    listed, spec = load_list(), load_spec_list()
     result = accepted()
-    assert [r["id"] for r in result["acceptance"]] == [
+    assert [r["id"] for r in result["regression"]["acceptance"]] == [
         i["id"] for i in listed["acceptance"]
     ]
-    assert [r["id"] for r in result["must_have"]] == [
+    assert [r["id"] for r in result["regression"]["must_have"]] == [
         i["id"] for i in listed["must_have"]
     ]
+    for group in SPEC_GROUPS:
+        assert [r["id"] for r in result[group]] == [i["id"] for i in spec[group]]
 
 
 class Broken:
@@ -230,22 +299,30 @@ def test_a_check_that_breaks_fails_with_its_error_and_nothing_is_skipped(monkeyp
 
     result = run_module.run_acceptance(Dead())
     assert result["passed"] is False
-    assert len(result["acceptance"]) == 16
-    assert all(not row["passed"] for row in result["acceptance"])
-    assert result["acceptance"][-1]["evidence"] == {
-        "error": "LookupError: no check for 'teleport'"
-    }
-    assert result["acceptance"][0]["evidence"]["error"].startswith("ConnectionError")
+    rows = result["regression"]["acceptance"]
+    assert len(rows) == 16
+    assert all(not row["passed"] for row in rows)
+    assert rows[-1]["evidence"] == {"error": "LookupError: no check for 'teleport'"}
+    assert rows[0]["evidence"]["error"].startswith("ConnectionError")
+    # the founding documents' checks still ran, each failing with its reason
+    assert len(result["phases"]) == 10
+    assert not result["phases"][-1]["passed"] or result["phases"][-1]["evidence"]
 
 
 def test_the_report_says_accepted_and_shows_each_line():
     text = acceptance_report(accepted())
-    assert text.startswith("# SKYVAULT v2.0 acceptance")
-    assert "**ACCEPTED** — 15/15 acceptance criteria, 14/14 must-haves" in text
-    assert text.count("| ✅ |") == 40 and "❌" not in text
+    assert text.startswith("# SKYVAULT 2.0 acceptance")
+    assert (
+        "**ACCEPTED** against the Formal Spec and the SKYVAULT Definition — "
+        "9/9 Formal Spec §0, 19/19 contracts §2–§18, 10/10 §21 phases, "
+        "12/12 Definition"
+    ) in text
+    assert "Regression (Phase 20): 15/15 acceptance criteria, 14/14 must-haves" in text
+    assert "| ✅ | Formal Spec §21 Phase I |" in text
+    assert text.count("| ✅ |") == 50 + 40 and "❌" not in text
     failed = copy.deepcopy(accepted())
     failed["passed"] = False
-    failed["acceptance"][0]["passed"] = False
+    failed["phases"][0]["passed"] = False
     shown = acceptance_report(failed)
     assert "**NOT ACCEPTED**" in shown and shown.count("| ❌ |") == 1
 
@@ -263,12 +340,11 @@ def test_run_v2_acceptance_writes_the_evidence_and_the_report(tmp_path):
         check=True,
     )
     assert "ACCEPTED" in done.stdout and "acceptance  15/15" in done.stdout
+    assert "phases      10/10" in done.stdout and "definition  12/12" in done.stdout
     saved = json.loads((tmp_path / "acceptance.json").read_text())
     assert saved["passed"] is True
     assert (
-        (tmp_path / "acceptance.md")
-        .read_text()
-        .startswith("# SKYVAULT v2.0 acceptance")
+        (tmp_path / "acceptance.md").read_text().startswith("# SKYVAULT 2.0 acceptance")
     )
 
 
