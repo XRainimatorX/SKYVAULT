@@ -1,47 +1,27 @@
 {
-  "scenario_id": "military_urban_001",
-  "stress": "communication_failure:collapse",
-  "scenario_version": "v0.2+communication_failure:collapse",
+  "scenario_id": "tactical_reference_001",
+  "stress": "enemy_reaction_speed:severe",
+  "scenario_version": "v0.1+enemy_reaction_speed:severe",
   "seed": 42,
-  "outcome": "no_winner_duration_limit",
+  "outcome": "BLUE_survived",
   "status": "fail",
-  "score": 0.2681,
+  "score": 0.1998,
   "sequence": [
     {
-      "tick": 2,
-      "entity": "red_10",
-      "by": "blue_05"
+      "tick": 5,
+      "entity": "red_003",
+      "by": "blue_002"
     },
     {
-      "tick": 3,
-      "entity": "red_05",
-      "by": "blue_02"
-    },
-    {
-      "tick": 4,
-      "entity": "red_03",
-      "by": "blue_05"
-    },
-    {
-      "tick": 8,
-      "entity": "red_08",
-      "by": "blue_03"
+      "tick": 7,
+      "entity": "red_002",
+      "by": "blue_001"
     },
     {
       "tick": 9,
-      "entity": "red_06",
-      "by": "blue_03"
-    },
-    {
-      "tick": 11,
-      "entity": "red_01",
-      "by": "blue_02"
-    },
-    {
-      "tick": 13,
-      "entity": "red_02",
-      "by": "blue_02"
+      "entity": "red_001",
+      "by": "blue_001"
     }
   ],
-  "output_hash": "5102bce7193e89f1d82597537d70c1df8ff43be5accf412e5e3a30fba54ced35"
+  "output_hash": "76883f3e93fd581073d1b26bbb68f0f2908e64d49075eecc4507806895453759"
 }

@@ -9,23 +9,23 @@
 
 ## HADES rules of engagement
 
-10 runs each (seeds 42–51).
+5 runs each (seeds 42–46).
 
 | behavior | defended | mean leaks | uncovered | detect (ticks) | reaction (ticks) |
 |---|---|---|---|---|---|
-| baseline | 70% | 0.4 | 21% | 2.5 | 0.9 |
-| salvo 2 | 40% | 0.6 | 21% | 2.4 | 1.0 |
-| first tracked | 70% | 0.3 | 21% | 2.5 | 0.9 |
-| close in (engage_at 0.5) | 0% | 2.9 | 21% | 2.4 | 2.6 |
-| hold fire below 0.6 | 0% | 3.5 | 21% | 2.4 | 1.1 |
+| baseline | 100% | 0.0 | 21% | 2.5 | 0.9 |
+| salvo 2 | 60% | 0.4 | 21% | 2.1 | 1.0 |
+| first tracked | 100% | 0.0 | 21% | 2.5 | 0.9 |
+| close in (engage_at 0.5) | 0% | 3.2 | 21% | 2.3 | 2.8 |
+| hold fire below 0.6 | 0% | 3.6 | 21% | 2.3 | 1.1 |
 
 ## AEROGRID sensor configurations
 
-10 runs each (seeds 42–51).
+5 runs each (seeds 42–46).
 
 | config | defended | mean leaks | uncovered | detect (ticks) | reaction (ticks) |
 |---|---|---|---|---|---|
-| as built | 70% | 0.4 | 21% | 2.5 | 0.9 |
-| spare radar west | 70% | 0.3 | 11% | 1.4 | 1.1 |
-| spare radar east | 70% | 0.3 | 18% | 1.7 | 0.8 |
-| south radar off | 40% | 1.2 | 40% | 2.4 | 1.0 |
+| as built | 100% | 0.0 | 21% | 2.5 | 0.9 |
+| spare radar west | 100% | 0.0 | 11% | 1.5 | 1.1 |
+| spare radar east | 100% | 0.0 | 18% | 1.7 | 0.7 |
+| south radar off | 60% | 0.8 | 40% | 2.1 | 1.1 |

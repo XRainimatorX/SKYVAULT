@@ -5,11 +5,11 @@
     "order_restored_rate_by_delay": {
       "1.0": 1.0,
       "1.5": 1.0,
-      "2.0": 0.3333,
+      "2.0": 0.0,
       "2.5": 0.0,
       "3.0": 0.0
     },
-    "runs": 15
+    "runs": 5
   },
   "outputs": {},
   "product": "urban_resilience",

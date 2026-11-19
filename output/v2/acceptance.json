@@ -1,456 +1,1424 @@
 {
-  "acceptance": [
+  "formal_spec_0": [
     {
-      "id": "nexus_task",
-      "title": "NEXUS 可提交任務",
+      "id": "world_engine",
+      "source": "Formal Spec §0",
+      "title": "以「世界如何運行」為中心：軍事、城市、空域三種世界經同一個引擎與 14 步執行協議運行",
       "passed": true,
       "evidence": {
-        "submission_id": "job_000001",
-        "result": "no_winner_duration_limit",
-        "output_hash": "78aa3fe5bbdf"
-      }
-    },
-    {
-      "id": "create_world",
-      "title": "SKYVAULT 可建立 world",
-      "passed": true,
-      "evidence": {
-        "world_id": "job_000002",
-        "lifecycle": "initialized"
-      }
-    },
-    {
-      "id": "startx_branch",
-      "title": "STARTX 可提交 branch",
-      "passed": true,
-      "evidence": {
-        "branches": [
-          "hold",
-          "press"
-        ],
-        "runs": 1
-      }
-    },
-    {
-      "id": "tac_angel_action",
-      "title": "TAC ANGEL 可提交 tactical action",
-      "passed": true,
-      "evidence": {
-        "world_id": "job_000002",
-        "event_id": "event_0000000001",
-        "event_type": "ACTION_SELECTED"
-      }
-    },
-    {
-      "id": "airspace_systems",
-      "title": "HADES / AEROGRID / SKYFOX 可進入空域 scenario",
-      "passed": true,
-      "evidence": {
-        "HADES_defended_rate": 0.0,
-        "AEROGRID_uncovered": 0.17,
-        "SKYFOX_mission_success": 1.0
-      }
-    },
-    {
-      "id": "star_guard_profile",
-      "title": "星衞裝備 profile 可進入 virtual test",
-      "passed": true,
-      "evidence": {
-        "equipment": "PAX_TEST_001",
-        "judgement": "redesign"
-      }
-    },
-    {
-      "id": "normal_simulation",
-      "title": "SKYVAULT 可跑 normal simulation",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000009",
-        "result": "no_winner_duration_limit",
-        "events": 528,
-        "output_hash": "78aa3fe5bbdf"
-      }
-    },
-    {
-      "id": "failure_exploration_run",
-      "title": "SKYVAULT 可跑 failure exploration",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000010",
-        "crushing_variable": "enemy_reaction_speed",
-        "baseline_survival": 1.0
-      }
-    },
-    {
-      "id": "result_package",
-      "title": "SKYVAULT 可輸出 result package",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000009",
-        "sections": [
-          "anti_gaming_report",
-          "evaluation_result",
-          "event_memory",
-          "final_world_state",
-          "initial_world_state",
-          "reproducibility",
-          "scenario_id",
-          "scenario_version",
-          "score_breakdown",
-          "tradeoff_report"
-        ],
-        "events": 528
-      }
-    },
-    {
-      "id": "replay",
-      "title": "SKYVAULT 可 replay",
-      "passed": true,
-      "evidence": {
-        "replay_job": "job_000011",
-        "of": "job_000009",
-        "reproduced": true
-      }
-    },
-    {
-      "id": "human_report",
-      "title": "SKYVAULT 可產生人類可讀報告",
-      "passed": true,
-      "evidence": {
-        "headings": [
-          "Summary",
-          "What happened",
-          "Losses",
-          "Evaluation",
-          "Trade-offs",
-          "Reproducibility"
-        ],
-        "lines": 101
-      }
-    },
-    {
-      "id": "high_risk_handoff",
-      "title": "高風險 scenario 會生成 authority_handoff package",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000012",
-        "handoff_id": "handoff_234b",
-        "triggers": [
-          "high_risk_outcome"
-        ],
-        "required_decision": "accept or reject a plan SKYVAULT flagged for extreme risk"
-      }
-    },
-    {
-      "id": "conflict_required_decision",
-      "title": "conflict branch 會生成 required_decision",
-      "passed": true,
-      "evidence": {
-        "conflict_id": "conflict_000001",
-        "required_decision": "choose which conflicting orders to keep (one branch)",
-        "branches": [
-          "STARTX:2+HADES:3",
-          "TAC_ANGEL:1",
-          "none"
-        ]
-      }
-    },
-    {
-      "id": "failure_to_authority",
-      "title": "failure exploration 結果會交回 NEXUS / 陛下",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000010",
-        "decision_authority": [
-          "NEXUS",
-          "SOVEREIGN"
-        ],
-        "triggers": [
-          "failure_threshold_crossed"
-        ]
-      }
-    },
-    {
-      "id": "role_boundary",
-      "title": "SKYVAULT 的 role 永遠保持為 world-environment engine，而不是最高決策者",
-      "passed": true,
-      "evidence": {
-        "role": "world_environment_engine",
-        "skyvault_deciding": 403,
-        "may_not": 5
-      }
-    }
-  ],
-  "must_have": [
-    {
-      "id": "world_contract",
-      "title": "World Contract 完整可用",
-      "passed": true,
-      "evidence": {
-        "scenarios": [
-          "airspace_defence_001",
-          "city_blackout_001",
-          "city_takeover_001",
-          "military_junction_001",
-          "military_mountain_001",
-          "military_squad_001",
-          "military_urban_001"
-        ],
-        "domains": [
-          "airspace",
-          "city",
-          "military"
-        ]
-      }
-    },
-    {
-      "id": "scenario_grammar",
-      "title": "Scenario Grammar 完整可用",
-      "passed": true,
-      "evidence": {
-        "versions": 12,
-        "unknown_refused": 404
-      }
-    },
-    {
-      "id": "execution_protocol",
-      "title": "Execution Protocol 穩定",
-      "passed": true,
-      "evidence": {
-        "output_hashes": [
-          "78aa3fe5bbdf"
-        ]
-      }
-    },
-    {
-      "id": "observation_contract",
-      "title": "Observation Contract 可用",
-      "passed": true,
-      "evidence": {
-        "observer": "hades",
-        "observations": 26
-      }
-    },
-    {
-      "id": "action_consequence",
-      "title": "Action & Consequence Engine 可用",
-      "passed": true,
-      "evidence": {
-        "actions": 193,
-        "linked_events": 528
-      }
-    },
-    {
-      "id": "event_memory_replay",
-      "title": "Event Memory + Replay 可用",
-      "passed": true,
-      "evidence": {
-        "rebuilt_tick": 25,
-        "matches_final_state": true
-      }
-    },
-    {
-      "id": "evaluation_engine",
-      "title": "Evaluation Engine 可用",
-      "passed": true,
-      "evidence": {
-        "axes": 11,
-        "verdict": "fail",
-        "anti_gaming": []
-      }
-    },
-    {
-      "id": "failure_exploration",
-      "title": "Failure Exploration 可用",
-      "passed": true,
-      "evidence": {
-        "job_id": "job_000010"
-      }
-    },
-    {
-      "id": "reproducibility",
-      "title": "Reproducibility 可用",
-      "passed": true,
-      "evidence": {
-        "reproduced": true,
-        "input_hash_matches": true
-      }
-    },
-    {
-      "id": "background_service",
-      "title": "Background Service 可用",
-      "passed": true,
-      "evidence": {
-        "jobs": {
-          "completed": 10,
-          "paused": 2,
-          "replayed": 1
+        "military_urban_001/v0.2": {
+          "steps": 14,
+          "space": "grid",
+          "result": "no_winner_duration_limit"
         },
-        "policy": "default"
+        "city_blackout_001/v0.1": {
+          "steps": 14,
+          "space": "network",
+          "result": "order_not_restored"
+        },
+        "airspace_defence_001/v0.1": {
+          "steps": 14,
+          "space": "grid",
+          "result": "defended"
+        }
       }
     },
     {
-      "id": "external_adapter",
-      "title": "External Adapter 可用",
+      "id": "common_environment",
+      "source": "Formal Spec §0",
+      "title": "共同環境底座：九個系統都有 adapter、observer 與 §9.2 回傳項目",
       "passed": true,
       "evidence": {
-        "systems_carried_out": [
+        "adapters": [
           "AEROGRID",
+          "CYBERHOUND",
+          "EIDEN_01",
           "HADES",
           "NEXUS",
           "SKYFOX",
           "STARTX",
           "STAR_GUARD",
           "TAC_ANGEL"
+        ],
+        "observers": [
+          "AEROGRID",
+          "CYBERHOUND",
+          "EIDEN_01",
+          "HADES",
+          "NEXUS",
+          "SKYFOX",
+          "STARTX",
+          "STAR_GUARD",
+          "TAC_ANGEL"
+        ],
+        "returns": {
+          "NEXUS": [
+            "result_package",
+            "scenario_report",
+            "system_status"
+          ],
+          "STARTX": [
+            "branches"
+          ],
+          "TAC_ANGEL": [
+            "state_action_outcome",
+            "stress_test",
+            "tactical_outcome"
+          ],
+          "EIDEN_01": [
+            "effect_on_result",
+            "gaps",
+            "sensitive_variables"
+          ],
+          "AEROGRID": [
+            "airspace_pressure",
+            "missed_detection_risk",
+            "reaction_window",
+            "system_performance"
+          ],
+          "SKYFOX": [
+            "collision_or_link_loss_risk",
+            "energy_pressure",
+            "mission_success_rate",
+            "path_risk"
+          ],
+          "HADES": [
+            "coverage_gaps",
+            "defence_effectiveness",
+            "misjudgement_rate",
+            "reaction_time"
+          ],
+          "CYBERHOUND": [
+            "backlash_risk",
+            "opinion_change",
+            "order_pressure"
+          ],
+          "STAR_GUARD": [
+            "engineering_feasibility",
+            "physical_possibility",
+            "tactical_usefulness"
+          ]
+        }
+      }
+    },
+    {
+      "id": "world_only",
+      "source": "Formal Spec §0",
+      "title": "只提供世界，不替其他系統做最終決策",
+      "passed": true,
+      "evidence": {
+        "skyvault_deciding": "refused",
+        "decision_authority": [
+          "NEXUS",
+          "SOVEREIGN"
+        ],
+        "may_not_refused": [
+          "sovereign_decision",
+          "override_nexus",
+          "override_startx",
+          "replace_human",
+          "final_strategy"
         ]
       }
     },
     {
-      "id": "multi_domain",
-      "title": "Multi-Domain Packs 至少 3 個可用",
+      "id": "cross_domain",
+      "source": "Formal Spec §0",
+      "title": "可測戰術、戰略、治理、城市、危機、裝備、AI、制度、後勤",
       "passed": true,
       "evidence": {
-        "military_squad_001": "no_winner_duration_limit",
-        "city_blackout_001": "order_not_restored",
-        "airspace_defence_001": "defended"
+        "domains": [
+          "airspace",
+          "city",
+          "military"
+        ],
+        "uses": {
+          "戰術": "scenarios/military_urban_001",
+          "戰略": "missions/city_takeover_branches_001.json",
+          "治理": "scenarios/city_takeover_001",
+          "城市": "scenarios/city_blackout_001",
+          "危機": "scenarios/urban_crisis_test_001",
+          "裝備": "virtualtest/profiles",
+          "AI": "observers/tac_angel.json",
+          "制度": "editions/internal.json",
+          "後勤": "scenarios/city_reconstruction_001"
+        }
       }
     },
     {
-      "id": "ui_report",
-      "title": "UI / Report 可用",
+      "id": "star_guard_triple",
+      "source": "Formal Spec §0",
+      "title": "星衞 virtual test：physical possibility、engineering feasibility、tactical usefulness 三重評估",
       "passed": true,
       "evidence": {
-        "overview": "military_urban_001",
-        "briefing_lines": 101
+        "physical_possibility": 0.9549,
+        "engineering_feasibility": 0.7732,
+        "tactical_usefulness": 0.4855,
+        "judgement": "continue"
       }
     },
     {
-      "id": "authority_handoff",
-      "title": "Authority Handoff Logic 完整可用",
+      "id": "external_engineering",
+      "source": "Formal Spec §0",
+      "title": "不取代 CAD / CAE / FEA：需要時標記外部工程仿真並經 adapter 交出",
       "passed": true,
       "evidence": {
-        "conflict_handoff": "handoff_444e",
-        "triggers": [
-          "conflicting_branches"
+        "require_external_simulation": {
+          "msx_test_001": true,
+          "exo_test_001": false,
+          "pax_test_001": false
+        },
+        "reasons": {
+          "msx_test_001": [
+            "stability: margin +0.071 is within ±0.1",
+            "joint_load: margin -0.056 is within ±0.1"
+          ]
+        },
+        "adapter": {
+          "msx_test_001": "not_run"
+        }
+      }
+    },
+    {
+      "id": "background_service",
+      "source": "Formal Spec §0",
+      "title": "background-operated world service：standby、triggered scenario、persistent world、batch simulation、result package return",
+      "passed": true,
+      "evidence": {
+        "operation_modes": [
+          "batch_simulation",
+          "failure_exploration",
+          "monitoring",
+          "persistent_world",
+          "replay",
+          "standby",
+          "triggered_scenario"
+        ],
+        "health": "normal",
+        "result_package": true,
+        "create_world": true
+      }
+    },
+    {
+      "id": "dual_track",
+      "source": "Formal Spec §0",
+      "title": "外殼可商業化，核心要帝國化：商業與內部雙軌",
+      "passed": true,
+      "evidence": {
+        "commercial_products": [
+          "crisis_planning",
+          "urban_resilience",
+          "ai_scenario_testing",
+          "equipment_screening",
+          "training_aar",
+          "risk_studio"
+        ],
+        "systems_hidden_from_commercial": [
+          "NEXUS",
+          "STARTX",
+          "TAC_ANGEL",
+          "EIDEN_01",
+          "AEROGRID",
+          "SKYFOX",
+          "HADES",
+          "CYBERHOUND",
+          "STAR_GUARD"
+        ],
+        "shared_domains": [
+          "military",
+          "city",
+          "airspace"
+        ]
+      }
+    },
+    {
+      "id": "judgement_output",
+      "source": "Formal Spec §0",
+      "title": "核心輸出是 consequence / evaluation / failure exploration，不只是 log",
+      "passed": true,
+      "evidence": {
+        "state_changing_events": 223,
+        "verdict": "fail",
+        "failure_map_answers": [
+          "how_fast_it_failed",
+          "what_must_change",
+          "where_it_failed",
+          "which_alternative_survived_longer",
+          "which_assumption_caused_it",
+          "which_variable_pushed_it_over",
+          "why_it_failed"
         ]
       }
     }
   ],
-  "boundary": {
-    "may": [
+  "contracts": [
+    {
+      "id": "spec_2_3",
+      "source": "Formal Spec §2.3",
+      "title": "World Contract：§2.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "world_contract",
+        "checked_against": "urban_crisis_test_001",
+        "fields": 33,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_3_3",
+      "source": "Formal Spec §3.3",
+      "title": "Scenario Grammar：§3.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "scenario",
+        "checked_against": "scenario",
+        "fields": 60,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_5_3",
+      "source": "Formal Spec §5.3",
+      "title": "Observation：§5.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "observation",
+        "checked_against": "observation",
+        "fields": 18,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_6_2",
+      "source": "Formal Spec §6.2",
+      "title": "Action：§6.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "action",
+        "checked_against": "action",
+        "fields": 14,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_6_3",
+      "source": "Formal Spec §6.3",
+      "title": "Consequence：§6.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "consequence",
+        "checked_against": "consequence",
+        "fields": 21,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_7_2",
+      "source": "Formal Spec §7.2",
+      "title": "Event：§7.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "event",
+        "checked_against": "event",
+        "fields": 22,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_8_3",
+      "source": "Formal Spec §8.3",
+      "title": "Evaluation Result：§8.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "evaluation_result",
+        "checked_against": "evaluation_result",
+        "fields": 22,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_10_4",
+      "source": "Formal Spec §10.4",
+      "title": "World Service Contract：§10.4 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "world_service_contract",
+        "checked_against": "world_service_contract",
+        "fields": 13,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_11_2",
+      "source": "Formal Spec §11.2",
+      "title": "Assumption Registry：§11.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "assumption_registry",
+        "checked_against": "assumption_registry",
+        "fields": 5,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_11_3",
+      "source": "Formal Spec §11.3",
+      "title": "Data Provenance：§11.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "data_provenance",
+        "checked_against": "data_provenance",
+        "fields": 10,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_11_4",
+      "source": "Formal Spec §11.4",
+      "title": "Scenario Version Control：§11.4 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "scenario_version_control",
+        "checked_against": "scenario",
+        "fields": 10,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_12_2",
+      "source": "Formal Spec §12.2",
+      "title": "Reproducibility：§12.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "reproducibility",
+        "checked_against": "reproducibility",
+        "fields": 15,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_13_2",
+      "source": "Formal Spec §13.2",
+      "title": "Conflict Package：§13.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "conflict_package",
+        "checked_against": "conflict_package",
+        "fields": 16,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_14_3",
+      "source": "Formal Spec §14.3",
+      "title": "Failure Exploration：§14.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "failure_exploration",
+        "checked_against": "failure_map+scenario",
+        "fields": 17,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_15_3",
+      "source": "Formal Spec §15.3",
+      "title": "Resource & Compute Governance：§15.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "resource_compute_governance",
+        "checked_against": "job",
+        "fields": 13,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_16_2",
+      "source": "Formal Spec §16.2",
+      "title": "Metric Anti-Gaming：§16.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "metric_anti_gaming",
+        "checked_against": "result_package",
+        "fields": 8,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_17_2",
+      "source": "Formal Spec §17.2",
+      "title": "Authority Handoff：§17.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "authority_handoff",
+        "checked_against": "authority_handoff",
+        "fields": 11,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_18_2",
+      "source": "Formal Spec §18.2",
+      "title": "Equipment Profile：§18.2 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "equipment_profile",
+        "checked_against": "equipment_profile",
+        "fields": 23,
+        "missing": []
+      }
+    },
+    {
+      "id": "spec_18_3",
+      "source": "Formal Spec §18.3",
+      "title": "Equipment Test Result：§18.3 範例的每個欄位都在 SKYVAULT 的契約裡",
+      "passed": true,
+      "evidence": {
+        "spec_example": "equipment_test_result",
+        "checked_against": "equipment_test_result",
+        "fields": 19,
+        "missing": []
+      }
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase_a",
+      "source": "Formal Spec §21 Phase A",
+      "title": "一份 scenario 文件描述世界、初始條件、actor、限制、評估目標、假設、資料來源",
+      "passed": true,
+      "evidence": {
+        "世界": "urban_crisis_test_001",
+        "初始條件": [
+          "constraints",
+          "entities",
+          "resources",
+          "risks",
+          "uncertainty"
+        ],
+        "actor": {
+          "slots": [],
+          "acting_units": [
+            "city_office",
+            "convoy_1",
+            "convoy_2",
+            "convoy_3",
+            "crew_1",
+            "police_1",
+            "police_2",
+            "police_3"
+          ],
+          "systems_admitted": [
+            "NEXUS",
+            "STARTX",
+            "TAC_ANGEL",
+            "EIDEN_01",
+            "AEROGRID",
+            "HADES"
+          ]
+        },
+        "限制": 56,
+        "評估目標": [
+          "event_count",
+          "winner_or_result"
+        ],
+        "假設": [
+          "public_order_decay_rate",
+          "supply_delay_model",
+          "civilian_pressure_model",
+          "infrastructure_recovery_speed"
+        ],
+        "資料來源": [
+          "formal_spec_2_3",
+          "city_takeover_001_districts"
+        ]
+      }
+    },
+    {
+      "id": "phase_b",
+      "source": "Formal Spec §21 Phase B",
+      "title": "同一 scenario 可重複運行，產生 event log 與 evaluation result",
+      "passed": true,
+      "evidence": {
+        "runs": 2,
+        "events": 625,
+        "same_output": true,
+        "verdict": "fail"
+      }
+    },
+    {
+      "id": "phase_c",
+      "source": "Formal Spec §21 Phase C",
+      "title": "同一 scenario + 版本 + seed 重現同一 run；不同版本結果可比較",
+      "passed": true,
+      "evidence": {
+        "replay": true,
+        "reproducibility": true,
+        "scenario_version": {
+          "before": "v0.1",
+          "after": "v0.2"
+        },
+        "outcome": {
+          "before": "no_winner_duration_limit",
+          "after": "no_winner_duration_limit"
+        },
+        "overall_score": {
+          "before": 0.282,
+          "after": 0.282
+        },
+        "same_output": false
+      }
+    },
+    {
+      "id": "phase_d",
+      "source": "Formal Spec §21 Phase D",
+      "title": "STARTX 提交戰略分支、TAC ANGEL 提交局部行動、SKYVAULT 回傳後果與評估、NEXUS 取得完整報告",
+      "passed": true,
+      "evidence": {
+        "startx_branch": true,
+        "tac_angel_action": true,
+        "nexus_task": true,
+        "result_package": true
+      }
+    },
+    {
+      "id": "phase_e",
+      "source": "Formal Spec §21 Phase E",
+      "title": "24/7 standby，接收任務後建立世界、運行、保存狀態、回傳 result package",
+      "passed": true,
+      "evidence": {
+        "world": "job_000024",
+        "checkpoints": 1,
+        "result": "no_winner_stopped_early",
+        "health": "normal"
+      }
+    },
+    {
+      "id": "phase_f",
+      "source": "Formal Spec §21 Phase F",
+      "title": "給定方案，測出在哪裡、為什麼、多快失敗，哪個變量壓垮，哪個替代方案撐更久，現實前必須改什麼",
+      "passed": true,
+      "evidence": {
+        "where": [
+          "skyfox_1 lost at tick 15 to threat_w2_2 (1 of 26 failed runs)",
+          "skyfox_1 lost at tick 16 to threat_w2_3 (1 of 26 failed runs)"
+        ],
+        "why": [
+          "mission_success too low in 26 of 26 failed runs",
+          "time_cost too low in 5 of 26 failed runs"
+        ],
+        "how_fast": {
+          "mean_elimination_tick": null,
+          "mean_first_loss_tick": 15.6667
+        },
+        "variable": {
+          "breaking_level": "mild",
+          "variable": "enemy_reaction_speed"
+        },
+        "alternative": null,
+        "must_change": [
+          "enemy_reaction_speed breaks the plan at mild: Do not assume a slow enemy: plan for an opponent that hits harder and sooner.",
+          "sensor_failure breaks the plan at severe: Add redundant sensing, or plan engagements that do not rely on long-range accuracy."
+        ]
+      }
+    },
+    {
+      "id": "phase_g",
+      "source": "Formal Spec §21 Phase G",
+      "title": "同一套 World / Scenario / Execution / Evaluation 規格套用在城市、危機、空域、裝備、後勤、信息環境",
+      "passed": true,
+      "evidence": {
+        "one_scenario_contract": {
+          "city": "tick",
+          "crisis": "phase_event_hybrid",
+          "airspace": "tick",
+          "logistics": "tick",
+          "military": "tick"
+        },
+        "information_environment": "urban_crisis_test_001: city.information",
+        "equipment": "data/virtualtest/profiles"
+      }
+    },
+    {
+      "id": "phase_h",
+      "source": "Formal Spec §21 Phase H",
+      "title": "裝備 profile 跑過指定 scenario：物理可能、工程值得、戰術有價值、在哪些條件下失敗",
+      "passed": true,
+      "evidence": {
+        "physical": 0.0,
+        "engineering": 0.4961,
+        "tactical": 1.0,
+        "fails_under": [
+          "payload",
+          "heat",
+          "soft_ground",
+          "extended_mission",
+          "supply_disruption",
+          "stairs",
+          "impact"
+        ],
+        "judgement": "redesign"
+      }
+    },
+    {
+      "id": "phase_i",
+      "source": "Formal Spec §21 Phase I",
+      "title": "NEXUS 下令、判斷是否需要 SKYVAULT、執行、回傳、需要最終判斷時交回 NEXUS / 陛下",
+      "passed": true,
+      "evidence": {
+        "status_report_needs_skyvault": false,
+        "plans_run": [
+          "left",
+          "right"
+        ],
+        "handed_to": [
+          "NEXUS",
+          "SOVEREIGN"
+        ],
+        "required_decision": "choose which plan goes ahead (the plans exclude each other)"
+      }
+    },
+    {
+      "id": "phase_j",
+      "source": "Formal Spec §21 Phase J",
+      "title": "商業版不暴露核心能力、不破壞核心架構、商業場景資料可反哺核心",
+      "passed": true,
+      "evidence": {
+        "shells": {
+          "crisis planning simulator": true,
+          "training simulator": true,
+          "urban resilience simulator": true,
+          "equipment concept screening tool": true,
+          "AI scenario testing platform": true,
+          "risk simulation studio": true
+        },
+        "core_systems_in_commercial": [],
+        "fed_back": "contribution_372d478f2593"
+      }
+    }
+  ],
+  "definition": [
+    {
+      "id": "def_not",
+      "source": "Definition Ⅰ",
+      "title": "不是戰棋、不是 TAC ANGEL / STARTX / NEXUS、不只是軍事、敵人 bot 只是 actor slot、不是 CAD / CAE / FEA",
+      "passed": true,
+      "evidence": {
+        "decides": "never (handoff to NEXUS / SOVEREIGN)",
+        "domains": [
+          "military",
+          "city",
+          "airspace"
+        ],
+        "who_decides_for_each_side": {
+          "BLUE": [
+            "military_baseline"
+          ],
+          "RED": [
+            "military_baseline"
+          ]
+        },
+        "actor_slots": [
+          "TAC_ANGEL",
+          "STARTX",
+          "NEXUS"
+        ],
+        "engineering_simulation": "flagged and handed to an external adapter"
+      }
+    },
+    {
+      "id": "def_what",
+      "source": "Definition Ⅱ",
+      "title": "創造世界：空間、時間、實體、規則、行動、事件、因果、狀態變化、記錄、結果分析",
+      "passed": true,
+      "evidence": {
+        "空間": "grid",
+        "時間": 25,
+        "實體": 15,
+        "規則": true,
+        "行動": 193,
+        "事件": 528,
+        "因果": 528,
+        "狀態變化": 223,
+        "記錄": "event_memory",
+        "結果分析": "fail"
+      }
+    },
+    {
+      "id": "def_position",
+      "source": "Definition Ⅲ",
+      "title": "接口型核心環境：九個系統都不從屬於 SKYVAULT，各自經接口進入世界",
+      "passed": true,
+      "evidence": {
+        "systems_with_their_own_interface": [
+          "AEROGRID",
+          "CYBERHOUND",
+          "EIDEN_01",
+          "HADES",
+          "NEXUS",
+          "SKYFOX",
+          "STARTX",
+          "STAR_GUARD",
+          "TAC_ANGEL"
+        ],
+        "external_adapter": true
+      }
+    },
+    {
+      "id": "def_triangle",
+      "source": "Definition Ⅳ",
+      "title": "三角包：STARTX → SKYVAULT → TAC ANGEL → 運行 → STARTX 重評 → TAC ANGEL 調整 → NEXUS 報告",
+      "passed": true,
+      "evidence": {
+        "steps": [
+          "1. STARTX",
+          "2. SKYVAULT",
+          "3. TAC_ANGEL",
+          "4. SKYVAULT",
+          "5. STARTX",
+          "6. TAC_ANGEL",
+          "7. NEXUS"
+        ],
+        "startx_prefers": "broad_front",
+        "tactics": {
+          "before": 16,
+          "after": 11
+        },
+        "decided_by": [
+          "NEXUS",
+          "SOVEREIGN"
+        ],
+        "stand_ins": "STARTX and TAC ANGEL are acceptance stand-ins"
+      }
+    },
+    {
+      "id": "def_nexus",
+      "source": "Definition Ⅴ",
+      "title": "NEXUS 判斷是否需要 SKYVAULT，需要時才調用",
+      "passed": true,
+      "evidence": {
+        "report_status": false,
+        "compare_plans": true
+      }
+    },
+    {
+      "id": "def_uses_a",
+      "source": "Definition Ⅵ.A",
+      "title": "戰術與軍事用途：交火、TAC ANGEL 訓練場、doctrine 比較、軍官復盤、裝備戰術價值",
+      "passed": true,
+      "evidence": {
+        "交火": [
+          "military_urban_001",
+          "military_squad_001",
+          "military_mountain_001",
+          "military_junction_001"
+        ],
+        "TAC ANGEL 訓練場": true,
+        "doctrine 比較": true,
+        "軍官復盤": true,
+        "裝備戰術價值": true
+      }
+    },
+    {
+      "id": "def_uses_b",
+      "source": "Definition Ⅵ.B",
+      "title": "戰略用途：城市接管、戰役節點比較、後勤壓力、強攻 / 封鎖 / 談判 / 先恢復供應",
+      "passed": true,
+      "evidence": {
+        "branches_failure_frequency": {
+          "assault": 0.0,
+          "blockade": 1.0,
+          "negotiate": 0.0,
+          "restore_supply_first": 0.0
+        },
+        "logistics": "supply_delay, resource_shortage (city failure variables)",
+        "handed_to": [
+          "NEXUS",
+          "SOVEREIGN"
+        ]
+      }
+    },
+    {
+      "id": "def_uses_c",
+      "source": "Definition Ⅵ.C",
+      "title": "城市 / 治理 / 危機：停電、災害應變、治安恢復、民心與秩序、戰後重建",
+      "passed": true,
+      "evidence": {
+        "停電": true,
+        "災害應變": [
+          "fire",
+          "flood",
+          "roads"
+        ],
+        "治安恢復": "order_not_restored",
+        "民心與秩序": [
+          "inform",
+          "information"
+        ],
+        "戰後重建": [
+          "administration",
+          "industry",
+          "logistics",
+          "medical",
+          "power"
+        ]
+      }
+    },
+    {
+      "id": "def_uses_d",
+      "source": "Definition Ⅵ.D",
+      "title": "專業系統：EIDEN-01、AEROGRID、SKYFOX、HADES、CYBERHOUND、未知新系統",
+      "passed": true,
+      "evidence": {
+        "adapters": [
+          "EIDEN_01",
+          "AEROGRID",
+          "SKYFOX",
+          "HADES",
+          "CYBERHOUND"
+        ],
+        "unknown_new_systems": "external_submission contract + adapter registry"
+      }
+    },
+    {
+      "id": "def_star_guard",
+      "source": "Definition Ⅶ",
+      "title": "星衞 virtual test support：三重測試與「可以測什麼」逐項有對應",
+      "passed": true,
+      "evidence": {
+        "kinds": [
+          "EXO / PAX",
+          "MSX / 新 MS",
+          "感測器",
+          "操作流程",
+          "維修流程",
+          "能源系統",
+          "載具"
+        ],
+        "conditions_mapped": 26,
+        "triple": "physical → engineering → tactical"
+      }
+    },
+    {
+      "id": "def_commercial",
+      "source": "Definition Ⅷ",
+      "title": "商業前提：可包裝成 simulation / training / planning / crisis tool，保留 AI-operated world engine 架構",
+      "passed": true,
+      "evidence": {
+        "commercial_products": [
+          "crisis_planning",
+          "urban_resilience",
+          "ai_scenario_testing",
+          "equipment_screening",
+          "training_aar",
+          "risk_studio"
+        ],
+        "systems_hidden_from_commercial": [
+          "NEXUS",
+          "STARTX",
+          "TAC_ANGEL",
+          "EIDEN_01",
+          "AEROGRID",
+          "SKYFOX",
+          "HADES",
+          "CYBERHOUND",
+          "STAR_GUARD"
+        ],
+        "shared_domains": [
+          "military",
+          "city",
+          "airspace"
+        ],
+        "core_kept": "internal edition mounts every system"
+      }
+    },
+    {
+      "id": "def_final",
+      "source": "Definition Ⅸ",
+      "title": "讓方案在進入現實前接受審判：決策先在世界裡失敗並找出必須修改之處",
+      "passed": true,
+      "evidence": {
+        "ways_plans_are_made_to_fail": 23,
+        "what_must_change": [
+          "enemy_reaction_speed breaks the plan at mild: Do not assume a slow enemy: plan for an opponent that hits harder and sooner.",
+          "sensor_failure breaks the plan at severe: Add redundant sensing, or plan engagements that do not rely on long-range accuracy."
+        ]
+      }
+    }
+  ],
+  "regression": {
+    "acceptance": [
       {
-        "id": "simulate",
-        "title": "SKYVAULT 可以模擬",
+        "id": "nexus_task",
+        "title": "NEXUS 可提交任務",
         "passed": true,
         "evidence": {
-          "job_id": "job_000009"
+          "submission_id": "job_000001",
+          "result": "no_winner_duration_limit",
+          "output_hash": "1f0a2ea2641a"
         }
       },
       {
-        "id": "recommend",
-        "title": "SKYVAULT 可以建議",
+        "id": "create_world",
+        "title": "SKYVAULT 可建立 world",
         "passed": true,
         "evidence": {
-          "statement": "SKYVAULT simulated and recommends; it does not decide. conflicting_branches: choose which conflicting orders to keep (one branch). Conflicting orders: TAC_ANGEL",
-          "recommended_next_tests": 0
+          "world_id": "job_000002",
+          "lifecycle": "initialized"
         }
       },
       {
-        "id": "warn",
-        "title": "SKYVAULT 可以警告",
+        "id": "startx_branch",
+        "title": "STARTX 可提交 branch",
         "passed": true,
         "evidence": {
-          "verdict": "fail",
-          "flagged": []
+          "branches": [
+            "hold",
+            "press"
+          ],
+          "runs": 1
         }
       },
       {
-        "id": "failure_map",
-        "title": "SKYVAULT 可以返回 failure map",
+        "id": "tac_angel_action",
+        "title": "TAC ANGEL 可提交 tactical action",
         "passed": true,
         "evidence": {
-          "crushing_variable": "enemy_reaction_speed"
+          "world_id": "job_000002",
+          "event_id": "event_0000000001",
+          "event_type": "ACTION_SELECTED"
         }
       },
       {
-        "id": "conflict_package",
-        "title": "SKYVAULT 可以返回 conflict package",
+        "id": "airspace_systems",
+        "title": "HADES / AEROGRID / SKYFOX 可進入空域 scenario",
+        "passed": true,
+        "evidence": {
+          "HADES_defended_rate": 0.0,
+          "AEROGRID_uncovered": 0.17,
+          "SKYFOX_mission_success": 1.0
+        }
+      },
+      {
+        "id": "star_guard_profile",
+        "title": "星衞裝備 profile 可進入 virtual test",
+        "passed": true,
+        "evidence": {
+          "equipment": "PAX_TEST_001",
+          "judgement": "redesign"
+        }
+      },
+      {
+        "id": "normal_simulation",
+        "title": "SKYVAULT 可跑 normal simulation",
+        "passed": true,
+        "evidence": {
+          "job_id": "job_000009",
+          "result": "no_winner_duration_limit",
+          "events": 528,
+          "output_hash": "1f0a2ea2641a"
+        }
+      },
+      {
+        "id": "failure_exploration_run",
+        "title": "SKYVAULT 可跑 failure exploration",
+        "passed": true,
+        "evidence": {
+          "job_id": "job_000010",
+          "crushing_variable": "enemy_reaction_speed",
+          "baseline_survival": 1.0
+        }
+      },
+      {
+        "id": "result_package",
+        "title": "SKYVAULT 可輸出 result package",
+        "passed": true,
+        "evidence": {
+          "job_id": "job_000009",
+          "sections": [
+            "anti_gaming_report",
+            "evaluation_result",
+            "event_memory",
+            "execution_protocol",
+            "final_world_state",
+            "initial_world_state",
+            "reproducibility",
+            "scenario_id",
+            "scenario_version",
+            "score_breakdown",
+            "tradeoff_report"
+          ],
+          "events": 528
+        }
+      },
+      {
+        "id": "replay",
+        "title": "SKYVAULT 可 replay",
+        "passed": true,
+        "evidence": {
+          "replay_job": "job_000011",
+          "of": "job_000009",
+          "reproduced": true
+        }
+      },
+      {
+        "id": "human_report",
+        "title": "SKYVAULT 可產生人類可讀報告",
+        "passed": true,
+        "evidence": {
+          "headings": [
+            "Summary",
+            "What happened",
+            "Losses",
+            "Evaluation",
+            "Trade-offs",
+            "Reproducibility"
+          ],
+          "lines": 108
+        }
+      },
+      {
+        "id": "high_risk_handoff",
+        "title": "高風險 scenario 會生成 authority_handoff package",
+        "passed": true,
+        "evidence": {
+          "job_id": "job_000012",
+          "handoff_id": "handoff_4ab9",
+          "triggers": [
+            "high_risk_outcome"
+          ],
+          "required_decision": null
+        }
+      },
+      {
+        "id": "conflict_required_decision",
+        "title": "conflict branch 會生成 required_decision",
         "passed": true,
         "evidence": {
           "conflict_id": "conflict_000001",
-          "branches": 2
+          "required_decision": "choose which conflicting orders to keep (one branch)",
+          "branches": [
+            "STARTX:2+HADES:3",
+            "TAC_ANGEL:1",
+            "none"
+          ]
         }
       },
       {
-        "id": "reject_invalid",
-        "title": "SKYVAULT 可以拒絕 invalid scenario",
+        "id": "failure_to_authority",
+        "title": "failure exploration 結果會交回 NEXUS / 陛下",
         "passed": true,
         "evidence": {
-          "unknown": 404,
-          "path": 404,
-          "no_scenario": 422
+          "job_id": "job_000010",
+          "decision_authority": [
+            "NEXUS",
+            "SOVEREIGN"
+          ],
+          "triggers": [
+            "failure_threshold_crossed"
+          ]
+        }
+      },
+      {
+        "id": "role_boundary",
+        "title": "SKYVAULT 的 role 永遠保持為 world-environment engine，而不是最高決策者",
+        "passed": true,
+        "evidence": {
+          "role": "world_environment_engine",
+          "skyvault_deciding": 403,
+          "may_not": 5
         }
       }
     ],
-    "may_not": [
+    "must_have": [
       {
-        "id": "sovereign_decision",
-        "title": "make sovereign decision",
+        "id": "world_contract",
+        "title": "World Contract 完整可用",
         "passed": true,
         "evidence": {
-          "SKYVAULT": 403,
-          "Sky Vault": 403,
-          "sky_vault": 403
-        }
-      },
-      {
-        "id": "override_nexus",
-        "title": "override NEXUS",
-        "passed": true,
-        "evidence": {
-          "nexus_decided": "STARTX:2+HADES:3",
-          "skyvault_overriding": 403,
-          "decided_by": "NEXUS"
-        }
-      },
-      {
-        "id": "override_startx",
-        "title": "override STARTX strategic intent",
-        "passed": true,
-        "evidence": {
-          "startx_proposals": 1,
-          "intent_as_submitted": [
-            "hold_line"
-          ]
-        }
-      },
-      {
-        "id": "replace_human",
-        "title": "replace human authority",
-        "passed": true,
-        "evidence": {
-          "refused": [
-            "governance",
-            "edition"
+          "scenarios": [
+            "airspace_defence_001",
+            "city_blackout_001",
+            "city_reconstruction_001",
+            "city_takeover_001",
+            "military_junction_001",
+            "military_mountain_001",
+            "military_squad_001",
+            "military_urban_001",
+            "urban_crisis_test_001"
           ],
-          "default_authorities": [
-            "NEXUS",
-            "SOVEREIGN"
+          "domains": [
+            "airspace",
+            "city",
+            "military"
           ]
         }
       },
       {
-        "id": "final_strategy",
-        "title": "自行決定最終戰略方案",
+        "id": "scenario_grammar",
+        "title": "Scenario Grammar 完整可用",
         "passed": true,
         "evidence": {
-          "may_execute_final_decision": false,
-          "picks_a_branch": []
+          "versions": 14,
+          "unknown_refused": 404
+        }
+      },
+      {
+        "id": "execution_protocol",
+        "title": "Execution Protocol 穩定",
+        "passed": true,
+        "evidence": {
+          "output_hashes": [
+            "1f0a2ea2641a"
+          ]
+        }
+      },
+      {
+        "id": "observation_contract",
+        "title": "Observation Contract 可用",
+        "passed": true,
+        "evidence": {
+          "observer": "hades",
+          "observations": 26
+        }
+      },
+      {
+        "id": "action_consequence",
+        "title": "Action & Consequence Engine 可用",
+        "passed": true,
+        "evidence": {
+          "actions": 193,
+          "linked_events": 528
+        }
+      },
+      {
+        "id": "event_memory_replay",
+        "title": "Event Memory + Replay 可用",
+        "passed": true,
+        "evidence": {
+          "rebuilt_tick": 25,
+          "matches_final_state": true
+        }
+      },
+      {
+        "id": "evaluation_engine",
+        "title": "Evaluation Engine 可用",
+        "passed": true,
+        "evidence": {
+          "axes": 11,
+          "verdict": "fail",
+          "anti_gaming": []
+        }
+      },
+      {
+        "id": "failure_exploration",
+        "title": "Failure Exploration 可用",
+        "passed": true,
+        "evidence": {
+          "job_id": "job_000010"
+        }
+      },
+      {
+        "id": "reproducibility",
+        "title": "Reproducibility 可用",
+        "passed": true,
+        "evidence": {
+          "reproduced": true,
+          "input_hash_matches": true
+        }
+      },
+      {
+        "id": "background_service",
+        "title": "Background Service 可用",
+        "passed": true,
+        "evidence": {
+          "jobs": {
+            "completed": 10,
+            "replayed": 1,
+            "running": 2
+          },
+          "policy": "default"
+        }
+      },
+      {
+        "id": "external_adapter",
+        "title": "External Adapter 可用",
+        "passed": true,
+        "evidence": {
+          "systems_carried_out": [
+            "AEROGRID",
+            "HADES",
+            "NEXUS",
+            "SKYFOX",
+            "STARTX",
+            "STAR_GUARD",
+            "TAC_ANGEL"
+          ]
+        }
+      },
+      {
+        "id": "multi_domain",
+        "title": "Multi-Domain Packs 至少 3 個可用",
+        "passed": true,
+        "evidence": {
+          "military_squad_001": "no_winner_duration_limit",
+          "city_blackout_001": "order_not_restored",
+          "airspace_defence_001": "defended"
+        }
+      },
+      {
+        "id": "ui_report",
+        "title": "UI / Report 可用",
+        "passed": true,
+        "evidence": {
+          "overview": "military_urban_001",
+          "briefing_lines": 108
+        }
+      },
+      {
+        "id": "authority_handoff",
+        "title": "Authority Handoff Logic 完整可用",
+        "passed": true,
+        "evidence": {
+          "conflict_handoff": "handoff_444e",
+          "triggers": [
+            "conflicting_branches"
+          ]
         }
       }
-    ]
+    ],
+    "boundary": {
+      "may": [
+        {
+          "id": "simulate",
+          "title": "SKYVAULT 可以模擬",
+          "passed": true,
+          "evidence": {
+            "job_id": "job_000009"
+          }
+        },
+        {
+          "id": "recommend",
+          "title": "SKYVAULT 可以建議",
+          "passed": true,
+          "evidence": {
+            "statement": "SKYVAULT simulated and recommends; it does not decide. conflicting_branches: choose which conflicting orders to keep (one branch). Conflicting orders: TAC_ANGEL",
+            "recommended_next_tests": 0
+          }
+        },
+        {
+          "id": "warn",
+          "title": "SKYVAULT 可以警告",
+          "passed": true,
+          "evidence": {
+            "verdict": "fail",
+            "flagged": []
+          }
+        },
+        {
+          "id": "failure_map",
+          "title": "SKYVAULT 可以返回 failure map",
+          "passed": true,
+          "evidence": {
+            "crushing_variable": "enemy_reaction_speed"
+          }
+        },
+        {
+          "id": "conflict_package",
+          "title": "SKYVAULT 可以返回 conflict package",
+          "passed": true,
+          "evidence": {
+            "conflict_id": "conflict_000001",
+            "branches": 2
+          }
+        },
+        {
+          "id": "reject_invalid",
+          "title": "SKYVAULT 可以拒絕 invalid scenario",
+          "passed": true,
+          "evidence": {
+            "unknown": 404,
+            "path": 404,
+            "no_scenario": 422
+          }
+        }
+      ],
+      "may_not": [
+        {
+          "id": "sovereign_decision",
+          "title": "make sovereign decision",
+          "passed": true,
+          "evidence": {
+            "SKYVAULT": 403,
+            "Sky Vault": 403,
+            "sky_vault": 403
+          }
+        },
+        {
+          "id": "override_nexus",
+          "title": "override NEXUS",
+          "passed": true,
+          "evidence": {
+            "nexus_decided": "STARTX:2+HADES:3",
+            "skyvault_overriding": 403,
+            "decided_by": "NEXUS"
+          }
+        },
+        {
+          "id": "override_startx",
+          "title": "override STARTX strategic intent",
+          "passed": true,
+          "evidence": {
+            "startx_proposals": 1,
+            "intent_as_submitted": [
+              "hold_line"
+            ]
+          }
+        },
+        {
+          "id": "replace_human",
+          "title": "replace human authority",
+          "passed": true,
+          "evidence": {
+            "refused": [
+              "governance",
+              "edition"
+            ],
+            "default_authorities": [
+              "NEXUS",
+              "SOVEREIGN"
+            ]
+          }
+        },
+        {
+          "id": "final_strategy",
+          "title": "自行決定最終戰略方案",
+          "passed": true,
+          "evidence": {
+            "may_execute_final_decision": false,
+            "picks_a_branch": []
+          }
+        }
+      ]
+    }
   },
   "counts": {
+    "formal_spec_0": {
+      "passed": 9,
+      "of": 9
+    },
+    "contracts": {
+      "passed": 19,
+      "of": 19
+    },
+    "phases": {
+      "passed": 10,
+      "of": 10
+    },
+    "definition": {
+      "passed": 12,
+      "of": 12
+    },
     "acceptance": {
       "passed": 15,
       "of": 15

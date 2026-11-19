@@ -2044,3 +2044,35 @@ python3 -m bandit -c pyproject.toml -r src/     # 安全掃描
 | [`phases/phase8_reproducibility.md`](phases/phase8_reproducibility.md) | Phase 8 完成報告 |
 | [`phases/phase7_evaluation_engine.md`](phases/phase7_evaluation_engine.md) | Phase 7 完成報告 |
 | [`postmortems/phase1.md`](postmortems/phase1.md)、[`phase2.md`](postmortems/phase2.md)、[`phase3.md`](postmortems/phase3.md)、[`phase7.md`](postmortems/phase7.md)、[`phase8.md`](postmortems/phase8.md)、[`phase9.md`](postmortems/phase9.md)、[`phase10.md`](postmortems/phase10.md)、[`phase17.md`](postmortems/phase17.md)、[`phase13.md`](postmortems/phase13.md)、[`phase18.md`](postmortems/phase18.md)、[`phase5.md`](postmortems/phase5.md)、[`phase6.md`](postmortems/phase6.md)、[`phase11.md`](postmortems/phase11.md) | 各 Phase 回顧 |
+
+## 以創始文件為準（Phase 22）
+
+驗收的來源是《Long-Term Framework & Formal Spec》與《SKYVAULT Definition》（ADR 024）。這一輪改變的結構：
+
+```text
+scenario（§3.3 分組文件）+ world（§2，data/worlds/）
+   └─ compiler.compile_scenario（§4 第 2 步）→ CompiledScenario（引擎的內部形式）
+        └─ SkyVaultEngine → result package（execution_protocol：§4.2 十四步）
+```
+
+```text
+NEXUS mission（contracts/external.py nexus_mission）
+   └─ interface/missions.py  assess_mission → compile_mission：每個方案 = 世界的一個 §3.3 版本 + job
+        └─ interface/systems.py NEXUSAdapter.mission_return：報告、計畫比較、authority handoff
+interface/triangle.py run_triangle：STARTX → SKYVAULT → TAC ANGEL → 運行 → STARTX 重評 → TAC ANGEL 調整 → NEXUS
+acceptance/standins.py：驗收用的 STARTX / TAC ANGEL 替身（SKYVAULT 從不替它們選）
+```
+
+城市的三個 opt-in 模型（沒有設定時城市逐位元不變）：
+
+```text
+domains/city/information.py   rules.city.information  情緒壓力沿道路傳播、謠言、反制訊息（city_office inform）、巡邏反噬
+domains/city/disasters.py     rules.city.disasters    洪水 / 火災 / 封路；road_distance 繞過被切斷的路
+domains/city/score.py         recovery_outcome        工業、行政、醫療、電力、物流的恢復速度
+```
+
+城市在 phase 時鐘上以步數計時（`handlers.step_of`）；引擎接受 domain pack 宣告的 `clocks`（城市：tick、phase、phase_event_hybrid）。`urban_crisis_test_001` 是 §2.3 範例世界本身。
+
+Failure exploration：`failure/taxonomy.py` 把 §14.2 每一列對到變量或檢查；failure map 帶 §14.3 `output` 與 §14.4 七問 `answers`。Job 可以帶 `rule_changes`（合併進世界規則）與 `stress`（failure variable 與等級）。
+
+`skyvault acceptance`：`acceptance/run.py` 先跑 Phase 20 的 40 條（regression），再跑 `data/v2/spec_acceptance.json` 的 50 條（`acceptance/spec_checks.py`）；`acceptance/spec_fields.py` 是原文 YAML 範例的欄位，契約逐欄比對 JSON Schema（§2.3 比對範例世界本身）。

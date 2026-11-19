@@ -18,17 +18,17 @@ The outage spread 1 step(s) and left at most 7 district(s) dark; governance stab
 
 Order is restored in at least half the runs up to a supply delay of ×1.5; beyond it, in fewer than half.
 
-- order_restored_rate_by_delay: {"1.0": 1.0, "1.5": 1.0, "2.0": 0.3333, "2.5": 0.0, "3.0": 0.0}
+- order_restored_rate_by_delay: {"1.0": 1.0, "1.5": 1.0, "2.0": 0.0, "2.5": 0.0, "3.0": 0.0}
 - longest_delay_order_holds: "1.5"
-- runs: 15
+- runs: 5
 
 ## AI Scenario Testing Platform
 
 *Which agent does best on this scenario — and is its score honest?*
 
-scripted scored highest (0.345) but its score is flagged as gamed; the best honest agent is baseline.
+scripted scored highest (0.383) but its score is flagged as gamed; the best honest agent is baseline.
 
-- agents: {"baseline": {"gaming_detected": false, "result": "no_winner_duration_limit", "score": 0.329}, "rule_based": {"gaming_detected": false, "result": "BLUE_survived", "score": 0.2551}, "scripted": {"gaming_detected": true, "result": "no_winner_duration_limit", "score": 0.3455}}
+- agents: {"baseline": {"gaming_detected": false, "result": "no_winner_duration_limit", "score": 0.3091}, "rule_based": {"gaming_detected": false, "result": "BLUE_survived", "score": 0.2369}, "scripted": {"gaming_detected": true, "result": "no_winner_duration_limit", "score": 0.3833}}
 - highest_score: "scripted"
 - best_honest_agent: "baseline"
 - flagged_for_gaming: ["scripted"]
@@ -59,8 +59,8 @@ Screened before any prototype: EXO_TEST_001 continue, PAX_TEST_001 redesign, MSX
 
 *Which pressure breaks this plan first, and at what level?*
 
-The plan survives 100% of runs unstressed; enemy_reaction_speed crushes it first.
+The plan survives 100% of runs unstressed; communication_failure crushes it first.
 
 - baseline_survival: 1.0
-- breaking_level: {"communication_failure": "moderate", "enemy_reaction_speed": "mild", "equipment_overheat": "severe", "sensor_failure": "severe"}
-- crushing_variable: "enemy_reaction_speed"
+- breaking_level: {"communication_failure": "mild", "enemy_reaction_speed": "mild", "equipment_overheat": "severe", "sensor_failure": "moderate"}
+- crushing_variable: "communication_failure"

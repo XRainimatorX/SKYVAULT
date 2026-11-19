@@ -482,3 +482,38 @@ python3 scripts/dev/export_schemas.py
 ```
 
 連只改 docstring 也要 —— Pydantic 把 docstring 寫進 schema 的 `description`。漂移測試會在已 commit 的檔與產生結果不一致時失敗。
+
+## 6. Phase 22 加入與改變的形狀
+
+### NEXUS mission（§21 Phase I）
+
+```text
+nexus_mission   mission_id、order（命令原文，成為每個編出的 scenario 的 purpose）、
+                objective: compare_plans | test_plan | stress_test | explore_failures | report_status、
+                scenario（"<id>/<version>"；report_status 以外必填）、
+                plans[{plan_id, description, system_id, actions, entity_changes, rule_changes}]、
+                repeat_count、max_ticks、stress_level、report_format、priority
+規則            compare_plans 至少兩個方案；test_plan / stress_test 至多一個；plan_id 不重複
+```
+
+NEXUS 提交 `{"task_type": "mission", "mission": …}`；回傳 `mission{assessment, scenarios}`、`result_package`、`scenario_report`、`system_status`、`authority_handoff`、`plans`（compare_plans）、`stress_test`、`failure_map`、`gaps`。`POST /nexus/mission/assess` 只編不跑。
+
+### Job request
+
+`rule_changes`：`{group: {...}}` 逐鍵合併進世界的 rule_set（世界沒有的 group 被拒）。`stress`：`{variable: mild | moderate | severe | collapse}`，在 scenario_for 以 failure variable 套用（新版本 `<version>+<variable>:<level>`）。
+
+### Failure map
+
+```text
+output    §14.3：failure_points、collapse_sequence、survival_conditions、recommended_modifications
+answers   §14.4：where_it_failed、why_it_failed、how_fast_it_failed、which_assumption_caused_it、
+          which_variable_pushed_it_over{variable, breaking_level}、which_alternative_survived_longer、what_must_change
+```
+
+### Observer profile 的 view
+
+`local`、`aggregate`、`mission`、`threat`、`coverage`，加上 `intel`（EIDEN-01）、`information`（CYBERHOUND）、`equipment`（星衞裝備測試）：§5.2 九個觀察者都有 profile。
+
+### §9.2 的返回
+
+`interface/systems.py` 的 `RETURNS` 列出每個系統的每個返回項目與它所在的 key；NEXUS 的 `briefing` 改名 `scenario_report`，Star Guard 的 `physical_feasibility` 改名 `physical_possibility`。

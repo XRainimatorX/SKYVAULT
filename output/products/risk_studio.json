@@ -1,14 +1,14 @@
 {
-  "conclusion": "The plan survives 100% of runs unstressed; enemy_reaction_speed crushes it first.",
+  "conclusion": "The plan survives 100% of runs unstressed; communication_failure crushes it first.",
   "kpis": {
     "baseline_survival": 1.0,
     "breaking_level": {
-      "communication_failure": "moderate",
+      "communication_failure": "mild",
       "enemy_reaction_speed": "mild",
       "equipment_overheat": "severe",
-      "sensor_failure": "severe"
+      "sensor_failure": "moderate"
     },
-    "crushing_variable": "enemy_reaction_speed"
+    "crushing_variable": "communication_failure"
   },
   "outputs": {},
   "product": "risk_studio",

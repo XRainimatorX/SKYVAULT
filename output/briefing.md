@@ -1,144 +1,137 @@
-# SKYVAULT briefing — military_urban_001 v0.2
+# SKYVAULT briefing — tactical_reference_001 v0.2
 
 ## Summary
 
-Scenario military_urban_001 v0.2: 528 events over 25 ticks.
+Scenario tactical_reference_001 v0.2: 91 events over 9 ticks.
 
-- Result: no_winner_duration_limit
-- Verdict: fail (confidence 1.00)
-- Score: 0.29
+- Result: BLUE_survived
+- Verdict: fail (confidence 0.93)
+- Score: 0.20
 - Profile: balanced, seen from RED
 
 ## What happened
 
 Each tick: what was done, and who was destroyed by whom.
 
-- Tick 1: 1 attack; 10 idle units; 1 move; 3 waits
-- Tick 2: 4 attacks; 2 misses; 7 moves; 2 refused orders; Red 2nd squad Squad Leader destroyed by Blue Garrison Marksman
-- Tick 3: 3 attacks; 1 idle unit; 2 misses; 2 moves; 5 refused orders; Blue Garrison Marksman destroyed by Red Support Marksman
-- Tick 4: 3 attacks; 3 misses; 3 moves; 2 refused orders; 2 waits; Red 1st squad Rifleman 2 destroyed by Blue Garrison Rifleman 1
-- Tick 5: 5 attacks; 1 idle unit; 3 moves; 1 refused order; 2 waits; Red Support Logistics destroyed by Blue Garrison Rifleman 1
-- Tick 6: 4 attacks; 1 idle unit; 2 misses; 2 moves; 1 refused order; 1 wait; Red 2nd squad Rifleman 2 destroyed by Blue Garrison Squad Leader
-- Tick 7: 2 attacks; 5 misses; 2 refused orders; 1 wait; Red 1st squad Squad Leader destroyed by Blue Garrison Rifleman 1
-- Tick 8: 3 attacks; 1 idle unit; 5 misses
-- Tick 9: 3 attacks; 5 misses; 1 wait; Red 1st squad Rifleman 1 destroyed by Blue Garrison Squad Leader
-- Tick 10: 2 attacks; 4 misses; 2 waits; Red 1st squad Machine Gunner destroyed by Blue Garrison Rifleman 2
-- Tick 11: 1 attack; 1 miss; 1 refused order; 4 waits
-- Tick 12: 2 attacks; 3 misses; 1 move; 1 wait
-- Tick 13: 2 attacks; 1 miss; 1 refused order; 3 waits; Red Support Marksman destroyed by Blue Garrison Rifleman 1
-- Tick 14: 1 miss; 5 waits
-- Tick 15: 1 miss; 5 waits
-- Tick 16: 1 miss; 5 waits
-- Tick 17: 1 miss; 5 waits
-- Tick 18: 1 miss; 5 waits
-- Tick 19: 1 refused order; 5 waits
-- Tick 20: 1 attack; 1 miss; 1 move; 3 waits
-- Tick 21: 1 idle unit; 5 waits
-- Tick 22: 1 move; 5 waits
-- Tick 23: 1 refused order; 5 waits
-- Tick 24: 6 waits
-- Tick 25: 6 waits
+- Tick 1: 6 moves
+- Tick 2: 6 moves
+- Tick 3: 6 moves
+- Tick 4: 1 attack; 5 moves
+- Tick 5: 5 attacks; 1 miss; Red Commander destroyed by Blue Support
+- Tick 6: 3 attacks; 1 move; Blue Commander destroyed by Red Rifleman
+- Tick 7: 1 attack; 2 misses; 1 move; Red Support destroyed by Blue Rifleman
+- Tick 8: 2 attacks; 1 move
+- Tick 9: 2 attacks; Red Rifleman destroyed by Blue Rifleman
 
 ## Losses
 
-- RED lost 8 of 10: Red 2nd squad Squad Leader at tick 2, Red 1st squad Rifleman 2 at tick 4, Red Support Logistics at tick 5, Red 2nd squad Rifleman 2 at tick 6, Red 1st squad Squad Leader at tick 7, Red 1st squad Rifleman 1 at tick 9, Red 1st squad Machine Gunner at tick 10, Red Support Marksman at tick 13
-- BLUE lost 1 of 5: Blue Garrison Marksman at tick 3
+- RED lost 3 of 3: Red Commander at tick 5, Red Support at tick 7, Red Rifleman at tick 9
+- BLUE lost 1 of 3: Blue Commander at tick 6
 
 ## Evaluation
 
-Scenario ended because: duration_limit_reached
+Scenario ended because: termination_condition_met
 
-Events recorded: 528
+Events recorded: 91
 
-Destroyed entities: 9
+Destroyed entities: 4
 
-Overall score 0.29 under profile balanced: fail (confidence 1.00)
+Overall score 0.20 under profile balanced: fail (confidence 0.93)
 
-Strongest axis: logistics_burden 1.00
+Strongest axis: system_robustness 1.00
 
-Weakest axis: recovery_ability 0.00
+Weakest axis: crisis_resilience 0.00
 
-- mission_success 0.20
-- tactical_value 0.43
-- strategic_value 0.20
-- resource_cost 0.11
-- time_cost 0.00
-- risk_growth 0.20
-- failure_resistance 0.08
+- tactical_usefulness 0.61
+- strategic_value 0.00
+- crisis_resilience 0.00
+- resource_efficiency 0.00
+- risk_control 0.00
+- system_robustness 1.00
+- failure_resistance 0.56
 - recovery_ability 0.00
-- system_robustness 0.81
-- logistics_burden 1.00
-- stability_impact 0.40
-- Failure cause: red_05 destroyed at tick 2 by blue_05
-- Failure cause: red_03 destroyed at tick 4 by blue_02
-- Failure cause: red_10 destroyed at tick 5 by blue_02
-- Failure cause: red_07 destroyed at tick 6 by blue_01
-- Failure cause: red_01 destroyed at tick 7 by blue_02
-- Failure cause: red_02 destroyed at tick 9 by blue_01
-- Failure cause: red_04 destroyed at tick 10 by blue_03
-- Failure cause: red_09 destroyed at tick 13 by blue_02
-- Failure cause: mission_success 0.20: 1 of 5 opposing entities destroyed; 2 of 10 own entities still active
-- Failure cause: strategic_value 0.20: 2 of 10 own entities preserved
-- Failure cause: resource_cost 0.11: 254 of 286 own hp lost
-- Failure cause: time_cost 0.00: ended at tick 25 of 25
-- Failure cause: risk_growth 0.20: 8 risk-relevant events hit own entities (proxy until a risk model exists)
-- Failure cause: failure_resistance 0.08: first own loss at tick 2 of 25
-- Failure cause: recovery_ability 0.00: 0 hp restored against 254 hp still lost
+- mission_success 0.00
+- time_cost 0.10
+- stability_impact 0.33
+- commercial_demonstrability 0.67
+- imperial_core_value 1.00
+- resource_cost 0.00
+- risk_growth 0.00
+- Not judged in this world: physical_possibility, engineering_feasibility, governance_stability
+- Failure cause: red_003 destroyed at tick 5 by blue_002
+- Failure cause: red_002 destroyed at tick 7 by blue_001
+- Failure cause: red_001 destroyed at tick 9 by blue_001
+- Failure cause: mission_success 0.00: 1 of 3 opposing entities destroyed; 0 of 3 own entities still active
+- Failure cause: strategic_value 0.00: 0 of 3 own entities preserved
+- Failure cause: resource_cost 0.00: 97 of 97 own hp lost
+- Failure cause: time_cost 0.10: ended at tick 9 of 10
+- Failure cause: risk_growth 0.00: 3 risk-relevant events hit own entities (proxy until a risk model exists)
+- Failure cause: recovery_ability 0.00: 0 hp restored against 97 hp still lost
+- Failure cause: crisis_resilience 0.00: own strength at its lowest 0 of 97 hp (tick 9)
+- Next test: Exercise logistics_burden: the world holds no resources to spend
 
 ## Trade-offs
 
-- tactical_value 0.43 against strategic_value 0.20: balanced
-- mission_success 0.20 against resource_cost 0.11: both weak
-- time_cost 0.00 against risk_growth 0.20: both weak
-- mission_success 0.20 against stability_impact 0.40: balanced
+- tactical_usefulness 0.61 against strategic_value 0.00: tactical_usefulness bought at the expense of strategic_value
+- mission_success 0.00 against resource_cost 0.00: both weak
+- time_cost 0.10 against risk_growth 0.00: both weak
+- mission_success 0.00 against stability_impact 0.33: both weak
 
 ## Failure exploration
 
-v0.2 stressed 10 times per level; a level breaks below 50% survival.
+v0.1 stressed 2 times per level; a level breaks below 50% survival.
 
-- Survives without stress: 80%
-- Crushed by: communication_failure (assumption actor_policy)
-- Best alternative: None
-- First loss on average at tick 2.0
-- sensor_failure: holds up to severe, breaks at collapse
+- Survives without stress: 50%
+- Crushed by: enemy_reaction_speed (assumption combat_resolution)
+- Best alternative: v0.1-support-rear
+- First loss on average at tick 5.9
+- sensor_failure: holds at every tested level
 - communication_failure: holds up to severe, breaks at collapse
 - weather_degradation: holds at every tested level
-- enemy_reaction_speed: breaks already at mild
+- enemy_reaction_speed: holds up to moderate, breaks at severe
 - equipment_overheat: holds up to severe, breaks at collapse
+- civilian_pressure: holds up to severe, breaks at collapse
 
 | Variable | mild | moderate | severe | collapse | Breaks at | Sensitivity |
 |---|---|---|---|---|---|---|
-| sensor_failure | 80% | 70% | 70% | 40% | collapse | +0.40 |
-| communication_failure | 70% | 80% | 80% | 10% | collapse | +0.70 |
-| weather_degradation | 80% | 100% | 90% | 100% | never | +0.00 |
-| enemy_reaction_speed | 40% | 40% | 50% | 30% | mild | +0.50 |
-| equipment_overheat | 80% | 80% | 50% | 20% | collapse | +0.60 |
+| sensor_failure | 50% | 50% | 100% | 100% | never | +0.00 |
+| communication_failure | 50% | 100% | 100% | 0% | collapse | +0.50 |
+| weather_degradation | 50% | 50% | 100% | 100% | never | +0.00 |
+| enemy_reaction_speed | 50% | 50% | 0% | 0% | severe | +0.50 |
+| equipment_overheat | 50% | 50% | 100% | 0% | collapse | +0.50 |
+| civilian_pressure | 50% | 50% | 100% | 0% | collapse | +0.50 |
 
 ## Plan comparison
 
-Batch military_urban_001_doctrine: 50 runs per variant, 150 runs, seen from RED.
+Batch tactical_reference_001_doctrine: 10 runs per variant, 90 runs, seen from RED.
 
-Conflicting orders: P1 vs P2 (objective, priority, risk); P1 vs P3 (location). Highest win_rate: branch P1 (0.12). Lowest failure_frequency: branch P2+P3 (0.19). Lowest mean_hp_lost: branch P1 (65.98). Lowest mean_risk_events: branch P1 (1.73). Highest mean_score: branch P1 (0.4128). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep.
+Conflicting orders: P1 vs P2 (objective, priority, risk); P1 vs P3 (location). Highest win_rate: branch P1 (0.4). Lowest failure_frequency: branch P1 (0.1). Lowest mean_hp_lost: branch P1 (59.8). Lowest mean_risk_events: branch P1 (1.4). Highest mean_score: branch P1 (0.4495). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep.
 
-- Best win rate: aggressive
-- Best failure frequency: aggressive
-- Best mean hp lost: defensive
-- Best mean risk events: defensive
-- Best mean score: aggressive
+- Best win rate: spread
+- Best failure frequency: support-rear
+- Best mean hp lost: branch:P1
+- Best mean risk events: branch:P1
+- Best mean score: branch:P1
 - Conflict C1: P1 vs P2 at tick 1: both order red_002; both high priority; risk medium vs low
 - Conflict C2: P1 vs P3 at tick 1: both send a unit to [1, 1]
 - Decision required: yes
 
 | Variant | Win | Fail | HP lost | Risk | Score |
 |---|---|---|---|---|---|
-| aggressive | 18% | 12% | 201.64 | 6.36 | 0.379 |
-| overwatch | 0% | 22% | 209.8 | 6.82 | 0.357 |
-| defensive | 10% | 84% | 189.24 | 6.16 | 0.218 |
+| plan | 20% | 40% | 70.4 | 2.1 | 0.344 |
+| support-rear | 10% | 10% | 64 | 1.6 | 0.412 |
+| spread | 40% | 10% | 62.6 | 1.6 | 0.421 |
+| sweep:entities[blue_002].capabilities.accuracy=0.55 | 20% | 40% | 70.4 | 2.1 | 0.344 |
+| sweep:entities[blue_002].capabilities.accuracy=0.65 | 20% | 50% | 72.9 | 2.2 | 0.327 |
+| sweep:entities[blue_002].capabilities.accuracy=0.75 | 10% | 50% | 78.7 | 2.3 | 0.312 |
+| branch:P1 | 40% | 10% | 59.8 | 1.4 | 0.450 |
+| branch:P2+P3 | 0% | 20% | 60.9 | 1.7 | 0.402 |
+| branch:none | 20% | 40% | 70.4 | 2.1 | 0.344 |
 
 ## Reproducibility
 
-- Run: run_20261110T052243750831Z_089b5d39
+- Run: run_20261119T050908076006Z_6f201ad3
 - Random: seed 42 (fixed)
-- Runtime 2.1.0, rules rules-4e2bb5389c00
-- Input hash: 089b5d39939a0c98e8e5f2c0322f9879f2dac6d7f32744c2309ca795c4244969
-- Output hash: 78aa3fe5bbdfc1b2828e2756c40fecf72982a7c8b208b97c441626afcb1c6c57
+- Runtime 2.2.0, rules rules-f8f8b883e670
+- Input hash: 6f201ad3d0592653d27cb02d13261c3dc8a9df72e66cb09e0051a47abd65be25
+- Output hash: 8ad119066384116ad01b7776668b02c53232c1f7ccadae362a42f3ba448ebcaf

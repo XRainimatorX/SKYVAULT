@@ -48,13 +48,15 @@ scenario → world state → actor policy → action → validation
 → consequence → world mutation → event memory → evaluation → result package
 ```
 
+以兩份創始文件驗收（Phase 22）：`skyvault acceptance` 直接以《Long-Term Framework & Formal Spec》（§0 九條硬性要求、§2–§18 的契約逐欄、§21 Phase A–J 的通過標準）與《SKYVAULT Definition》（Ⅰ–Ⅸ）逐條驗收，每條附原文章節與證據；開發計劃的 15 / 14 / 6 / 5 先跑，作為回歸。契約照原文：scenario 是 §3.3 的分組格式、世界是獨立的 §2 World Contract（`data/worlds/`），由 `compile_scenario` 編成引擎的形式，每個 result package 帶 §4.2 的十四步執行紀錄；評估分數是 §8.3 的十一個 key；service、governance、handoff、failure exploration 都照 §10.4、§15.3、§17.2、§14.3 逐欄。NEXUS 可以交一個任務（mission）：SKYVAULT 判斷是否需要世界、把每個方案編成一個 scenario 版本、跑完、交回報告，選哪個方案交回 NEXUS / 陛下；STARTX → SKYVAULT → TAC ANGEL → 模擬 → STARTX 重評 → TAC ANGEL 調整 → NEXUS 的三角包循環經同一個介面跑完。
+
 世界本身由 World Contract 建立（`src/skyvault/runtime/`）：grid / graph / network 三種空間、tick / phase / event-driven 三種時間、實體登記、資源帳，任一時刻的世界都能只靠 event memory 還原。scenario 必須說明誰做決定：`runtime.policy` 指名一個 policy，或它的 domain pack 帶預設 policy —— 都沒有就被拒絕，SKYVAULT 不替它挑一個。系統的基線是 `military_urban_001` v0.2。
 
 actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 → 結算出 Consequence → 套用，每個改動一筆帶 action id 的 event。十種 action type（move、attack、observe、wait、repair、supply、deploy、withdraw、scan、communicate），軍事線使用其中五種。
 
 每次 run 都可重現（Phase 8）：event 與 action 的 id 是決定性的，同一輸入得到同一個 output_hash；每個 result package 帶著 input_hash、規則版本與執行版本；scenario 以版本資料夾管理、可比較差異；run 記在 registry、可從 result package 重跑驗證。
 
-方案可以被故意弄壞（Phase 9）：八個 failure variable、四個壓力等級、多個 seed，找出方案在哪裡、為什麼、多快崩潰，哪個變量壓垮它、哪個替代方案撐更久、現實前必須改什麼。
+方案可以被故意弄壞（Phase 9；Phase 22 補齊 Formal Spec §14.2 的每一列）：二十二個 failure variable、四個壓力等級、多個 seed，找出方案在哪裡、為什麼、多快崩潰，哪個變量壓垮它、哪個替代方案撐更久、現實前必須改什麼。
 
 很多方案可以一起比較（Phase 10）：版本、參數掃描、外部系統的命令，各跑上百次、可平行，並排比較勝率、成本、風險與失敗頻率。互相衝突的命令不替任何人選：每組相容的命令各成一個分支跑完，交出一份 conflict package 讓 NEXUS 或使用者決定。
 
@@ -76,7 +78,7 @@ actor 的每個 action 都走同一條路（`src/skyvault/actions/`）：驗證 
 
 SKYVAULT 可以當後台服務跑（Phase 11）：任務從 HTTP API 進來、排隊（優先序、上限）、在 worker 上跑（同一個程序，或 RQ + Redis 的 worker），結果存在 SQLite 或 PostgreSQL，可查、可下載、可重播；persistent world 可以一次推進幾個 tick。每個 run 都受 Resource & Compute Governance 約束：失控的 run 被自動停下並交出 partial result，過大的 batch 在門口被拒。
 
-其他系統用自己的語言接入（Phase 12）：NEXUS 交任務、拿回完整的 result package 與 briefing；STARTX 交分支、拿回分支比較；TAC ANGEL 在進行中的世界下命令、拿回自己命令的 state-action-outcome；EIDEN-01 的情報、SKYFOX 的路線、HADES 的防禦、星衞的裝備、AEROGRID 的覆蓋各自得到 Formal Spec §9 寫明的返回；沒有模型的（CYBERHOUND 的資訊環境）得到缺口，而不是假的模擬。兩個系統的命令互相衝突時，世界停下、每個分支從同一段歷史分叉跑完、交回 conflict package；需要決定的結果（高風險、策略取捨、衝突分支、跨過 failure threshold）一律以 authority handoff 交給 NEXUS 或指定權威 —— SKYVAULT 自己想決定，得到的是 403。
+其他系統用自己的語言接入（Phase 12）：NEXUS 交任務、拿回完整的 result package 與 briefing；STARTX 交分支、拿回分支比較；TAC ANGEL 在進行中的世界下命令、拿回自己命令的 state-action-outcome；EIDEN-01 的情報、SKYFOX 的路線、HADES 的防禦、星衞的裝備、AEROGRID 的覆蓋各自得到 Formal Spec §9 寫明的返回；沒有模型的部分得到缺口，而不是假的模擬（Phase 22 起 CYBERHOUND 在城市裡有信息環境模型：情緒壓力沿道路傳播、謠言、反制訊息、巡邏反噬）。兩個系統的命令互相衝突時，世界停下、每個分支從同一段歷史分叉跑完、交回 conflict package；需要決定的結果（高風險、策略取捨、衝突分支、跨過 failure threshold）一律以 authority handoff 交給 NEXUS 或指定權威 —— SKYVAULT 自己想決定，得到的是 403。
 
 模擬結果可以變成訓練資料（Phase 18）：每個決定一筆 transition（state、observation、action、consequence、reward、next_state…），每個 run 標記六種刷分行為；刷分的 run 進 rejected、不進主訓練集，「成功」與「假成功」分開標示；STARTX 拿到分支評估；匯出 JSONL / Parquet，登記在 training data registry，並建 RAG index。
 
@@ -115,6 +117,7 @@ skyvault briefing latest --format pdf             # 帶進會議的文件（md /
 skyvault replay job_000001                        # 重跑一場，確認逐位元重現
 skyvault world create military_squad_001/v0.1     # persistent world：然後 advance / finish
 skyvault products                                 # 這個版本的產品（serve --edition commercial 是商業版）
+skyvault mission data/missions/city_takeover_branches_001.json   # NEXUS 任務：強攻 / 封鎖 / 談判 / 先恢復供應
 skyvault status
 ```
 
@@ -124,7 +127,7 @@ skyvault status
 
 ```bash
 skyvault virtual-test pax_test_001                # 一份裝備 profile 的三重篩查與判斷
-skyvault acceptance                               # 完整 v2.0 的驗收：15 / 14 / 6 / 5 → ACCEPTED
+skyvault acceptance                               # Formal Spec 9 / 19 / 10 + Definition 12，回歸 15 / 14 / 6 / 5 → ACCEPTED
 ```
 
 部署自己的 scenario、batch 與 policy 不需要改 SKYVAULT：`SKYVAULT_SCENARIO_PATH`、`SKYVAULT_BATCH_PATH` 加資料夾（排在 `data/` 之後），`SKYVAULT_POLICY_MODULES` 加 policy 模組。用 Redis 與 PostgreSQL：`skyvault serve --queue rq --redis … --store postgresql://…` 加上 `skyvault worker`；或 `docker compose up --build`。
@@ -211,7 +214,7 @@ src/skyvault/       SKYVAULT 本身
   domains/airspace/ 第三個 domain pack：空域、機率偵測、航跡、攔截、HADES / SKYFOX / AEROGRID
   virtualtest/      裝備的三重篩查：physics-lite、工程、戰術、壓力、solver、surrogate、外部仿真、判斷
   editions/         一顆核心兩個版本：manifest、redact、edition 服務、六個產品、反哺
-  acceptance/       完整 v2.0 的驗收：十五條、十四項、十一條邊界，在同一個服務上
+  acceptance/       2.0 的驗收：Formal Spec §0、§2–§18、§21 與 Definition 逐條，Phase 20 的檢查作為回歸
   boundary.py       Final Authority Boundary：role、may、may not
   training/         訓練資料：transition、anti-gaming 標籤與過濾、分支評估、registry、RAG index
   observation/      觀測層：observer profile、fog of war、confidence、delay、stale、五種 view
@@ -245,11 +248,14 @@ docs/               文件
 
 | 項目 | 影響 | 留待 |
 |---|---|---|
+| 信息環境、災害、重建的係數是假設 | 情緒壓力的傳播與反噬、洪水 / 火災的損害依手調的預設值；醫療在城市模型裡不會自行恢復 | 有真實資料時 |
+| 三角包與驗收裡的 STARTX / TAC ANGEL 是替身 | `acceptance/standins.py` 的固定規則；真正的系統以 NEXUS mission 或各自的提交接入 | 真正的系統出現時 |
+| 契約逐欄的驗收比的是欄位名稱 | 欄位的值域與巢狀位置由各契約的測試把關 | — |
+| EIDEN-01 的世界參數 | 只有對得到單位能力的參數成為變體，其餘回報缺口（job 已能帶 rule_changes） | 需要時 |
 | failure variable 只改既有能力值、hp、資源與命令傳達 | 沒有真的感測、通訊、天氣模型；例如感測失效 = 己方命中率下降 | 需要那些模型的 domain |
 | failure exploration 循序執行 | reference 的設定共 760 次 run，約 12 秒；batch 已可平行，explore 尚未改用 | 需要時 |
 | 衝突偵測只看命令本身與開場存量 | 不知道執行到那個 tick 時的世界；對 tick 1 的命令沒有差別 | 需要時 |
 | 衝突時分支從 tick 0 重跑 | engine 不能序列化；每個分支 5 次 | engine 可序列化時 |
-| CYBERHOUND、EIDEN 的世界參數 | 回報為缺口，不模擬（AEROGRID 的空域、星衞的裝備參數已有模型） | 需要時 |
 | 商業版的 redact 是字串層級 | 新增內部名稱要加進 data/editions/commercial.json；CI 掃描外洩 | 需要時 |
 | 裝備篩查的係數是假設 | physics-lite 門檻、一個軍事 tick = 10 分鐘、hp 係數代表防護；FMI / FMU 尚未接上 | 有真實資料時 |
 | 城市的係數是手調的 | 依 20 個 seed 的測量訂定，不是校準過的真實城市；沒有 GIS | 有真實資料時 |
@@ -260,7 +266,6 @@ docs/               文件
 | 訓練資料的 observation 不是觀測層產生 | 軍事用 pack 的感測，其他是整個世界的狀態（標明 observation_model: full_state） | 需要時 |
 | 觀測只支援 grid | 與 tactical engine 相同 | 對應的 engine 出現時 |
 | 讀世界的 policy 慢約 18%（軍事） | 唯讀代理的成本 | 有需要時 |
-| persistent world 不能跨程序恢復 | engine 不能序列化；checkpoint 與結果留在 store | 需要時 |
 | batch 內的每個 run 不受 auto-stop | 受 max_batch_count 與 scenario 時限約束 | 需要時 |
 | Docker 只做靜態驗證 | 此環境沒有 daemon；CI 跑 `docker compose config` | — |
 | RQ worker 用它自己的 governance | edition 的決定者要由呼叫者以 edition_policy 帶進佇列 | 需要時 |
@@ -272,16 +277,14 @@ docs/               文件
 | 只支援 editable 安裝 | SKYVAULT 讀 repo 裡的 data/；`pip install .` 的套件找不到它（Docker 也用 -e） | 打包 data 時 |
 | 產品在請求裡同步執行 | 同時執行數受 max_parallel_runs 限制，多的回 429；不經佇列 | 需要時 |
 | run registry 是本機 JSON Lines 檔 | 不跨機器共享；`runs/` 不進版本控制 | 需要共享時 |
-| engine 只跑 tick | phase / event-driven 時間要直接用 `create_world()` 建；空間由 domain pack 宣告（城市用 graph） | 需要它們的 domain |
 | `expected_duration` 只是宣告 | action 都在一步內完成；沒有持續多個 tick 的 action | 需要排程的 Phase |
 | `state_changes`（環境變動）一律 raise | WorldState 沒有建模 environment_state | 需要它的 domain |
 | risk_growth、stability_impact 是代理指標 | 沒有風險與穩定模型；用 affects_risk 事件與摧毀比例代替 | Phase 9 起 |
-| Spec §8.3 的六個軸不評（physical_possibility 等） | 模擬中沒有資料來源 | 需要它們的 domain |
 | consequence 的 evaluation_impact 不進評估 | consequence 不在 result package 裡，評估只讀紀錄 | 未定 |
 | 單一 run 的 comparison 恆為空 | 單一 run 沒有比較對象；batch 的 branch_comparison 依平均分數填 | — |
 | 快照只存在記憶體 | 程序結束就沒了；可由 event memory 重建 | 文件寫明 SQLite / PostgreSQL later |
 
-完整清單見 [`docs/phases/phase21_standalone.md`](docs/phases/phase21_standalone.md) 與先前各 Phase 的完成報告。
+完整清單見 [`docs/phases/phase22_spec_grounded.md`](docs/phases/phase22_spec_grounded.md) 與先前各 Phase 的完成報告。
 
 ---
 

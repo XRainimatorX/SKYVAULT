@@ -1,30 +1,30 @@
-# Trade-off report — military_urban_001
+# Trade-off report — tactical_reference_001
 
 - Profile: `balanced`
 - Perspective: RED
-- Verdict: **fail** (overall 0.29, confidence 1.00)
+- Verdict: **risky** (overall 0.49, confidence 0.93)
 
 ## Trade-offs
 
 | Gain | Score | Cost | Score | Assessment |
 |---|---|---|---|---|
-| tactical_value | 0.43 | strategic_value | 0.20 | balanced |
-| mission_success | 0.20 | resource_cost | 0.11 | both weak |
-| time_cost | 0.00 | risk_growth | 0.20 | both weak |
-| mission_success | 0.20 | stability_impact | 0.40 | balanced |
+| tactical_usefulness | 1.00 | strategic_value | 0.67 | both strong |
+| mission_success | 1.00 | resource_cost | 0.59 | balanced |
+| time_cost | 0.00 | risk_growth | 0.67 | risk_growth kept at the expense of time_cost |
+| mission_success | 1.00 | stability_impact | 0.33 | mission_success bought at the expense of stability_impact |
 
 ## Strongest axes
 
-- logistics_burden: 1.00
-- system_robustness: 0.81
-- tactical_value: 0.43
+- mission_success: 1.00
+- system_robustness: 1.00
+- tactical_usefulness: 1.00
 
 ## Weakest axes
 
 - recovery_ability: 0.00
 - time_cost: 0.00
-- failure_resistance: 0.08
+- stability_impact: 0.33
 
 ## Anti-gaming
 
-No forbidden optimisation behaviour detected.
+Gaming detected: sacrifice_long_term_stability_for_short_term_success.

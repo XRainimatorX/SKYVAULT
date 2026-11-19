@@ -25,12 +25,12 @@ Power: cascade depth 1, at most 7 districts dark.
 
 ## Supply delay and public order
 
-city_takeover_001, seeds 42–51.
+city_takeover_001, seeds 42–44.
 
 | delay factor | order restored | mean end order | mean score |
 |---|---|---|---|
-| 1 | 100% | 96.1 | 0.83 |
-| 1.5 | 100% | 90.3 | 0.82 |
-| 2 | 60% | 65.1 | 0.68 |
-| 2.5 | 0% | 35.5 | 0.49 |
-| 3 | 0% | 21.3 | 0.40 |
+| 1 | 100% | 95.6 | 0.83 |
+| 1.5 | 100% | 89.5 | 0.82 |
+| 2 | 33% | 63.7 | 0.67 |
+| 2.5 | 0% | 32.3 | 0.48 |
+| 3 | 0% | 19.0 | 0.39 |

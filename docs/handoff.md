@@ -276,7 +276,7 @@ git diff                                           # 註解掉的除錯碼、死
 4. 先 commit fixture，再寫程式
 ```
 
-**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）、[#32](https://github.com/XRainimatorX/SKYVAULT/issues/32)（Phase 14，16 條）、[#33](https://github.com/XRainimatorX/SKYVAULT/issues/33)（Phase 15，16 條）、[#34](https://github.com/XRainimatorX/SKYVAULT/issues/34)（Phase 16，16 條）、[#35](https://github.com/XRainimatorX/SKYVAULT/issues/35)（Phase 19，16 條）、[#36](https://github.com/XRainimatorX/SKYVAULT/issues/36)（Phase 20，16 條）。
+**單一工作者時，一個 phase 只開一份 issue**，Frozen Shape / Frozen Interface 寫在它的第 6 節，不拆 section、不另開共同基準 issue。範例：[#17](https://github.com/XRainimatorX/SKYVAULT/issues/17)（Phase 1，19 條）、[#19](https://github.com/XRainimatorX/SKYVAULT/issues/19)（Phase 2，17 條）、[#20](https://github.com/XRainimatorX/SKYVAULT/issues/20)（Phase 3，18 條）、[#21](https://github.com/XRainimatorX/SKYVAULT/issues/21)（Phase 7，19 條）、[#22](https://github.com/XRainimatorX/SKYVAULT/issues/22)（Phase 8，18 條）、[#23](https://github.com/XRainimatorX/SKYVAULT/issues/23)（Phase 9，17 條）、[#24](https://github.com/XRainimatorX/SKYVAULT/issues/24)（Phase 10，18 條）、[#25](https://github.com/XRainimatorX/SKYVAULT/issues/25)（Phase 17，17 條）、[#26](https://github.com/XRainimatorX/SKYVAULT/issues/26)（Phase 13，18 條）、[#27](https://github.com/XRainimatorX/SKYVAULT/issues/27)（Phase 18，18 條）、[#28](https://github.com/XRainimatorX/SKYVAULT/issues/28)（Phase 5，16 條）、[#29](https://github.com/XRainimatorX/SKYVAULT/issues/29)（Phase 6，17 條）、[#30](https://github.com/XRainimatorX/SKYVAULT/issues/30)（Phase 11，19 條）、[#31](https://github.com/XRainimatorX/SKYVAULT/issues/31)（Phase 12，17 條）、[#32](https://github.com/XRainimatorX/SKYVAULT/issues/32)（Phase 14，16 條）、[#33](https://github.com/XRainimatorX/SKYVAULT/issues/33)（Phase 15，16 條）、[#34](https://github.com/XRainimatorX/SKYVAULT/issues/34)（Phase 16，16 條）、[#35](https://github.com/XRainimatorX/SKYVAULT/issues/35)（Phase 19，16 條）、[#36](https://github.com/XRainimatorX/SKYVAULT/issues/36)（Phase 20，16 條）、[#37](https://github.com/XRainimatorX/SKYVAULT/issues/37)（Phase 21，14 條）、[#38](https://github.com/XRainimatorX/SKYVAULT/issues/38)（Phase 22，16 條）。
 
 設計依賴現有系統的行為時，**開設前先量**，把數字寫進 issue 第 1 節（Phase 9 回顧改法 4）。
 
@@ -318,13 +318,16 @@ GitHub Wiki            Phase 0 原稿的存檔，不再更新
 
 ## 9. 下一步
 
-**roadmap 的二十一個 Phase 與之後的 Phase 21 已完成**（Phase 0–21）。SKYVAULT 以 `skyvault` 啟動與使用；`skyvault acceptance` 跑完開發計劃的十五條最終驗收、十四項必備與 Final Authority Boundary（目前 ACCEPTED，output/v2/acceptance.md）—— 之後任何變更都應該讓它保持 ACCEPTED（CI 的 Full v2 acceptance 與 SKYVAULT on its own 步驟會擋）。
+**roadmap 的二十一個 Phase 與之後的 Phase 21、22 已完成**（Phase 0–22）。Phase 22 起，**SKYVAULT 2.0 以兩份創始文件驗收**：`skyvault acceptance` 逐條檢查《Long-Term Framework & Formal Spec》（§0 九條、§2–§18 契約逐欄、§21 Phase A–J）與《SKYVAULT Definition》（Ⅰ–Ⅸ），開發計劃的 15 / 14 / 6 / 5 作為回歸（目前 ACCEPTED，output/v2/acceptance.md）—— 之後任何變更都應該讓它保持 ACCEPTED（CI 的 Full v2 acceptance 與 SKYVAULT on its own 步驟會擋）。
+
+兩份創始文件的原文不在 repo（使用者的決定）；它們對系統的要求以可執行的形式存在：`data/v2/spec_acceptance.json`（每條附章節）、`src/skyvault/acceptance/spec_fields.py`（原文範例的欄位）、`failure/taxonomy.py`（§14.2）、`virtualtest/conditions.py`（Definition Ⅶ）、`interface/systems.py` 的 `RETURNS`（§9.2）。改契約前先看這幾個檔。
 
 之後的變更先讀：
 
 ```text
-docs/phases/phase21_standalone.md         第 4 節（這一輪發現的問題）與第 6 節（已知限制）
-docs/postmortems/phase21.md               第 6 節：開發用的東西放在開發的位置並以測試守住；結構測試要有反例；存取往返
+docs/phases/phase22_spec_grounded.md      第 4 節（這一輪發現的問題）與第 6 節（已知限制）
+docs/postmortems/phase22.md               回顧：驗收來源要回到最上游的文件；mid-run 改檔與安裝路徑的教訓
+docs/decisions/024_spec_grounded.md       §3.3 / §2 格式與 compiler、§8.3 評估、§10.4 服務、NEXUS mission、三角包、驗收
 docs/decisions/023_standalone.md          skyvault 指令、library 與三個環境變數、系統基線、介面讀服務
 docs/reviews/2026-11-09_code_review.md    world service 的並行、治理與授權：十項修正
 tests/layers.py                           新的套件或頂層模組要不要給它一個 rank

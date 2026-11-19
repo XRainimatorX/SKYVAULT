@@ -23,14 +23,15 @@
       },
       {
         "fails": [
-          "ground_pressure"
+          "ground_pressure",
+          "joint_load",
+          "stability"
         ],
         "level": "severe"
       },
       {
         "fails": [
-          "heat",
-          "joint_load"
+          "heat"
         ],
         "level": "collapse"
       }
@@ -68,12 +69,26 @@
         "breaks": [],
         "condition": "supply_disruption",
         "level": null
+      },
+      {
+        "breaks": [
+          "stability"
+        ],
+        "condition": "stairs",
+        "level": "severe"
+      },
+      {
+        "breaks": [
+          "joint_load"
+        ],
+        "condition": "impact",
+        "level": "collapse"
       }
     ],
     "redesign_triggers": []
   },
   "final_judgement": {
-    "reason": "possible (physics 0.95), worth building (engineering 0.77) and useful in military_squad_001",
+    "reason": "possible (physics 0.95), worth building (engineering 0.77) and useful in military_urban_001",
     "status": "continue"
   },
   "physical_possibility": {
@@ -123,20 +138,20 @@
       {
         "applicable": true,
         "baseline": {
-          "mean_score": 0.1703,
+          "mean_score": 0.1915,
           "mission_rate": 0.0,
           "unit_survival": 0.0
         },
         "equipped": {
-          "mean_score": 0.2342,
+          "mean_score": 0.234,
           "mission_rate": 0.0,
           "unit_survival": 0.0
         },
         "replaces": "red_02",
         "scenario": "military_squad_001",
-        "value": 0.6278,
+        "value": 0.585,
         "versus_baseline": {
-          "mean_score": 0.0639,
+          "mean_score": 0.0425,
           "mission_rate": 0.0,
           "unit_survival": 0.0
         }
@@ -144,69 +159,69 @@
       {
         "applicable": true,
         "baseline": {
-          "mean_score": 0.3604,
-          "mission_rate": 0.4,
-          "unit_survival": 0.2
+          "mean_score": 0.3054,
+          "mission_rate": 0.0,
+          "unit_survival": 0.0
         },
         "equipped": {
-          "mean_score": 0.2974,
-          "mission_rate": 0.4,
-          "unit_survival": 0.6
+          "mean_score": 0.3147,
+          "mission_rate": 0.5,
+          "unit_survival": 0.5
         },
         "replaces": "red_02",
         "scenario": "military_urban_001",
-        "value": 0.374,
+        "value": 0.7686,
         "versus_baseline": {
-          "mean_score": -0.063,
-          "mission_rate": 0.0,
-          "unit_survival": 0.4
+          "mean_score": 0.0093,
+          "mission_rate": 0.5,
+          "unit_survival": 0.5
         }
       },
       {
         "applicable": true,
         "baseline": {
-          "mean_score": 0.3192,
+          "mean_score": 0.2867,
           "mission_rate": 0.0,
           "unit_survival": 0.0
         },
         "equipped": {
-          "mean_score": 0.2812,
+          "mean_score": 0.2422,
           "mission_rate": 0.0,
-          "unit_survival": 0.4
+          "unit_survival": 0.5
         },
         "replaces": "red_02",
         "scenario": "military_mountain_001",
-        "value": 0.424,
+        "value": 0.411,
         "versus_baseline": {
-          "mean_score": -0.038,
+          "mean_score": -0.0445,
           "mission_rate": 0.0,
-          "unit_survival": 0.4
+          "unit_survival": 0.5
         }
       },
       {
         "applicable": true,
         "baseline": {
-          "mean_score": 0.2501,
+          "mean_score": 0.3504,
           "mission_rate": 0.0,
-          "unit_survival": 0.4
+          "unit_survival": 0.5
         },
         "equipped": {
-          "mean_score": 0.2553,
+          "mean_score": 0.346,
           "mission_rate": 0.0,
-          "unit_survival": 0.6
+          "unit_survival": 0.5
         },
         "replaces": "red_02",
         "scenario": "military_junction_001",
-        "value": 0.5104,
+        "value": 0.4912,
         "versus_baseline": {
-          "mean_score": 0.0052,
+          "mean_score": -0.0044,
           "mission_rate": 0.0,
-          "unit_survival": 0.2
+          "unit_survival": 0.0
         }
       }
     ],
     "logistics_burden": "low",
-    "score": 0.484,
+    "score": 0.5639,
     "unit": {
       "capabilities": {
         "accuracy": 0.625,
@@ -242,10 +257,8 @@
       }
     },
     "useful_contexts": [
-      "military_squad_001"
-    ],
-    "weak_contexts": [
       "military_urban_001"
-    ]
+    ],
+    "weak_contexts": []
   }
 }

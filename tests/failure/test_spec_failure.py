@@ -318,3 +318,35 @@ def test_a_plan_nothing_breaks_still_says_what_to_change():
         "Nothing tested breaks the plan at the levels explored."
     ]
     assert found["output"]["collapse_sequence"] == []
+
+
+def test_encirclement_never_puts_a_unit_on_impassable_ground():
+    base = military()
+    terrain = base["world_contract"]["environment_state"]["terrain"]
+    rows = [list(row) for row in terrain["rows"]]
+    # flood row 1 — the free cells right behind RED — with water
+    rows[1] = ["w"] * len(rows[1])
+    terrain["rows"] = ["".join(row) for row in rows]
+    after = stressed(base, "encirclement", "collapse", "RED")
+    for unit in after["entities"]:
+        if unit["faction"] == "BLUE":
+            x, y = unit["position"]
+            assert terrain["rows"][y][x] != "w", unit["entity_id"]
+
+
+def test_tempo_delay_keeps_an_order_already_given():
+    base = military()
+    base["runtime"]["scheduled_actions"] = [
+        {
+            "tick": 1,
+            "actor_id": "red_01",
+            "action_type": "move",
+            "target": {"location": [1, 1]},
+            "system_id": "TAC_ANGEL",
+        }
+    ]
+    after = stressed(base, "tempo_delay", "mild", "RED")
+    at_tick_1 = [o for o in after["runtime"]["scheduled_actions"] if o["tick"] == 1]
+    red_01 = [o for o in at_tick_1 if o["actor_id"] == "red_01"]
+    assert red_01 == base["runtime"]["scheduled_actions"]
+    assert len(at_tick_1) == 10  # the order, and nine units held
