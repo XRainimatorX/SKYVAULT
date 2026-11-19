@@ -1,0 +1,134 @@
+{
+  "conflict_id": "conflict:tactical_reference_001:v0.1:P1+P2+P3",
+  "scenario_id": "tactical_reference_001",
+  "conflicting_actions": [
+    {
+      "actor_id": "red_002",
+      "action_id": "P1",
+      "system_id": "TAC_ANGEL",
+      "intent": "advance the support team",
+      "conflict_with": [
+        "P2",
+        "P3"
+      ]
+    },
+    {
+      "actor_id": "red_002",
+      "action_id": "P2",
+      "system_id": "HADES",
+      "intent": "pull the support team back",
+      "conflict_with": [
+        "P1"
+      ]
+    },
+    {
+      "actor_id": "red_001",
+      "action_id": "P3",
+      "system_id": "TAC_ANGEL",
+      "intent": "advance the rifleman",
+      "conflict_with": [
+        "P1"
+      ]
+    }
+  ],
+  "conflict_type": [
+    "objective_conflict",
+    "location_conflict",
+    "priority_conflict",
+    "risk_conflict"
+  ],
+  "conflicts": [
+    {
+      "conflict_id": "C1",
+      "proposals": [
+        "P1",
+        "P2"
+      ],
+      "conflict_types": [
+        "objective_conflict",
+        "priority_conflict",
+        "risk_conflict"
+      ],
+      "reason": "P1 vs P2 at tick 1: both order red_002; both high priority; risk medium vs low"
+    },
+    {
+      "conflict_id": "C2",
+      "proposals": [
+        "P1",
+        "P3"
+      ],
+      "conflict_types": [
+        "location_conflict"
+      ],
+      "reason": "P1 vs P3 at tick 1: both send a unit to [1, 1]"
+    }
+  ],
+  "branch_runs": [
+    {
+      "branch_id": "P1",
+      "action_set": [
+        "P1"
+      ],
+      "result_summary": "10 runs: win 40% (95% CI 17%–69%), loss 0%, draw 60%; fail verdict 10%; mean hp lost 59.8, risk events 1.4, score 0.450",
+      "evaluation_delta": {
+        "win_rate": 0.2,
+        "failure_frequency": -0.3,
+        "mean_hp_lost": -10.6,
+        "mean_risk_events": -0.7,
+        "mean_score": 0.1051
+      },
+      "metrics": {
+        "win_rate": 0.4,
+        "failure_frequency": 0.1,
+        "mean_hp_lost": 59.8,
+        "mean_risk_events": 1.4,
+        "mean_score": 0.4495
+      }
+    },
+    {
+      "branch_id": "P2+P3",
+      "action_set": [
+        "P2",
+        "P3"
+      ],
+      "result_summary": "10 runs: win 0% (95% CI 0%–28%), loss 10%, draw 90%; fail verdict 20%; mean hp lost 60.9, risk events 1.7, score 0.402",
+      "evaluation_delta": {
+        "win_rate": -0.2,
+        "failure_frequency": -0.2,
+        "mean_hp_lost": -9.5,
+        "mean_risk_events": -0.4,
+        "mean_score": 0.0573
+      },
+      "metrics": {
+        "win_rate": 0.0,
+        "failure_frequency": 0.2,
+        "mean_hp_lost": 60.9,
+        "mean_risk_events": 1.7,
+        "mean_score": 0.4017
+      }
+    }
+  ],
+  "baseline": {
+    "branch_id": "none",
+    "action_set": [],
+    "result_summary": "10 runs: win 20% (95% CI 6%–51%), loss 40%, draw 40%; fail verdict 40%; mean hp lost 70.4, risk events 2.1, score 0.344",
+    "evaluation_delta": {
+      "win_rate": 0.0,
+      "failure_frequency": 0.0,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.0
+    },
+    "metrics": {
+      "win_rate": 0.2,
+      "failure_frequency": 0.4,
+      "mean_hp_lost": 70.4,
+      "mean_risk_events": 2.1,
+      "mean_score": 0.3444
+    }
+  },
+  "recommendation_to_nexus": {
+    "required_decision": true,
+    "decision_reason": "Conflicting orders: P1 vs P2 (objective, priority, risk); P1 vs P3 (location). Highest win_rate: branch P1 (0.4). Lowest failure_frequency: branch P1 (0.1). Lowest mean_hp_lost: branch P1 (59.8). Lowest mean_risk_events: branch P1 (1.4). Highest mean_score: branch P1 (0.4495). SKYVAULT does not choose between the branches; NEXUS or the user decides which orders to keep."
+  }
+}

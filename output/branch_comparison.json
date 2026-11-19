@@ -1,0 +1,70 @@
+{
+  "metrics": {
+    "win_rate": "higher is better",
+    "failure_frequency": "lower is better",
+    "mean_hp_lost": "lower is better",
+    "mean_risk_events": "lower is better",
+    "mean_score": "higher is better"
+  },
+  "variants": [
+    "sweep:entities[radar_south].state.online=True",
+    "sweep:entities[radar_south].state.online=False"
+  ],
+  "table": {
+    "sweep:entities[radar_south].state.online=True": {
+      "win_rate": 0.7,
+      "failure_frequency": 0.3,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.7966
+    },
+    "sweep:entities[radar_south].state.online=False": {
+      "win_rate": 0.4,
+      "failure_frequency": 0.6,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.6932
+    }
+  },
+  "best": {
+    "win_rate": "sweep:entities[radar_south].state.online=True",
+    "failure_frequency": "sweep:entities[radar_south].state.online=True",
+    "mean_hp_lost": "sweep:entities[radar_south].state.online=True",
+    "mean_risk_events": "sweep:entities[radar_south].state.online=True",
+    "mean_score": "sweep:entities[radar_south].state.online=True"
+  },
+  "deltas_vs_first": {
+    "sweep:entities[radar_south].state.online=True": {
+      "win_rate": 0.0,
+      "failure_frequency": 0.0,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": 0.0
+    },
+    "sweep:entities[radar_south].state.online=False": {
+      "win_rate": -0.3,
+      "failure_frequency": 0.3,
+      "mean_hp_lost": 0.0,
+      "mean_risk_events": 0.0,
+      "mean_score": -0.1034
+    }
+  },
+  "ranking": [
+    "sweep:entities[radar_south].state.online=True",
+    "sweep:entities[radar_south].state.online=False"
+  ],
+  "comparison": {
+    "sweep:entities[radar_south].state.online=True": {
+      "better_than": [
+        "sweep:entities[radar_south].state.online=False"
+      ],
+      "worse_than": []
+    },
+    "sweep:entities[radar_south].state.online=False": {
+      "better_than": [],
+      "worse_than": [
+        "sweep:entities[radar_south].state.online=True"
+      ]
+    }
+  }
+}

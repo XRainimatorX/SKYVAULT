@@ -1,0 +1,182 @@
+{
+  "$defs": {
+    "ServiceStatus": {
+      "additionalProperties": false,
+      "description": "What the service is doing and how well.",
+      "properties": {
+        "health": {
+          "enum": [
+            "normal",
+            "degraded",
+            "failed"
+          ],
+          "title": "Health",
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "standby",
+            "running",
+            "batch",
+            "persistent",
+            "failure_exploration"
+          ],
+          "title": "Mode",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "health"
+      ],
+      "title": "ServiceStatus",
+      "type": "object"
+    },
+    "TaskIntake": {
+      "additionalProperties": false,
+      "description": "The task the service last took in (all null before the first).",
+      "properties": {
+        "priority": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Priority"
+        },
+        "required_result_package": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Required Result Package"
+        },
+        "source_system": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Source System"
+        },
+        "task_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Task Type"
+        }
+      },
+      "required": [
+        "source_system",
+        "task_type",
+        "priority",
+        "required_result_package"
+      ],
+      "title": "TaskIntake",
+      "type": "object"
+    },
+    "WorldInstanceRef": {
+      "additionalProperties": false,
+      "description": "The world instance the service last created or moved (null before one).",
+      "properties": {
+        "lifecycle_state": {
+          "minLength": 1,
+          "title": "Lifecycle State",
+          "type": "string"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "world_id": {
+          "minLength": 1,
+          "title": "World Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "world_id",
+        "scenario_id",
+        "lifecycle_state"
+      ],
+      "title": "WorldInstanceRef",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/1.0/world_service_contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "world_service_contract = Formal Spec section 10.4, field by field.\n\nImportant:\nservice_status, task_intake, world_instance and service_actions are the\nsection's own. operation_modes lists the section 10.2 modes the service\noffers and routes says, for each service action, the request that\nperforms it.",
+  "properties": {
+    "operation_modes": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Operation Modes",
+      "type": "array"
+    },
+    "routes": {
+      "additionalProperties": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Routes",
+      "type": "object"
+    },
+    "service_actions": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 9,
+      "title": "Service Actions",
+      "type": "array"
+    },
+    "service_status": {
+      "$ref": "#/$defs/ServiceStatus"
+    },
+    "task_intake": {
+      "$ref": "#/$defs/TaskIntake"
+    },
+    "world_instance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WorldInstanceRef"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "service_status",
+    "task_intake",
+    "world_instance",
+    "service_actions",
+    "operation_modes",
+    "routes"
+  ],
+  "title": "WorldServiceContract",
+  "type": "object"
+}

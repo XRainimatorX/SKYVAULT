@@ -1,0 +1,261 @@
+{
+  "description": "SKYVAULT 2.0 acceptance against its two founding documents (Phase 22): the Long-Term Framework & Formal Spec and the SKYVAULT Definition. Each criterion names the section it comes from; the Phase 20 checks run first as regression.",
+  "formal_spec_0": [
+    {
+      "id": "world_engine",
+      "source": "Formal Spec §0",
+      "title": "以「世界如何運行」為中心：軍事、城市、空域三種世界經同一個引擎與 14 步執行協議運行"
+    },
+    {
+      "id": "common_environment",
+      "source": "Formal Spec §0",
+      "title": "共同環境底座：九個系統都有 adapter、observer 與 §9.2 回傳項目"
+    },
+    {
+      "id": "world_only",
+      "source": "Formal Spec §0",
+      "title": "只提供世界，不替其他系統做最終決策"
+    },
+    {
+      "id": "cross_domain",
+      "source": "Formal Spec §0",
+      "title": "可測戰術、戰略、治理、城市、危機、裝備、AI、制度、後勤"
+    },
+    {
+      "id": "star_guard_triple",
+      "source": "Formal Spec §0",
+      "title": "星衞 virtual test：physical possibility、engineering feasibility、tactical usefulness 三重評估"
+    },
+    {
+      "id": "external_engineering",
+      "source": "Formal Spec §0",
+      "title": "不取代 CAD / CAE / FEA：需要時標記外部工程仿真並經 adapter 交出"
+    },
+    {
+      "id": "background_service",
+      "source": "Formal Spec §0",
+      "title": "background-operated world service：standby、triggered scenario、persistent world、batch simulation、result package return"
+    },
+    {
+      "id": "dual_track",
+      "source": "Formal Spec §0",
+      "title": "外殼可商業化，核心要帝國化：商業與內部雙軌"
+    },
+    {
+      "id": "judgement_output",
+      "source": "Formal Spec §0",
+      "title": "核心輸出是 consequence / evaluation / failure exploration，不只是 log"
+    }
+  ],
+  "contracts": [
+    {
+      "id": "spec_2_3",
+      "source": "Formal Spec §2.3",
+      "title": "World Contract：§2.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_3_3",
+      "source": "Formal Spec §3.3",
+      "title": "Scenario Grammar：§3.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_5_3",
+      "source": "Formal Spec §5.3",
+      "title": "Observation：§5.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_6_2",
+      "source": "Formal Spec §6.2",
+      "title": "Action：§6.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_6_3",
+      "source": "Formal Spec §6.3",
+      "title": "Consequence：§6.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_7_2",
+      "source": "Formal Spec §7.2",
+      "title": "Event：§7.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_8_3",
+      "source": "Formal Spec §8.3",
+      "title": "Evaluation Result：§8.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_10_4",
+      "source": "Formal Spec §10.4",
+      "title": "World Service Contract：§10.4 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_11_2",
+      "source": "Formal Spec §11.2",
+      "title": "Assumption Registry：§11.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_11_3",
+      "source": "Formal Spec §11.3",
+      "title": "Data Provenance：§11.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_11_4",
+      "source": "Formal Spec §11.4",
+      "title": "Scenario Version Control：§11.4 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_12_2",
+      "source": "Formal Spec §12.2",
+      "title": "Reproducibility：§12.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_13_2",
+      "source": "Formal Spec §13.2",
+      "title": "Conflict Package：§13.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_14_3",
+      "source": "Formal Spec §14.3",
+      "title": "Failure Exploration：§14.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_15_3",
+      "source": "Formal Spec §15.3",
+      "title": "Resource & Compute Governance：§15.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_16_2",
+      "source": "Formal Spec §16.2",
+      "title": "Metric Anti-Gaming：§16.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_17_2",
+      "source": "Formal Spec §17.2",
+      "title": "Authority Handoff：§17.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_18_2",
+      "source": "Formal Spec §18.2",
+      "title": "Equipment Profile：§18.2 範例的每個欄位都在 SKYVAULT 的契約裡"
+    },
+    {
+      "id": "spec_18_3",
+      "source": "Formal Spec §18.3",
+      "title": "Equipment Test Result：§18.3 範例的每個欄位都在 SKYVAULT 的契約裡"
+    }
+  ],
+  "phases": [
+    {
+      "id": "phase_a",
+      "source": "Formal Spec §21 Phase A",
+      "title": "一份 scenario 文件描述世界、初始條件、actor、限制、評估目標、假設、資料來源"
+    },
+    {
+      "id": "phase_b",
+      "source": "Formal Spec §21 Phase B",
+      "title": "同一 scenario 可重複運行，產生 event log 與 evaluation result"
+    },
+    {
+      "id": "phase_c",
+      "source": "Formal Spec §21 Phase C",
+      "title": "同一 scenario + 版本 + seed 重現同一 run；不同版本結果可比較"
+    },
+    {
+      "id": "phase_d",
+      "source": "Formal Spec §21 Phase D",
+      "title": "STARTX 提交戰略分支、TAC ANGEL 提交局部行動、SKYVAULT 回傳後果與評估、NEXUS 取得完整報告"
+    },
+    {
+      "id": "phase_e",
+      "source": "Formal Spec §21 Phase E",
+      "title": "24/7 standby，接收任務後建立世界、運行、保存狀態、回傳 result package"
+    },
+    {
+      "id": "phase_f",
+      "source": "Formal Spec §21 Phase F",
+      "title": "給定方案，測出在哪裡、為什麼、多快失敗，哪個變量壓垮，哪個替代方案撐更久，現實前必須改什麼"
+    },
+    {
+      "id": "phase_g",
+      "source": "Formal Spec §21 Phase G",
+      "title": "同一套 World / Scenario / Execution / Evaluation 規格套用在城市、危機、空域、裝備、後勤、信息環境"
+    },
+    {
+      "id": "phase_h",
+      "source": "Formal Spec §21 Phase H",
+      "title": "裝備 profile 跑過指定 scenario：物理可能、工程值得、戰術有價值、在哪些條件下失敗"
+    },
+    {
+      "id": "phase_i",
+      "source": "Formal Spec §21 Phase I",
+      "title": "NEXUS 下令、判斷是否需要 SKYVAULT、執行、回傳、需要最終判斷時交回 NEXUS / 陛下"
+    },
+    {
+      "id": "phase_j",
+      "source": "Formal Spec §21 Phase J",
+      "title": "商業版不暴露核心能力、不破壞核心架構、商業場景資料可反哺核心"
+    }
+  ],
+  "definition": [
+    {
+      "id": "def_not",
+      "source": "Definition Ⅰ",
+      "title": "不是戰棋、不是 TAC ANGEL / STARTX / NEXUS、不只是軍事、敵人 bot 只是 actor slot、不是 CAD / CAE / FEA"
+    },
+    {
+      "id": "def_what",
+      "source": "Definition Ⅱ",
+      "title": "創造世界：空間、時間、實體、規則、行動、事件、因果、狀態變化、記錄、結果分析"
+    },
+    {
+      "id": "def_position",
+      "source": "Definition Ⅲ",
+      "title": "接口型核心環境：九個系統都不從屬於 SKYVAULT，各自經接口進入世界"
+    },
+    {
+      "id": "def_triangle",
+      "source": "Definition Ⅳ",
+      "title": "三角包：STARTX → SKYVAULT → TAC ANGEL → 運行 → STARTX 重評 → TAC ANGEL 調整 → NEXUS 報告"
+    },
+    {
+      "id": "def_nexus",
+      "source": "Definition Ⅴ",
+      "title": "NEXUS 判斷是否需要 SKYVAULT，需要時才調用"
+    },
+    {
+      "id": "def_uses_a",
+      "source": "Definition Ⅵ.A",
+      "title": "戰術與軍事用途：交火、TAC ANGEL 訓練場、doctrine 比較、軍官復盤、裝備戰術價值"
+    },
+    {
+      "id": "def_uses_b",
+      "source": "Definition Ⅵ.B",
+      "title": "戰略用途：城市接管、戰役節點比較、後勤壓力、強攻 / 封鎖 / 談判 / 先恢復供應"
+    },
+    {
+      "id": "def_uses_c",
+      "source": "Definition Ⅵ.C",
+      "title": "城市 / 治理 / 危機：停電、災害應變、治安恢復、民心與秩序、戰後重建"
+    },
+    {
+      "id": "def_uses_d",
+      "source": "Definition Ⅵ.D",
+      "title": "專業系統：EIDEN-01、AEROGRID、SKYFOX、HADES、CYBERHOUND、未知新系統"
+    },
+    {
+      "id": "def_star_guard",
+      "source": "Definition Ⅶ",
+      "title": "星衞 virtual test support：三重測試與「可以測什麼」逐項有對應"
+    },
+    {
+      "id": "def_commercial",
+      "source": "Definition Ⅷ",
+      "title": "商業前提：可包裝成 simulation / training / planning / crisis tool，保留 AI-operated world engine 架構"
+    },
+    {
+      "id": "def_final",
+      "source": "Definition Ⅸ",
+      "title": "讓方案在進入現實前接受審判：決策先在世界裡失敗並找出必須修改之處"
+    }
+  ]
+}

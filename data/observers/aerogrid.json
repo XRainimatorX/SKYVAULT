@@ -1,0 +1,11 @@
+{
+  "observer_id": "AEROGRID",
+  "description": "Sensor coverage for one side: how much of the space its sensors cover and where the gaps are (Formal Spec section 5; the airspace itself is Phase 15).",
+  "view": "coverage",
+  "delay_ticks": 0,
+  "stale_after_ticks": 0,
+  "default_sensor_range": 5,
+  "local_radius": 0,
+  "enemy_detail": "hidden",
+  "source_quality": "medium"
+}

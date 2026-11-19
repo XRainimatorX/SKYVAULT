@@ -1,0 +1,40 @@
+{
+  "conclusion": "Screened before any prototype: EXO_TEST_001 continue, PAX_TEST_001 redesign, MSX_TEST_001 reject.",
+  "kpis": {
+    "EXO_TEST_001": {
+      "engineering": 0.7732,
+      "judgement": "continue",
+      "physical": 0.9549,
+      "redesign_triggers": 0
+    },
+    "MSX_TEST_001": {
+      "engineering": 0.2137,
+      "judgement": "reject",
+      "physical": 0.0,
+      "redesign_triggers": 5
+    },
+    "PAX_TEST_001": {
+      "engineering": 0.4961,
+      "judgement": "redesign",
+      "physical": 0.0,
+      "redesign_triggers": 3
+    }
+  },
+  "outputs": {
+    "EXO_TEST_001": {
+      "reason": "possible (physics 0.95), worth building (engineering 0.77) and useful in not tested",
+      "status": "continue"
+    },
+    "MSX_TEST_001": {
+      "reason": "physically impossible (joint_load: its joints carry more than their rating while it moves (margin -0.06); energy: its energy store cannot power the declared endurance (margin -0.25)) and not worth engineering (score 0.21: exotic materials, more maintenance than operation (15.0 h per hour run), repairs need a factory, supply chain risk 80%)",
+      "status": "reject"
+    },
+    "PAX_TEST_001": {
+      "reason": "physically impossible as specified (energy: its energy store cannot power the declared endurance (margin -0.17)); within reach: energy_capacity 15.0 → 18.0001",
+      "status": "redesign"
+    }
+  },
+  "product": "equipment_screening",
+  "question": "Is this design possible, worth building, and where does it break?",
+  "title": "Equipment Concept Screening Tool"
+}

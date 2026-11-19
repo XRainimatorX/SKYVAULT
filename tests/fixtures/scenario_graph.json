@@ -1,0 +1,92 @@
+{
+  "identity": {
+    "scenario_id": "fixture_graph_001",
+    "scenario_type": "",
+    "domain": "",
+    "purpose": "",
+    "scenario_version": "v0.1",
+    "schema_version": "1.0"
+  },
+  "world_binding": {
+    "world_contract_id": "fixture_graph_world",
+    "environment_profile": "baseline",
+    "rule_profile": "baseline"
+  },
+  "initial_conditions": {
+    "entities": [
+      {
+        "entity_id": "convoy_1",
+        "name": "Convoy One",
+        "entity_type": "logistics_unit",
+        "faction": "BLUE",
+        "position": "A",
+        "state": {
+          "status": "active"
+        },
+        "capabilities": {},
+        "tags": []
+      },
+      {
+        "entity_id": "depot_1",
+        "name": "Depot",
+        "entity_type": "logistics_unit",
+        "faction": "BLUE",
+        "position": "C",
+        "state": {
+          "status": "active"
+        },
+        "capabilities": {},
+        "tags": []
+      }
+    ],
+    "resources": {},
+    "risks": {},
+    "constraints": {},
+    "uncertainty": {}
+  },
+  "assumption_registry": {},
+  "data_provenance": {},
+  "participants": {
+    "human_decision_slots": [],
+    "ai_agent_slots": [
+      {
+        "slot_id": "default",
+        "policy": {
+          "name": "tactical_reference"
+        }
+      }
+    ],
+    "system_slots": [],
+    "equipment_profiles": []
+  },
+  "allowed_actions": {
+    "action_types": [],
+    "actor_permissions": {}
+  },
+  "execution_settings": {
+    "time_mode": "event_driven",
+    "duration_limit": 10,
+    "repeat_count": 1,
+    "random_seed_policy": "fixed",
+    "deterministic_mode": true,
+    "random_seed": 7
+  },
+  "failure_exploration": {
+    "enabled": false
+  },
+  "evaluation": {
+    "primary_metrics": [
+      "event_count"
+    ],
+    "failure_thresholds": [],
+    "secondary_metrics": [],
+    "anti_gaming_metrics": [],
+    "comparison_targets": []
+  },
+  "output": {
+    "required_logs": [],
+    "required_reports": [],
+    "replay_required": true,
+    "failure_map_required": false
+  }
+}

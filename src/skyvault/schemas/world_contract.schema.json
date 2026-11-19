@@ -1,0 +1,426 @@
+{
+  "$defs": {
+    "SpaceModelSpec": {
+      "additionalProperties": false,
+      "description": "How space exists in this world.\n\nImportant:\ngrid               needs width and height; positions are [x, y] cells.\ngraph              needs nodes and edges [a, b]; distance counts hops.\nnetwork            needs nodes and edges [a, b, weight]; distance sums weights.\ndistrict_network   a network of city districts, road nodes, facilities and\n                   supply points (section 2.3): nodes and weighted edges,\n                   and units naming the kinds of node it holds.\n\nGraph and network positions are node ids. No other space type is accepted,\nso a misspelt type fails instead of building nothing.",
+      "properties": {
+        "distance_model": {
+          "anyOf": [
+            {
+              "enum": [
+                "chebyshev",
+                "manhattan",
+                "euclidean_floor"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Distance Model"
+        },
+        "edges": {
+          "anyOf": [
+            {
+              "items": {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Edges"
+        },
+        "height": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Height"
+        },
+        "node_units": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node Units"
+        },
+        "nodes": {
+          "anyOf": [
+            {
+              "items": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nodes"
+        },
+        "type": {
+          "enum": [
+            "grid",
+            "graph",
+            "network",
+            "district_network"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "units": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Units"
+        },
+        "width": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Width"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "SpaceModelSpec",
+      "type": "object"
+    },
+    "TimeModelSpec": {
+      "additionalProperties": false,
+      "description": "How time advances in this world (section 2.2: tick, phase, event-driven,\nlong-duration).\n\nImportant:\ntick                 one step per tick.\nphase                each step moves time forward by phase_length.\nevent_driven         time jumps to the next scheduled event.\nphase_event_hybrid   fixed phases, and inside a phase time jumps to each\n                     scheduled event (section 2.3's city crisis).\nlong_duration        phases measured in days over a long horizon.\n\nphase_length and max_duration may be written as section 2.3 does\n(\"6_hours\", \"14_days\") or as integers with time_unit.",
+      "properties": {
+        "max_duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Duration"
+        },
+        "max_ticks": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Ticks"
+        },
+        "phase_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phase Length"
+        },
+        "time_unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Unit"
+        },
+        "type": {
+          "enum": [
+            "tick",
+            "phase",
+            "event_driven",
+            "phase_event_hybrid",
+            "long_duration"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "TimeModelSpec",
+      "type": "object"
+    },
+    "WorldProfiles": {
+      "additionalProperties": false,
+      "description": "Named variations of the world a scenario can bind to (section 3.3\nworld_binding.environment_profile and rule_profile).\n\nImportant:\nEach profile is a partial environment_state or rule_set laid over the\nworld's own (nested keys replace, others stay). \"baseline\" is the world\nas written and is never declared here.",
+      "properties": {
+        "environment": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "rules": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "propertyNames": {
+            "minLength": 1
+          },
+          "title": "Rules",
+          "type": "object"
+        }
+      },
+      "title": "WorldProfiles",
+      "type": "object"
+    },
+    "WorldProvenance": {
+      "additionalProperties": false,
+      "description": "Where the world's data came from (section 2.3 data_provenance).",
+      "properties": {
+        "source_quality": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Source Quality",
+          "type": "string"
+        },
+        "source_type": {
+          "minLength": 1,
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_type",
+        "source_quality"
+      ],
+      "title": "WorldProvenance",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/1.0/world_contract.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "World Contract = Formal Spec section 2.\n\nImportant:\nEvery one of the thirteen elements of section 2.2 is required: world_scope,\nspace_model, time_model, entity_model, environment_state, resource_state,\nrule_set, actor_slots, event_memory, evaluation_targets,\nassumption_registry, data_provenance and failure_variables. Each may be\nempty where the world has nothing to say, but it has to say so.\nworld_id and purpose come from section 2.3. resource_state maps a\nresource id to a non-negative amount. failure_variables are the ways this\nworld can be deliberately made worse; a scenario's failure exploration\nmay only choose among them.",
+  "properties": {
+    "actor_slots": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "title": "Actor Slots",
+      "type": "array"
+    },
+    "assumption_registry": {
+      "additionalProperties": true,
+      "title": "Assumption Registry",
+      "type": "object"
+    },
+    "data_provenance": {
+      "$ref": "#/$defs/WorldProvenance"
+    },
+    "entity_model": {
+      "additionalProperties": true,
+      "title": "Entity Model",
+      "type": "object"
+    },
+    "environment_state": {
+      "additionalProperties": true,
+      "title": "Environment State",
+      "type": "object"
+    },
+    "evaluation_targets": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evaluation Targets",
+      "type": "array"
+    },
+    "event_memory": {
+      "additionalProperties": true,
+      "title": "Event Memory",
+      "type": "object"
+    },
+    "failure_variables": {
+      "items": {
+        "enum": [
+          "supply_delay",
+          "sensor_failure",
+          "communication_failure",
+          "weather_degradation",
+          "enemy_reaction_speed",
+          "equipment_overheat",
+          "civilian_pressure",
+          "resource_shortage",
+          "public_order_collapse",
+          "encirclement",
+          "intelligence_error",
+          "formation_collapse",
+          "tempo_delay",
+          "administration_collapse",
+          "public_sentiment_decline",
+          "endurance_shortfall",
+          "energy_depletion",
+          "misidentification",
+          "reaction_delay",
+          "target_saturation",
+          "collision",
+          "path_blocked"
+        ],
+        "type": "string"
+      },
+      "title": "Failure Variables",
+      "type": "array"
+    },
+    "profiles": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WorldProfiles"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "purpose": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Purpose",
+      "type": "array"
+    },
+    "resource_state": {
+      "additionalProperties": {
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "propertyNames": {
+        "minLength": 1
+      },
+      "title": "Resource State",
+      "type": "object"
+    },
+    "rule_set": {
+      "additionalProperties": true,
+      "title": "Rule Set",
+      "type": "object"
+    },
+    "space_model": {
+      "$ref": "#/$defs/SpaceModelSpec"
+    },
+    "time_model": {
+      "$ref": "#/$defs/TimeModelSpec"
+    },
+    "world_id": {
+      "minLength": 1,
+      "title": "World Id",
+      "type": "string"
+    },
+    "world_scope": {
+      "minLength": 1,
+      "title": "World Scope",
+      "type": "string"
+    }
+  },
+  "required": [
+    "world_id",
+    "world_scope",
+    "purpose",
+    "space_model",
+    "time_model",
+    "entity_model",
+    "environment_state",
+    "resource_state",
+    "rule_set",
+    "actor_slots",
+    "event_memory",
+    "evaluation_targets",
+    "assumption_registry",
+    "data_provenance",
+    "failure_variables"
+  ],
+  "title": "WorldContract",
+  "type": "object"
+}

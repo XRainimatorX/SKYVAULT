@@ -1,0 +1,27 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "stress": "enemy_reaction_speed:severe",
+  "scenario_version": "v0.1+enemy_reaction_speed:severe",
+  "seed": 42,
+  "outcome": "BLUE_survived",
+  "status": "fail",
+  "score": 0.1998,
+  "sequence": [
+    {
+      "tick": 5,
+      "entity": "red_003",
+      "by": "blue_002"
+    },
+    {
+      "tick": 7,
+      "entity": "red_002",
+      "by": "blue_001"
+    },
+    {
+      "tick": 9,
+      "entity": "red_001",
+      "by": "blue_001"
+    }
+  ],
+  "output_hash": "76883f3e93fd581073d1b26bbb68f0f2908e64d49075eecc4507806895453759"
+}

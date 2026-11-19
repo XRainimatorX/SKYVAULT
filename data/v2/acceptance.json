@@ -1,0 +1,173 @@
+{
+  "description": "The development plan's Phase 20: what Full SKYVAULT v2.0 must have, its fifteen final acceptance criteria and the Final Authority Boundary. Measured on the Phase 19 system before any v2 code existed: criteria 1-14 each have a phase that built them, but nothing runs them together; and criterion 15 fails — a governance policy, an edition and a handoff all accept SKYVAULT as a decision authority, after which SKYVAULT decides its own handoff.",
+  "must_have": [
+    {
+      "id": "world_contract",
+      "title": "World Contract 完整可用"
+    },
+    {
+      "id": "scenario_grammar",
+      "title": "Scenario Grammar 完整可用"
+    },
+    {
+      "id": "execution_protocol",
+      "title": "Execution Protocol 穩定"
+    },
+    {
+      "id": "observation_contract",
+      "title": "Observation Contract 可用"
+    },
+    {
+      "id": "action_consequence",
+      "title": "Action & Consequence Engine 可用"
+    },
+    {
+      "id": "event_memory_replay",
+      "title": "Event Memory + Replay 可用"
+    },
+    {
+      "id": "evaluation_engine",
+      "title": "Evaluation Engine 可用"
+    },
+    {
+      "id": "failure_exploration",
+      "title": "Failure Exploration 可用"
+    },
+    {
+      "id": "reproducibility",
+      "title": "Reproducibility 可用"
+    },
+    {
+      "id": "background_service",
+      "title": "Background Service 可用"
+    },
+    {
+      "id": "external_adapter",
+      "title": "External Adapter 可用"
+    },
+    {
+      "id": "multi_domain",
+      "title": "Multi-Domain Packs 至少 3 個可用"
+    },
+    {
+      "id": "ui_report",
+      "title": "UI / Report 可用"
+    },
+    {
+      "id": "authority_handoff",
+      "title": "Authority Handoff Logic 完整可用"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "nexus_task",
+      "title": "NEXUS 可提交任務"
+    },
+    {
+      "id": "create_world",
+      "title": "SKYVAULT 可建立 world"
+    },
+    {
+      "id": "startx_branch",
+      "title": "STARTX 可提交 branch"
+    },
+    {
+      "id": "tac_angel_action",
+      "title": "TAC ANGEL 可提交 tactical action"
+    },
+    {
+      "id": "airspace_systems",
+      "title": "HADES / AEROGRID / SKYFOX 可進入空域 scenario"
+    },
+    {
+      "id": "star_guard_profile",
+      "title": "星衞裝備 profile 可進入 virtual test"
+    },
+    {
+      "id": "normal_simulation",
+      "title": "SKYVAULT 可跑 normal simulation"
+    },
+    {
+      "id": "failure_exploration_run",
+      "title": "SKYVAULT 可跑 failure exploration"
+    },
+    {
+      "id": "result_package",
+      "title": "SKYVAULT 可輸出 result package"
+    },
+    {
+      "id": "replay",
+      "title": "SKYVAULT 可 replay"
+    },
+    {
+      "id": "human_report",
+      "title": "SKYVAULT 可產生人類可讀報告"
+    },
+    {
+      "id": "high_risk_handoff",
+      "title": "高風險 scenario 會生成 authority_handoff package"
+    },
+    {
+      "id": "conflict_required_decision",
+      "title": "conflict branch 會生成 required_decision"
+    },
+    {
+      "id": "failure_to_authority",
+      "title": "failure exploration 結果會交回 NEXUS / 陛下"
+    },
+    {
+      "id": "role_boundary",
+      "title": "SKYVAULT 的 role 永遠保持為 world-environment engine，而不是最高決策者"
+    }
+  ],
+  "boundary": {
+    "may": [
+      {
+        "id": "simulate",
+        "title": "SKYVAULT 可以模擬"
+      },
+      {
+        "id": "recommend",
+        "title": "SKYVAULT 可以建議"
+      },
+      {
+        "id": "warn",
+        "title": "SKYVAULT 可以警告"
+      },
+      {
+        "id": "failure_map",
+        "title": "SKYVAULT 可以返回 failure map"
+      },
+      {
+        "id": "conflict_package",
+        "title": "SKYVAULT 可以返回 conflict package"
+      },
+      {
+        "id": "reject_invalid",
+        "title": "SKYVAULT 可以拒絕 invalid scenario"
+      }
+    ],
+    "may_not": [
+      {
+        "id": "sovereign_decision",
+        "title": "make sovereign decision"
+      },
+      {
+        "id": "override_nexus",
+        "title": "override NEXUS"
+      },
+      {
+        "id": "override_startx",
+        "title": "override STARTX strategic intent"
+      },
+      {
+        "id": "replace_human",
+        "title": "replace human authority"
+      },
+      {
+        "id": "final_strategy",
+        "title": "自行決定最終戰略方案"
+      }
+    ]
+  }
+}

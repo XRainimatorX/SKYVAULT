@@ -1,0 +1,175 @@
+"""CITY = the city domain pack as the engine sees it (development plan Phase 14)."""
+
+import random
+from typing import Any
+
+from ...action import Action, ActionTarget
+from ...actions import ActionHandler
+from ...world_state import WorldState
+from .failures import city_failure_variables
+from .handlers import (
+    ACTION_TYPES,
+    MOBILE,
+    city_handlers,
+    districts,
+    rules_of,
+    step_of,
+)
+from .information import information_rules
+from .policy import CityAdministrationPolicy
+from .score import governance_stability, population_order, recovery_outcome
+
+ACTORS = MOBILE + ("city_office",)
+
+
+class CityPack:
+    """
+    A city on a road network, run to its time limit.
+
+    Important:
+    The city has one faction, so it does not end when one faction is left
+    (ends_with_last_faction False); it ends early only when every district
+    is in riot (finished → "governance_collapsed").
+    """
+
+    name = "city"
+    action_types = ACTION_TYPES
+    spaces = ("network", "graph", "district_network")
+    # one step is one tick or one phase; the city's rules are per step
+    clocks = ("tick", "phase", "phase_event_hybrid")
+    ends_with_last_faction = False
+    end_reasons = ("governance_collapsed",)
+
+    def handlers(self) -> dict[str, ActionHandler]:
+        return city_handlers()
+
+    def default_policy(
+        self, scenario: dict[str, Any], rng: random.Random
+    ) -> CityAdministrationPolicy:
+        return CityAdministrationPolicy()
+
+    def acts(self, entity: Any, world: Any = None) -> bool:
+        """Only actors decide, and only when not on the road."""
+        return entity.entity_type in ACTORS and entity.position is not None
+
+    def upkeep(self, world: WorldState) -> list[Action]:
+        """The grid, arrivals, the information environment, every district's tick."""
+
+        def action(
+            actor_id: str, action_type: str, target: str | None = None
+        ) -> Action:
+            return Action(
+                action_id=world.ids.action(),
+                actor_id=actor_id,
+                action_type=action_type,
+                target=ActionTarget(entity_id=target),
+                intent=f"city_{action_type}",
+                expected_effect=f"city:{action_type}",
+            )
+
+        grid = next(
+            (e for e in world.entities.values() if e.entity_type == "power_plant"),
+            None,
+        )
+        actions = []
+        if grid is not None:
+            actions.append(action(grid.entity_id, "power_update"))
+        every = districts(world)
+        if every and rules_of(world).get("disasters"):
+            actions.append(action(every[0].entity_id, "disaster_update"))
+        actions += [
+            action(e.entity_id, "arrive", e.entity_id)
+            for e in world.entities.values()
+            if e.entity_type in MOBILE and e.state.get("arrives_at") == step_of(world)
+        ]
+        if every and information_rules(rules_of(world)) is not None:
+            actions.append(action(every[0].entity_id, "information_update"))
+        actions += [action(d.entity_id, "district_update", d.entity_id) for d in every]
+        return actions
+
+    def finished(self, world: WorldState) -> str | None:
+        """ "governance_collapsed" once every district is in riot; else None."""
+        every = districts(world)
+        if every and all(d.state["order_state"] == "riot" for d in every):
+            return "governance_collapsed"
+        return None
+
+    def outcome_label(self, world: WorldState) -> str | None:
+        """
+        How the city ended, by population-weighted public order:
+
+        governance_collapsed   every district in riot
+        order_restored         ends at or above the stable threshold, having
+                               started below it
+        order_held             started and ends at or above it
+        order_not_restored     ends below it
+        """
+        if self.finished(world):
+            return "governance_collapsed"
+        stable = float(rules_of(world)["order"]["stable"])
+        end = population_order({d.entity_id: d.state for d in districts(world)})
+        if end < stable:
+            return "order_not_restored"
+        start = population_order(_start_states(world))
+        return "order_held" if start >= stable else "order_restored"
+
+    def governance_outcome(
+        self, package: dict[str, Any], scenario: dict[str, Any]
+    ) -> dict[str, Any]:
+        """The governance stability score of a finished run (score.py)."""
+        return governance_stability(package, scenario)
+
+    def recovery_outcome(
+        self, package: dict[str, Any], scenario: dict[str, Any]
+    ) -> dict[str, Any]:
+        """How fast the city recovers, measure by measure (score.py)."""
+        return recovery_outcome(package, scenario)
+
+    def evaluation_axes(
+        self,
+        package: dict[str, Any],
+        scenario: dict[str, Any],
+    ) -> dict[str, tuple[float, str]]:
+        """
+        Formal Spec 8.2 axes a city measures in its own terms: governance
+        stability is the governance stability score; crisis resilience is the
+        lowest score the city fell to, against where it started.
+        """
+        found = governance_stability(package, scenario)
+        start = float(found["start"])
+        lowest = min(found["series"], key=lambda row: (row["score"], row["tick"]))
+        resilience = min(1.0, lowest["score"] / start) if start > 0 else 0.0
+        return {
+            "governance_stability": (
+                float(found["score"]),
+                f"governance stability score {found['score']:.2f} over ticks "
+                f"{found['window'][0]}-{found['window'][1]} (started at {start:.2f})",
+            ),
+            "crisis_resilience": (
+                round(resilience, 4),
+                f"lowest governance score {lowest['score']:.2f} at tick "
+                f"{lowest['tick']} against {start:.2f} at the start",
+            ),
+        }
+
+    def failure_variables(self) -> dict[str, Any]:
+        """supply_delay, civilian_pressure and resource_shortage in city terms."""
+        return city_failure_variables()
+
+    def mission_goal(self, scenario: dict[str, Any], faction: str) -> dict[str, Any]:
+        """What the city administration is asked to do."""
+        return {"type": "restore_order", "purpose": scenario.get("purpose", "")}
+
+
+def _start_states(world: WorldState) -> dict[str, dict[str, Any]]:
+    """Each district as it was before its first update (its current state if none)."""
+    start: dict[str, dict[str, Any]] = {}
+    for event in world.event_memory:
+        if "district_update" in event.tags and event.target_entity_id not in start:
+            start[str(event.target_entity_id)] = event.before_state["state"]
+    for district in districts(world):
+        start.setdefault(district.entity_id, district.state)
+    return start
+
+
+CITY = CityPack()

@@ -1,0 +1,46 @@
+{
+  "description": "Jobs submitted to the world service in the Phase 11 tests. Run once on the Phase 6 system: the runaway job ran all 5000 ticks (30000 decisions, 0 state-changing events, 19.5 s) and nothing stopped it; the oversized batch passed its contract.",
+  "jobs": {
+    "reference_run": {
+      "kind": "scenario_run",
+      "source_system": "NEXUS",
+      "scenario": "tactical_reference_001/v0.1"
+    },
+    "runaway_run": {
+      "kind": "scenario_run",
+      "source_system": "TAC_ANGEL",
+      "scenario": "tactical_reference_001/v0.1",
+      "runtime": {
+        "max_ticks": 5000,
+        "participants": [
+          {"participant_id": "red_hold", "policy": {"name": "rule_based", "params": {"rules": ["hold"]}}, "controls": {"factions": ["RED"]}},
+          {"participant_id": "blue_hold", "policy": {"name": "rule_based", "params": {"rules": ["hold"]}}, "controls": {"factions": ["BLUE"]}}
+        ]
+      }
+    },
+    "reference_batch": {
+      "kind": "batch",
+      "source_system": "STARTX",
+      "batch": "tactical_reference_001",
+      "repeat_count": 5
+    },
+    "oversized_batch": {
+      "kind": "batch",
+      "source_system": "STARTX",
+      "batch": "tactical_reference_001",
+      "repeat_count": 1000000
+    },
+    "failure_exploration": {
+      "kind": "failure_exploration",
+      "source_system": "NEXUS",
+      "scenario": "tactical_reference_001/v0.1",
+      "repeat_count": 1
+    },
+    "persistent_world": {
+      "kind": "persistent_world",
+      "source_system": "NEXUS",
+      "scenario": "military_squad_001/v0.1",
+      "advance": [5, 5, 5]
+    }
+  }
+}

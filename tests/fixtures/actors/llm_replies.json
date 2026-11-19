@@ -1,0 +1,10 @@
+{
+  "description": "Canned replies for the LLM-assisted actor: what a language model might answer. Only the first is usable as is; the others must fall back to the rule-based decision.",
+  "replies": {
+    "valid_attack": "I will engage the closest visible enemy.\n{\"action_type\": \"attack\", \"target\": {\"entity_id\": \"blue_003\"}, \"intent\": \"llm_engage\"}",
+    "malformed": "Attack the enemy at once!",
+    "illegal_action": "{\"action_type\": \"nuke\", \"target\": {\"entity_id\": \"blue_003\"}}",
+    "unknown_target": "{\"action_type\": \"attack\", \"target\": {\"entity_id\": \"blue_999\"}}",
+    "hold": "{\"action_type\": null}"
+  }
+}

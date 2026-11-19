@@ -1,18 +1,22 @@
 [
   {
-    "event_id": "event_2b58c37d2c",
+    "event_id": "event_0000000001",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000001"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_aff06247aa",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -64,7 +68,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4af2986de6"
+        "event_0000000002"
       ]
     },
     "evaluation_relevance": {
@@ -85,28 +89,32 @@
     ]
   },
   {
-    "event_id": "event_4af2986de6",
+    "event_id": "event_0000000002",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000001"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_aff06247aa",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [
-      [
-        0,
-        0
+    "affected": {
+      "entities": [
+        "red_001"
       ],
-      [
-        0,
-        1
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          1
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -158,7 +166,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_2b58c37d2c"
+        "event_0000000001"
       ],
       "caused_events": []
     },
@@ -183,19 +191,23 @@
     ]
   },
   {
-    "event_id": "event_a31e052b1b",
+    "event_id": "event_0000000003",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000002"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_f1e6b14bed",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -247,7 +259,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_5677381465"
+        "event_0000000004"
       ]
     },
     "evaluation_relevance": {
@@ -268,28 +280,32 @@
     ]
   },
   {
-    "event_id": "event_5677381465",
+    "event_id": "event_0000000004",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000002"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_f1e6b14bed",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        1,
-        0
+    "affected": {
+      "entities": [
+        "red_002"
       ],
-      [
-        1,
-        1
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          1,
+          0
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -341,7 +357,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a31e052b1b"
+        "event_0000000003"
       ],
       "caused_events": []
     },
@@ -366,19 +382,23 @@
     ]
   },
   {
-    "event_id": "event_ea64403834",
+    "event_id": "event_0000000005",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000003"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_47d03fd8a5",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -430,7 +450,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_b6327cbe13"
+        "event_0000000006"
       ]
     },
     "evaluation_relevance": {
@@ -451,28 +471,32 @@
     ]
   },
   {
-    "event_id": "event_b6327cbe13",
+    "event_id": "event_0000000006",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000003"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_47d03fd8a5",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        2,
-        0
+    "affected": {
+      "entities": [
+        "red_003"
       ],
-      [
-        2,
-        1
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          2,
+          0
+        ],
+        [
+          2,
+          1
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -524,7 +548,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_ea64403834"
+        "event_0000000005"
       ],
       "caused_events": []
     },
@@ -549,19 +573,23 @@
     ]
   },
   {
-    "event_id": "event_c7242a863a",
+    "event_id": "event_0000000007",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000004"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_71923cda62",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -613,7 +641,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_dc8662da0a"
+        "event_0000000008"
       ]
     },
     "evaluation_relevance": {
@@ -634,37 +662,41 @@
     ]
   },
   {
-    "event_id": "event_dc8662da0a",
+    "event_id": "event_0000000008",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000004"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_71923cda62",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          9,
+          9
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
+    "before_state": {
+      "entity_id": "blue_001",
+      "name": "Blue Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [
         9,
         9
       ],
-      [
-        8,
-        8
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
-    "before_state": {
-      "entity_id": "blue_001",
-      "name": "Blue Rifleman",
-      "entity_type": "tactical_actor",
-      "faction": "BLUE",
-      "position": [
-        9,
-        9
-      ],
       "state": {
         "hp": 35,
         "ap": 50,
@@ -707,7 +739,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_c7242a863a"
+        "event_0000000007"
       ],
       "caused_events": []
     },
@@ -732,19 +764,23 @@
     ]
   },
   {
-    "event_id": "event_1d4f516de2",
+    "event_id": "event_0000000009",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000005"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_581033459b",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -796,7 +832,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d78b642859"
+        "event_0000000010"
       ]
     },
     "evaluation_relevance": {
@@ -817,28 +853,32 @@
     ]
   },
   {
-    "event_id": "event_d78b642859",
+    "event_id": "event_0000000010",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000005"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_581033459b",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        8,
-        9
+    "affected": {
+      "entities": [
+        "blue_002"
       ],
-      [
-        7,
-        8
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          8,
+          9
+        ],
+        [
+          7,
+          8
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -890,7 +930,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1d4f516de2"
+        "event_0000000009"
       ],
       "caused_events": []
     },
@@ -915,19 +955,23 @@
     ]
   },
   {
-    "event_id": "event_08a0e67aca",
+    "event_id": "event_0000000011",
     "time": 1,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000006"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_5c491ebdd2",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -979,7 +1023,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_dae8f291e2"
+        "event_0000000012"
       ]
     },
     "evaluation_relevance": {
@@ -1000,28 +1044,32 @@
     ]
   },
   {
-    "event_id": "event_dae8f291e2",
+    "event_id": "event_0000000012",
     "time": 1,
     "event_type": "MOVE",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000006"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_5c491ebdd2",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        7,
-        9
+    "affected": {
+      "entities": [
+        "blue_003"
       ],
-      [
-        6,
-        8
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          7,
+          9
+        ],
+        [
+          6,
+          8
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -1073,7 +1121,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_08a0e67aca"
+        "event_0000000011"
       ],
       "caused_events": []
     },
@@ -1098,19 +1146,23 @@
     ]
   },
   {
-    "event_id": "event_0e7e77b15b",
+    "event_id": "event_0000000013",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000007"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_bd0b84f23d",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -1164,7 +1216,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_53a4c81e97"
+        "event_0000000014"
       ]
     },
     "evaluation_relevance": {
@@ -1185,28 +1237,32 @@
     ]
   },
   {
-    "event_id": "event_53a4c81e97",
+    "event_id": "event_0000000014",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000007"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_bd0b84f23d",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [
-      [
-        0,
-        1
+    "affected": {
+      "entities": [
+        "red_001"
       ],
-      [
-        0,
-        2
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -1259,7 +1315,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_0e7e77b15b"
+        "event_0000000013"
       ],
       "caused_events": []
     },
@@ -1284,19 +1340,23 @@
     ]
   },
   {
-    "event_id": "event_6744bb2d99",
+    "event_id": "event_0000000015",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000008"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_9002e7bfc3",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -1350,7 +1410,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_b18b0084fe"
+        "event_0000000016"
       ]
     },
     "evaluation_relevance": {
@@ -1371,28 +1431,32 @@
     ]
   },
   {
-    "event_id": "event_b18b0084fe",
+    "event_id": "event_0000000016",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000008"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_9002e7bfc3",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        1,
-        1
+    "affected": {
+      "entities": [
+        "red_002"
       ],
-      [
-        1,
-        2
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -1445,7 +1509,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_6744bb2d99"
+        "event_0000000015"
       ],
       "caused_events": []
     },
@@ -1470,19 +1534,23 @@
     ]
   },
   {
-    "event_id": "event_3095e8984c",
+    "event_id": "event_0000000017",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000009"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_e721c3f8ca",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -1536,7 +1604,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_3d24511309"
+        "event_0000000018"
       ]
     },
     "evaluation_relevance": {
@@ -1557,28 +1625,32 @@
     ]
   },
   {
-    "event_id": "event_3d24511309",
+    "event_id": "event_0000000018",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000009"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_e721c3f8ca",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        2,
-        1
+    "affected": {
+      "entities": [
+        "red_003"
       ],
-      [
-        2,
-        2
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          2,
+          1
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -1631,7 +1703,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_3095e8984c"
+        "event_0000000017"
       ],
       "caused_events": []
     },
@@ -1656,19 +1728,23 @@
     ]
   },
   {
-    "event_id": "event_fd6d3b6e1c",
+    "event_id": "event_0000000019",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000010"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_c69e7c6530",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -1722,7 +1798,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_258ef70104"
+        "event_0000000020"
       ]
     },
     "evaluation_relevance": {
@@ -1743,37 +1819,41 @@
     ]
   },
   {
-    "event_id": "event_258ef70104",
+    "event_id": "event_0000000020",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000010"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_c69e7c6530",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          8,
+          8
+        ],
+        [
+          7,
+          7
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
+    "before_state": {
+      "entity_id": "blue_001",
+      "name": "Blue Rifleman",
+      "entity_type": "tactical_actor",
+      "faction": "BLUE",
+      "position": [
         8,
         8
       ],
-      [
-        7,
-        7
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
-    "before_state": {
-      "entity_id": "blue_001",
-      "name": "Blue Rifleman",
-      "entity_type": "tactical_actor",
-      "faction": "BLUE",
-      "position": [
-        8,
-        8
-      ],
       "state": {
         "hp": 35,
         "ap": 50,
@@ -1817,7 +1897,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fd6d3b6e1c"
+        "event_0000000019"
       ],
       "caused_events": []
     },
@@ -1842,19 +1922,23 @@
     ]
   },
   {
-    "event_id": "event_850de7ce6e",
+    "event_id": "event_0000000021",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000011"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_7685f1dbe2",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -1908,7 +1992,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_1713e6dc06"
+        "event_0000000022"
       ]
     },
     "evaluation_relevance": {
@@ -1929,28 +2013,32 @@
     ]
   },
   {
-    "event_id": "event_1713e6dc06",
+    "event_id": "event_0000000022",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000011"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_7685f1dbe2",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        7,
-        8
+    "affected": {
+      "entities": [
+        "blue_002"
       ],
-      [
-        6,
-        7
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          7,
+          8
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -2003,7 +2091,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_850de7ce6e"
+        "event_0000000021"
       ],
       "caused_events": []
     },
@@ -2028,19 +2116,23 @@
     ]
   },
   {
-    "event_id": "event_2b0b53b192",
+    "event_id": "event_0000000023",
     "time": 2,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000012"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_4516cb08b5",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -2094,7 +2186,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_9024eab753"
+        "event_0000000024"
       ]
     },
     "evaluation_relevance": {
@@ -2115,28 +2207,32 @@
     ]
   },
   {
-    "event_id": "event_9024eab753",
+    "event_id": "event_0000000024",
     "time": 2,
     "event_type": "MOVE",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000012"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_4516cb08b5",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        6,
-        8
+    "affected": {
+      "entities": [
+        "blue_003"
       ],
-      [
-        5,
-        7
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          6,
+          8
+        ],
+        [
+          5,
+          7
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -2189,7 +2285,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_2b0b53b192"
+        "event_0000000023"
       ],
       "caused_events": []
     },
@@ -2214,19 +2310,23 @@
     ]
   },
   {
-    "event_id": "event_45657aa08a",
+    "event_id": "event_0000000025",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000013"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_f12e953147",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -2280,7 +2380,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_b66a974d81"
+        "event_0000000026"
       ]
     },
     "evaluation_relevance": {
@@ -2301,28 +2401,32 @@
     ]
   },
   {
-    "event_id": "event_b66a974d81",
+    "event_id": "event_0000000026",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000013"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_f12e953147",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [
-      [
-        0,
-        2
+    "affected": {
+      "entities": [
+        "red_001"
       ],
-      [
-        1,
-        3
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          0,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -2375,7 +2479,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_45657aa08a"
+        "event_0000000025"
       ],
       "caused_events": []
     },
@@ -2400,19 +2504,23 @@
     ]
   },
   {
-    "event_id": "event_2618830d26",
+    "event_id": "event_0000000027",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000014"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_6c878239bc",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -2466,7 +2574,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_7be85a7050"
+        "event_0000000028"
       ]
     },
     "evaluation_relevance": {
@@ -2487,28 +2595,32 @@
     ]
   },
   {
-    "event_id": "event_7be85a7050",
+    "event_id": "event_0000000028",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000014"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_6c878239bc",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        1,
-        2
+    "affected": {
+      "entities": [
+        "red_002"
       ],
-      [
-        2,
-        3
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -2561,7 +2673,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_2618830d26"
+        "event_0000000027"
       ],
       "caused_events": []
     },
@@ -2586,19 +2698,23 @@
     ]
   },
   {
-    "event_id": "event_d60a841810",
+    "event_id": "event_0000000029",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000015"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_b026139e0a",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -2652,7 +2768,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_e1b9504577"
+        "event_0000000030"
       ]
     },
     "evaluation_relevance": {
@@ -2673,28 +2789,32 @@
     ]
   },
   {
-    "event_id": "event_e1b9504577",
+    "event_id": "event_0000000030",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000015"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_b026139e0a",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        2,
-        2
+    "affected": {
+      "entities": [
+        "red_003"
       ],
-      [
-        3,
-        3
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          2,
+          2
+        ],
+        [
+          3,
+          3
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -2747,7 +2867,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d60a841810"
+        "event_0000000029"
       ],
       "caused_events": []
     },
@@ -2772,19 +2892,23 @@
     ]
   },
   {
-    "event_id": "event_7859538c9b",
+    "event_id": "event_0000000031",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000016"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_ed2af6c2e4",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -2838,7 +2962,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4432ee9728"
+        "event_0000000032"
       ]
     },
     "evaluation_relevance": {
@@ -2859,28 +2983,32 @@
     ]
   },
   {
-    "event_id": "event_4432ee9728",
+    "event_id": "event_0000000032",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000016"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_ed2af6c2e4",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        7,
-        7
+    "affected": {
+      "entities": [
+        "blue_001"
       ],
-      [
-        6,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          7,
+          7
+        ],
+        [
+          6,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -2933,7 +3061,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_7859538c9b"
+        "event_0000000031"
       ],
       "caused_events": []
     },
@@ -2958,19 +3086,23 @@
     ]
   },
   {
-    "event_id": "event_a91ecf6891",
+    "event_id": "event_0000000033",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000017"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_1b27cd5719",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -3024,7 +3156,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_3a2bca0a09"
+        "event_0000000034"
       ]
     },
     "evaluation_relevance": {
@@ -3045,28 +3177,32 @@
     ]
   },
   {
-    "event_id": "event_3a2bca0a09",
+    "event_id": "event_0000000034",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000017"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_1b27cd5719",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        6,
-        7
+    "affected": {
+      "entities": [
+        "blue_002"
       ],
-      [
-        5,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          6,
+          7
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -3119,7 +3255,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a91ecf6891"
+        "event_0000000033"
       ],
       "caused_events": []
     },
@@ -3144,19 +3280,23 @@
     ]
   },
   {
-    "event_id": "event_bf3d5f17ce",
+    "event_id": "event_0000000035",
     "time": 3,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000018"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_9a6e226dfa",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -3210,7 +3350,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_7e41507a5e"
+        "event_0000000036"
       ]
     },
     "evaluation_relevance": {
@@ -3231,28 +3371,32 @@
     ]
   },
   {
-    "event_id": "event_7e41507a5e",
+    "event_id": "event_0000000036",
     "time": 3,
     "event_type": "MOVE",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000018"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_9a6e226dfa",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        5,
-        7
+    "affected": {
+      "entities": [
+        "blue_003"
       ],
-      [
-        4,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          5,
+          7
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -3305,7 +3449,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_bf3d5f17ce"
+        "event_0000000035"
       ],
       "caused_events": []
     },
@@ -3330,19 +3474,23 @@
     ]
   },
   {
-    "event_id": "event_64fe72078c",
+    "event_id": "event_0000000037",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000019"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_8b8f353840",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -3396,7 +3544,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_4d10cf8903"
+        "event_0000000038"
       ]
     },
     "evaluation_relevance": {
@@ -3417,28 +3565,32 @@
     ]
   },
   {
-    "event_id": "event_4d10cf8903",
+    "event_id": "event_0000000038",
     "time": 4,
     "event_type": "MOVE",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000019"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_8b8f353840",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [
-      [
-        1,
-        3
+    "affected": {
+      "entities": [
+        "red_001"
       ],
-      [
-        2,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -3491,7 +3643,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_64fe72078c"
+        "event_0000000037"
       ],
       "caused_events": []
     },
@@ -3516,19 +3668,23 @@
     ]
   },
   {
-    "event_id": "event_7934b5ba96",
+    "event_id": "event_0000000039",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000020"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_33bf389052",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -3582,7 +3738,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_1569372d6f"
+        "event_0000000040"
       ]
     },
     "evaluation_relevance": {
@@ -3603,28 +3759,32 @@
     ]
   },
   {
-    "event_id": "event_1569372d6f",
+    "event_id": "event_0000000040",
     "time": 4,
     "event_type": "MOVE",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000020"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_33bf389052",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        2,
-        3
+    "affected": {
+      "entities": [
+        "red_002"
       ],
-      [
-        3,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -3677,7 +3837,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_7934b5ba96"
+        "event_0000000039"
       ],
       "caused_events": []
     },
@@ -3702,19 +3862,23 @@
     ]
   },
   {
-    "event_id": "event_a2e85b4781",
+    "event_id": "event_0000000041",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000021"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_7d1ee1f8b7",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -3768,7 +3932,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_618dcb7440"
+        "event_0000000042"
       ]
     },
     "evaluation_relevance": {
@@ -3789,28 +3953,32 @@
     ]
   },
   {
-    "event_id": "event_618dcb7440",
+    "event_id": "event_0000000042",
     "time": 4,
     "event_type": "MOVE",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000021"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_7d1ee1f8b7",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        3
+    "affected": {
+      "entities": [
+        "red_003"
       ],
-      [
-        4,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          3,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -3863,7 +4031,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a2e85b4781"
+        "event_0000000041"
       ],
       "caused_events": []
     },
@@ -3888,19 +4056,23 @@
     ]
   },
   {
-    "event_id": "event_af4d87d047",
+    "event_id": "event_0000000043",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000022"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_72da90ad3e",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -3954,7 +4126,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_666234eb9a"
+        "event_0000000044"
       ]
     },
     "evaluation_relevance": {
@@ -3975,28 +4147,32 @@
     ]
   },
   {
-    "event_id": "event_666234eb9a",
+    "event_id": "event_0000000044",
     "time": 4,
     "event_type": "MOVE",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000022"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_72da90ad3e",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        6,
-        6
+    "affected": {
+      "entities": [
+        "blue_001"
       ],
-      [
-        5,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          6,
+          6
+        ],
+        [
+          5,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -4049,7 +4225,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_af4d87d047"
+        "event_0000000043"
       ],
       "caused_events": []
     },
@@ -4074,20 +4250,24 @@
     ]
   },
   {
-    "event_id": "event_0a17dec27e",
+    "event_id": "event_0000000045",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000023"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_911dc22c6a",
-    "affected_entities": [
-      "blue_002",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -4141,7 +4321,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_be58b6b653"
+        "event_0000000046"
       ]
     },
     "evaluation_relevance": {
@@ -4159,25 +4339,29 @@
     ]
   },
   {
-    "event_id": "event_be58b6b653",
+    "event_id": "event_0000000046",
     "time": 4,
     "event_type": "MISS",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000023"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_911dc22c6a",
-    "affected_entities": [
-      "blue_002",
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002",
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -4230,7 +4414,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_0a17dec27e"
+        "event_0000000045"
       ],
       "caused_events": []
     },
@@ -4249,19 +4433,23 @@
     ]
   },
   {
-    "event_id": "event_6ae463db6c",
+    "event_id": "event_0000000047",
     "time": 4,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000024"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_96cf5a9cc2",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -4315,7 +4503,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_3bbd5a2235"
+        "event_0000000048"
       ]
     },
     "evaluation_relevance": {
@@ -4336,28 +4524,32 @@
     ]
   },
   {
-    "event_id": "event_3bbd5a2235",
+    "event_id": "event_0000000048",
     "time": 4,
     "event_type": "MOVE",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000024"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_96cf5a9cc2",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        6
+    "affected": {
+      "entities": [
+        "blue_003"
       ],
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          4,
+          6
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -4410,7 +4602,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_6ae463db6c"
+        "event_0000000047"
       ],
       "caused_events": []
     },
@@ -4435,20 +4627,24 @@
     ]
   },
   {
-    "event_id": "event_4ea0cab7a7",
+    "event_id": "event_0000000049",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000025"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_0d07d5afdc",
-    "affected_entities": [
-      "red_001",
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -4502,7 +4698,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_659915c6c0"
+        "event_0000000050"
       ]
     },
     "evaluation_relevance": {
@@ -4520,25 +4716,29 @@
     ]
   },
   {
-    "event_id": "event_659915c6c0",
+    "event_id": "event_0000000050",
     "time": 5,
     "event_type": "MISS",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000025"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_0d07d5afdc",
-    "affected_entities": [
-      "red_001",
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_003"
+      ],
+      "locations": [
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -4591,7 +4791,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_4ea0cab7a7"
+        "event_0000000049"
       ],
       "caused_events": []
     },
@@ -4610,20 +4810,24 @@
     ]
   },
   {
-    "event_id": "event_bd81986263",
+    "event_id": "event_0000000051",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000026"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_f5a9182c2b",
-    "affected_entities": [
-      "red_002",
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -4677,7 +4881,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_98f5df28a4"
+        "event_0000000052"
       ]
     },
     "evaluation_relevance": {
@@ -4695,24 +4899,28 @@
     ]
   },
   {
-    "event_id": "event_98f5df28a4",
+    "event_id": "event_0000000052",
     "time": 5,
     "event_type": "ATTACK",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000026"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_f5a9182c2b",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -4766,7 +4974,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_bd81986263"
+        "event_0000000051"
       ],
       "caused_events": []
     },
@@ -4788,20 +4996,24 @@
     ]
   },
   {
-    "event_id": "event_ead7eb4842",
+    "event_id": "event_0000000053",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000027"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_fcc53fa751",
-    "affected_entities": [
-      "red_003",
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003",
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -4855,7 +5067,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_8f54acd405"
+        "event_0000000054"
       ]
     },
     "evaluation_relevance": {
@@ -4873,24 +5085,28 @@
     ]
   },
   {
-    "event_id": "event_8f54acd405",
+    "event_id": "event_0000000054",
     "time": 5,
     "event_type": "ATTACK",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000027"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_fcc53fa751",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -4945,7 +5161,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_ead7eb4842"
+        "event_0000000053"
       ],
       "caused_events": []
     },
@@ -4967,20 +5183,24 @@
     ]
   },
   {
-    "event_id": "event_d092b780c4",
+    "event_id": "event_0000000055",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000028"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_0c21f7fb37",
-    "affected_entities": [
-      "blue_001",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -5034,7 +5254,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a8eec283b3"
+        "event_0000000056"
       ]
     },
     "evaluation_relevance": {
@@ -5052,24 +5272,28 @@
     ]
   },
   {
-    "event_id": "event_a8eec283b3",
+    "event_id": "event_0000000056",
     "time": 5,
     "event_type": "ATTACK",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000028"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_0c21f7fb37",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -5123,7 +5347,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d092b780c4"
+        "event_0000000055"
       ],
       "caused_events": []
     },
@@ -5145,20 +5369,24 @@
     ]
   },
   {
-    "event_id": "event_b471a01ce4",
+    "event_id": "event_0000000057",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000029"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_d6600d60f1",
-    "affected_entities": [
-      "blue_002",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -5212,7 +5440,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_bf6845fac7"
+        "event_0000000058"
       ]
     },
     "evaluation_relevance": {
@@ -5230,25 +5458,29 @@
     ]
   },
   {
-    "event_id": "event_bf6845fac7",
+    "event_id": "event_0000000058",
     "time": 5,
     "event_type": "MISS",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000029"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_d6600d60f1",
-    "affected_entities": [
-      "blue_002",
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002",
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -5303,7 +5535,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_b471a01ce4"
+        "event_0000000057"
       ],
       "caused_events": []
     },
@@ -5322,20 +5554,24 @@
     ]
   },
   {
-    "event_id": "event_1265479f22",
+    "event_id": "event_0000000059",
     "time": 5,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000030"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_a5eaa578a2",
-    "affected_entities": [
-      "blue_003",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -5391,7 +5627,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a70f0ec40b"
+        "event_0000000060"
       ]
     },
     "evaluation_relevance": {
@@ -5409,24 +5645,28 @@
     ]
   },
   {
-    "event_id": "event_a70f0ec40b",
+    "event_id": "event_0000000060",
     "time": 5,
     "event_type": "ATTACK",
-    "actor_id": "blue_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000030"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_a5eaa578a2",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -5481,7 +5721,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1265479f22"
+        "event_0000000059"
       ],
       "caused_events": []
     },
@@ -5503,20 +5743,24 @@
     ]
   },
   {
-    "event_id": "event_20fc9e1b61",
+    "event_id": "event_0000000061",
     "time": 6,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000031"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_8a85bb69f3",
-    "affected_entities": [
-      "red_001",
-      "blue_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -5570,7 +5814,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d9ef4bb297"
+        "event_0000000062"
       ]
     },
     "evaluation_relevance": {
@@ -5588,24 +5832,28 @@
     ]
   },
   {
-    "event_id": "event_d9ef4bb297",
+    "event_id": "event_0000000062",
     "time": 6,
     "event_type": "ATTACK",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000031"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_8a85bb69f3",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -5660,10 +5908,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_20fc9e1b61"
+        "event_0000000061"
       ],
       "caused_events": [
-        "event_b0364c55d1"
+        "event_0000000063"
       ]
     },
     "evaluation_relevance": {
@@ -5684,24 +5932,28 @@
     ]
   },
   {
-    "event_id": "event_b0364c55d1",
+    "event_id": "event_0000000063",
     "time": 6,
     "event_type": "ENTITY_DESTROYED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000031"
+    },
     "target_entity_id": "blue_003",
-    "source_action_id": "action_8a85bb69f3",
-    "affected_entities": [
-      "blue_003"
-    ],
-    "affected_locations": [
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_003"
+      ],
+      "locations": [
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_003",
       "name": "Blue Commander",
@@ -5756,7 +6008,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d9ef4bb297"
+        "event_0000000062"
       ],
       "caused_events": []
     },
@@ -5776,20 +6028,24 @@
     ]
   },
   {
-    "event_id": "event_1e94190a9e",
+    "event_id": "event_0000000064",
     "time": 6,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000032"
+    },
     "target_entity_id": "blue_002",
-    "source_action_id": "action_2d7459d5b7",
-    "affected_entities": [
-      "red_002",
-      "blue_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -5843,7 +6099,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_f027650f28"
+        "event_0000000065"
       ]
     },
     "evaluation_relevance": {
@@ -5861,24 +6117,28 @@
     ]
   },
   {
-    "event_id": "event_f027650f28",
+    "event_id": "event_0000000065",
     "time": 6,
     "event_type": "ATTACK",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000032"
+    },
     "target_entity_id": "blue_002",
-    "source_action_id": "action_2d7459d5b7",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        5,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [
+        [
+          5,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -5932,7 +6192,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_1e94190a9e"
+        "event_0000000064"
       ],
       "caused_events": []
     },
@@ -5954,19 +6214,23 @@
     ]
   },
   {
-    "event_id": "event_ce1cadb758",
+    "event_id": "event_0000000066",
     "time": 6,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000033"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_0a88cf125f",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -6022,7 +6286,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_b8df35b7af"
+        "event_0000000067"
       ]
     },
     "evaluation_relevance": {
@@ -6043,28 +6307,32 @@
     ]
   },
   {
-    "event_id": "event_b8df35b7af",
+    "event_id": "event_0000000067",
     "time": 6,
     "event_type": "MOVE",
-    "actor_id": "red_003",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_003",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000033"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_0a88cf125f",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        4
+    "affected": {
+      "entities": [
+        "red_003"
       ],
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          4,
+          4
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -6119,7 +6387,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_ce1cadb758"
+        "event_0000000066"
       ],
       "caused_events": []
     },
@@ -6144,20 +6412,24 @@
     ]
   },
   {
-    "event_id": "event_c6bd4dadfd",
+    "event_id": "event_0000000068",
     "time": 6,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000034"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_7856853896",
-    "affected_entities": [
-      "blue_001",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -6211,7 +6483,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_c0d961c2b5"
+        "event_0000000069"
       ]
     },
     "evaluation_relevance": {
@@ -6229,24 +6501,28 @@
     ]
   },
   {
-    "event_id": "event_c0d961c2b5",
+    "event_id": "event_0000000069",
     "time": 6,
     "event_type": "ATTACK",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000034"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_7856853896",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -6301,7 +6577,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_c6bd4dadfd"
+        "event_0000000068"
       ],
       "caused_events": []
     },
@@ -6323,20 +6599,24 @@
     ]
   },
   {
-    "event_id": "event_b89b4ae01d",
+    "event_id": "event_0000000070",
     "time": 6,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000035"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_1ef74f99cb",
-    "affected_entities": [
-      "blue_002",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -6392,7 +6672,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_37545803b7"
+        "event_0000000071"
       ]
     },
     "evaluation_relevance": {
@@ -6410,24 +6690,28 @@
     ]
   },
   {
-    "event_id": "event_37545803b7",
+    "event_id": "event_0000000071",
     "time": 6,
     "event_type": "ATTACK",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000035"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_1ef74f99cb",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -6482,10 +6766,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_b89b4ae01d"
+        "event_0000000070"
       ],
       "caused_events": [
-        "event_dc487af9dd"
+        "event_0000000072"
       ]
     },
     "evaluation_relevance": {
@@ -6506,24 +6790,28 @@
     ]
   },
   {
-    "event_id": "event_dc487af9dd",
+    "event_id": "event_0000000072",
     "time": 6,
     "event_type": "ENTITY_DESTROYED",
-    "actor_id": "blue_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000035"
+    },
     "target_entity_id": "red_003",
-    "source_action_id": "action_1ef74f99cb",
-    "affected_entities": [
-      "red_003"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_003"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_003",
       "name": "Red Commander",
@@ -6578,7 +6866,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_37545803b7"
+        "event_0000000071"
       ],
       "caused_events": []
     },
@@ -6598,19 +6886,23 @@
     ]
   },
   {
-    "event_id": "event_db1fc755d6",
+    "event_id": "event_0000000073",
     "time": 7,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000036"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_fdf24c9b92",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -6664,7 +6956,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_55c5474335"
+        "event_0000000074"
       ]
     },
     "evaluation_relevance": {
@@ -6685,28 +6977,32 @@
     ]
   },
   {
-    "event_id": "event_55c5474335",
+    "event_id": "event_0000000074",
     "time": 7,
     "event_type": "MOVE",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000036"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_fdf24c9b92",
-    "affected_entities": [
-      "red_001"
-    ],
-    "affected_locations": [
-      [
-        2,
-        4
+    "affected": {
+      "entities": [
+        "red_001"
       ],
-      [
-        3,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          2,
+          4
+        ],
+        [
+          3,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -6759,7 +7055,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_db1fc755d6"
+        "event_0000000073"
       ],
       "caused_events": []
     },
@@ -6784,20 +7080,24 @@
     ]
   },
   {
-    "event_id": "event_a2bd6c8957",
+    "event_id": "event_0000000075",
     "time": 7,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000037"
+    },
     "target_entity_id": "blue_002",
-    "source_action_id": "action_7208fb15cf",
-    "affected_entities": [
-      "red_002",
-      "blue_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -6851,7 +7151,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_fb8184e83b"
+        "event_0000000076"
       ]
     },
     "evaluation_relevance": {
@@ -6869,24 +7169,28 @@
     ]
   },
   {
-    "event_id": "event_fb8184e83b",
+    "event_id": "event_0000000076",
     "time": 7,
     "event_type": "ATTACK",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000037"
+    },
     "target_entity_id": "blue_002",
-    "source_action_id": "action_7208fb15cf",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        5,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [
+        [
+          5,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -6941,10 +7245,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a2bd6c8957"
+        "event_0000000075"
       ],
       "caused_events": [
-        "event_a6483593c1"
+        "event_0000000077"
       ]
     },
     "evaluation_relevance": {
@@ -6965,24 +7269,28 @@
     ]
   },
   {
-    "event_id": "event_a6483593c1",
+    "event_id": "event_0000000077",
     "time": 7,
     "event_type": "ENTITY_DESTROYED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000037"
+    },
     "target_entity_id": "blue_002",
-    "source_action_id": "action_7208fb15cf",
-    "affected_entities": [
-      "blue_002"
-    ],
-    "affected_locations": [
-      [
-        5,
-        6
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_002"
+      ],
+      "locations": [
+        [
+          5,
+          6
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_002",
       "name": "Blue Support",
@@ -7037,7 +7345,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fb8184e83b"
+        "event_0000000076"
       ],
       "caused_events": []
     },
@@ -7057,19 +7365,23 @@
     ]
   },
   {
-    "event_id": "event_d2a95ee1a3",
+    "event_id": "event_0000000078",
     "time": 7,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000038"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_fc83a1b607",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7123,7 +7435,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_09e9441111"
+        "event_0000000079"
       ]
     },
     "evaluation_relevance": {
@@ -7144,28 +7456,32 @@
     ]
   },
   {
-    "event_id": "event_09e9441111",
+    "event_id": "event_0000000079",
     "time": 7,
     "event_type": "MOVE",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000038"
+    },
     "target_entity_id": null,
-    "source_action_id": "action_fc83a1b607",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        5,
-        5
+    "affected": {
+      "entities": [
+        "blue_001"
       ],
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+      "locations": [
+        [
+          5,
+          5
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7218,7 +7534,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_d2a95ee1a3"
+        "event_0000000078"
       ],
       "caused_events": []
     },
@@ -7243,20 +7559,24 @@
     ]
   },
   {
-    "event_id": "event_2a81907be5",
+    "event_id": "event_0000000080",
     "time": 8,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000039"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_1fc559d0ba",
-    "affected_entities": [
-      "red_001",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -7310,7 +7630,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_5c132d904f"
+        "event_0000000081"
       ]
     },
     "evaluation_relevance": {
@@ -7328,24 +7648,28 @@
     ]
   },
   {
-    "event_id": "event_5c132d904f",
+    "event_id": "event_0000000081",
     "time": 8,
     "event_type": "ATTACK",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000039"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_1fc559d0ba",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7399,7 +7723,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_2a81907be5"
+        "event_0000000080"
       ],
       "caused_events": []
     },
@@ -7421,20 +7745,24 @@
     ]
   },
   {
-    "event_id": "event_e57cbcf258",
+    "event_id": "event_0000000082",
     "time": 8,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000040"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_54a0b3c6d0",
-    "affected_entities": [
-      "red_002",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -7488,7 +7816,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_bf31f015ff"
+        "event_0000000083"
       ]
     },
     "evaluation_relevance": {
@@ -7506,25 +7834,29 @@
     ]
   },
   {
-    "event_id": "event_bf31f015ff",
+    "event_id": "event_0000000083",
     "time": 8,
     "event_type": "MISS",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000040"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_54a0b3c6d0",
-    "affected_entities": [
-      "red_002",
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7579,7 +7911,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_e57cbcf258"
+        "event_0000000082"
       ],
       "caused_events": []
     },
@@ -7598,20 +7930,24 @@
     ]
   },
   {
-    "event_id": "event_57f8a86b59",
+    "event_id": "event_0000000084",
     "time": 8,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000041"
+    },
     "target_entity_id": "red_002",
-    "source_action_id": "action_83f968ae46",
-    "affected_entities": [
-      "blue_001",
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7667,7 +8003,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_57ac28ecea"
+        "event_0000000085"
       ]
     },
     "evaluation_relevance": {
@@ -7685,24 +8021,28 @@
     ]
   },
   {
-    "event_id": "event_57ac28ecea",
+    "event_id": "event_0000000085",
     "time": 8,
     "event_type": "ATTACK",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000041"
+    },
     "target_entity_id": "red_002",
-    "source_action_id": "action_83f968ae46",
-    "affected_entities": [
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        3,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002"
+      ],
+      "locations": [
+        [
+          3,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -7756,7 +8096,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_57f8a86b59"
+        "event_0000000084"
       ],
       "caused_events": []
     },
@@ -7778,20 +8118,24 @@
     ]
   },
   {
-    "event_id": "event_fb79f2b8a7",
+    "event_id": "event_0000000086",
     "time": 9,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000042"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_d9b79ea3cb",
-    "affected_entities": [
-      "red_001",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -7845,7 +8189,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_23a5454b81"
+        "event_0000000087"
       ]
     },
     "evaluation_relevance": {
@@ -7863,24 +8207,28 @@
     ]
   },
   {
-    "event_id": "event_23a5454b81",
+    "event_id": "event_0000000087",
     "time": 9,
     "event_type": "ATTACK",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000042"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_d9b79ea3cb",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -7935,7 +8283,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_fb79f2b8a7"
+        "event_0000000086"
       ],
       "caused_events": []
     },
@@ -7957,20 +8305,24 @@
     ]
   },
   {
-    "event_id": "event_23696966a5",
+    "event_id": "event_0000000088",
     "time": 9,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000043"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_5849be5b21",
-    "affected_entities": [
-      "red_002",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -8026,7 +8378,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a3274c06d6"
+        "event_0000000089"
       ]
     },
     "evaluation_relevance": {
@@ -8044,25 +8396,29 @@
     ]
   },
   {
-    "event_id": "event_a3274c06d6",
+    "event_id": "event_0000000089",
     "time": 9,
     "event_type": "MISS",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000043"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_5849be5b21",
-    "affected_entities": [
-      "red_002",
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -8117,7 +8473,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_23696966a5"
+        "event_0000000088"
       ],
       "caused_events": []
     },
@@ -8136,20 +8492,24 @@
     ]
   },
   {
-    "event_id": "event_6f4582a7b3",
+    "event_id": "event_0000000090",
     "time": 9,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000044"
+    },
     "target_entity_id": "red_002",
-    "source_action_id": "action_dedff1b72c",
-    "affected_entities": [
-      "blue_001",
-      "red_002"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "red_002"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -8205,7 +8565,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_a5cec60395"
+        "event_0000000091"
       ]
     },
     "evaluation_relevance": {
@@ -8223,25 +8583,29 @@
     ]
   },
   {
-    "event_id": "event_a5cec60395",
+    "event_id": "event_0000000091",
     "time": 9,
     "event_type": "MISS",
-    "actor_id": "blue_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "blue_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000044"
+    },
     "target_entity_id": "red_002",
-    "source_action_id": "action_dedff1b72c",
-    "affected_entities": [
-      "blue_001",
-      "red_002"
-    ],
-    "affected_locations": [
-      [
-        3,
-        4
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "red_002"
+      ],
+      "locations": [
+        [
+          3,
+          4
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -8296,7 +8660,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_6f4582a7b3"
+        "event_0000000090"
       ],
       "caused_events": []
     },
@@ -8315,20 +8679,24 @@
     ]
   },
   {
-    "event_id": "event_8f841a37a4",
+    "event_id": "event_0000000092",
     "time": 10,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000045"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_72ecd98db2",
-    "affected_entities": [
-      "red_001",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_001",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_001",
       "name": "Red Rifleman",
@@ -8382,7 +8750,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_d968716540"
+        "event_0000000093"
       ]
     },
     "evaluation_relevance": {
@@ -8400,24 +8768,28 @@
     ]
   },
   {
-    "event_id": "event_d968716540",
+    "event_id": "event_0000000093",
     "time": 10,
     "event_type": "ATTACK",
-    "actor_id": "red_001",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_001",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000045"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_72ecd98db2",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -8472,7 +8844,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_8f841a37a4"
+        "event_0000000092"
       ],
       "caused_events": []
     },
@@ -8494,20 +8866,24 @@
     ]
   },
   {
-    "event_id": "event_a2f74cb2aa",
+    "event_id": "event_0000000094",
     "time": 10,
     "event_type": "ACTION_SELECTED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000046"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_5927d1be36",
-    "affected_entities": [
-      "red_002",
-      "blue_001"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "red_002",
+        "blue_001"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "red_002",
       "name": "Red Support",
@@ -8563,7 +8939,7 @@
     "causal_links": {
       "caused_by": [],
       "caused_events": [
-        "event_3554652c2c"
+        "event_0000000095"
       ]
     },
     "evaluation_relevance": {
@@ -8581,24 +8957,28 @@
     ]
   },
   {
-    "event_id": "event_3554652c2c",
+    "event_id": "event_0000000095",
     "time": 10,
     "event_type": "ATTACK",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000046"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_5927d1be36",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -8653,10 +9033,10 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_a2f74cb2aa"
+        "event_0000000094"
       ],
       "caused_events": [
-        "event_1fe94e3617"
+        "event_0000000096"
       ]
     },
     "evaluation_relevance": {
@@ -8677,24 +9057,28 @@
     ]
   },
   {
-    "event_id": "event_1fe94e3617",
+    "event_id": "event_0000000096",
     "time": 10,
     "event_type": "ENTITY_DESTROYED",
-    "actor_id": "red_002",
-    "system_id": "temporary_tactical_reference_policy",
+    "source": {
+      "actor_id": "red_002",
+      "system_id": "temporary_tactical_reference_policy",
+      "action_id": "action_0000000046"
+    },
     "target_entity_id": "blue_001",
-    "source_action_id": "action_5927d1be36",
-    "affected_entities": [
-      "blue_001"
-    ],
-    "affected_locations": [
-      [
-        4,
-        5
-      ]
-    ],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001"
+      ],
+      "locations": [
+        [
+          4,
+          5
+        ]
+      ],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {
       "entity_id": "blue_001",
       "name": "Blue Rifleman",
@@ -8749,7 +9133,7 @@
     },
     "causal_links": {
       "caused_by": [
-        "event_3554652c2c"
+        "event_0000000095"
       ],
       "caused_events": []
     },
@@ -8769,30 +9153,35 @@
     ]
   },
   {
-    "event_id": "event_3f49d30093",
+    "event_id": "event_0000000097",
     "time": 10,
     "event_type": "SCENARIO_END",
-    "actor_id": null,
-    "system_id": "skyvault_tactical_reference_engine",
+    "source": {
+      "actor_id": null,
+      "system_id": "skyvault_engine",
+      "action_id": null
+    },
     "target_entity_id": null,
-    "source_action_id": null,
-    "affected_entities": [
-      "blue_001",
-      "blue_002",
-      "blue_003",
-      "red_001",
-      "red_002",
-      "red_003"
-    ],
-    "affected_locations": [],
-    "affected_resources": [],
-    "affected_risks": [],
+    "affected": {
+      "entities": [
+        "blue_001",
+        "blue_002",
+        "blue_003",
+        "red_001",
+        "red_002",
+        "red_003"
+      ],
+      "locations": [],
+      "resources": [],
+      "risks": []
+    },
     "before_state": {},
     "after_state": {
       "world_id": "tactical_reference_world_001",
       "scenario_id": "tactical_reference_001",
       "tick": 10,
       "space": {
+        "type": "grid",
         "width": 10,
         "height": 10,
         "distance_model": "chebyshev"
@@ -8959,7 +9348,8 @@
         "combat_resolution": "accuracy_damage",
         "actor_policy": "temporary_tactical_reference_policy",
         "distance_model": "chebyshev"
-      }
+      },
+      "resources": {}
     },
     "causal_links": {
       "caused_by": [],

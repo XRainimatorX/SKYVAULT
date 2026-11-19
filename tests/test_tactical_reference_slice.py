@@ -8,12 +8,20 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.engine import SkyVaultTacticalReferenceEngine
+from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
 
 def test_scenario_loads():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
 
@@ -23,23 +31,39 @@ def test_scenario_loads():
 
 
 def test_engine_runs_and_creates_events():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
     assert result_package["scenario_id"] == "tactical_reference_001"
     assert len(result_package["event_memory"]) > 0
-    assert result_package["evaluation"]["event_count"] > 0
+    assert result_package["evaluation_result"]["event_count"] > 0
 
 
 def test_event_has_before_and_after_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -60,10 +84,18 @@ def test_event_has_before_and_after_state():
 
 
 def test_result_package_carries_initial_and_final_world_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
@@ -82,26 +114,42 @@ def test_result_package_carries_initial_and_final_world_state():
 
 
 def test_evaluation_event_count_matches_event_memory():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     result_package = engine.run()
 
-    event_count = result_package["evaluation"]["event_count"]
+    event_count = result_package["evaluation_result"]["event_count"]
 
-    key_findings = result_package["evaluation"]["key_findings"]
+    key_findings = result_package["evaluation_result"]["key_findings"]
 
     assert event_count == len(result_package["event_memory"])
     assert f"Events recorded: {event_count}" in key_findings
 
 
 def test_policy_is_separated_from_world_state():
-    scenario_path = REPO_ROOT / "data" / "scenarios" / "tactical_reference_001.json"
+    scenario_path = (
+        REPO_ROOT
+        / "tests"
+        / "fixtures"
+        / "reference"
+        / "scenarios"
+        / "tactical_reference_001"
+        / "v0.1.json"
+    )
 
     scenario = load_scenario(scenario_path)
-    engine = SkyVaultTacticalReferenceEngine(scenario)
+    engine = SkyVaultEngine(scenario)
 
     assert hasattr(engine, "policy")
     assert engine.policy.__class__.__name__ == "TacticalReferencePolicy"

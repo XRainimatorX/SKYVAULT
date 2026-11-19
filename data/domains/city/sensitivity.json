@@ -1,0 +1,597 @@
+{
+ "calibration_version": "0.1",
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "shift_threshold": 0.05,
+ "baseline": {
+  "scenarios": {
+   "city_blackout_001": {
+    "verdict": "order_not_restored",
+    "governance": 0.633
+   },
+   "city_reconstruction_001": {
+    "verdict": "order_restored",
+    "governance": 0.7302
+   },
+   "city_takeover_001": {
+    "verdict": "order_restored",
+    "governance": 0.8355
+   },
+   "urban_crisis_test_001": {
+    "verdict": "order_not_restored",
+    "governance": 0.4845
+   }
+  },
+  "plans": {
+   "assault": 0.8394,
+   "blockade": 0.6388,
+   "negotiate": 0.8595,
+   "restore_supply_first": 0.8355
+  },
+  "best_plan": "negotiate"
+ },
+ "coefficients": [
+  {
+   "coefficient": "information_defaults.shortage",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 1.0,
+     "flips": [],
+     "max_governance_shift": 0.0009,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 8.0,
+     "flips": [],
+     "max_governance_shift": 0.0073,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.dark",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.0,
+     "flips": [],
+     "max_governance_shift": 0.0025,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 6.0,
+     "flips": [],
+     "max_governance_shift": 0.0052,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.unrest",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.0,
+     "flips": [],
+     "max_governance_shift": 0.0201,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 4.0,
+     "flips": [],
+     "max_governance_shift": 0.0316,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.spread",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.05,
+     "flips": [],
+     "max_governance_shift": 0.0006,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.5,
+     "flips": [],
+     "max_governance_shift": 0.0092,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.decay",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.02,
+     "flips": [],
+     "max_governance_shift": 0.0317,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.3,
+     "flips": [],
+     "max_governance_shift": 0.0312,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.order_weight",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.5,
+     "flips": [],
+     "max_governance_shift": 0.0148,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 4.0,
+     "flips": [],
+     "max_governance_shift": 0.031,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.backlash_threshold",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 40.0,
+     "flips": [],
+     "max_governance_shift": 0.015,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 80.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.backlash",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 10.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.backlash_dampen",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.9,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.counter_share",
+   "confidence": "derived",
+   "ends": {
+    "low": {
+     "value": 0.05,
+     "flips": [],
+     "max_governance_shift": 0.0268,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.35,
+     "flips": [],
+     "max_governance_shift": 0.0034,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "information_defaults.inform_at",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 25.0,
+     "flips": [],
+     "max_governance_shift": 0.0032,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 75.0,
+     "flips": [],
+     "max_governance_shift": 0.0294,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.flood.food_loss",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.5,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 1.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.flood.medical_loss",
+   "confidence": "derived",
+   "ends": {
+    "low": {
+     "value": 0.25,
+     "flips": [],
+     "max_governance_shift": 0.0025,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.75,
+     "flips": [],
+     "max_governance_shift": 0.0011,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.flood.order_drop",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 5.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 20.0,
+     "flips": [],
+     "max_governance_shift": 0.0026,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.flood.road_cut_at",
+   "confidence": "derived",
+   "ends": {
+    "low": {
+     "value": 0.3,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.9,
+     "flips": [],
+     "max_governance_shift": 0.0012,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.flood.power_cut_at",
+   "confidence": "anchored",
+   "ends": {
+    "low": {
+     "value": 0.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 1.01,
+     "flips": [],
+     "max_governance_shift": 0.0002,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.fire.industry_loss",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.5,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 1.0,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.fire.administration_loss",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.25,
+     "flips": [],
+     "max_governance_shift": 0.0011,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.75,
+     "flips": [],
+     "max_governance_shift": 0.0026,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.fire.medical_loss",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.25,
+     "flips": [],
+     "max_governance_shift": 0.001,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.75,
+     "flips": [],
+     "max_governance_shift": 0.0002,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "disaster_effects.fire.order_drop",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 2.0,
+     "flips": [],
+     "max_governance_shift": 0.0016,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 10.0,
+     "flips": [],
+     "max_governance_shift": 0.0007,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "recovery.industry_up",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.005,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.05,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "recovery.industry_down",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.01,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.06,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "recovery.rebuild",
+   "confidence": "derived",
+   "ends": {
+    "low": {
+     "value": 0.0002,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.002,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "recovery.administration_up",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.005,
+     "flips": [],
+     "max_governance_shift": 0.0146,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.02,
+     "flips": [],
+     "max_governance_shift": 0.0225,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "recovery.administration_down",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.01,
+     "flips": [],
+     "max_governance_shift": 0.0475,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.04,
+     "flips": [],
+     "max_governance_shift": 0.0832,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "medium"
+  },
+  {
+   "coefficient": "recovery.administer",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 0.02,
+     "flips": [],
+     "max_governance_shift": 0.0962,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.1,
+     "flips": [
+      "city_blackout_001: order_not_restored → order_restored"
+     ],
+     "max_governance_shift": 0.1033,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "high"
+  },
+  {
+   "coefficient": "repair.failure_ticks",
+   "confidence": "derived",
+   "ends": {
+    "low": {
+     "value": 4,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 12,
+     "flips": [],
+     "max_governance_shift": 0.3011,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "medium"
+  },
+  {
+   "coefficient": "repair.trip_ticks",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": 1,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 2,
+     "flips": [],
+     "max_governance_shift": 0.0272,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "low"
+  },
+  {
+   "coefficient": "order.dark",
+   "confidence": "assumed",
+   "ends": {
+    "low": {
+     "value": -2.5,
+     "flips": [],
+     "max_governance_shift": 0.0,
+     "best_plan": "negotiate"
+    },
+    "high": {
+     "value": 0.0,
+     "flips": [
+      "city_blackout_001: order_not_restored → order_restored"
+     ],
+     "max_governance_shift": 0.1329,
+     "best_plan": "negotiate"
+    }
+   },
+   "criticality": "high"
+  }
+ ],
+ "data_first": [
+  "recovery.administer",
+  "order.dark"
+ ]
+}

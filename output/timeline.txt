@@ -104,7 +104,7 @@ Tick 5
 Tick 6
 
 - Red Rifleman selected ATTACK against Blue Commander
-- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 7)
+- Red Rifleman successfully attacked Blue Commander: HP 7 -> 0 (damage = 10)
 - Blue Commander in the BLUE faction was destroyed by Red Rifleman
 
 - Red Support selected ATTACK against Blue Support
@@ -117,7 +117,7 @@ Tick 6
 - Blue Rifleman successfully attacked Red Commander: HP 13 -> 3 (damage = 10)
 
 - Blue Support selected ATTACK against Red Commander
-- Blue Support successfully attacked Red Commander: HP 3 -> 0 (damage = 3)
+- Blue Support successfully attacked Red Commander: HP 3 -> 0 (damage = 16)
 - Red Commander in the RED faction was destroyed by Blue Support
 
 Tick 7
@@ -160,7 +160,7 @@ Tick 10
 - Red Rifleman successfully attacked Blue Rifleman: HP 15 -> 5 (damage = 10)
 
 - Red Support selected ATTACK against Blue Rifleman
-- Red Support successfully attacked Blue Rifleman: HP 5 -> 0 (damage = 5)
+- Red Support successfully attacked Blue Rifleman: HP 5 -> 0 (damage = 16)
 - Blue Rifleman in the BLUE faction was destroyed by Red Support
 
 Scenario Ended: termination_condition_met

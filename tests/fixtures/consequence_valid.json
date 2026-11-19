@@ -1,0 +1,42 @@
+{
+  "action_id": "action_fixture02",
+  "accepted": true,
+  "reason": "Attack resolved",
+  "direct_effects": {
+    "state_changes": [],
+    "resource_changes": [],
+    "entity_changes": [
+      {
+        "entity_id": "blue_003",
+        "event_type": "ATTACK",
+        "changes": {
+          "state": {
+            "hp": -3,
+            "last_damage_taken": 10,
+            "status": "destroyed"
+          }
+        }
+      }
+    ]
+  },
+  "secondary_effects": {
+    "risk_changes": [],
+    "stability_changes": [],
+    "public_order_changes": [],
+    "logistical_changes": []
+  },
+  "chain_reactions": [
+    {
+      "event_id": null,
+      "cause": "ATTACK:blue_003",
+      "effect": "ENTITY_DESTROYED"
+    }
+  ],
+  "evaluation_impact": {
+    "cost_delta": 0,
+    "risk_delta": 0,
+    "stability_delta": 0,
+    "tactical_value_delta": 10,
+    "strategic_value_delta": 0
+  }
+}

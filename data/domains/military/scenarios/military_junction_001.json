@@ -1,0 +1,39 @@
+{
+  "scenario_id": "military_junction_001",
+  "scenario_version": "v0.1",
+  "purpose": "Seize a road junction across a single bridge against a delaying force.",
+  "max_ticks": 25,
+  "random_seed": 42,
+  "map": [
+    "......ww......",
+    "..f...ww...f..",
+    "..f...ww...f..",
+    "......ww......",
+    "rrrrrr==rrrrrr",
+    "......ww...r..",
+    "..B...ww...r..",
+    "..B...ww..BrB.",
+    "......ww...r..",
+    "......ww......"
+  ],
+  "factions": {
+    "RED": {
+      "doctrine": "aggressive",
+      "command": "runner",
+      "mission": {"type": "seize", "objective": [[11, 4]], "deadline": 25},
+      "groups": [
+        {"name": "Assault", "formation": "column", "anchor": [1, 2],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner", "logistics"]}
+      ]
+    },
+    "BLUE": {
+      "doctrine": "defensive",
+      "command": "radio",
+      "mission": {"type": "delay", "deadline": 25},
+      "groups": [
+        {"name": "Screen", "formation": "file", "anchor": [9, 3],
+         "units": ["squad_leader", "rifleman", "machine_gunner", "marksman"]}
+      ]
+    }
+  }
+}

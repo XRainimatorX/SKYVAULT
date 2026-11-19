@@ -1,0 +1,408 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "perspective": "RED",
+  "profile_id": "balanced",
+  "objective": "find_weakness",
+  "repeat_count": 2,
+  "seeds": [
+    42,
+    43
+  ],
+  "survival_threshold": 0.5,
+  "baseline": {
+    "survival_rate": 0.5,
+    "mean_score": 0.3395,
+    "outcomes": {
+      "BLUE_survived": 1,
+      "RED_survived": 1
+    },
+    "fails_without_stress": false
+  },
+  "variables": [
+    {
+      "variable": "sensor_failure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.3738,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.3686,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.4304,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 1.0,
+          "mean_score": 0.3524,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": null
+        }
+      ],
+      "breaking_level": null,
+      "sensitivity": 0.0
+    },
+    {
+      "variable": "communication_failure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "actor_policy",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.2787,
+          "mean_first_loss_tick": 7.0,
+          "most_common_failure": "red_003 lost at tick 7 to blue_001"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 1.0,
+          "mean_score": 0.4075,
+          "mean_first_loss_tick": 7.5,
+          "most_common_failure": null
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.384,
+          "mean_first_loss_tick": 7.5,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.447,
+          "mean_first_loss_tick": 9.0,
+          "most_common_failure": "red_003 lost at tick 9 to blue_001"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.5
+    },
+    {
+      "variable": "weather_degradation",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.3738,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.3736,
+          "mean_first_loss_tick": 6.5,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.536,
+          "mean_first_loss_tick": 7.0,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 1.0,
+          "mean_score": 0.5506,
+          "mean_first_loss_tick": 7.0,
+          "most_common_failure": null
+        }
+      ],
+      "breaking_level": null,
+      "sensitivity": 0.0
+    },
+    {
+      "variable": "enemy_reaction_speed",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.3419,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.3368,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 0.0,
+          "mean_score": 0.1925,
+          "mean_first_loss_tick": 5.0,
+          "most_common_failure": "red_003 lost at tick 5 to blue_002"
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.1925,
+          "mean_first_loss_tick": 5.0,
+          "most_common_failure": "red_003 lost at tick 5 to blue_002"
+        }
+      ],
+      "breaking_level": "severe",
+      "sensitivity": 0.5
+    },
+    {
+      "variable": "equipment_overheat",
+      "applicable": true,
+      "reason": "",
+      "assumption": "combat_resolution",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.3674,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.3619,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.346,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.2482,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_002"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.5
+    },
+    {
+      "variable": "civilian_pressure",
+      "applicable": true,
+      "reason": "",
+      "assumption": "force_availability",
+      "levels": [
+        {
+          "level": "mild",
+          "survival_rate": 0.5,
+          "mean_score": 0.2829,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "moderate",
+          "survival_rate": 0.5,
+          "mean_score": 0.266,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": "red_003 lost at tick 6 to blue_001"
+        },
+        {
+          "level": "severe",
+          "survival_rate": 1.0,
+          "mean_score": 0.374,
+          "mean_first_loss_tick": 6.0,
+          "most_common_failure": null
+        },
+        {
+          "level": "collapse",
+          "survival_rate": 0.0,
+          "mean_score": 0.1886,
+          "mean_first_loss_tick": 5.0,
+          "most_common_failure": "red_003 lost at tick 5 to blue_003"
+        }
+      ],
+      "breaking_level": "collapse",
+      "sensitivity": 0.5
+    }
+  ],
+  "crushing_variable": "enemy_reaction_speed",
+  "crushing_assumption": "combat_resolution",
+  "failure_points": [
+    "red_003 lost at tick 6 to blue_002 (12 of 23 failed runs)",
+    "red_003 lost at tick 5 to blue_003 (4 of 23 failed runs)",
+    "red_003 lost at tick 5 to blue_002 (2 of 23 failed runs)",
+    "red_003 lost at tick 6 to blue_001 (2 of 23 failed runs)",
+    "red_003 lost at tick 7 to blue_001 (1 of 23 failed runs)"
+  ],
+  "failure_causes": [
+    "mission_success too low in 23 of 23 failed runs",
+    "time_cost too low in 23 of 23 failed runs",
+    "recovery_ability too low in 22 of 23 failed runs",
+    "crisis_resilience too low in 21 of 23 failed runs",
+    "resource_cost too low in 21 of 23 failed runs",
+    "risk_growth too low in 19 of 23 failed runs",
+    "strategic_value too low in 19 of 23 failed runs",
+    "tactical_usefulness too low in 4 of 23 failed runs",
+    "stability_impact too low in 3 of 23 failed runs",
+    "system_robustness too low in 1 of 23 failed runs"
+  ],
+  "how_fast": {
+    "mean_first_loss_tick": 5.9091,
+    "mean_elimination_tick": 9.7368
+  },
+  "branches": [
+    {
+      "variables": [
+        "equipment_overheat",
+        "enemy_reaction_speed"
+      ],
+      "level": "moderate",
+      "survival_rate": 0.5,
+      "mean_score": 0.3619
+    }
+  ],
+  "alternatives": [
+    {
+      "scenario_version": "v0.1-support-rear",
+      "baseline_survival_rate": 1.0,
+      "breaking_levels": {
+        "sensor_failure": null,
+        "communication_failure": null,
+        "weather_degradation": null,
+        "enemy_reaction_speed": "collapse",
+        "equipment_overheat": "collapse",
+        "civilian_pressure": null
+      },
+      "holds_longer_on": [
+        "baseline",
+        "communication_failure",
+        "enemy_reaction_speed",
+        "civilian_pressure"
+      ],
+      "breaks_sooner_on": [],
+      "verdict": "holds_longer"
+    },
+    {
+      "scenario_version": "v0.1-spread",
+      "baseline_survival_rate": 1.0,
+      "breaking_levels": {
+        "sensor_failure": null,
+        "communication_failure": "collapse",
+        "weather_degradation": null,
+        "enemy_reaction_speed": null,
+        "equipment_overheat": "collapse",
+        "civilian_pressure": "collapse"
+      },
+      "holds_longer_on": [
+        "baseline",
+        "enemy_reaction_speed"
+      ],
+      "breaks_sooner_on": [],
+      "verdict": "holds_longer"
+    }
+  ],
+  "best_alternative": "v0.1-support-rear",
+  "output": {
+    "failure_points": [
+      "red_003 lost at tick 6 to blue_002 (12 of 23 failed runs)",
+      "red_003 lost at tick 5 to blue_003 (4 of 23 failed runs)",
+      "red_003 lost at tick 5 to blue_002 (2 of 23 failed runs)",
+      "red_003 lost at tick 6 to blue_001 (2 of 23 failed runs)",
+      "red_003 lost at tick 7 to blue_001 (1 of 23 failed runs)"
+    ],
+    "collapse_sequence": [
+      {
+        "tick": 5,
+        "entity": "red_003",
+        "by": "blue_002"
+      },
+      {
+        "tick": 7,
+        "entity": "red_002",
+        "by": "blue_001"
+      },
+      {
+        "tick": 9,
+        "entity": "red_001",
+        "by": "blue_001"
+      }
+    ],
+    "survival_conditions": [
+      "sensor_failure: holds at every tested level",
+      "communication_failure: holds up to severe, breaks at collapse",
+      "weather_degradation: holds at every tested level",
+      "enemy_reaction_speed: holds up to moderate, breaks at severe",
+      "equipment_overheat: holds up to severe, breaks at collapse",
+      "civilian_pressure: holds up to severe, breaks at collapse"
+    ],
+    "recommended_modifications": [
+      "enemy_reaction_speed breaks the plan at severe: Do not assume a slow enemy: plan for an opponent that hits harder and sooner.",
+      "communication_failure breaks the plan at collapse: Give units standing orders that still work when orders do not get through.",
+      "equipment_overheat breaks the plan at collapse: Budget for lower sustained damage, or rotate weapons to avoid overheating.",
+      "civilian_pressure breaks the plan at collapse: Hold forces in reserve for civilian demands, or plan with fewer effective units.",
+      "Consider the alternative v0.1-support-rear: it holds longer on baseline, communication_failure, enemy_reaction_speed, civilian_pressure."
+    ]
+  },
+  "answers": {
+    "where_it_failed": [
+      "red_003 lost at tick 6 to blue_002 (12 of 23 failed runs)",
+      "red_003 lost at tick 5 to blue_003 (4 of 23 failed runs)",
+      "red_003 lost at tick 5 to blue_002 (2 of 23 failed runs)",
+      "red_003 lost at tick 6 to blue_001 (2 of 23 failed runs)",
+      "red_003 lost at tick 7 to blue_001 (1 of 23 failed runs)"
+    ],
+    "why_it_failed": [
+      "mission_success too low in 23 of 23 failed runs",
+      "time_cost too low in 23 of 23 failed runs",
+      "recovery_ability too low in 22 of 23 failed runs",
+      "crisis_resilience too low in 21 of 23 failed runs",
+      "resource_cost too low in 21 of 23 failed runs",
+      "risk_growth too low in 19 of 23 failed runs",
+      "strategic_value too low in 19 of 23 failed runs",
+      "tactical_usefulness too low in 4 of 23 failed runs",
+      "stability_impact too low in 3 of 23 failed runs",
+      "system_robustness too low in 1 of 23 failed runs"
+    ],
+    "how_fast_it_failed": {
+      "mean_first_loss_tick": 5.9091,
+      "mean_elimination_tick": 9.7368
+    },
+    "which_assumption_caused_it": "combat_resolution",
+    "which_variable_pushed_it_over": {
+      "variable": "enemy_reaction_speed",
+      "breaking_level": "severe"
+    },
+    "which_alternative_survived_longer": "v0.1-support-rear",
+    "what_must_change": [
+      "enemy_reaction_speed breaks the plan at severe: Do not assume a slow enemy: plan for an opponent that hits harder and sooner.",
+      "communication_failure breaks the plan at collapse: Give units standing orders that still work when orders do not get through.",
+      "equipment_overheat breaks the plan at collapse: Budget for lower sustained damage, or rotate weapons to avoid overheating.",
+      "civilian_pressure breaks the plan at collapse: Hold forces in reserve for civilian demands, or plan with fewer effective units.",
+      "Consider the alternative v0.1-support-rear: it holds longer on baseline, communication_failure, enemy_reaction_speed, civilian_pressure."
+    ]
+  }
+}

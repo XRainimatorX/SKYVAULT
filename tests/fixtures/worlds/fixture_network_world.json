@@ -1,0 +1,58 @@
+{
+  "world_id": "fixture_network_world",
+  "world_scope": "supply_network",
+  "purpose": [
+    "runtime_fixture"
+  ],
+  "space_model": {
+    "type": "network",
+    "nodes": [
+      "depot",
+      "north",
+      "city"
+    ],
+    "edges": [
+      [
+        "depot",
+        "north",
+        4.0
+      ],
+      [
+        "north",
+        "city",
+        3.0
+      ],
+      [
+        "depot",
+        "city",
+        10.0
+      ]
+    ]
+  },
+  "time_model": {
+    "type": "phase",
+    "max_ticks": 4,
+    "phase_length": 6,
+    "time_unit": "hours"
+  },
+  "entity_model": {},
+  "environment_state": {},
+  "resource_state": {
+    "supply": 50.0
+  },
+  "rule_set": {},
+  "actor_slots": [],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "runtime_built"
+  ],
+  "assumption_registry": {},
+  "data_provenance": {
+    "source_type": "manual_input",
+    "source_quality": "medium"
+  },
+  "failure_variables": []
+}

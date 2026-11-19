@@ -3,6 +3,7 @@
   "scenario_id": "tactical_reference_001",
   "tick": 10,
   "space": {
+    "type": "grid",
     "width": 10,
     "height": 10,
     "distance_model": "chebyshev"
@@ -169,5 +170,6 @@
     "combat_resolution": "accuracy_damage",
     "actor_policy": "temporary_tactical_reference_policy",
     "distance_model": "chebyshev"
-  }
+  },
+  "resources": {}
 }

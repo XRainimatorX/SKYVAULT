@@ -1,0 +1,41 @@
+{
+  "as built": {
+    "defended_rate": 1.0,
+    "failure_reasons": {},
+    "mean_leaks": 0.0,
+    "mean_reaction_ticks": 0.9143,
+    "mean_response_ticks": 3.4286,
+    "mean_ticks_to_detect": 2.4571,
+    "uncovered_share": 0.21
+  },
+  "south radar off": {
+    "defended_rate": 0.6,
+    "failure_reasons": {
+      "missed_in_window": 1,
+      "not_engaged": 3
+    },
+    "mean_leaks": 0.8,
+    "mean_reaction_ticks": 1.0943,
+    "mean_response_ticks": 3.8076,
+    "mean_ticks_to_detect": 2.0571,
+    "uncovered_share": 0.4025
+  },
+  "spare radar east": {
+    "defended_rate": 1.0,
+    "failure_reasons": {},
+    "mean_leaks": 0.0,
+    "mean_reaction_ticks": 0.6571,
+    "mean_response_ticks": 3.9143,
+    "mean_ticks_to_detect": 1.7143,
+    "uncovered_share": 0.18
+  },
+  "spare radar west": {
+    "defended_rate": 1.0,
+    "failure_reasons": {},
+    "mean_leaks": 0.0,
+    "mean_reaction_ticks": 1.0857,
+    "mean_response_ticks": 4.5143,
+    "mean_ticks_to_detect": 1.4571,
+    "uncovered_share": 0.11
+  }
+}

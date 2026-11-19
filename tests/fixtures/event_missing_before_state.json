@@ -1,0 +1,58 @@
+{
+  "event_id": "event_fixture01",
+  "time": 1,
+  "event_type": "MOVE",
+  "source": {
+    "actor_id": "red_001",
+    "system_id": "temporary_tactical_reference_policy",
+    "action_id": "action_fixture01"
+  },
+  "target_entity_id": null,
+  "affected": {
+    "entities": [
+      "red_001"
+    ],
+    "locations": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "resources": [],
+    "risks": []
+  },
+  "after_state": {
+    "entity_id": "red_001",
+    "position": [
+      1,
+      1
+    ]
+  },
+  "causal_links": {
+    "caused_by": [],
+    "caused_events": []
+  },
+  "evaluation_relevance": {
+    "affects_success": false,
+    "affects_cost": true,
+    "affects_risk": false
+  },
+  "data": {
+    "from": [
+      0,
+      0
+    ],
+    "to": [
+      1,
+      1
+    ]
+  },
+  "tags": [
+    "movement",
+    "world_state_mutation"
+  ]
+}

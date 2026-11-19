@@ -1,0 +1,57 @@
+{
+  "baseline": {
+    "defended_rate": 1.0,
+    "failure_reasons": {},
+    "mean_leaks": 0.0,
+    "mean_reaction_ticks": 0.9143,
+    "mean_response_ticks": 3.4286,
+    "mean_ticks_to_detect": 2.4571,
+    "uncovered_share": 0.21
+  },
+  "close in (engage_at 0.5)": {
+    "defended_rate": 0.0,
+    "failure_reasons": {
+      "misidentified": 1,
+      "missed_in_window": 6,
+      "not_engaged": 9
+    },
+    "mean_leaks": 3.2,
+    "mean_reaction_ticks": 2.76,
+    "mean_response_ticks": 5.52,
+    "mean_ticks_to_detect": 2.2857,
+    "uncovered_share": 0.21
+  },
+  "first tracked": {
+    "defended_rate": 1.0,
+    "failure_reasons": {},
+    "mean_leaks": 0.0,
+    "mean_reaction_ticks": 0.9143,
+    "mean_response_ticks": 3.4286,
+    "mean_ticks_to_detect": 2.4571,
+    "uncovered_share": 0.21
+  },
+  "hold fire below 0.6": {
+    "defended_rate": 0.0,
+    "failure_reasons": {
+      "missed_in_window": 2,
+      "not_engaged": 16
+    },
+    "mean_leaks": 3.6,
+    "mean_reaction_ticks": 1.05,
+    "mean_response_ticks": 4.35,
+    "mean_ticks_to_detect": 2.3143,
+    "uncovered_share": 0.21
+  },
+  "salvo 2": {
+    "defended_rate": 0.6,
+    "failure_reasons": {
+      "misidentified": 1,
+      "not_engaged": 1
+    },
+    "mean_leaks": 0.4,
+    "mean_reaction_ticks": 1.0095,
+    "mean_response_ticks": 3.7381,
+    "mean_ticks_to_detect": 2.1429,
+    "uncovered_share": 0.21
+  }
+}

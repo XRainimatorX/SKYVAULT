@@ -1,0 +1,113 @@
+{
+  "pack_id": "military_tactical",
+  "version": "1.3",
+  "description": "The nine profiles of the military / tactical domain pack (development plan Phase 13). Suppression, panic and retreat thresholds, command delay 0-3 ticks and order loss 0-0.2 follow the tactical combat simulator design report's suggested parameters.",
+  "units": {
+    "rifleman": {
+      "role": "combat",
+      "hp": 30,
+      "move_range": 2,
+      "sensor": "eyes",
+      "weapon": "rifle",
+      "ammo": 12,
+      "readiness": 1.0
+    },
+    "machine_gunner": {
+      "role": "combat",
+      "hp": 30,
+      "move_range": 1,
+      "sensor": "eyes",
+      "weapon": "machine_gun",
+      "ammo": 10,
+      "readiness": 1.0
+    },
+    "marksman": {
+      "role": "combat",
+      "hp": 26,
+      "move_range": 2,
+      "sensor": "optics",
+      "weapon": "marksman_rifle",
+      "ammo": 8,
+      "readiness": 1.0
+    },
+    "squad_leader": {
+      "role": "leader",
+      "hp": 28,
+      "move_range": 2,
+      "sensor": "binoculars",
+      "weapon": "carbine",
+      "ammo": 10,
+      "readiness": 1.0
+    },
+    "logistics": {
+      "role": "logistics",
+      "hp": 24,
+      "move_range": 2,
+      "sensor": "eyes",
+      "weapon": "carbine",
+      "ammo": 6,
+      "readiness": 1.0
+    }
+  },
+  "formations": {
+    "line": {"slots": [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]]},
+    "column": {"slots": [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5]]},
+    "wedge": {"slots": [[1, 0], [0, 1], [2, 1], [0, 2], [2, 2], [1, 2]]},
+    "file": {"slots": [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5]]}
+  },
+  "terrain": {
+    "open": {"symbol": ".", "move_cost": 1, "cover": 0.0, "concealment": 0.0},
+    "road": {"symbol": "r", "move_cost": 1, "cover": 0.0, "concealment": 0.0},
+    "forest": {"symbol": "f", "move_cost": 2, "cover": 0.3, "concealment": 0.4},
+    "building": {"symbol": "B", "move_cost": 2, "cover": 0.5, "concealment": 0.5},
+    "rubble": {"symbol": "x", "move_cost": 2, "cover": 0.3, "concealment": 0.2},
+    "hill": {"symbol": "h", "move_cost": 2, "cover": 0.25, "concealment": 0.1},
+    "rock": {"symbol": "^", "move_cost": null, "cover": 0.0, "concealment": 0.0},
+    "water": {"symbol": "w", "move_cost": null, "cover": 0.0, "concealment": 0.0},
+    "bridge": {"symbol": "=", "move_cost": 1, "cover": 0.0, "concealment": 0.0}
+  },
+  "sensors": {
+    "eyes": {"range": 5},
+    "binoculars": {"range": 7},
+    "optics": {"range": 8}
+  },
+  "weapons": {
+    "rifle": {"range": 3, "damage": 10, "accuracy": 0.6, "suppression": 20, "ammo_per_shot": 1},
+    "carbine": {"range": 2, "damage": 8, "accuracy": 0.6, "suppression": 15, "ammo_per_shot": 1},
+    "machine_gun": {"range": 4, "damage": 8, "accuracy": 0.45, "suppression": 45, "ammo_per_shot": 1},
+    "marksman_rifle": {"range": 6, "damage": 14, "accuracy": 0.7, "suppression": 15, "ammo_per_shot": 1}
+  },
+  "logistics": {
+    "ammo_stock": 40,
+    "resupply_amount": 6,
+    "supply_range": 1,
+    "low_ammo_share": 0.5
+  },
+  "morale": {
+    "start": 80,
+    "suppress_threshold": 60,
+    "panic_threshold": 85,
+    "retreat_threshold": 25,
+    "suppression_decay": 20,
+    "morale_loss_when_hit": 10,
+    "morale_loss_when_suppressed": 5,
+    "rally": 5
+  },
+  "command_delay": {
+    "immediate": {"delay_ticks": 0, "loss_prob": 0.0},
+    "radio": {"delay_ticks": 1, "loss_prob": 0.05},
+    "runner": {"delay_ticks": 2, "loss_prob": 0.1},
+    "degraded": {"delay_ticks": 3, "loss_prob": 0.2}
+  },
+  "missions": {
+    "destroy": {"description": "Destroy every enemy unit."},
+    "seize": {"description": "End with an own unit on the objective and no enemy on it."},
+    "hold": {"description": "End with no enemy on the objective and an own unit alive."},
+    "delay": {"description": "Keep at least one unit alive until the deadline tick."}
+  },
+  "doctrines": {
+    "aggressive": {"description": "Advance on the nearest seen enemy or the objective; fire whenever in range."},
+    "overwatch": {"description": "Bounding: half the units move while the other half hold and fire; they swap each tick."},
+    "defensive": {"description": "Take the best cover nearby and fire from it; advance only when no enemy is seen."}
+  }
+}

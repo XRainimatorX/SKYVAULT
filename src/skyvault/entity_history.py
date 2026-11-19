@@ -96,7 +96,7 @@ def build_entity_history(
 
         # Data to be extracted regardless of the ending of a scenario
         event_id = event["event_id"]
-        source_action_id = event["source_action_id"]
+        source_action_id = event["source"]["action_id"]
         tags = event["tags"]
 
         # Tracks who already has a record for this event, so the affected pass
@@ -136,7 +136,7 @@ def build_entity_history(
             continue
 
         # Data to be extracted regardless of the presence of a target
-        actor_id = event["actor_id"]
+        actor_id = event["source"]["actor_id"]
         target_entity_id = event["target_entity_id"]
         before_state = event["before_state"]
         after_state = event["after_state"]
@@ -230,8 +230,8 @@ def build_entity_history(
 
             recorded.add(actor_id)
 
-        # Anyone named in affected_entities who has no record for this event yet
-        for affected_id in event["affected_entities"]:
+        # Anyone named in affected.entities who has no record for this event yet
+        for affected_id in event["affected"]["entities"]:
 
             if affected_id in recorded or affected_id not in master_dict:
                 continue

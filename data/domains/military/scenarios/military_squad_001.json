@@ -1,0 +1,39 @@
+{
+  "scenario_id": "military_squad_001",
+  "scenario_version": "v0.1",
+  "purpose": "Squad against squad in open ground with patches of forest.",
+  "max_ticks": 20,
+  "random_seed": 42,
+  "map": [
+    "..........",
+    "..ff......",
+    "..ff...ff.",
+    ".......ff.",
+    "....f.....",
+    ".....f....",
+    ".ff.......",
+    ".ff...ff..",
+    "......ff..",
+    ".........."
+  ],
+  "factions": {
+    "RED": {
+      "doctrine": "aggressive",
+      "command": "radio",
+      "mission": {"type": "destroy"},
+      "groups": [
+        {"name": "Alpha", "formation": "wedge", "anchor": [0, 0],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]}
+      ]
+    },
+    "BLUE": {
+      "doctrine": "defensive",
+      "command": "radio",
+      "mission": {"type": "hold", "objective": [[7, 7]]},
+      "groups": [
+        {"name": "Bravo", "formation": "wedge", "anchor": [6, 6],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]}
+      ]
+    }
+  }
+}

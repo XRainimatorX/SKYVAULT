@@ -1,0 +1,52 @@
+{
+  "world_id": "tactical_reference_world_001",
+  "world_scope": "tactical_reference_environment",
+  "purpose": [
+    "state_change_test",
+    "action_consequence_test",
+    "event_memory_test",
+    "evaluation_result_test"
+  ],
+  "space_model": {
+    "type": "grid",
+    "width": 10,
+    "height": 10,
+    "distance_model": "chebyshev"
+  },
+  "time_model": {
+    "type": "tick",
+    "max_ticks": 10
+  },
+  "entity_model": {},
+  "environment_state": {},
+  "resource_state": {},
+  "rule_set": {},
+  "actor_slots": [],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "world_state_changed",
+    "event_memory_created",
+    "result_package_created"
+  ],
+  "assumption_registry": {
+    "movement_model": "one_step_grid",
+    "combat_resolution": "accuracy_damage",
+    "actor_policy": "temporary_tactical_reference_policy",
+    "distance_model": "chebyshev"
+  },
+  "data_provenance": {
+    "source_type": "manual_input",
+    "source_quality": "medium"
+  },
+  "failure_variables": [
+    "sensor_failure",
+    "communication_failure",
+    "weather_degradation",
+    "enemy_reaction_speed",
+    "equipment_overheat",
+    "civilian_pressure"
+  ]
+}

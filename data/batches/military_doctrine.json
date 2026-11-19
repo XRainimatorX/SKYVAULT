@@ -1,0 +1,15 @@
+{
+  "batch_id": "military_urban_001_doctrine",
+  "description": "RED's doctrine for seizing the courtyard: aggressive (v0.1), overwatch or defensive, 50 runs each against the same garrison.",
+  "scenario_id": "military_urban_001",
+  "base_version": "v0.1",
+  "profile": "balanced",
+  "perspective": "RED",
+  "run_policy": {"repeat_count": 50, "random_seed_policy": "controlled_random"},
+  "workers": 4,
+  "variants": [
+    {"variant_id": "aggressive", "scenario_version": "v0.1"},
+    {"variant_id": "overwatch", "scenario_version": "v0.1+overwatch"},
+    {"variant_id": "defensive", "scenario_version": "v0.1+defensive"}
+  ]
+}

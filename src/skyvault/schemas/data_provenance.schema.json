@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "ProvenanceSource": {
+      "additionalProperties": false,
+      "description": "One source of scenario data.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
+        },
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "source_type": {
+          "enum": [
+            "EIDEN_01",
+            "STARTX",
+            "manual_input",
+            "external_data",
+            "historical_record"
+          ],
+          "title": "Source Type",
+          "type": "string"
+        },
+        "timestamp": {
+          "default": "",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "version": {
+          "default": "",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "source_type",
+        "confidence"
+      ],
+      "title": "ProvenanceSource",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/1.0/data_provenance.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Data Provenance = Formal Spec sections 11.3 and 3.3.\n\nImportant:\nSection 11.3 gives sources (each with type, time, confidence, version and\nwho modified it), reliability_notes and missing_data; section 3.3 writes\nthe same block inside a scenario with timestamps, confidence,\nmodified_by and input_version beside the sources. Both sets of fields are\nhere, so either section's document validates. A world contract's\nprovenance is the flatter section 2.3 block (contracts.world).",
+  "properties": {
+    "confidence": {
+      "additionalProperties": {
+        "maximum": 1.0,
+        "minimum": 0.0,
+        "type": "number"
+      },
+      "title": "Confidence",
+      "type": "object"
+    },
+    "input_version": {
+      "default": "",
+      "title": "Input Version",
+      "type": "string"
+    },
+    "missing_data": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Missing Data",
+      "type": "array"
+    },
+    "modified_by": {
+      "default": "",
+      "title": "Modified By",
+      "type": "string"
+    },
+    "reliability_notes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reliability Notes",
+      "type": "array"
+    },
+    "scenario_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario Id"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/ProvenanceSource"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "timestamps": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Timestamps",
+      "type": "object"
+    }
+  },
+  "title": "DataProvenance",
+  "type": "object"
+}

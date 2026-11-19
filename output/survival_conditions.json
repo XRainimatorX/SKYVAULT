@@ -1,0 +1,40 @@
+{
+  "scenario_id": "tactical_reference_001",
+  "scenario_version": "v0.1",
+  "holds_without_stress": true,
+  "conditions": [
+    "sensor_failure: holds at every tested level",
+    "communication_failure: holds up to severe, breaks at collapse",
+    "weather_degradation: holds at every tested level",
+    "enemy_reaction_speed: holds up to moderate, breaks at severe",
+    "equipment_overheat: holds up to severe, breaks at collapse",
+    "civilian_pressure: holds up to severe, breaks at collapse"
+  ],
+  "per_variable": {
+    "sensor_failure": {
+      "holds_up_to": "collapse",
+      "breaks_at": null
+    },
+    "communication_failure": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    },
+    "weather_degradation": {
+      "holds_up_to": "collapse",
+      "breaks_at": null
+    },
+    "enemy_reaction_speed": {
+      "holds_up_to": "moderate",
+      "breaks_at": "severe"
+    },
+    "equipment_overheat": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    },
+    "civilian_pressure": {
+      "holds_up_to": "severe",
+      "breaks_at": "collapse"
+    }
+  },
+  "untested": []
+}

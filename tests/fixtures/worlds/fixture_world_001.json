@@ -1,0 +1,37 @@
+{
+  "world_id": "fixture_world_001",
+  "world_scope": "tactical_reference_environment",
+  "purpose": [
+    "contract_fixture"
+  ],
+  "space_model": {
+    "type": "grid",
+    "width": 4,
+    "height": 4,
+    "distance_model": "chebyshev"
+  },
+  "time_model": {
+    "type": "tick",
+    "max_ticks": 5
+  },
+  "entity_model": {},
+  "environment_state": {},
+  "resource_state": {},
+  "rule_set": {},
+  "actor_slots": [],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "event_memory_created"
+  ],
+  "assumption_registry": {
+    "actor_policy": "temporary_tactical_reference_policy"
+  },
+  "data_provenance": {
+    "source_type": "manual_input",
+    "source_quality": "medium"
+  },
+  "failure_variables": []
+}

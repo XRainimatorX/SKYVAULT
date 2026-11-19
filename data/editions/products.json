@@ -1,0 +1,35 @@
+{
+  "description": "The commercial packagings of the development plan's Phase 19, each one a flow over the same core. question is what a customer asks; uses names the core capability it runs on.",
+  "products": {
+    "crisis_planning": {
+      "title": "Crisis Planning Simulator",
+      "question": "When the grid fails, how far does it spread and does public order hold?",
+      "uses": "city domain pack: power cascade and governance stability score"
+    },
+    "urban_resilience": {
+      "title": "Urban Resilience Simulator",
+      "question": "How late can supplies arrive before order breaks down?",
+      "uses": "batch parameter sweep over the city's supply delay"
+    },
+    "ai_scenario_testing": {
+      "title": "AI Scenario Testing Platform",
+      "question": "Which agent does best on this scenario — and is its score honest?",
+      "uses": "policy registry, evaluation engine and anti-gaming checks"
+    },
+    "equipment_screening": {
+      "title": "Equipment Concept Screening Tool",
+      "question": "Is this design possible, worth building, and where does it break?",
+      "uses": "virtual test: physics-lite, engineering, stress, constraint solver"
+    },
+    "training_aar": {
+      "title": "Training & After-Action Review Tool",
+      "question": "What happened in this exercise, in order, and what did it cost?",
+      "uses": "event memory, briefing and timeline"
+    },
+    "risk_studio": {
+      "title": "Risk Simulation Studio",
+      "question": "Which pressure breaks this plan first, and at what level?",
+      "uses": "failure exploration and failure map"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "scenario_id": "military_urban_001",
+  "scenario_version": "v0.1",
+  "purpose": "A platoon seizes a courtyard held by a squad inside a ring of buildings.",
+  "max_ticks": 25,
+  "random_seed": 42,
+  "revisions": [
+    {
+      "scenario_version": "v0.2",
+      "change_reason": "The system baseline (Phase 21): the urban plan declares the failure variables a failure exploration stresses and names its doctrine alternatives. RED holds in 8 of 10 seeds without stress (measured 2026-11-10), so the failure map has room to show what breaks it.",
+      "failure_variables": ["sensor_failure", "communication_failure", "weather_degradation", "enemy_reaction_speed", "equipment_overheat"],
+      "failure_exploration": {
+        "objective": "find_weakness",
+        "failure_variables": ["sensor_failure", "communication_failure", "weather_degradation", "enemy_reaction_speed", "equipment_overheat"],
+        "stress_levels": ["mild", "moderate", "severe", "collapse"],
+        "run_policy": {"repeat_count": 10, "random_seed_policy": "controlled_random", "branch_comparison": true},
+        "alternatives": ["v0.2+overwatch", "v0.2+defensive"],
+        "survival_threshold": 0.5
+      }
+    }
+  ],
+  "map": [
+    "............",
+    ".BB.BB.BB.B.",
+    ".BB.BB.BB.B.",
+    "............",
+    ".BB.BBBB.BB.",
+    ".BB.B..B.BB.",
+    "....B..B....",
+    ".BB.BBBB.BB.",
+    "............",
+    ".BB.BB.BB.BB",
+    ".BB.BB.BB.BB",
+    "............"
+  ],
+  "factions": {
+    "RED": {
+      "doctrine": "aggressive",
+      "command": "radio",
+      "mission": {"type": "seize", "objective": [[5, 5], [6, 5], [5, 6], [6, 6]], "deadline": 25},
+      "groups": [
+        {"name": "1st squad", "formation": "line", "anchor": [0, 0],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
+        {"name": "2nd squad", "formation": "line", "anchor": [6, 0],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner"]},
+        {"name": "Support", "formation": "line", "anchor": [4, 0],
+         "units": ["marksman", "logistics"]}
+      ]
+    },
+    "BLUE": {
+      "doctrine": "defensive",
+      "command": "immediate",
+      "mission": {"type": "hold", "objective": [[5, 5], [6, 5], [5, 6], [6, 6]]},
+      "groups": [
+        {"name": "Garrison", "formation": "wedge", "anchor": [4, 4],
+         "units": ["squad_leader", "rifleman", "rifleman", "machine_gunner", "marksman"]}
+      ]
+    }
+  }
+}

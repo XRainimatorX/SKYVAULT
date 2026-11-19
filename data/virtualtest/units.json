@@ -1,0 +1,3 @@
+{
+  "description": "Units: mass kg (with operator), height and center_of_gravity m (height of the centre of gravity), base_width m (stance), footprint m\u00b2 (in contact with the ground), joint_load kN (rated load of each load-bearing joint), load_bearing_joints count, power_requirement and heat_output and cooling_capacity kW, energy_capacity kWh, endurance h (declared), maintenance_time h per mission, deployment_time min, operator_fatigue 0-1 per hour, supply_chain_risk 0-1."
+}

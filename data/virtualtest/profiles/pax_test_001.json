@@ -1,0 +1,45 @@
+{
+  "equipment_id": "PAX_TEST_001",
+  "category": "PAX",
+  "description": "Power armour. Its battery holds 15 kWh for a declared 3 h at 6 kW (18 kWh), its cooling falls short of its heat, and its joints run close to their rating.",
+  "physical_parameters": {
+    "mass": 420,
+    "height": 2.4,
+    "center_of_gravity": 1.35,
+    "base_width": 0.8,
+    "footprint": 0.12,
+    "joint_load": 9.0,
+    "load_bearing_joints": 2,
+    "power_requirement": 6.0,
+    "heat_output": 4.5,
+    "cooling_capacity": 4.0,
+    "energy_capacity": 15.0,
+    "endurance": 3
+  },
+  "engineering_parameters": {
+    "material_complexity": "high",
+    "maintenance_time": 4.0,
+    "part_replacement_difficulty": "hard",
+    "supply_chain_risk": 0.5,
+    "repair_environment_required": "depot"
+  },
+  "operational_parameters": {
+    "operator_fatigue": 0.12,
+    "terrain_accessibility": [
+      "open",
+      "road",
+      "rubble",
+      "hill",
+      "bridge"
+    ],
+    "transport_requirement": "heavy_truck",
+    "deployment_time": 30,
+    "mission_role": "assault"
+  },
+  "test_targets": [
+    "movement_viability",
+    "energy_burden",
+    "maintenance_pressure",
+    "mission_value"
+  ]
+}

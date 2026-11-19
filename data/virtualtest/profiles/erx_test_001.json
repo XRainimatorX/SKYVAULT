@@ -1,0 +1,46 @@
+{
+  "equipment_id": "ERX_TEST_001",
+  "category": "ERX",
+  "description": "A four-legged engineering and carrier robot, remotely operated.",
+  "physical_parameters": {
+    "mass": 650,
+    "height": 1.4,
+    "center_of_gravity": 0.6,
+    "base_width": 1.1,
+    "footprint": 0.4,
+    "joint_load": 7.0,
+    "load_bearing_joints": 4,
+    "power_requirement": 3.0,
+    "heat_output": 1.5,
+    "cooling_capacity": 2.5,
+    "energy_capacity": 20.0,
+    "endurance": 5
+  },
+  "engineering_parameters": {
+    "material_complexity": "medium",
+    "maintenance_time": 2.0,
+    "part_replacement_difficulty": "easy",
+    "supply_chain_risk": 0.2,
+    "repair_environment_required": "field"
+  },
+  "operational_parameters": {
+    "operator_fatigue": 0.0,
+    "terrain_accessibility": [
+      "open",
+      "road",
+      "forest",
+      "rubble",
+      "hill",
+      "bridge"
+    ],
+    "transport_requirement": "truck",
+    "deployment_time": 15,
+    "mission_role": "logistics"
+  },
+  "test_targets": [
+    "movement_viability",
+    "energy_burden",
+    "maintenance_pressure",
+    "mission_value"
+  ]
+}

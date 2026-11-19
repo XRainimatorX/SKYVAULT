@@ -29,7 +29,7 @@ def build_causal_chain(
             scenario_end = event
             continue
 
-        source_action_id = event["source_action_id"]
+        source_action_id = event["source"]["action_id"]
 
         if source_action_id is None:
             continue

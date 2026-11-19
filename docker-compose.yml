@@ -1,0 +1,26 @@
+# SKYVAULT with its job queue and store (Phase 11; one command since Phase 21).
+#   docker compose up --build        UI and API on http://localhost:8000 (docs at /api/docs)
+services:
+  api:
+    build: .
+    command: >
+      skyvault serve --host 0.0.0.0 --queue rq
+      --redis redis://redis:6379/0
+      --store postgresql://skyvault:skyvault@postgres:5432/skyvault
+    ports: ["8000:8000"]
+    depends_on: [redis, postgres]
+  worker:
+    build: .
+    command: >
+      skyvault worker
+      --redis redis://redis:6379/0
+      --store postgresql://skyvault:skyvault@postgres:5432/skyvault
+    depends_on: [redis, postgres]
+  redis:
+    image: redis:7
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: skyvault
+      POSTGRES_PASSWORD: skyvault
+      POSTGRES_DB: skyvault

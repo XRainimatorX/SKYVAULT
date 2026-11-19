@@ -1,0 +1,15 @@
+{
+  "description": "Military squad scenario: RED decided through the TAC ANGEL adapter, red_04 (the machine gun) through the HADES adapter; BLUE stays with the domain's baseline policy (no participant).",
+  "participants": [
+    {
+      "participant_id": "red_tac_angel",
+      "policy": {"name": "tac_angel_adapter"},
+      "controls": {"entity_ids": ["red_01", "red_02", "red_03"]}
+    },
+    {
+      "participant_id": "red_hades",
+      "policy": {"name": "hades_adapter"},
+      "controls": {"entity_ids": ["red_04"]}
+    }
+  ]
+}

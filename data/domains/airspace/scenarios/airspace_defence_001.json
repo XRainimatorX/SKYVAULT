@@ -1,0 +1,189 @@
+{
+  "scenario_id": "airspace_defence_001",
+  "scenario_version": "v0.1",
+  "purpose": "Defend a power station and a command post against two waves of low-flying drones, with a SKYFOX patrol in the same airspace.",
+  "description": "Measured on the Phase 14 system before any airspace code existed: no builder reads this spec. Detection there is certain within sensor range and impossible beyond it — no observation code draws a random number; there are no tracks, no false alarms, no interceptors and nothing that flies: SKYFOX is a ground unit stepping across a grid, HADES moves and shoots like a rifleman, and AEROGRID's airspace configuration comes back from the interface as a gap.",
+  "max_ticks": 30,
+  "random_seed": 42,
+  "size": [
+    20,
+    20
+  ],
+  "assets": [
+    {
+      "id": "power_station",
+      "at": [
+        10,
+        10
+      ],
+      "value": 3
+    },
+    {
+      "id": "command_post",
+      "at": [
+        12,
+        9
+      ],
+      "value": 2
+    }
+  ],
+  "sensors": [
+    {
+      "id": "radar_north",
+      "at": [
+        10,
+        4
+      ],
+      "range": 8,
+      "detection": 0.85,
+      "false_alarm": 0.02,
+      "low_altitude": 0.6
+    },
+    {
+      "id": "radar_south",
+      "at": [
+        10,
+        16
+      ],
+      "range": 6,
+      "detection": 0.7,
+      "false_alarm": 0.02,
+      "low_altitude": 0.6
+    },
+    {
+      "id": "eo_tower",
+      "at": [
+        14,
+        10
+      ],
+      "range": 4,
+      "detection": 0.9,
+      "false_alarm": 0.0,
+      "low_altitude": 1.0
+    },
+    {
+      "id": "radar_spare",
+      "at": [
+        0,
+        0
+      ],
+      "range": 7,
+      "detection": 0.85,
+      "false_alarm": 0.02,
+      "low_altitude": 0.6,
+      "online": false
+    }
+  ],
+  "interceptors": [
+    {
+      "id": "gun_west",
+      "at": [
+        9,
+        10
+      ],
+      "range": 3,
+      "kill": 0.75,
+      "reload": 1,
+      "ammo": 30
+    },
+    {
+      "id": "gun_north",
+      "at": [
+        12,
+        8
+      ],
+      "range": 3,
+      "kill": 0.75,
+      "reload": 1,
+      "ammo": 30
+    },
+    {
+      "id": "missile_east",
+      "at": [
+        11,
+        11
+      ],
+      "range": 6,
+      "kill": 0.7,
+      "reload": 3,
+      "ammo": 4
+    }
+  ],
+  "command": {
+    "reaction_delay": 1,
+    "track_timeout": 2,
+    "identify": 0.98
+  },
+  "threats": [
+    {
+      "wave": 1,
+      "tick": 2,
+      "from": [
+        [
+          0,
+          8
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          0,
+          12
+        ]
+      ],
+      "target": "power_station",
+      "speed": 1,
+      "altitude": "low"
+    },
+    {
+      "wave": 2,
+      "tick": 10,
+      "from": [
+        [
+          19,
+          0
+        ],
+        [
+          19,
+          2
+        ],
+        [
+          17,
+          0
+        ],
+        [
+          15,
+          0
+        ]
+      ],
+      "target": "command_post",
+      "speed": 1,
+      "altitude": "medium"
+    }
+  ],
+  "patrols": [
+    {
+      "id": "skyfox_1",
+      "route": [
+        [
+          6,
+          6
+        ],
+        [
+          14,
+          6
+        ],
+        [
+          14,
+          14
+        ],
+        [
+          6,
+          14
+        ]
+      ],
+      "speed": 1
+    }
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "world_id": "military_urban_001_world",
+  "world_scope": "military_tactical",
+  "purpose": [
+    "A platoon seizes a courtyard held by a squad inside a ring of buildings."
+  ],
+  "space_model": {
+    "type": "grid",
+    "width": 12,
+    "height": 12,
+    "distance_model": "chebyshev"
+  },
+  "time_model": {
+    "type": "tick",
+    "max_ticks": 25
+  },
+  "entity_model": {
+    "unit_types": [
+      "logistics",
+      "machine_gunner",
+      "marksman",
+      "rifleman",
+      "squad_leader"
+    ]
+  },
+  "environment_state": {
+    "terrain": {
+      "rows": [
+        "............",
+        ".BB.BB.BB.B.",
+        ".BB.BB.BB.B.",
+        "............",
+        ".BB.BBBB.BB.",
+        ".BB.B..B.BB.",
+        "....B..B....",
+        ".BB.BBBB.BB.",
+        "............",
+        ".BB.BB.BB.BB",
+        ".BB.BB.BB.BB",
+        "............"
+      ],
+      "legend": {
+        ".": "open",
+        "r": "road",
+        "f": "forest",
+        "B": "building",
+        "x": "rubble",
+        "h": "hill",
+        "^": "rock",
+        "w": "water",
+        "=": "bridge"
+      }
+    }
+  },
+  "resource_state": {
+    "ammo": 40.0
+  },
+  "rule_set": {
+    "action_costs": {
+      "supply": {
+        "ammo": 6.0
+      }
+    },
+    "military": {
+      "pack": "military_tactical@1.3",
+      "terrain": {
+        "open": {
+          "symbol": ".",
+          "move_cost": 1,
+          "cover": 0.0,
+          "concealment": 0.0
+        },
+        "road": {
+          "symbol": "r",
+          "move_cost": 1,
+          "cover": 0.0,
+          "concealment": 0.0
+        },
+        "forest": {
+          "symbol": "f",
+          "move_cost": 2,
+          "cover": 0.3,
+          "concealment": 0.4
+        },
+        "building": {
+          "symbol": "B",
+          "move_cost": 2,
+          "cover": 0.5,
+          "concealment": 0.5
+        },
+        "rubble": {
+          "symbol": "x",
+          "move_cost": 2,
+          "cover": 0.3,
+          "concealment": 0.2
+        },
+        "hill": {
+          "symbol": "h",
+          "move_cost": 2,
+          "cover": 0.25,
+          "concealment": 0.1
+        },
+        "rock": {
+          "symbol": "^",
+          "move_cost": null,
+          "cover": 0.0,
+          "concealment": 0.0
+        },
+        "water": {
+          "symbol": "w",
+          "move_cost": null,
+          "cover": 0.0,
+          "concealment": 0.0
+        },
+        "bridge": {
+          "symbol": "=",
+          "move_cost": 1,
+          "cover": 0.0,
+          "concealment": 0.0
+        }
+      },
+      "morale": {
+        "start": 80,
+        "suppress_threshold": 60,
+        "panic_threshold": 85,
+        "retreat_threshold": 25,
+        "suppression_decay": 20,
+        "morale_loss_when_hit": 10,
+        "morale_loss_when_suppressed": 5,
+        "rally": 5
+      },
+      "logistics": {
+        "ammo_stock": 40,
+        "resupply_amount": 6,
+        "supply_range": 1,
+        "low_ammo_share": 0.5
+      },
+      "factions": {
+        "RED": {
+          "doctrine": "aggressive",
+          "command": {
+            "delay_ticks": 1,
+            "loss_prob": 0.05
+          },
+          "command_profile": "radio",
+          "mission": {
+            "type": "seize",
+            "objective": [
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                6
+              ]
+            ],
+            "deadline": 25
+          }
+        },
+        "BLUE": {
+          "doctrine": "defensive",
+          "command": {
+            "delay_ticks": 0,
+            "loss_prob": 0.0
+          },
+          "command_profile": "immediate",
+          "mission": {
+            "type": "hold",
+            "objective": [
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                5,
+                6
+              ],
+              [
+                6,
+                6
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+  "actor_slots": [
+    "TAC_ANGEL",
+    "STARTX",
+    "NEXUS"
+  ],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "world_state_changed",
+    "event_memory_created",
+    "result_package_created"
+  ],
+  "assumption_registry": {
+    "movement_model": "terrain_weighted_grid",
+    "combat_resolution": "accuracy_cover_suppression",
+    "sensing": "range_times_concealment",
+    "command": "delay_and_order_loss",
+    "distance_model": "chebyshev"
+  },
+  "data_provenance": {
+    "source_type": "military_domain_pack",
+    "source_quality": "medium",
+    "version": "military_tactical@1.3"
+  },
+  "failure_variables": [
+    "communication_failure",
+    "enemy_reaction_speed",
+    "equipment_overheat",
+    "sensor_failure",
+    "weather_degradation"
+  ],
+  "profiles": {
+    "rules": {
+      "defensive": {
+        "military": {
+          "factions": {
+            "RED": {
+              "doctrine": "defensive"
+            }
+          }
+        }
+      },
+      "overwatch": {
+        "military": {
+          "factions": {
+            "RED": {
+              "doctrine": "overwatch"
+            }
+          }
+        }
+      }
+    }
+  }
+}

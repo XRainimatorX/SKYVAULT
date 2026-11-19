@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "MissionPlan": {
+      "additionalProperties": false,
+      "description": "One plan a mission tries: orders (scheduled actions), unit changes and\nrule changes on the mission's world. system_id names who wrote it\n(NEXUS, or STARTX / TAC ANGEL in the triangle loop).",
+      "properties": {
+        "actions": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "entity_changes": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Changes"
+        },
+        "plan_id": {
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "rule_changes": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Changes"
+        },
+        "system_id": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Id"
+        }
+      },
+      "required": [
+        "plan_id"
+      ],
+      "title": "MissionPlan",
+      "type": "object"
+    }
+  },
+  "$id": "skyvault/1.0/nexus_mission.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "What NEXUS hands SKYVAULT when an order needs a world (Formal Spec 21\nPhase I: NEXUS command interface).\n\nImportant:\norder is 陛下's order as NEXUS received it, kept word for word: it\nbecomes each compiled scenario's purpose. compare_plans needs at least\ntwo plans and test_plan at most one; every objective but report_status\nnames the world (scenario) it runs in.",
+  "properties": {
+    "max_ticks": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Max Ticks"
+    },
+    "mission_id": {
+      "pattern": "^[A-Za-z0-9_.-]+$",
+      "title": "Mission Id",
+      "type": "string"
+    },
+    "objective": {
+      "enum": [
+        "compare_plans",
+        "test_plan",
+        "stress_test",
+        "explore_failures",
+        "report_status"
+      ],
+      "title": "Objective",
+      "type": "string"
+    },
+    "order": {
+      "minLength": 1,
+      "title": "Order",
+      "type": "string"
+    },
+    "plans": {
+      "items": {
+        "$ref": "#/$defs/MissionPlan"
+      },
+      "title": "Plans",
+      "type": "array"
+    },
+    "priority": {
+      "anyOf": [
+        {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "urgent"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Priority"
+    },
+    "repeat_count": {
+      "anyOf": [
+        {
+          "minimum": 1,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Repeat Count"
+    },
+    "report_format": {
+      "default": "markdown",
+      "enum": [
+        "markdown",
+        "none"
+      ],
+      "title": "Report Format",
+      "type": "string"
+    },
+    "scenario": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_.+-]+(/[A-Za-z0-9_.+-]+)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scenario"
+    },
+    "stress_level": {
+      "default": "severe",
+      "enum": [
+        "mild",
+        "moderate",
+        "severe",
+        "collapse"
+      ],
+      "title": "Stress Level",
+      "type": "string"
+    }
+  },
+  "required": [
+    "mission_id",
+    "order",
+    "objective"
+  ],
+  "title": "NexusMission",
+  "type": "object"
+}
