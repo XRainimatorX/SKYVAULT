@@ -1,0 +1,11 @@
+{
+  "observer_id": "CYBERHOUND",
+  "description": "The information environment: emotional pressure, spread paths and cognitive risk district by district (Formal Spec 5.2).",
+  "view": "information",
+  "delay_ticks": 0,
+  "stale_after_ticks": 0,
+  "default_sensor_range": 0,
+  "local_radius": 0,
+  "enemy_detail": "hidden",
+  "source_quality": "medium"
+}

@@ -142,7 +142,8 @@ def submit(client: Client, request: dict[str, Any], wait: bool) -> dict[str, Any
         if key not in ("handoff", "external_submission") and value is not None:
             print(f"  {key}: {value}")
     if done["summary"].get("handoff"):
-        print(f"  handoff: {done['summary']['handoff']['required_decision']}")
+        handoff = done["summary"]["handoff"]
+        print(f"  handoff: {handoff['package_to_nexus']['required_decision']}")
     if done["lifecycle_state"] == "failed":
         raise Failed(f"{done['job_id']} failed: {done['error']}")
     return done

@@ -1,9 +1,49 @@
 {
   "$defs": {
+    "PackageToNexus": {
+      "additionalProperties": false,
+      "description": "Formal Spec 17.2 package_to_nexus: what the deciding authority reads.",
+      "properties": {
+        "branch_comparison": {
+          "default": null,
+          "title": "Branch Comparison"
+        },
+        "failure_map": {
+          "default": null,
+          "title": "Failure Map"
+        },
+        "required_decision": {
+          "minLength": 1,
+          "title": "Required Decision",
+          "type": "string"
+        },
+        "result_summary": {
+          "title": "Result Summary"
+        }
+      },
+      "required": [
+        "result_summary",
+        "required_decision"
+      ],
+      "title": "PackageToNexus",
+      "type": "object"
+    },
     "SkyvaultPosition": {
       "additionalProperties": false,
-      "description": "What SKYVAULT can say: the facts and the tests it recommends — never a pick.",
+      "description": "Formal Spec 17.2 skyvault_position: SKYVAULT may recommend and may never\nexecute the final decision. statement and recommended_next_tests say what\nit recommends — the facts and the tests, never a pick.",
       "properties": {
+        "may_execute_final_decision": {
+          "const": false,
+          "default": false,
+          "title": "May Execute Final Decision",
+          "type": "boolean"
+        },
+        "may_recommend": {
+          "const": true,
+          "default": true,
+          "title": "May Recommend",
+          "type": "boolean"
+        },
         "recommended_next_tests": {
           "items": {
             "type": "string"
@@ -27,12 +67,8 @@
   "$id": "skyvault/1.0/authority_handoff.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "A result put in front of the authority that decides (Formal Spec section 17).",
+  "description": "Authority Handoff = Formal Spec section 17.2, field by field.\n\nImportant:\nscenario_id, handoff_required, reason, package_to_nexus and\nskyvault_position are the section's own. handoff_id names the package by\nits content; decision_authority, status, decided_by and decision record\nwho may decide and who did.",
   "properties": {
-    "branch_comparison": {
-      "default": null,
-      "title": "Branch Comparison"
-    },
     "decided_by": {
       "anyOf": [
         {
@@ -68,45 +104,38 @@
       "title": "Decision Authority",
       "type": "array"
     },
-    "failure_map": {
-      "anyOf": [
-        {
-          "additionalProperties": true,
-          "type": "object"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Failure Map"
-    },
     "handoff_id": {
       "minLength": 1,
       "title": "Handoff Id",
       "type": "string"
     },
-    "may_execute_final_decision": {
-      "const": false,
-      "default": false,
-      "title": "May Execute Final Decision",
-      "type": "boolean"
-    },
-    "may_recommend": {
+    "handoff_required": {
       "const": true,
       "default": true,
-      "title": "May Recommend",
+      "title": "Handoff Required",
       "type": "boolean"
     },
-    "required_decision": {
-      "minLength": 1,
-      "title": "Required Decision",
-      "type": "string"
+    "package_to_nexus": {
+      "$ref": "#/$defs/PackageToNexus"
     },
-    "result_summary": {
-      "additionalProperties": true,
-      "title": "Result Summary",
-      "type": "object"
+    "reason": {
+      "items": {
+        "enum": [
+          "high_risk_outcome",
+          "strategic_tradeoff",
+          "conflicting_branches",
+          "failure_threshold_crossed"
+        ],
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Reason",
+      "type": "array"
+    },
+    "scenario_id": {
+      "minLength": 1,
+      "title": "Scenario Id",
+      "type": "string"
     },
     "skyvault_position": {
       "$ref": "#/$defs/SkyvaultPosition"
@@ -119,28 +148,14 @@
       ],
       "title": "Status",
       "type": "string"
-    },
-    "triggers": {
-      "items": {
-        "enum": [
-          "high_risk_outcome",
-          "strategic_tradeoff",
-          "conflicting_branches",
-          "failure_threshold_crossed"
-        ],
-        "type": "string"
-      },
-      "minItems": 1,
-      "title": "Triggers",
-      "type": "array"
     }
   },
   "required": [
-    "handoff_id",
-    "triggers",
-    "result_summary",
-    "required_decision",
+    "scenario_id",
+    "reason",
+    "package_to_nexus",
     "skyvault_position",
+    "handoff_id",
     "decision_authority"
   ],
   "title": "AuthorityHandoff",

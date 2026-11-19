@@ -106,7 +106,7 @@ def test_the_default_policy_passes_its_contract_with_every_default_filled():
 @pytest.mark.parametrize(
     "broken",
     [
-        {"policy_id": "x", "run_priority": "urgent"},
+        {"policy_id": "x", "run_priority": "critical"},
         {"policy_id": "x", "max_parallel_runs": 0},
         {"policy_id": "x", "auto_stop": {"infinite_loop_repeats": 1}},
         {"policy_id": "x", "auto_stop": {"failure_loss_ratio": 1.5}},
@@ -337,7 +337,11 @@ def test_the_runaway_job_is_stopped_and_hands_over_its_partial_result():
     )
     assert rec["usage"] == {**rec["usage"], "ticks": 11, "decisions": 66, "events": 67}
     assert rec["duration_clamped_from"] == 5000
-    assert rec["estimated_cost"] == {"runs": 1, "decisions": 1200, "seconds": 0.84}
+    assert rec["compute_budget"]["estimated_cost"] == {
+        "runs": 1,
+        "decisions": 1200,
+        "seconds": 0.84,
+    }
     assert package["event_memory"][-1]["event_type"] == "SCENARIO_END"
 
 
@@ -431,11 +435,28 @@ def test_every_run_records_its_governance_even_without_a_policy():
     rec = record(package)
 
     assert validate_governance_record(rec) == rec
-    assert (rec["policy_id"], rec["limits"], rec["stopped"]) == (
+    assert (rec["policy_id"], rec["auto_stop_conditions"], rec["stopped"]) == (
         "ungoverned",
-        None,
+        [],
         False,
     )
+    # Formal Spec 15.3, field by field
+    assert {
+        "scenario_id",
+        "compute_budget",
+        "priority",
+        "auto_stop_conditions",
+        "queue_policy",
+    } <= set(rec)
+    assert {
+        "max_runtime",
+        "max_parallel_runs",
+        "max_batch_count",
+        "estimated_cost",
+    } <= set(rec["compute_budget"])
+    assert set(rec["priority"]) == {"level", "reason"}
+    assert {"allow_defer", "allow_partial_result"} <= set(rec["queue_policy"])
+    assert rec["scenario_id"] == "tactical_reference_001"
     assert rec["usage"]["runs"] == 1
     assert rec["usage"]["ticks"] == 10 and rec["usage"]["decisions"] == 46
     assert rec["usage"]["events"] == len(package["event_memory"]) == 97

@@ -265,7 +265,8 @@ def author_scenario(
                 "required_logs": [],
                 "required_reports": [],
                 "replay_required": True,
-                "failure_map_required": explored is not None,
+                # exploring is hundreds of runs: a scenario asks for it
+                "failure_map_required": False,
             }
         ),
     }

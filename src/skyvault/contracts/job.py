@@ -22,12 +22,14 @@ JobKind = Literal[
     "replay",
     "persistent_world",
     "branch_compare",
+    "monitor",
 ]
 Lifecycle = Literal[
     "created",
     "initialized",
     "running",
     "paused",
+    "branched",
     "completed",
     "failed",
     "archived",
@@ -61,6 +63,11 @@ class JobRequest(ContractModel):
     branches are a branch_compare's named action sets (Phase 12), each
     {branch_id, actions, entity_changes}. entity_changes replaces named
     units' capabilities, state, name or type ({entity_id: {field: ...}});
+    rule_changes merges into the world's rule set, group by group, key by
+    key (Phase 22: CYBERHOUND's information environment is a city rule
+    group); a group the world does not have is refused; stress applies
+    failure variables at a level ({variable: level}, Formal Spec 9.2: TAC
+    ANGEL's 壓測結果);
     data_provenance records where those changes came from (Phase 12: what
     EIDEN-01 and STAR GUARD submit).
     """
@@ -77,6 +84,8 @@ class JobRequest(ContractModel):
     replay: NonEmptyStr | None = None
     branches: list[dict[str, Any]] | None = None
     entity_changes: dict[str, EntityChange] | None = None
+    rule_changes: dict[str, dict[str, Any]] | None = None
+    stress: dict[str, Literal["mild", "moderate", "severe", "collapse"]] | None = None
     data_provenance: DataProvenance | None = None
 
     @model_validator(mode="after")
@@ -88,6 +97,7 @@ class JobRequest(ContractModel):
             "batch": "batch",
             "replay": "replay",
             "branch_compare": "branches",
+            "monitor": "scenario",
         }[self.kind]
         if self.kind == "branch_compare" and self.scenario is None:
             raise ValueError("a branch_compare job needs scenario")

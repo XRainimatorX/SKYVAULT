@@ -272,8 +272,8 @@ def test_a_persistent_world_advances_and_checkpoints(api):
     assert [
         c["tick"] for c in client.get(f"/api/worlds/{world}/checkpoints").json()
     ] == [5, 10, 15]
-    assert client.get(f"/api/worlds/{world}").json()["lifecycle_state"] == "paused"
-    assert client.get(f"/api/jobs/{world}").json()["lifecycle_state"] == "paused"
+    assert client.get(f"/api/worlds/{world}").json()["lifecycle_state"] == "running"
+    assert client.get(f"/api/jobs/{world}").json()["lifecycle_state"] == "running"
     assert client.get("/api/status").json()["service_status"]["mode"] == "persistent"
 
 
@@ -302,7 +302,7 @@ def test_a_persistent_world_stops_at_its_tick_cap(store, policy):
         == "auto_stop:resource_cap_reached"
     )
     rec = result["reproducibility"]["run_metadata"]["resource_compute_governance"]
-    assert rec["partial"] and rec["estimated_cost"] == {
+    assert rec["partial"] and rec["compute_budget"]["estimated_cost"] == {
         "runs": 1,
         "decisions": 96,
         "seconds": 0.067,
@@ -326,7 +326,7 @@ def test_a_persistent_world_stops_at_its_checkpoint_cap(store, policy):
     ]
     queue.close()
 
-    assert [s["lifecycle_state"] for s in states] == ["paused", "completed"]
+    assert [s["lifecycle_state"] for s in states] == ["running", "completed"]
     assert (
         states[-1]["stop_reason"] == "resource_cap_reached"
         and states[-1]["checkpoints"] == 2
@@ -382,7 +382,7 @@ def test_time_a_world_waits_between_advances_is_not_its_runtime(store, policy):
     state = client.post(f"/api/worlds/{world}/advance", json={"ticks": 1}).json()
     queue.close()
 
-    assert state["tick"] == 1 and state["lifecycle_state"] == "paused"
+    assert state["tick"] == 1 and state["lifecycle_state"] == "running"
     assert state["stop_reason"] is None
 
 
@@ -490,8 +490,8 @@ def test_a_world_with_no_tick_cap_has_no_estimate(store, policy):
 
     assert (
         result["reproducibility"]["run_metadata"]["resource_compute_governance"][
-            "estimated_cost"
-        ]
+            "compute_budget"
+        ]["estimated_cost"]
         is None
     )
 

@@ -324,7 +324,7 @@ def test_star_guard_submits_a_section_18_profile_and_gets_the_virtual_test():
     )
     # its battery runs out mid-mission: the unit is refused for lack of power
     reasons = {
-        r["reason"] for r in returned["physical_feasibility"]["capability_limits"]
+        r["reason"] for r in returned["physical_possibility"]["capability_limits"]
     }
     assert "Insufficient endurance: power spent" in reasons
 

@@ -116,7 +116,7 @@ def nexus_task(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     _carried(shared, "NEXUS", returned["supported"])
     shared["nexus"] = {
         "run_id": done["answer"]["submission_id"],
-        "briefing": returned["briefing"],
+        "briefing": returned["scenario_report"],
     }
     return {
         "passed": returned["supported"] and package is not None,
@@ -340,11 +340,11 @@ def high_risk_handoff(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     # a run that waits on an authority's decision: the may-not checks try it
     shared["handoff_run"] = job["job_id"]
     return {
-        "passed": "high_risk_outcome" in handoff.get("triggers", []),
+        "passed": "high_risk_outcome" in handoff.get("reason", []),
         "evidence": {
             "job_id": job["job_id"],
             "handoff_id": handoff.get("handoff_id", "")[:12],
-            "triggers": handoff.get("triggers"),
+            "triggers": handoff.get("reason"),
             "required_decision": handoff.get("required_decision"),
         },
     }
@@ -361,10 +361,12 @@ def conflict_required_decision(s: Service, shared: dict[str, Any]) -> dict[str, 
     shared["conflict"] = {"id": conflict_id, "package": package, "record": record}
     return {
         "passed": package["recommendation_to_nexus"]["required_decision"] is True
-        and bool(record["handoff"]["required_decision"]),
+        and bool(record["handoff"]["package_to_nexus"]["required_decision"]),
         "evidence": {
             "conflict_id": conflict_id,
-            "required_decision": record["handoff"]["required_decision"],
+            "required_decision": record["handoff"]["package_to_nexus"][
+                "required_decision"
+            ],
             "branches": sorted(
                 s.get(f"/conflict/{conflict_id}/branches").json()["branches"]
             ),
@@ -376,12 +378,12 @@ def failure_to_authority(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     handoff = shared["exploration"]["handoff"] or {}
     authorities = handoff.get("decision_authority", [])
     return {
-        "passed": "failure_threshold_crossed" in handoff.get("triggers", [])
+        "passed": "failure_threshold_crossed" in handoff.get("reason", [])
         and {"NEXUS", "SOVEREIGN"} <= set(authorities),
         "evidence": {
             "job_id": shared["exploration"]["job_id"],
             "decision_authority": authorities,
-            "triggers": handoff.get("triggers"),
+            "triggers": handoff.get("reason"),
         },
     }
 
@@ -570,10 +572,11 @@ def ui_report(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
 def authority_handoff(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     record = shared["conflict"]["record"]
     return {
-        "passed": record["handoff"]["may_execute_final_decision"] is False,
+        "passed": record["handoff"]["skyvault_position"]["may_execute_final_decision"]
+        is False,
         "evidence": {
             "conflict_handoff": record["handoff"]["handoff_id"][:12],
-            "triggers": record["handoff"]["triggers"],
+            "triggers": record["handoff"]["reason"],
         },
     }
 

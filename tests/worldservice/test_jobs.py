@@ -407,7 +407,8 @@ def test_a_batch_job_runs_exactly_the_runs_it_was_admitted_for(store, policy):
     assert job["summary"]["workers"] == 2  # the batch asks for 4; the policy allows 2
     assert job["governance"]["usage"]["runs"] == 45
     assert job["governance"]["usage"]["ticks"] is None
-    assert job["governance"]["limits"]["max_batch_count"] == 1000
+    assert job["governance"]["compute_budget"]["max_batch_count"] == 1000
+    assert job["governance"]["priority"]["level"] == "medium"
     assert store.get_result(job["job_id"])["batch_result"]["total_runs"] == 45
 
 
@@ -470,10 +471,10 @@ def test_a_higher_priority_goes_first_and_equals_keep_their_order():
     queue = InProcessQueue(execute, 1, start=False)
     for job_id, priority in [
         ("a", "low"),
-        ("b", "normal"),
-        ("c", "critical"),
+        ("b", "medium"),
+        ("c", "urgent"),
         ("d", "high"),
-        ("e", "normal"),
+        ("e", "medium"),
     ]:
         queue.submit(job_id, priority)
 
@@ -488,7 +489,7 @@ def test_a_higher_priority_goes_first_and_equals_keep_their_order():
 def test_under_fifo_priority_is_ignored():
     execute, order, _ = recorder()
     queue = InProcessQueue(execute, 1, queue_policy="fifo", start=False)
-    for job_id, priority in [("a", "low"), ("b", "critical"), ("c", "high")]:
+    for job_id, priority in [("a", "low"), ("b", "urgent"), ("c", "high")]:
         queue.submit(job_id, priority)
     queue.start()
     queue.wait_idle()
@@ -501,7 +502,7 @@ def test_no_more_than_max_parallel_runs_run_at_once():
     execute, order, peak = recorder(delay=0.05)
     queue = InProcessQueue(execute, 2)
     for n in range(6):
-        queue.submit(f"j{n}", "normal")
+        queue.submit(f"j{n}", "medium")
     queue.start()  # already started: a second start does nothing
 
     assert queue.wait_idle()
@@ -521,9 +522,9 @@ def test_a_waiting_job_can_be_taken_out_of_the_queue():
         ran.append(job_id)
 
     queue = InProcessQueue(execute, 1)
-    queue.submit("first", "normal")
+    queue.submit("first", "medium")
     started.wait(5)
-    queue.submit("second", "normal")
+    queue.submit("second", "medium")
 
     assert queue.running() == ["first"]
     assert queue.cancel("second") is True
@@ -544,11 +545,9 @@ def test_rq_workers_take_the_higher_priority_first(store, policy, redis_url):
     queue = RQQueue(redis_url, store.spec)
     queue.clear()
     low = submit(store, policy, {**job_request("reference_run"), "priority": "low"})
-    high = submit(
-        store, policy, {**job_request("reference_run"), "priority": "critical"}
-    )
+    high = submit(store, policy, {**job_request("reference_run"), "priority": "urgent"})
     queue.submit(low["job_id"], "low")
-    queue.submit(high["job_id"], "critical")
+    queue.submit(high["job_id"], "urgent")
 
     assert queue.depth() == 2
     queue.worker(burst=True).work(burst=True, logging_level="WARNING")
@@ -567,7 +566,7 @@ def test_a_queued_rq_job_can_be_cancelled(store, policy, redis_url):
     queue = RQQueue(redis_url, store.spec)
     queue.clear()
     job = submit(store, policy, "reference_run")
-    queue.submit(job["job_id"], "normal")
+    queue.submit(job["job_id"], "medium")
 
     assert queue.cancel(job["job_id"]) is True
     assert queue.cancel(job["job_id"]) is False

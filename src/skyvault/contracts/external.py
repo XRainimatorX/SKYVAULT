@@ -77,24 +77,44 @@ class ExternalSubmission(ContractModel):
 
 
 class SkyvaultPosition(ContractModel):
-    """What SKYVAULT can say: the facts and the tests it recommends — never a pick."""
+    """
+    Formal Spec 17.2 skyvault_position: SKYVAULT may recommend and may never
+    execute the final decision. statement and recommended_next_tests say what
+    it recommends — the facts and the tests, never a pick.
+    """
 
+    may_recommend: Literal[True] = True
+    may_execute_final_decision: Literal[False] = False
     statement: NonEmptyStr
     recommended_next_tests: list[str] = Field(default_factory=list)
 
 
-class AuthorityHandoff(ContractModel):
-    """A result put in front of the authority that decides (Formal Spec section 17)."""
+class PackageToNexus(ContractModel):
+    """Formal Spec 17.2 package_to_nexus: what the deciding authority reads."""
 
-    handoff_id: NonEmptyStr
-    triggers: list[Trigger] = Field(min_length=1)
-    result_summary: dict[str, Any]
+    result_summary: Any
     branch_comparison: Any = None
-    failure_map: dict[str, Any] | None = None
+    failure_map: Any = None
     required_decision: NonEmptyStr
+
+
+class AuthorityHandoff(ContractModel):
+    """
+    Authority Handoff = Formal Spec section 17.2, field by field.
+
+    Important:
+    scenario_id, handoff_required, reason, package_to_nexus and
+    skyvault_position are the section's own. handoff_id names the package by
+    its content; decision_authority, status, decided_by and decision record
+    who may decide and who did.
+    """
+
+    scenario_id: NonEmptyStr
+    handoff_required: Literal[True] = True
+    reason: list[Trigger] = Field(min_length=1)
+    package_to_nexus: PackageToNexus
     skyvault_position: SkyvaultPosition
-    may_recommend: Literal[True] = True
-    may_execute_final_decision: Literal[False] = False
+    handoff_id: NonEmptyStr
     decision_authority: list[Authority] = Field(min_length=1)
     status: Literal["awaiting_decision", "decided"] = "awaiting_decision"
     decided_by: NonEmptyStr | None = None

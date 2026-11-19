@@ -364,7 +364,10 @@
         "aggregate",
         "mission",
         "threat",
-        "coverage"
+        "coverage",
+        "intel",
+        "information",
+        "equipment"
       ],
       "title": "View",
       "type": "string"

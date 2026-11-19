@@ -155,11 +155,24 @@
   },
   "cyberhound_environment": {
     "system": "CYBERHOUND",
-    "scenario": "tactical_reference_001/v0.1",
+    "scenario": "city_blackout_001/v0.1",
     "parameters": {
-      "public_order_pressure": 0.4,
+      "spread": 0.3,
+      "backlash_threshold": 55,
       "propagation_model": "rumour"
-    }
+    },
+    "sources": [
+      {
+        "district": "market",
+        "tick": 3,
+        "until": 9,
+        "magnitude": 12
+      }
+    ],
+    "initial_pressure": {
+      "harbor": 30
+    },
+    "repeat_count": 2
   },
   "starguard_equipment": {
     "system": "STAR_GUARD",

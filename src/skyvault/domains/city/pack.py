@@ -8,6 +8,7 @@ from ...actions import ActionHandler
 from ...world_state import WorldState
 from .failures import city_failure_variables
 from .handlers import ACTION_TYPES, MOBILE, city_handlers, districts, rules_of
+from .information import information_rules
 from .policy import CityAdministrationPolicy
 from .score import governance_stability, population_order
 
@@ -43,7 +44,7 @@ class CityPack:
         return entity.entity_type in ACTORS and entity.position is not None
 
     def upkeep(self, world: WorldState) -> list[Action]:
-        """The grid, then arrivals, then every district's tick."""
+        """The grid, arrivals, the information environment, every district's tick."""
 
         def action(
             actor_id: str, action_type: str, target: str | None = None
@@ -69,10 +70,10 @@ class CityPack:
             for e in world.entities.values()
             if e.entity_type in MOBILE and e.state.get("arrives_at") == world.tick
         ]
-        actions += [
-            action(d.entity_id, "district_update", d.entity_id)
-            for d in districts(world)
-        ]
+        every = districts(world)
+        if every and information_rules(rules_of(world)) is not None:
+            actions.append(action(every[0].entity_id, "information_update"))
+        actions += [action(d.entity_id, "district_update", d.entity_id) for d in every]
         return actions
 
     def finished(self, world: WorldState) -> str | None:

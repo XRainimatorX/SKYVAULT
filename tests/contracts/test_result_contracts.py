@@ -246,6 +246,7 @@ EXPORTED_CONTRACTS = PLAN_CONTRACTS | {
     "equipment_profile",
     "equipment_test_result",
     "edition",
+    "world_service_contract",
 }
 
 

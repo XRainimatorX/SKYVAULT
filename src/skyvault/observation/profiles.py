@@ -8,8 +8,18 @@ from ..contracts import ObserverProfile, validate_observer_profile
 
 OBSERVER_DIR = Path(__file__).resolve().parents[3] / "data" / "observers"
 
-# The systems of the development plan's Phase 5, by observer_id
-OBSERVERS = ("TAC_ANGEL", "STARTX", "NEXUS", "HADES", "AEROGRID")
+# Formal Spec 5.2: every system that observes SKYVAULT, by observer_id
+OBSERVERS = (
+    "STARTX",
+    "TAC_ANGEL",
+    "NEXUS",
+    "EIDEN_01",
+    "AEROGRID",
+    "SKYFOX",
+    "HADES",
+    "CYBERHOUND",
+    "STAR_GUARD",
+)
 
 
 def load_observer_profile(name_or_path: str | Path) -> dict[str, Any]:

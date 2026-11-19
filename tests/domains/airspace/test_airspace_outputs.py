@@ -515,3 +515,36 @@ def test_run_airspace_writes_the_outcome_comparisons_and_report(tmp_path):
     assert outcome == json.loads(
         json.dumps(AIRSPACE.airspace_outcome(reference_run(), REFERENCE))
     )
+
+
+def test_airspace_returns_carry_every_item_section_9_2_lists():
+    from skyvault.interface.systems import RETURNS
+
+    returns = {
+        "HADES": submit("HADES", "defence", {"behavior": {}, "repeat_count": 2}),
+        "AEROGRID": submit("AEROGRID", "airspace", {"sensors": {}, "repeat_count": 2}),
+        "SKYFOX": submit(
+            "SKYFOX",
+            "mission",
+            {"drone": "skyfox_1", "route": [[7, 6], [8, 6]], "repeat_count": 2},
+        ),
+    }
+    for system, returned in returns.items():
+        assert set(RETURNS[system]) <= set(returned), system
+    hades, aerogrid, skyfox = returns["HADES"], returns["AEROGRID"], returns["SKYFOX"]
+    misjudged = hades["misjudgement_rate"]
+    assert 0 <= misjudged["runs_with_misjudgement"] <= 1
+    assert set(misjudged) == {
+        "runs_with_misjudgement",
+        "mean_false_alarms",
+        "mean_fratricide",
+        "mean_misidentified",
+    }
+    assert hades["defence_effectiveness"]["defended_rate"] == (
+        hades["airspace"]["defended_rate"]
+    )
+    assert aerogrid["missed_detection_risk"]["uncovered_share"] == (
+        aerogrid["airspace"]["uncovered_share"]
+    )
+    assert aerogrid["system_performance"]["fratricide"] >= 0
+    assert skyfox["collision_or_link_loss_risk"]["collision_rate"] == 0.0

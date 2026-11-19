@@ -242,12 +242,12 @@
       "type": "string"
     },
     "run_priority": {
-      "default": "normal",
+      "default": "medium",
       "enum": [
         "low",
-        "normal",
+        "medium",
         "high",
-        "critical"
+        "urgent"
       ],
       "title": "Run Priority",
       "type": "string"

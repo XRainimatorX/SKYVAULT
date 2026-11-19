@@ -18,6 +18,20 @@ EnemyDetail = Literal["exact", "banded", "hidden"]
 SourceQuality = Literal["low", "medium", "high"]
 
 
+# Formal Spec 5.2: one view per kind of observer
+View = Literal[
+    "local",
+    "aggregate",
+    "mission",
+    "threat",
+    "coverage",
+    "intel",
+    "information",
+    "equipment",
+]
+VIEWS = View.__args__  # type: ignore[attr-defined]
+
+
 class ObserverProfile(ContractModel):
     """
     How one system observes (data/observers/).
@@ -32,7 +46,7 @@ class ObserverProfile(ContractModel):
 
     observer_id: NonEmptyStr
     description: str = ""
-    view: Literal["local", "aggregate", "mission", "threat", "coverage"]
+    view: View
     delay_ticks: int = Field(default=0, ge=0)
     stale_after_ticks: int = Field(default=0, ge=0)
     default_sensor_range: float = Field(default=5.0, ge=0.0)
@@ -124,7 +138,7 @@ class Observation(ContractModel):
 
     observer_id: NonEmptyStr
     time: int = Field(ge=0)
-    view: Literal["local", "aggregate", "mission", "threat", "coverage"]
+    view: View
     viewpoint: Viewpoint
     visible_world_state: VisibleWorldState
     hidden_state: HiddenState

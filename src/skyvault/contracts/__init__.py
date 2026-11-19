@@ -82,6 +82,7 @@ from .scenario import (
     validate_compiled_scenario,
     validate_scenario,
 )
+from .service import WorldServiceContract, validate_world_service_contract
 from .world import WorldContract, validate_world_contract
 
 __all__ = [
@@ -127,6 +128,7 @@ __all__ = [
     "CompiledScenario",
     "Scenario",
     "WorldContract",
+    "WorldServiceContract",
     "build_json_schemas",
     "ungoverned_record",
     "validate_action",
@@ -159,4 +161,5 @@ __all__ = [
     "validate_compiled_scenario",
     "validate_scenario",
     "validate_world_contract",
+    "validate_world_service_contract",
 ]

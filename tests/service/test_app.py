@@ -43,7 +43,7 @@ def record(store, request, result=None, state="completed"):
     job = store.create_job(
         {
             "request": {"source_system": "user", **request},
-            "priority": "normal",
+            "priority": "medium",
             "lifecycle_state": state,
             "world_instance": None,
             "governance": None,

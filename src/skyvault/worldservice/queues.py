@@ -22,7 +22,7 @@ from .governance import load_governance
 from .jobs import execute_job
 from .store import open_store
 
-RANK = {"critical": 0, "high": 1, "normal": 2, "low": 3}
+RANK = {"urgent": 0, "high": 1, "medium": 2, "low": 3}
 
 
 class JobQueue(Protocol):
@@ -153,7 +153,7 @@ class RQQueue:
         names = (
             list(RANK)
             if self.policy["queue_policy"] == "priority_then_fifo"
-            else ["normal"]
+            else ["medium"]
         )
         self.queues = {
             name: rq.Queue(f"skyvault-{name}", connection=self.connection)
@@ -163,7 +163,7 @@ class RQQueue:
         self.job_timeout = None if seconds is None else math.ceil(seconds * 2)
 
     def _queue(self, priority: str) -> Any:
-        return self.queues.get(priority) or self.queues["normal"]
+        return self.queues.get(priority) or self.queues["medium"]
 
     def submit(self, job_id: str, priority: str) -> None:
         self._queue(priority).enqueue(

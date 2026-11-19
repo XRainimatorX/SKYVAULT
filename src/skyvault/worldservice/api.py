@@ -19,15 +19,30 @@ from typing import Annotated, Any
 from fastapi import Body, FastAPI, HTTPException
 
 from ..boundary import declaration
-from ..contracts import ContractError
+from ..contracts import ContractError, validate_world_service_contract
+from ..contracts.service import OPERATION_MODES, SERVICE_ACTIONS
 from ..interface.api import add_external_routes
 from ..service import add_view_routes
 from .governance import Rejected
-from .jobs import NotFound, execute_job, full_request, new_job, plan
+from .jobs import (
+    NotFound,
+    execute_job,
+    full_request,
+    new_job,
+    plan,
+    scenario_for,
+)
+from .monitoring import add_monitor_routes
 from .queues import InProcessQueue, JobQueue
 from .store import JobStore
 from .views import runs, workspace_from_store
-from .worlds import PersistentWorld, WorldAwaiting, WorldClosed
+from .worlds import (
+    LIVE,
+    PersistentWorld,
+    WorldAwaiting,
+    WorldClosed,
+    WorldPaused,
+)
 
 # A request body: any JSON object; the job contract checks it
 JSONBody = Annotated[dict[str, Any], Body()]
@@ -71,6 +86,21 @@ def create_world_service(
     )
     worlds: dict[str, PersistentWorld] = {}
     worlds_lock = threading.Lock()
+    # Formal Spec 10: a world outlives the process that ran it. Every world
+    # still live in the store is rebuilt from its inputs; one that does not
+    # rebuild to its last checkpoint is marked failed.
+    for job in store.list_jobs():
+        if job["request"]["kind"] != "persistent_world":
+            continue
+        if job["lifecycle_state"] not in LIVE:
+            continue
+        try:
+            worlds[job["job_id"]] = PersistentWorld.restore(job, policy, store)
+        except Exception as error:
+            store.update_job(
+                job["job_id"], lifecycle_state="failed", error=f"restore: {error}"
+            )
+            store.log(job["job_id"], f"could not be restored: {error}")
 
     def refuse(error: Exception) -> HTTPException:
         if isinstance(error, PermissionError):
@@ -130,11 +160,15 @@ def create_world_service(
         running = [j for j in jobs if j["lifecycle_state"] == "running"]
         with worlds_lock:
             everyone = list(worlds.values())
-        live = [
-            w for w in everyone if w.lifecycle in ("initialized", "running", "paused")
-        ]
+        live = [w for w in everyone if w.lifecycle in LIVE]
         finished = [j for j in jobs if j["lifecycle_state"] in FINISHED][-10:]
         failed = sum(1 for j in finished if j["lifecycle_state"] == "failed")
+        if finished and failed == len(finished) and len(finished) >= 3:
+            health = "failed"
+        elif finished and failed * 2 >= len(finished):
+            health = "degraded"
+        else:
+            health = "normal"
         modes = [
             MODE_OF[j["request"]["kind"]]
             for j in running
@@ -148,17 +182,49 @@ def create_world_service(
         for job in jobs:
             counts[job["lifecycle_state"]] = counts.get(job["lifecycle_state"], 0) + 1
         return {
-            "service_status": {
-                "mode": mode,
-                "health": (
-                    "degraded" if finished and failed * 2 >= len(finished) else "normal"
-                ),
-            },
+            "service_status": {"mode": mode, "health": health},
             "queue": {"depth": queue.depth(), "running": queue.running()},
             "jobs": dict(sorted(counts.items())),
             "worlds": sorted(w.world_id for w in live),
             "policy_id": policy["policy_id"],
         }
+
+    @app.get("/api/service")
+    def service_contract() -> dict[str, Any]:
+        """Formal Spec 10.4 world_service_contract: what the service is and does."""
+        jobs = store.list_jobs()
+        tasks = [j for j in jobs if j["request"]["kind"] != "monitor"]
+        last = tasks[-1] if tasks else None
+        instances = [j["world_instance"] for j in jobs if j["world_instance"]]
+        return validate_world_service_contract(
+            {
+                "service_status": status()["service_status"],
+                "task_intake": {
+                    "source_system": last["request"]["source_system"] if last else None,
+                    "task_type": last["request"]["kind"] if last else None,
+                    "priority": last["priority"] if last else None,
+                    "required_result_package": (
+                        last["request"].get("required_result_package", True)
+                        if last
+                        else None
+                    ),
+                },
+                "world_instance": instances[-1] if instances else None,
+                "service_actions": list(SERVICE_ACTIONS),
+                "operation_modes": list(OPERATION_MODES),
+                "routes": {
+                    "receive_task": "POST /api/jobs",
+                    "create_world_instance": "POST /api/worlds",
+                    "run_scenario": "POST /api/jobs {kind: scenario_run}",
+                    "pause_world": "POST /api/worlds/{world_id}/pause",
+                    "resume_world": "POST /api/worlds/{world_id}/resume",
+                    "branch_world": "POST /api/worlds/{world_id}/branch",
+                    "terminate_world": "POST /api/worlds/{world_id}/terminate",
+                    "archive_world": "POST /api/worlds/{world_id}/archive",
+                    "export_result_package": "GET /api/jobs/{job_id}/result",
+                },
+            }
+        )
 
     @app.post("/api/jobs", status_code=202)
     def submit(request: JSONBody) -> dict[str, Any]:
@@ -172,7 +238,34 @@ def create_world_service(
             )
         job = admit(request)
         queue.submit(job["job_id"], job["priority"])
+        explore = _map_required(job)
+        if explore is not None:
+            linked = admit(explore)
+            queue.submit(linked["job_id"], linked["priority"])
+            store.update_job(
+                job["job_id"], summary_fields={"failure_map_job": linked["job_id"]}
+            )
+            job = store.get_job(job["job_id"])
         return job
+
+    def _map_required(job: dict[str, Any]) -> dict[str, Any] | None:
+        """
+        Formal Spec 3.3 output.failure_map_required: a scenario run that asks
+        for a failure map brings its failure exploration along, as a job of
+        its own (linked from the run's summary).
+        """
+        request = job["request"]
+        if request["kind"] != "scenario_run":
+            return None
+        scenario = scenario_for(request)
+        output = scenario.get("output") or {}
+        if not (output.get("failure_map_required") and scenario["failure_exploration"]):
+            return None
+        return {
+            "kind": "failure_exploration",
+            "scenario": request["scenario"],
+            "source_system": request["source_system"],
+        }
 
     @app.get("/api/jobs")
     def list_jobs() -> list[dict[str, Any]]:
@@ -284,6 +377,10 @@ def create_world_service(
             raise HTTPException(
                 409, {"reason": "closed", "detail": str(error)}
             ) from None
+        except WorldPaused as error:
+            raise HTTPException(
+                409, {"reason": "paused", "detail": str(error)}
+            ) from None
         except WorldAwaiting as error:
             raise HTTPException(
                 409, {"reason": "awaiting_decision", "detail": str(error)}
@@ -302,6 +399,51 @@ def create_world_service(
     def finish(world_id: str) -> dict[str, Any]:
         return world_or_404(world_id).finish()
 
+    def world_action(world_id: str, act: Callable[[PersistentWorld], Any]) -> Any:
+        """Run one Formal Spec 10.4 service action; a refusal is 409 with why."""
+        try:
+            return act(world_or_404(world_id))
+        except WorldClosed as error:
+            raise HTTPException(
+                409, {"reason": "closed", "detail": str(error)}
+            ) from None
+        except ValueError as error:
+            raise HTTPException(
+                409, {"reason": "invalid_state", "detail": str(error)}
+            ) from None
+
+    @app.post("/api/worlds/{world_id}/pause")
+    def pause(world_id: str) -> dict[str, Any]:
+        return dict(world_action(world_id, lambda world: world.pause()))
+
+    @app.post("/api/worlds/{world_id}/resume")
+    def resume(world_id: str) -> dict[str, Any]:
+        return dict(world_action(world_id, lambda world: world.resume()))
+
+    @app.post("/api/worlds/{world_id}/terminate")
+    def terminate(world_id: str) -> dict[str, Any]:
+        return dict(world_action(world_id, lambda world: world.terminate()))
+
+    @app.post("/api/worlds/{world_id}/archive")
+    def archive(world_id: str) -> dict[str, Any]:
+        archived = dict(world_action(world_id, lambda world: world.archive()))
+        with worlds_lock:
+            worlds.pop(world_id, None)
+        return archived
+
+    @app.post("/api/worlds/{world_id}/branch", status_code=201)
+    def branch(world_id: str) -> dict[str, Any]:
+        source = world_or_404(world_id)
+        job = admit({**source.request, "kind": "persistent_world"})
+        try:
+            twin = world_action(world_id, lambda world: world.branch(job["job_id"]))
+        except HTTPException:
+            store.update_job(job["job_id"], lifecycle_state="failed", error="branch")
+            raise
+        with worlds_lock:
+            worlds[twin.world_id] = twin
+        return dict(twin.state())
+
     @app.delete("/api/worlds/{world_id}")
     def delete(world_id: str) -> dict[str, Any]:
         world = world_or_404(world_id)
@@ -309,6 +451,9 @@ def create_world_service(
         with worlds_lock:
             worlds.pop(world_id, None)
         return {"world_id": world_id, "lifecycle_state": "deleted"}
+
+    # Formal Spec 10.2 Monitoring Mode: outside data that may call for a rerun
+    add_monitor_routes(app, store, admit, queue)
 
     # What the external interface (Phase 12) shares with these routes
     app.state.worlds = worlds

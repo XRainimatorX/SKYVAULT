@@ -1,0 +1,11 @@
+{
+  "observer_id": "EIDEN_01",
+  "description": "Intelligence parameters: what is known of the enemy, how far each source is trusted, where the data came from and what is missing (Formal Spec 5.2).",
+  "view": "intel",
+  "delay_ticks": 1,
+  "stale_after_ticks": 5,
+  "default_sensor_range": 5,
+  "local_radius": 0,
+  "enemy_detail": "banded",
+  "source_quality": "medium"
+}

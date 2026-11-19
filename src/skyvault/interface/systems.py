@@ -9,23 +9,27 @@ in order: {job, result, scenario}. A world action has no job: its entry
 is the world's result package and scenario.
 
 What SKYVAULT cannot model is never simulated by pretending: the
-submission comes back supported false (CYBERHOUND), or the parts that do
-not map come back as gaps (EIDEN-01's unknown units, AEROGRID's airspace).
+submission comes back supported false (CYBERHOUND outside a city), or the
+parts that do not map come back as gaps (EIDEN-01's unknown units,
+AEROGRID's airspace).
 Adapters only read results; none of them chooses for the system.
 """
 
 import copy
+from collections import Counter
 from pathlib import Path
 from statistics import mean
 from typing import Any
 
 from ..contracts import validate_external_submission
 from ..domains import load_domain
+from ..domains.city.information import DEFAULTS as INFORMATION_DEFAULTS
+from ..failure.variables import variable_for
 from ..library import find
 from ..observation.history import history_from_package, observations_for_run
 from ..observation.profiles import load_observer_profile
 from ..report import build_briefing, render_markdown
-from ..scenario_loader import load_scenario
+from ..scenario_loader import load_scenario, scenario_perspective
 from ..training.transitions import build_transitions
 from ..virtualtest.profile import GROUPS, has_equipment_parameters, load_rules
 from ..virtualtest.run import virtual_test
@@ -281,6 +285,20 @@ def airspace_summary(results: Results) -> dict[str, Any]:
     }
 
 
+RISK_THRESHOLDS = (0.2, 0.4, 0.6, 0.8)
+
+
+def risk_curve(scores: list[float]) -> list[dict[str, float]]:
+    """
+    The risk curve of a set of runs: for each score threshold, the share of
+    runs that ended below it (an exceedance curve read from the bottom).
+    """
+    return [
+        {"score_below": t, "probability": rate([x < t for x in scores])}
+        for t in RISK_THRESHOLDS
+    ]
+
+
 def rate(flags: list[bool]) -> float:
     return round(sum(flags) / len(flags), 4) if flags else 0.0
 
@@ -329,19 +347,19 @@ class NEXUSAdapter:
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
         (entry,) = results
         job, stored = entry["job"], entry["result"]
-        briefing = None
+        report = None
         gaps = []
         single = job["request"]["kind"] == "scenario_run" and stored is not None
         if single:
             if submission["content"].get("report_format", "markdown") == "markdown":
-                briefing = render_markdown(build_briefing({"result_package": stored}))
+                report = render_markdown(build_briefing({"result_package": stored}))
         elif submission["content"].get("report_format"):
             gaps.append("a briefing is written for one run's result package")
         return {
             "system": self.system,
             "supported": True,
             "result_package": stored,
-            "briefing": briefing,
+            "scenario_report": report,
             "domain_outcome": (
                 domain_outcome(stored, entry["scenario"]) if single else None
             ),
@@ -382,8 +400,14 @@ class STARTXAdapter:
         stats = branch_stats(entry["result"])
         baseline = stats["none"]
         branches = []
+        records = entry["result"].get("runs", [])
         for branch in submission["content"]["branches"]:
             s = stats[branch["branch_id"]]
+            scores = [
+                float(r["score"])
+                for r in records
+                if r["variant_id"] == f"branch:{branch['branch_id']}"
+            ]
             branches.append(
                 {
                     "branch_id": branch["branch_id"],
@@ -397,6 +421,7 @@ class STARTXAdapter:
                         "failure_frequency": s["failure_frequency"],
                         "mean_risk_events": s["mean_risk_events"],
                     },
+                    "risk_curve": risk_curve(scores),
                     "resource_pressure": {"mean_hp_lost": s["mean_hp_lost"]},
                     "score": {"mean": s["mean_score"], "stdev": s["score_stdev"]},
                     "versus_baseline": delta(s, baseline),
@@ -439,10 +464,38 @@ class TACAngelAdapter:
             "scenario": submission["scenario"],
             "runtime": {"scheduled_actions": actions},
         }
-        return request(self.system, [job])
+        level = content.get("stress_level", "severe")
+        stressed = [
+            {**copy.deepcopy(job), "stress": {name: level}}
+            for name in self.stress_variables(submission, scenarios_dir)
+        ]
+        gaps = (
+            []
+            if stressed
+            else [
+                "stress_test: the scenario names no failure variables to stress "
+                "the orders under"
+            ]
+        )
+        return request(self.system, [job, *stressed], gaps=gaps)
+
+    def stress_variables(
+        self, submission: dict[str, Any], scenarios_dir: Path
+    ) -> list[str]:
+        """The scenario's failure variables that apply to it, in its order."""
+        scenario = load_scenario_named(submission["scenario"], scenarios_dir)
+        names = (scenario.get("failure_exploration") or {}).get(
+            "failure_variables"
+        ) or scenario["world_contract"].get("failure_variables", [])
+        perspective = scenario_perspective(scenario) or ""
+        return [
+            name
+            for name in names
+            if variable_for(scenario, name).applies(scenario, perspective)[0]
+        ]
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
-        (entry,) = results
+        entry, stressed = results[0], results[1:]
         package, scenario = entry["result"], entry["scenario"]
         mine = [
             t
@@ -462,7 +515,29 @@ class TACAngelAdapter:
                 "missions": missions(package, scenario),
                 **verdict(package),
             },
-            "gaps": [],
+            "stress_test": [
+                {
+                    "stress": e["job"]["request"]["stress"],
+                    "orders_rejected": len(
+                        rejected(e["result"], set(ordered), self.system)
+                    ),
+                    **verdict(e["result"]),
+                    "score_versus_unstressed": round(
+                        e["result"]["evaluation_result"]["overall_score"]
+                        - package["evaluation_result"]["overall_score"],
+                        4,
+                    ),
+                }
+                for e in stressed
+            ],
+            "gaps": (
+                []
+                if stressed
+                else [
+                    "stress_test: the scenario names no failure variables to "
+                    "stress the orders under"
+                ]
+            ),
         }
 
 
@@ -586,8 +661,10 @@ class AEROGRIDAdapter:
     AEROGRID's coverage settings are judged with its coverage observation
     over a run: how much the side covers, the gaps, and the reaction window
     (ticks between the first enemy in coverage and the first hit on the
-    side). Airspace configuration has no model yet and comes back as a gap
-    (section 9: AEROGRID ↔ SKYVAULT).
+    side). In an airspace scenario its sensor configuration runs
+    repeat_count times. Either way it gets back the four items of Formal
+    Spec 9.2: airspace pressure, reaction window, missed-detection risk
+    and system performance.
     """
 
     system = "AEROGRID"
@@ -626,10 +703,33 @@ class AEROGRIDAdapter:
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
         if results and results[0]["scenario"].get("domain") == "airspace":
+            air = airspace_summary(results)
+            runs = air["runs"]
             return {
                 "system": self.system,
                 "supported": True,
-                "airspace": airspace_summary(results),
+                "airspace_pressure": {
+                    "mean_leaks": air["mean_leaks"],
+                    "failure_reasons": air["failure_reasons"],
+                },
+                "reaction_window": {
+                    "mean_ticks_to_detect": air["mean_ticks_to_detect"],
+                    "mean_reaction_ticks": air["mean_reaction_ticks"],
+                    "mean_response_ticks": air["mean_response_ticks"],
+                },
+                "missed_detection_risk": {
+                    "uncovered_share": air["uncovered_share"],
+                    "undetected_leaks": air["failure_reasons"].get("undetected", 0),
+                    "misidentified": air["failure_reasons"].get("misidentified", 0),
+                },
+                "system_performance": {
+                    "defended_rate": air["defended_rate"],
+                    "mean_false_alarms": average(
+                        [float(r["false_alarms"]) for r in runs]
+                    ),
+                    "fratricide": sum(int(r["fratricide"]) for r in runs),
+                },
+                "airspace": air,
                 "gaps": [],
             }
         (entry,) = results
@@ -681,6 +781,17 @@ class AEROGRIDAdapter:
                 "first_hit_tick": first_hit,
                 "ticks": window,
             },
+            # Formal Spec 9.2 in grid terms: pressure is how far coverage fell
+            # short, a missed detection a tick below the coverage threshold
+            "airspace_pressure": {
+                "ticks_below_threshold": sum(1 for r in ratios if r < threshold),
+                "max_coverage_gaps": max(s["gaps"] for s in summaries),
+            },
+            "missed_detection_risk": {
+                "share_of_ticks_below_threshold": rate([r < threshold for r in ratios]),
+                "min_coverage_ratio": min(ratios),
+            },
+            "system_performance": {"mean_coverage_ratio": average(ratios)},
             "gaps": [self.gap],
         }
 
@@ -723,6 +834,20 @@ class SKYFOXAdapter:
             ]
             reached = [cell in path for cell in route]
             report = unit_report(package, drone)
+            energy = [
+                float(units_at[drone]["state"]["energy"])
+                for units_at in history_from_package(package).values()
+                if (units_at[drone].get("state") or {}).get("energy") is not None
+            ]
+            lost_links = [
+                r
+                for r in rejected(package, {drone})
+                if str(r["reason"]).startswith("Communication failure")
+            ]
+            collided = any(
+                "collision" in e["tags"] and drone in affected_ids(e)
+                for e in package["event_memory"]
+            )
             runs.append(
                 {
                     "job_id": entry["job"]["job_id"],
@@ -734,6 +859,13 @@ class SKYFOXAdapter:
                         "destroyed": report["status"] != "active",
                     },
                     "rejected_moves": rejected(package, {drone}),
+                    "energy": (
+                        {"start": energy[0], "lowest": min(energy), "end": energy[-1]}
+                        if energy
+                        else None
+                    ),
+                    "collided": collided,
+                    "link_losses": len(lost_links),
                 }
             )
         return {
@@ -745,9 +877,39 @@ class SKYFOXAdapter:
                 "loss_rate": rate([r["path_risk"]["destroyed"] for r in runs]),
             },
             "rejected_moves": sum(len(r["rejected_moves"]) for r in runs),
+            "energy_pressure": energy_pressure(runs),
+            "collision_or_link_loss_risk": {
+                "collision_rate": rate([r["collided"] for r in runs]),
+                "link_loss_rate": rate([r["link_losses"] > 0 for r in runs]),
+                "mean_link_losses": average([float(r["link_losses"]) for r in runs]),
+            },
             "runs": runs,
-            "gaps": [],
+            "gaps": (
+                []
+                if any(r["energy"] for r in runs)
+                else ["energy_pressure: the drone carries no energy state"]
+            ),
         }
+
+
+def affected_ids(event: dict[str, Any]) -> set[str]:
+    """Every unit an event names: its target and the entities it affected."""
+    return {str(event.get("target_entity_id"))} | set(
+        event.get("affected", {}).get("entities", [])
+    )
+
+
+def energy_pressure(runs: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """How hard a route drew on the drone's energy over runs, or None without it."""
+    known = [r["energy"] for r in runs if r["energy"]]
+    if not known:
+        return None
+    return {
+        "mean_lowest_share": average(
+            [e["lowest"] / e["start"] if e["start"] else 0.0 for e in known]
+        ),
+        "mean_used": average([e["start"] - e["end"] for e in known]),
+    }
 
 
 class HADESAdapter:
@@ -843,11 +1005,42 @@ class HADESAdapter:
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
         if results and results[0]["scenario"].get("domain") == "airspace":
+            air = airspace_summary(results)
+            runs = air["runs"]
+            wrong = [
+                {
+                    "false_alarms": r["false_alarms"],
+                    "fratricide": int(r["fratricide"]),
+                    "misidentified": sum(
+                        1 for f in r["failure_points"] if f["reason"] == "misidentified"
+                    ),
+                }
+                for r in runs
+            ]
             return {
                 "system": self.system,
                 "supported": True,
                 "behavior": dict(submission["content"].get("behavior", {})),
-                "airspace": airspace_summary(results),
+                "defence_effectiveness": {
+                    "defended_rate": air["defended_rate"],
+                    "mean_leaks": air["mean_leaks"],
+                },
+                "misjudgement_rate": {
+                    "runs_with_misjudgement": rate([any(w.values()) for w in wrong]),
+                    **{
+                        f"mean_{key}": average([float(w[key]) for w in wrong])
+                        for key in ("false_alarms", "fratricide", "misidentified")
+                    },
+                },
+                "reaction_time": {
+                    "mean_reaction_ticks": air["mean_reaction_ticks"],
+                    "mean_response_ticks": air["mean_response_ticks"],
+                },
+                "coverage_gaps": {
+                    "uncovered_share": air["uncovered_share"],
+                    "failure_reasons": air["failure_reasons"],
+                },
+                "airspace": air,
                 "gaps": [],
             }
         defenders = list(submission["content"]["units"])
@@ -874,40 +1067,228 @@ class HADESAdapter:
                     [r["defence_effectiveness"]["side_losses"] for r in runs]
                 ),
             },
-            "mean_reaction_ticks": average([float(t) for t in reactions]),
+            "misjudgement_rate": None,
+            "reaction_time": {
+                "mean_reaction_ticks": average([float(t) for t in reactions])
+            },
             "coverage_gaps": sorted({g for r in runs for g in r["coverage_gaps"]}),
             "runs": runs,
-            "gaps": [],
+            "gaps": [
+                "misjudgement_rate: a grid scenario has no identification; "
+                "misjudgement is modelled in airspace scenarios"
+            ],
         }
 
 
 class CYBERHOUNDAdapter:
     """
-    CYBERHOUND describes the information environment. SKYVAULT has no model
-    of it before Phases 14–16, so nothing runs: every parameter comes back
-    as a gap and supported is false — never a pretend simulation.
+    CYBERHOUND describes the information environment: the city's
+    information model's parameters (domains/city/information.py) and rumor
+    sources. Three variants run repeat_count times each: the city without
+    the information environment, with it, and with it but no
+    counter-messaging. CYBERHOUND gets back how opinion moved, the pressure
+    it put on public order and the risk of backlash (Formal Spec 9.2:
+    輿情變化、秩序壓力、反噬風險). A world that is not a city, or a parameter
+    the model does not have, comes back as a gap — never a pretend
+    simulation.
     """
 
     system = "CYBERHOUND"
+    VARIANTS = ("without_information", "information", "no_counter_messaging")
 
-    def gaps(self, submission: dict[str, Any]) -> list[str]:
-        names = sorted(submission["content"].get("parameters", {})) or ["environment"]
-        return [
-            f"{name}: SKYVAULT has no information environment model (Phases 14-16)"
-            for name in names
+    def environment(
+        self, submission: dict[str, Any], scenarios_dir: Path
+    ) -> tuple[dict[str, Any] | None, list[str]]:
+        """The information rules CYBERHOUND sets, and gaps for the rest."""
+        name = submission.get("scenario")
+        if not name:
+            return None, ["environment: name a city scenario to run it in"]
+        scenario = load_scenario_named(name, scenarios_dir)
+        if "city" not in scenario["world_contract"]["rule_set"]:
+            return None, [
+                f"environment: {scenario['scenario_id']} is not a city; SKYVAULT's "
+                "information environment model runs on a city's districts"
+            ]
+        content = submission["content"]
+        parameters = dict(content.get("parameters", {}))
+        known = set(INFORMATION_DEFAULTS) - {"sources", "initial"}
+        gaps = [
+            f"{key}: the information model has no such parameter"
+            for key in sorted(set(parameters) - known)
         ]
+        rules = {k: v for k, v in parameters.items() if k in known}
+        districts = {
+            e["entity_id"]
+            for e in scenario["entities"]
+            if e["entity_type"] == "district"
+        }
+        sources = []
+        for source in content.get("sources", []):
+            if source.get("district") in districts:
+                sources.append(copy.deepcopy(source))
+            else:
+                gaps.append(
+                    f"source in {source.get('district')!r}: no such district in "
+                    f"{scenario['scenario_id']}"
+                )
+        rules["sources"] = sources
+        initial = content.get("initial_pressure", {})
+        rules["initial"] = {k: v for k, v in initial.items() if k in districts}
+        gaps += [
+            f"initial pressure in {k!r}: no such district"
+            for k in sorted(set(initial) - districts)
+        ]
+        return rules, gaps
 
     def to_request(
         self, submission: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
     ) -> Request:
-        return request(self.system, gaps=self.gaps(submission), supported=False)
+        rules, gaps = self.environment(submission, scenarios_dir)
+        if rules is None:
+            return request(self.system, gaps=gaps, supported=False)
+        silent = {**rules, "inform_at": 1000.0}
+        runs = (
+            seeded_runs(submission, {}, scenarios_dir)
+            + seeded_runs(
+                submission,
+                {},
+                scenarios_dir,
+                rule_changes={"city": {"information": rules}},
+            )
+            + seeded_runs(
+                submission,
+                {},
+                scenarios_dir,
+                rule_changes={"city": {"information": silent}},
+            )
+        )
+        return request(self.system, runs, gaps=gaps)
 
     def to_return(self, results: Results, submission: dict[str, Any]) -> dict:
+        if not results:
+            return {
+                "system": self.system,
+                "supported": False,
+                "gaps": self.environment(submission, SCENARIOS_DIR)[1],
+            }
+        repeats = len(results) // len(self.VARIANTS)
+        groups = {
+            name: [
+                entry["result"] for entry in results[n * repeats : (n + 1) * repeats]
+            ]
+            for n, name in enumerate(self.VARIANTS)
+        }
+        found = {name: information_outcome(runs) for name, runs in groups.items()}
+        base, info, silent = (found[name] for name in self.VARIANTS)
+        job = results[repeats]["job"]["request"]
         return {
             "system": self.system,
-            "supported": False,
-            "gaps": self.gaps(submission),
+            "supported": True,
+            "opinion_change": {
+                "mean_pressure_series": info["pressure_series"],
+                "final_pressure": info["final_pressure"],
+                "inflamed_districts": info["inflamed"],
+                "spread_paths": info["spread_paths"],
+            },
+            "order_pressure": {
+                "mean_order_with_information": info["mean_order"],
+                "mean_order_without": base["mean_order"],
+                "versus_without": round(info["mean_order"] - base["mean_order"], 4),
+                "order_lost_to_pressure": info["order_lost_to_pressure"],
+                "outcomes": info["outcomes"],
+                "outcomes_without": base["outcomes"],
+            },
+            "backlash_risk": {
+                "backlash_per_run": info["backlash_per_run"],
+                "patrols_backfired": info["patrols_backfired"],
+                "counter_messages_per_run": info["counter_messages_per_run"],
+                "counter_messaging_effect": {
+                    "mean_order": round(info["mean_order"] - silent["mean_order"], 4),
+                    "final_mean_pressure": round(
+                        info["final_mean_pressure"] - silent["final_mean_pressure"], 4
+                    ),
+                },
+            },
+            "environment": job["rule_changes"]["city"]["information"],
+            "repeat_count": repeats,
+            "gaps": self.environment(submission, SCENARIOS_DIR)[1],
         }
+
+
+def information_outcome(packages: list[dict[str, Any]]) -> dict[str, Any]:
+    """
+    What the information environment did across runs: the city's mean
+    pressure tick by tick, each district's final pressure, the spread paths
+    (pressure carried from one district to another, summed), public order
+    at the end, order lost to pressure (the emotional part of every
+    district update), backlash and counter-messaging per run.
+    """
+    series: dict[int, list[float]] = {}
+    finals: dict[str, list[float]] = {}
+    paths: dict[tuple[str, str], float] = {}
+    orders, lost, backlash, patrols, informs, outcomes = [], [], [], [], [], []
+    for package in packages:
+        final = package["final_world_state"]["entities"]
+        districts = {k: v for k, v in final.items() if v["entity_type"] == "district"}
+        orders.append(
+            mean(float(d["state"]["public_order"]) for d in districts.values())
+        )
+        for eid, d in districts.items():
+            finals.setdefault(eid, []).append(
+                float(d["state"].get("emotional_pressure", 0.0))
+            )
+        outcomes.append(package["evaluation_result"]["winner_or_result"])
+        by_tick: dict[int, dict[str, float]] = {}
+        run_lost = run_backlash = run_patrols = run_informs = 0.0
+        for event in package["event_memory"]:
+            tags, data = event["tags"], event.get("data", {})
+            if "information" in tags and "pressure_parts" in data:
+                after = event["after_state"]["state"]["emotional_pressure"]
+                by_tick.setdefault(event["time"], {})[event["target_entity_id"]] = after
+                for row in data["spread_from"]:
+                    key = (row["from"], event["target_entity_id"])
+                    paths[key] = paths.get(key, 0.0) + row["amount"]
+            if "district_update" in tags:
+                run_lost += data.get("order_parts", {}).get("emotional", 0.0)
+            if "patrol" in tags:
+                run_patrols += 1
+                run_backlash += "backlash" in tags
+            if "inform" in tags:
+                run_informs += 1
+        current = {eid: 0.0 for eid in districts}
+        for tick in sorted(by_tick):
+            current.update(by_tick[tick])
+            series.setdefault(tick, []).append(mean(current.values()))
+        lost.append(run_lost)
+        backlash.append(run_backlash)
+        patrols.append(run_patrols)
+        informs.append(run_informs)
+    final_pressure = {eid: round(mean(v), 4) for eid, v in sorted(finals.items())}
+    return {
+        "pressure_series": [
+            {"tick": tick, "mean_pressure": round(mean(values), 4)}
+            for tick, values in sorted(series.items())
+        ],
+        "final_pressure": final_pressure,
+        "final_mean_pressure": (
+            round(mean(final_pressure.values()), 4) if final_pressure else 0.0
+        ),
+        "inflamed": sorted(e for e, v in final_pressure.items() if v >= 75),
+        "spread_paths": [
+            {"from": a, "to": b, "carried": round(v / len(packages), 4)}
+            for (a, b), v in sorted(paths.items(), key=lambda kv: (-kv[1], kv[0]))[:10]
+        ],
+        "mean_order": round(mean(orders), 4),
+        "order_lost_to_pressure": round(-mean(lost), 4),
+        "outcomes": dict(sorted(Counter(outcomes).items(), key=lambda kv: str(kv[0]))),
+        "backlash_per_run": round(mean(backlash), 4),
+        "patrols_backfired": rate_of(sum(backlash), sum(patrols)),
+        "counter_messages_per_run": round(mean(informs), 4),
+    }
+
+
+def rate_of(part: float, whole: float) -> float:
+    return round(part / whole, 4) if whole else 0.0
 
 
 class STARGUARDAdapter:
@@ -1001,12 +1382,12 @@ class STARGUARDAdapter:
         refused = [r for e in equipped for r in rejected(e["result"], {unit})]
         limits = [r for r in refused if str(r["reason"]).startswith(CAPABILITY_LIMITS)]
         with_it, without = side(equipped), side(baseline)
-        return {
+        returned: dict[str, Any] = {
             "system": self.system,
             "supported": True,
             # feasible: the equipment never hit a limit of what it can do;
             # refusals of the moment are listed, but do not count against it
-            "physical_feasibility": {
+            "physical_possibility": {
                 "feasible": not limits,
                 "capability_limits": limits,
                 "situational_rejections": [r for r in refused if r not in limits],
@@ -1018,9 +1399,21 @@ class STARGUARDAdapter:
                     k: round(with_it[k] - without[k], 4) for k in with_it
                 },
             },
-            "gaps": self.gaps(content["profile"]),
             **self.virtual_test(results, submission),
         }
+        tested = returned.get("virtual_test")
+        returned["engineering_feasibility"] = (
+            tested["engineering_feasibility"] if tested else None
+        )
+        returned["gaps"] = self.gaps(content["profile"]) + (
+            []
+            if tested
+            else [
+                "engineering_feasibility: give the profile its section 18 groups "
+                f"({', '.join(GROUPS)}) to have it judged"
+            ]
+        )
+        return returned
 
     def virtual_test(self, results: Results, submission: dict[str, Any]) -> dict:
         """{virtual_test: equipment_test_result} for a section 18 profile, else {}."""
@@ -1038,6 +1431,58 @@ class STARGUARDAdapter:
         )
         return {"virtual_test": result}
 
+
+# Formal Spec 9.2: what each system gets back, item by item, and the key of
+# the return that carries it. Every return carries every key (null where a
+# world does not model an item, with the reason in gaps).
+RETURNS: dict[str, dict[str, str]] = {
+    "NEXUS": {
+        "result_package": "result package",
+        "scenario_report": "scenario report",
+        "system_status": "system status",
+    },
+    "STARTX": {"branches": "分支後果、風險曲線、資源壓力、方案評分"},
+    "TAC_ANGEL": {
+        "state_action_outcome": "state-action-outcome",
+        "tactical_outcome": "戰術成敗",
+        "stress_test": "壓測結果",
+    },
+    "EIDEN_01": {
+        "gaps": "情報轉 scenario 的缺口",
+        "sensitive_variables": "敏感變量",
+        "effect_on_result": "結果影響",
+    },
+    "AEROGRID": {
+        "airspace_pressure": "空域壓力",
+        "reaction_window": "反應窗口",
+        "missed_detection_risk": "漏檢風險",
+        "system_performance": "系統表現",
+    },
+    "SKYFOX": {
+        "mission_success_rate": "任務成功率",
+        "path_risk": "路徑風險",
+        "energy_pressure": "能源壓力",
+        "collision_or_link_loss_risk": "碰撞 / 失聯風險",
+    },
+    "HADES": {
+        "defence_effectiveness": "防禦有效性",
+        "misjudgement_rate": "誤判率",
+        "reaction_time": "反應時間",
+        "coverage_gaps": "覆蓋缺口",
+    },
+    "CYBERHOUND": {
+        "opinion_change": "輿情變化",
+        "order_pressure": "秩序壓力",
+        "backlash_risk": "反噬風險",
+    },
+    "STAR_GUARD": {
+        "physical_possibility": "physical possibility",
+        "engineering_feasibility": "engineering feasibility",
+        "tactical_usefulness": "tactical usefulness",
+    },
+}
+# STARTX: each branch carries these
+STARTX_BRANCH = ("consequences", "risk_curve", "resource_pressure", "score")
 
 ADAPTERS: dict[str, Any] = {
     adapter.system: adapter

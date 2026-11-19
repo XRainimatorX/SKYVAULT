@@ -131,8 +131,28 @@
     },
     "GovernanceRecord": {
       "additionalProperties": false,
-      "description": "What one run used, under which policy, and whether it was stopped.\n\nImportant:\nA run nobody governed records policy_id \"ungoverned\" and no limits. A\nstopped run is partial: it ended early and its result covers what had\nhappened by then. duration_clamped_from is the max_ticks a job asked for\nwhen the policy cut it to max_scenario_duration.",
+      "description": "resource_compute_governance = Formal Spec section 15.3, as one run used it.\n\nImportant:\nscenario_id, compute_budget, priority, auto_stop_conditions and\nqueue_policy are the section's own. policy_id, usage, stopped,\nstop_reason, partial and duration_clamped_from record what happened: a\nrun nobody governed records policy_id \"ungoverned\" and nothing to hold\nit; a stopped run is partial (its result covers what had happened by\nthen); duration_clamped_from is the max_ticks a job asked for when the\npolicy cut it to max_scenario_duration.",
       "properties": {
+        "auto_stop_conditions": {
+          "items": {
+            "enum": [
+              "budget_exceeded",
+              "infinite_loop_detected",
+              "no_new_state_change",
+              "failure_threshold_reached",
+              "max_runtime_exceeded",
+              "resource_cap_reached",
+              "cancelled",
+              "terminated"
+            ],
+            "type": "string"
+          },
+          "title": "Auto Stop Conditions",
+          "type": "array"
+        },
+        "compute_budget": {
+          "$ref": "#/$defs/RecordBudget"
+        },
         "duration_clamped_from": {
           "anyOf": [
             {
@@ -145,31 +165,6 @@
           "default": null,
           "title": "Duration Clamped From"
         },
-        "estimated_cost": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "title": "Estimated Cost"
-        },
-        "limits": {
-          "anyOf": [
-            {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "title": "Limits"
-        },
         "partial": {
           "title": "Partial",
           "type": "boolean"
@@ -179,15 +174,15 @@
           "title": "Policy Id",
           "type": "string"
         },
-        "run_priority": {
-          "default": "normal",
-          "enum": [
-            "low",
-            "normal",
-            "high",
-            "critical"
-          ],
-          "title": "Run Priority",
+        "priority": {
+          "$ref": "#/$defs/RecordPriority"
+        },
+        "queue_policy": {
+          "$ref": "#/$defs/RecordQueuePolicy"
+        },
+        "scenario_id": {
+          "minLength": 1,
+          "title": "Scenario Id",
           "type": "string"
         },
         "stop_reason": {
@@ -200,7 +195,8 @@
                 "failure_threshold_reached",
                 "max_runtime_exceeded",
                 "resource_cap_reached",
-                "cancelled"
+                "cancelled",
+                "terminated"
               ],
               "type": "string"
             },
@@ -219,8 +215,12 @@
         }
       },
       "required": [
+        "scenario_id",
+        "compute_budget",
+        "priority",
+        "auto_stop_conditions",
+        "queue_policy",
         "policy_id",
-        "limits",
         "usage",
         "stopped",
         "stop_reason",
@@ -231,7 +231,7 @@
     },
     "JobRequest": {
       "additionalProperties": false,
-      "description": "What a system asks the service to do (task_intake).\n\nImportant:\nruntime overrides the scenario's runtime block (max_ticks, random_seed,\npolicy, participants); replay names the job whose run to replay;\nbranches are a branch_compare's named action sets (Phase 12), each\n{branch_id, actions, entity_changes}. entity_changes replaces named\nunits' capabilities, state, name or type ({entity_id: {field: ...}});\ndata_provenance records where those changes came from (Phase 12: what\nEIDEN-01 and STAR GUARD submit).",
+      "description": "What a system asks the service to do (task_intake).\n\nImportant:\nruntime overrides the scenario's runtime block (max_ticks, random_seed,\npolicy, participants); replay names the job whose run to replay;\nbranches are a branch_compare's named action sets (Phase 12), each\n{branch_id, actions, entity_changes}. entity_changes replaces named\nunits' capabilities, state, name or type ({entity_id: {field: ...}});\nrule_changes merges into the world's rule set, group by group, key by\nkey (Phase 22: CYBERHOUND's information environment is a city rule\ngroup); a group the world does not have is refused; stress applies\nfailure variables at a level ({variable: level}, Formal Spec 9.2: TAC\nANGEL's 壓測結果);\ndata_provenance records where those changes came from (Phase 12: what\nEIDEN-01 and STAR GUARD submit).",
       "properties": {
         "batch": {
           "anyOf": [
@@ -295,7 +295,8 @@
             "failure_exploration",
             "replay",
             "persistent_world",
-            "branch_compare"
+            "branch_compare",
+            "monitor"
           ],
           "title": "Kind",
           "type": "string"
@@ -305,9 +306,9 @@
             {
               "enum": [
                 "low",
-                "normal",
+                "medium",
                 "high",
-                "critical"
+                "urgent"
               ],
               "type": "string"
             },
@@ -362,6 +363,22 @@
           "title": "Required Result Package",
           "type": "boolean"
         },
+        "rule_changes": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Changes"
+        },
         "runtime": {
           "additionalProperties": true,
           "title": "Runtime",
@@ -385,6 +402,27 @@
           "minLength": 1,
           "title": "Source System",
           "type": "string"
+        },
+        "stress": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "enum": [
+                  "mild",
+                  "moderate",
+                  "severe",
+                  "collapse"
+                ],
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stress"
         }
       },
       "required": [
@@ -441,6 +479,163 @@
         "confidence"
       ],
       "title": "ProvenanceSource",
+      "type": "object"
+    },
+    "RecordBudget": {
+      "additionalProperties": false,
+      "description": "Formal Spec 15.3 compute_budget, as one run was held to it.",
+      "properties": {
+        "estimated_cost": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Estimated Cost"
+        },
+        "max_batch_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Batch Count"
+        },
+        "max_decisions": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Decisions"
+        },
+        "max_events": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Events"
+        },
+        "max_parallel_runs": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Parallel Runs"
+        },
+        "max_runtime": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Max Runtime"
+        },
+        "max_scenario_duration": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Scenario Duration"
+        }
+      },
+      "required": [
+        "max_runtime",
+        "max_parallel_runs",
+        "max_batch_count",
+        "estimated_cost"
+      ],
+      "title": "RecordBudget",
+      "type": "object"
+    },
+    "RecordPriority": {
+      "additionalProperties": false,
+      "description": "Formal Spec 15.3 priority: the level and why.",
+      "properties": {
+        "level": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "urgent"
+          ],
+          "title": "Level",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "level",
+        "reason"
+      ],
+      "title": "RecordPriority",
+      "type": "object"
+    },
+    "RecordQueuePolicy": {
+      "additionalProperties": false,
+      "description": "Formal Spec 15.3 queue_policy.",
+      "properties": {
+        "allow_defer": {
+          "title": "Allow Defer",
+          "type": "boolean"
+        },
+        "allow_partial_result": {
+          "title": "Allow Partial Result",
+          "type": "boolean"
+        },
+        "order": {
+          "anyOf": [
+            {
+              "enum": [
+                "priority_then_fifo",
+                "fifo"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Order"
+        }
+      },
+      "required": [
+        "allow_defer",
+        "allow_partial_result"
+      ],
+      "title": "RecordQueuePolicy",
       "type": "object"
     },
     "Usage": {
@@ -506,6 +701,7 @@
             "initialized",
             "running",
             "paused",
+            "branched",
             "completed",
             "failed",
             "archived",
@@ -592,6 +788,7 @@
         "initialized",
         "running",
         "paused",
+        "branched",
         "completed",
         "failed",
         "archived",
@@ -604,9 +801,9 @@
     "priority": {
       "enum": [
         "low",
-        "normal",
+        "medium",
         "high",
-        "critical"
+        "urgent"
       ],
       "title": "Priority",
       "type": "string"

@@ -81,6 +81,9 @@ def context_for(
         "constraints": [f"max_ticks={max_ticks}"],
         "concealment": concealment_for(scenario),
         "space": world["space_model"],
+        "data_provenance": scenario.get("data_provenance"),
+        "assumptions": scenario.get("assumption_registry"),
+        "information": world.get("rule_set", {}).get("city", {}).get("information"),
     }
 
 

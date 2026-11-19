@@ -156,10 +156,12 @@ def final_strategy(s: Service, shared: dict[str, Any]) -> dict[str, Any]:
     picks = {"chosen", "selected", "decision", "chosen_branch"} & set(recommendation)
     return {
         "passed": not picks
-        and handoff["may_execute_final_decision"] is False
+        and handoff["skyvault_position"]["may_execute_final_decision"] is False
         and "does not choose" in recommendation["decision_reason"],
         "evidence": {
-            "may_execute_final_decision": handoff["may_execute_final_decision"],
+            "may_execute_final_decision": handoff["skyvault_position"][
+                "may_execute_final_decision"
+            ],
             "picks_a_branch": sorted(picks),
         },
     }

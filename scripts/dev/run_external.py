@@ -112,8 +112,9 @@ def main() -> None:
     for system, name in NAMES.items():
         done = run_submission(submission(fixtures[name]), SQLiteStore(), policy)
         returned = done["returned"]
-        if returned.get("briefing"):
-            (folder / "nexus_briefing.md").write_text(returned["briefing"], "utf-8")
+        if returned.get("scenario_report"):
+            report = returned["scenario_report"]
+            (folder / "nexus_briefing.md").write_text(report, "utf-8")
         write(folder, f"{system.lower()}.json", returned)
         runs = len(done["request"]["jobs"])
         state = "supported" if returned["supported"] else "not supported"

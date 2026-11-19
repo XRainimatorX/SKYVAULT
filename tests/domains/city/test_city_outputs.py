@@ -301,7 +301,7 @@ def test_nexus_gets_the_city_s_governance_outcome_through_the_world_service():
     )
     governance = returned["domain_outcome"]["governance_outcome"]
     assert governance == governance_stability(BLACKOUT_RUN, BLACKOUT)
-    assert "governance_collapsed' is not evaluated" not in returned["briefing"]
+    assert "governance_collapsed' is not evaluated" not in returned["scenario_report"]
 
 
 def test_the_collapse_threshold_is_evaluated_reached_or_not():

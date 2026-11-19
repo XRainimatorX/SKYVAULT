@@ -568,7 +568,7 @@
     "required_logs": [],
     "required_reports": [],
     "replay_required": true,
-    "failure_map_required": true
+    "failure_map_required": false
   },
   "scenario_version_control": {
     "version": "v0.1",

@@ -75,20 +75,20 @@ def test_nexus_gets_the_full_result_package_briefing_and_status():
     validate_result_package(package)
     assert package["evaluation_result"]["winner_or_result"] == "RED_survived"
     assert len(package["event_memory"]) == 97
-    assert returned["briefing"].startswith(
+    assert returned["scenario_report"].startswith(
         "# SKYVAULT briefing — tactical_reference_001 v0.1"
     )
     status = returned["system_status"]
     assert status["lifecycle_state"] == "completed"
     assert status["governance"]["usage"]["events"] == 97
     # the reference run (seed 42) asks for a strategic trade-off decision
-    assert status["handoff"]["triggers"] == ["strategic_tradeoff"]
-    assert status["handoff"]["may_execute_final_decision"] is False
+    assert status["handoff"]["reason"] == ["strategic_tradeoff"]
+    assert status["handoff"]["skyvault_position"]["may_execute_final_decision"] is False
 
 
 def test_nexus_without_a_report_gets_no_briefing():
     _, _, returned = carry_out(submission("NEXUS", report_format="none"))
-    assert returned["briefing"] is None
+    assert returned["scenario_report"] is None
     assert returned["result_package"] is not None
 
 
@@ -112,7 +112,7 @@ def test_nexus_briefing_is_for_one_run_only():
     returned = to_return(
         [{"job": job, "result": {}, "scenario": None}], submission("NEXUS")
     )
-    assert returned["briefing"] is None
+    assert returned["scenario_report"] is None
     assert returned["gaps"] == ["a briefing is written for one run's result package"]
 
 
@@ -386,18 +386,45 @@ def test_hades_defence_effectiveness_reaction_and_gaps():
 # ── CYBERHOUND ───────────────────────────────────────────────────────────────
 
 
-def test_cyberhound_is_never_simulated_by_pretending():
+def test_cyberhound_runs_the_information_environment_in_a_city():
     request, results, returned = fixture_run("CYBERHOUND")
+    assert request["supported"] is True
+    # without the environment, with it, with it and no counter-messaging
+    assert len(request["jobs"]) == 3 * 2 == len(results)
+    assert request["gaps"] == [
+        "propagation_model: the information model has no such parameter"
+    ]
+    environment = request["jobs"][2]["rule_changes"]["city"]["information"]
+    assert environment["spread"] == 0.3 and environment["backlash_threshold"] == 55
+    assert environment["sources"][0]["district"] == "market"
+    assert environment["initial"] == {"harbor": 30}
+    assert "rule_changes" not in request["jobs"][0]
+    assert request["jobs"][4]["rule_changes"]["city"]["information"]["inform_at"] > 100
+
+    opinion = returned["opinion_change"]
+    assert opinion["mean_pressure_series"][0]["mean_pressure"] > 0
+    assert any(p["from"] == "market" for p in opinion["spread_paths"])
+    order = returned["order_pressure"]
+    # the information environment costs the city public order
+    assert order["versus_without"] < 0 and order["order_lost_to_pressure"] > 0
+    backlash = returned["backlash_risk"]
+    assert backlash["counter_messages_per_run"] > 0
+    # counter-messaging lowers the pressure it answers
+    assert backlash["counter_messaging_effect"]["final_mean_pressure"] < 0
+    assert 0 <= backlash["patrols_backfired"] <= 1
+
+
+def test_cyberhound_outside_a_city_is_never_simulated_by_pretending():
+    sub = submission("CYBERHOUND")
+    sub["scenario"] = "tactical_reference_001/v0.1"
+    request, results, returned = carry_out(sub)
     assert request["supported"] is False
     assert request["jobs"] == [] and results == []
-    assert returned == {
-        "system": "CYBERHOUND",
-        "supported": False,
-        "gaps": [
-            f"{name}: SKYVAULT has no information environment model (Phases 14-16)"
-            for name in ("propagation_model", "public_order_pressure")
-        ],
-    }
+    assert returned["supported"] is False
+    assert returned["gaps"] == [
+        "environment: tactical_reference_001 is not a city; SKYVAULT's information "
+        "environment model runs on a city's districts"
+    ]
 
 
 # ── STAR GUARD ───────────────────────────────────────────────────────────────
@@ -423,7 +450,7 @@ def test_star_guard_equipment_replaces_a_unit_next_to_the_baseline():
         k: round(useful["equipped"][k] - useful["baseline"][k], 4)
         for k in useful["equipped"]
     }
-    feasibility = returned["physical_feasibility"]
+    feasibility = returned["physical_possibility"]
     # the fixture's refusals are all of the moment (an occupied cell): the
     # equipment itself never hit a limit
     assert feasibility["feasible"] is True and feasibility["capability_limits"] == []
@@ -562,7 +589,7 @@ def test_star_guard_drills_find_what_the_equipment_cannot_do():
     _, results, returned = carry_out(
         submission("STAR_GUARD", repeat_count=1, drills=reach)
     )
-    assert returned["physical_feasibility"]["feasible"] is True
+    assert returned["physical_possibility"]["feasible"] is True
     baseline_drill = [
         e["data"]["reason"]
         for e in results[1]["result"]["event_memory"]
@@ -573,7 +600,7 @@ def test_star_guard_drills_find_what_the_equipment_cannot_do():
 
     too_far = [{"tick": 1, "action_type": "move", "target": {"location": [0, 6]}}]
     _, _, returned = carry_out(submission("STAR_GUARD", repeat_count=1, drills=too_far))
-    feasibility = returned["physical_feasibility"]
+    feasibility = returned["physical_possibility"]
     assert feasibility["feasible"] is False
     (limit,) = feasibility["capability_limits"]
     assert (limit["tick"], limit["reason"]) == (
@@ -598,8 +625,11 @@ def test_a_unit_with_nowhere_to_go_waits_instead_of_crashing():
 
 
 def test_cyberhound_returns_its_gaps_even_when_asked_directly():
-    returned = to_return([], submission("CYBERHOUND"))
-    assert returned["supported"] is False and len(returned["gaps"]) == 2
+    sub = submission("CYBERHOUND")
+    sub["scenario"] = None
+    returned = to_return([], sub)
+    assert returned["supported"] is False
+    assert returned["gaps"] == ["environment: name a city scenario to run it in"]
 
 
 def test_a_request_s_provenance_is_filed_under_its_scenario():
@@ -614,3 +644,34 @@ def test_a_request_s_provenance_is_filed_under_its_scenario():
         }
     )
     assert scenario["data_provenance"]["scenario_id"] == "tactical_reference_001"
+
+
+# ── Formal Spec 9.2: every item every system gets back ───────────────────────
+
+
+@pytest.mark.parametrize("system", sorted(KINDS))
+def test_every_system_gets_back_every_item_section_9_2_lists(system):
+    from skyvault.interface.systems import RETURNS, STARTX_BRANCH
+
+    _, _, returned = fixture_run(system)
+    missing = sorted(set(RETURNS[system]) - set(returned))
+    assert missing == [], f"{system} return lacks {missing}"
+    if system == "STARTX":
+        for branch in returned["branches"]:
+            assert set(STARTX_BRANCH) <= set(branch)
+            curve = [row["probability"] for row in branch["risk_curve"]]
+            assert curve == sorted(curve)  # P(score < x) never falls as x rises
+    for key in RETURNS[system]:
+        if returned[key] is None:
+            # an item the world does not model says why in gaps
+            assert any(g.startswith(f"{key}:") for g in returned["gaps"]), key
+
+
+def test_tac_angel_s_orders_are_stress_tested_under_the_scenario_s_variables():
+    request, results, returned = fixture_run("TAC_ANGEL")
+    stressed = [job["stress"] for job in request["jobs"][1:]]
+    assert stressed and all(list(s.values()) == ["severe"] for s in stressed)
+    assert [row["stress"] for row in returned["stress_test"]] == stressed
+    for row, entry in zip(returned["stress_test"], results[1:], strict=True):
+        assert row["output_hash"] == entry["result"]["reproducibility"]["output_hash"]
+        assert "+" in entry["result"]["scenario_version"]  # a stressed version

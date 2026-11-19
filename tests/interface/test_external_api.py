@@ -132,11 +132,11 @@ def test_nexus_submits_a_task_and_takes_the_package_briefing_and_status(api):
     assert returned["result_package"]["evaluation_result"]["winner_or_result"] == (
         "RED_survived"
     )
-    assert returned["briefing"].startswith("# SKYVAULT briefing")
+    assert returned["scenario_report"].startswith("# SKYVAULT briefing")
     assert returned["system_status"]["lifecycle_state"] == "completed"
 
     run = client.get(f"/run/{run_id}").json()
-    assert run["handoff"]["triggers"] == ["strategic_tradeoff"]
+    assert run["handoff"]["reason"] == ["strategic_tradeoff"]
     assert run["handoff"]["decision_authority"] == ["NEXUS", "SOVEREIGN"]
     assert len(client.get(f"/run/{run_id}/result").json()["event_memory"]) == 97
     events = client.get(f"/run/{run_id}/events").json()
@@ -233,8 +233,8 @@ def test_conflicting_actions_are_held_played_out_and_returned(api):
         1,
         "awaiting_decision",
     )
-    assert record["handoff"]["triggers"] == ["conflicting_branches"]
-    assert record["handoff"]["may_execute_final_decision"] is False
+    assert record["handoff"]["reason"] == ["conflicting_branches"]
+    assert record["handoff"]["skyvault_position"]["may_execute_final_decision"] is False
 
 
 def test_skyvault_or_any_non_authority_deciding_is_refused(api):
@@ -416,9 +416,10 @@ def test_a_failure_exploration_hands_its_failure_map_over(api):
 # ── what has no model, and malformed submissions ─────────────────────────────
 
 
-def test_cyberhound_comes_back_unsupported_without_running_anything(api):
+def test_cyberhound_outside_a_city_comes_back_unsupported_without_running(api):
     client, _ = api
-    answer = client.post("/scenario/submit", json=submission("CYBERHOUND")).json()
+    outside = {**submission("CYBERHOUND"), "scenario": "tactical_reference_001/v0.1"}
+    answer = client.post("/scenario/submit", json=outside).json()
     assert answer["supported"] is False and answer["run_ids"] == []
     assert answer["returned"]["gaps"] == answer["gaps"]
     assert client.get("/api/jobs").json() == []
@@ -675,7 +676,7 @@ def test_the_script_writes_what_each_system_gets_back(tmp_path):
         text=True,
         check=True,
     )
-    assert "CYBERHOUND  0 job(s), not supported, 2 gap(s)" in done.stdout
+    assert "CYBERHOUND  6 job(s), supported, 1 gap(s)" in done.stdout
     names = sorted(p.name for p in tmp_path.iterdir())
     assert names == sorted(
         [
@@ -703,4 +704,4 @@ def test_the_script_writes_what_each_system_gets_back(tmp_path):
     assert decided["decided_by"] == "NEXUS" and decided["status"] == "decided"
     handoff = json.loads((tmp_path / "conflict_handoff.json").read_text())
     assert handoff["status"] == "awaiting_decision"
-    assert handoff["may_execute_final_decision"] is False
+    assert handoff["skyvault_position"]["may_execute_final_decision"] is False

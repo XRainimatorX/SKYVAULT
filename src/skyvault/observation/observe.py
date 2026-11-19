@@ -4,19 +4,27 @@ Important:
 history maps a tick to the units as they were then ({entity id: entity
 snapshot}); the earliest tick is the start of the run. Every observation
 is built from history alone and checked against the observation contract.
-Five views (Formal Spec section 5, development plan Phase 5):
+Eight views, one per kind of observer (Formal Spec 5.2):
 
-    local      TAC ANGEL: one unit, its side, enemies in sight or recently lost
-    aggregate  STARTX: counts, health and trends — no positions at all
-    mission    NEXUS: progress of the run for every side (no fog)
-    threat     HADES: enemies in sight and how soon they can strike
-    coverage   AEROGRID: how much of the map the side's sensors cover
+    local        TAC ANGEL, SKYFOX: one unit, its side, enemies in sight or
+                 recently lost
+    aggregate    STARTX: counts, health and trends — no positions at all
+    mission      NEXUS: progress of the run for every side (no fog)
+    threat       HADES: enemies in sight and how soon they can strike
+    coverage     AEROGRID: how much of the map the side's sensors cover
+    intel        EIDEN-01: what is known of the enemy, how far it is trusted,
+                 where it came from and what is missing
+    information  CYBERHOUND: emotional pressure, spread paths and cognitive
+                 risk district by district
+    equipment    STAR GUARD equipment test: the equipment's posture, energy,
+                 failures, maintenance pressure and mission value
 """
 
 import math
 from typing import Any
 
 from ..contracts import validate_observation
+from ..runtime.space import build_space
 from .sensing import grid_distance, is_active, sensor_range, visible_contacts
 
 Units = dict[str, Any]
@@ -529,10 +537,235 @@ def _gaps(width: int, height: int, covered: set[tuple[int, int]]) -> int:
     return gaps
 
 
+def intel_view(
+    history: History,
+    tick: int,
+    units: Units,
+    contacts: list[dict[str, Any]],
+    profile: dict[str, Any],
+    viewpoint: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    EIDEN-01: the enemy as known (the contacts), the sources the scenario's
+    data came from and how far each is trusted, the assumptions it rests
+    on with their confidence, and the gaps — data the provenance lists as
+    missing and enemy units out of sight.
+    """
+    faction = viewpoint["faction"]
+    provenance = context.get("data_provenance") or {}
+    registry = context.get("assumptions") or {}
+    sources = [
+        {
+            "source_id": source.get("source_id"),
+            "source_type": source.get("source_type"),
+            "confidence": source.get("confidence"),
+        }
+        for source in provenance.get("sources", [])
+    ]
+    assumptions = [
+        {
+            "assumption_id": a["assumption_id"],
+            "confidence": a["confidence"],
+            "criticality": a["criticality"],
+        }
+        for a in registry.get("assumptions", [])
+    ]
+    unseen = sorted(
+        unit["entity_id"]
+        for unit in units.values()
+        if unit["faction"] != faction
+        and is_active(unit)
+        and unit["entity_id"] not in _ids(contacts, "visible")
+    )
+    gaps = list(provenance.get("missing_data", []))
+    if unseen:
+        gaps.append(f"{len(unseen)} enemy unit(s) not in sight")
+    trusted = [s["confidence"] for s in sources if s["confidence"] is not None]
+    return {
+        "local_area": None,
+        "known_entities": contacts,
+        "known_risks": [
+            {"assumption_id": a["assumption_id"], "risk": "low_confidence_critical"}
+            for a in assumptions
+            if a["criticality"] == "high" and a["confidence"] < 0.5
+        ],
+        "summary": {
+            "sources": sources,
+            "source_confidence": (
+                round(sum(trusted) / len(trusted), 4) if trusted else None
+            ),
+            "assumptions": assumptions,
+            "contacts": {
+                "visible": _count(contacts, "visible"),
+                "stale": _count(contacts, "stale"),
+            },
+            "gaps": gaps,
+        },
+    }
+
+
+def information_view(
+    history: History,
+    tick: int,
+    units: Units,
+    contacts: list[dict[str, Any]],
+    profile: dict[str, Any],
+    viewpoint: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    CYBERHOUND: each district's emotional pressure and opinion state, the
+    spread paths (road links from a district under more pressure to one
+    under less: where the model carries it next), the city's mean and the
+    cognitive risk — districts inflamed, and those at or above the backlash
+    threshold. A world without an information model says so (modelled
+    false) rather than showing zeros.
+    """
+    info = context.get("information")
+    districts = {
+        unit["entity_id"]: unit
+        for unit in units.values()
+        if unit["entity_type"] == "district"
+    }
+    if info is None or not districts:
+        return {
+            "local_area": None,
+            "known_entities": [],
+            "known_risks": [],
+            "summary": {"modelled": False},
+        }
+    initial = info.get("initial", {})
+    threshold = float(info.get("backlash_threshold", 60.0))
+
+    def pressure(entity_id: str) -> float:
+        state = districts[entity_id]["state"]
+        return float(state.get("emotional_pressure", initial.get(entity_id, 0.0)))
+
+    space = build_space(context["space"])
+    by_place = {unit["position"]: eid for eid, unit in districts.items()}
+    paths = []
+    for eid in sorted(districts):
+        for place in space.neighbors(districts[eid]["position"]):
+            other = by_place.get(place)
+            if other is not None and pressure(eid) > pressure(other):
+                paths.append(
+                    {
+                        "from": eid,
+                        "to": other,
+                        "gap": round(pressure(eid) - pressure(other), 4),
+                    }
+                )
+    paths.sort(key=lambda p: (-p["gap"], p["from"], p["to"]))
+    states = {
+        eid: {
+            "emotional_pressure": round(pressure(eid), 4),
+            "opinion_state": _opinion(pressure(eid)),
+            "public_order": districts[eid]["state"].get("public_order"),
+        }
+        for eid in sorted(districts)
+    }
+    risks = [
+        {
+            "district": eid,
+            "risk": "backlash" if pressure(eid) >= threshold else "inflamed",
+            "emotional_pressure": round(pressure(eid), 4),
+        }
+        for eid in sorted(districts)
+        if pressure(eid) >= threshold or _opinion(pressure(eid)) == "inflamed"
+    ]
+    return {
+        "local_area": None,
+        "known_entities": [],
+        "known_risks": risks,
+        "summary": {
+            "modelled": True,
+            "districts": states,
+            "mean_pressure": round(
+                sum(pressure(e) for e in districts) / len(districts), 4
+            ),
+            "spread_paths": paths,
+            "cognitive_risk": sorted(
+                e for e in districts if _opinion(pressure(e)) == "inflamed"
+            ),
+        },
+    }
+
+
+def _opinion(pressure: float) -> str:
+    """calm, uneasy, agitated, inflamed in bands of 25 (as the city model)."""
+    return ("calm", "uneasy", "agitated", "inflamed")[min(3, int(pressure // 25))]
+
+
+def equipment_view(
+    history: History,
+    tick: int,
+    units: Units,
+    contacts: list[dict[str, Any]],
+    profile: dict[str, Any],
+    viewpoint: dict[str, Any],
+    context: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    STAR GUARD equipment test: the deciding unit (the equipment under test)
+    — its posture (position, health band, alive), energy (its energy state
+    when it carries one, else the endurance ticks it has left), failures
+    (share of health lost), maintenance pressure (share of its endurance
+    used) and mission value (enemies in sight within its attack range).
+    """
+    actor_id = viewpoint.get("actor_id")
+    if actor_id is None or actor_id not in units:
+        raise ValueError("the equipment view needs the equipment's actor_id")
+    unit = units[actor_id]
+    start = initial_hp(history)
+    hp0 = start.get(actor_id, float(unit["state"].get("hp", 0.0))) or 1.0
+    hp = float(unit["state"].get("hp", 0.0))
+    endurance = unit["capabilities"].get("endurance_ticks")
+    elapsed = tick - first_tick(history)
+    reach = float(unit["capabilities"].get("attack_range", 0))
+    space = context.get("space")
+    in_reach = [
+        c["entity_id"]
+        for c in contacts
+        if c["status"] == "visible"
+        and unit["position"] is not None
+        and grid_distance(space, unit["position"], c["position"]) <= reach
+    ]
+    energy: dict[str, Any] = {"state": unit["state"].get("energy")}
+    if endurance is not None:
+        energy["endurance_ticks_left"] = max(0, int(endurance) - elapsed)
+    return {
+        "local_area": None,
+        "known_entities": [_own(unit, "self")] + contacts,
+        "known_risks": (
+            [{"risk": "endurance_exhausted"}]
+            if endurance is not None and elapsed >= int(endurance)
+            else []
+        ),
+        "summary": {
+            "equipment": unit.get("name") or actor_id,
+            "posture": {
+                "position": unit["position"],
+                "hp_band": hp_band(hp, hp0),
+                "active": is_active(unit),
+            },
+            "energy": energy,
+            "failures": {"hp_lost_ratio": round(max(0.0, 1 - hp / hp0), 4)},
+            "maintenance_pressure": (
+                round(min(1.0, elapsed / int(endurance)), 4) if endurance else None
+            ),
+            "mission_value": {"targets_in_reach": sorted(in_reach)},
+        },
+    }
+
+
 VIEWS = {
     "local": local_view,
     "aggregate": aggregate_view,
     "mission": mission_view,
     "threat": threat_view,
     "coverage": coverage_view,
+    "intel": intel_view,
+    "information": information_view,
+    "equipment": equipment_view,
 }

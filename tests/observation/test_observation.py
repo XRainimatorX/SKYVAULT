@@ -130,15 +130,19 @@ def test_every_observer_profile_passes_its_contract(name):
     }
 
 
-def test_the_five_observers_have_the_five_views():
+def test_every_observer_formal_spec_5_2_lists_has_its_view():
     views = {name: load_observer_profile(name)["view"] for name in OBSERVERS}
 
     assert views == {
-        "TAC_ANGEL": "local",
         "STARTX": "aggregate",
+        "TAC_ANGEL": "local",
         "NEXUS": "mission",
-        "HADES": "threat",
+        "EIDEN_01": "intel",
         "AEROGRID": "coverage",
+        "SKYFOX": "local",
+        "HADES": "threat",
+        "CYBERHOUND": "information",
+        "STAR_GUARD": "equipment",
     }
 
 

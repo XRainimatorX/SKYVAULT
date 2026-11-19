@@ -23,6 +23,7 @@ from .provenance import DataProvenance
 from .reproducibility import ReproducibilityMetadata
 from .result_package import ResultPackage
 from .scenario import Scenario
+from .service import WorldServiceContract
 from .world import WorldContract
 
 # The eleven contracts of the development plan's Phase 1, plus the evaluation
@@ -34,6 +35,7 @@ from .world import WorldContract
 CONTRACTS: dict[str, type[ContractModel]] = {
     "world_contract": WorldContract,
     "scenario": Scenario,
+    "world_service_contract": WorldServiceContract,
     "entity": EntityRecord,
     "action": ActionRecord,
     "consequence": ConsequenceRecord,

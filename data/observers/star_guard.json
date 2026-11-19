@@ -1,0 +1,11 @@
+{
+  "observer_id": "STAR_GUARD",
+  "description": "The equipment under test: posture, energy, failures, maintenance pressure and mission value (Formal Spec 5.2, 星衞裝備測試).",
+  "view": "equipment",
+  "delay_ticks": 0,
+  "stale_after_ticks": 2,
+  "default_sensor_range": 5,
+  "local_radius": 0,
+  "enemy_detail": "banded",
+  "source_quality": "high"
+}

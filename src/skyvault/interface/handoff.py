@@ -161,28 +161,38 @@ def authority_handoff(
         statement += (
             ". " + conflict_package["recommendation_to_nexus"]["decision_reason"]
         )
+    scenario_id = (
+        (result or {}).get("scenario_id")
+        or (failure_map or {}).get("scenario_id")
+        or (conflict_package or {}).get("scenario_id")
+        or "unknown"
+    )
     package = {
-        "handoff_id": "handoff_"
-        + hashlib.sha256(
-            json.dumps([triggers, summary], sort_keys=True).encode()
-        ).hexdigest()[:16],
-        "triggers": list(triggers),
-        "result_summary": summary,
-        "branch_comparison": branch_comparison,
-        "failure_map": (
-            {**summary["failure_exploration"], "breaking_levels": breaking}
-            if failure_map is not None
-            else None
-        ),
-        "required_decision": "; ".join(DECISIONS[t] for t in triggers),
+        "scenario_id": scenario_id,
+        "handoff_required": True,
+        "reason": list(triggers),
+        "package_to_nexus": {
+            "result_summary": summary,
+            "branch_comparison": branch_comparison,
+            "failure_map": (
+                {**summary["failure_exploration"], "breaking_levels": breaking}
+                if failure_map is not None
+                else None
+            ),
+            "required_decision": "; ".join(DECISIONS[t] for t in triggers),
+        },
         "skyvault_position": {
+            "may_recommend": True,
+            "may_execute_final_decision": False,
             "statement": (
                 f"SKYVAULT simulated and recommends; it does not decide. {statement}"
             ),
             "recommended_next_tests": tests,
         },
-        "may_recommend": True,
-        "may_execute_final_decision": False,
+        "handoff_id": "handoff_"
+        + hashlib.sha256(
+            json.dumps([triggers, summary], sort_keys=True).encode()
+        ).hexdigest()[:16],
         "decision_authority": list(authorities),
         "status": "awaiting_decision",
         "decided_by": None,

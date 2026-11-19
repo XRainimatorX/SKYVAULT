@@ -43,13 +43,68 @@ def load_governance(name_or_path: str | Path = "governance") -> dict[str, Any]:
     return ResourceComputeGovernance.model_validate(data).model_dump(mode="json")
 
 
-def limits(policy: dict[str, Any]) -> dict[str, Any]:
-    """The limits a run is held to, as its governance record shows them."""
+def auto_stop_conditions(policy: dict[str, Any], persistent: bool = False) -> list[str]:
+    """The auto-stop conditions a policy switches on (Formal Spec 15.3)."""
+    budget = policy["compute_budget"]
+    rules = policy["auto_stop"]
+    switched = {
+        "budget_exceeded": any(v is not None for v in budget.values()),
+        "infinite_loop_detected": rules["infinite_loop_repeats"] is not None,
+        "no_new_state_change": rules["no_new_state_change_ticks"] is not None,
+        "failure_threshold_reached": rules["failure_loss_ratio"] is not None,
+        "max_runtime_exceeded": policy["max_runtime_seconds"] is not None,
+        "resource_cap_reached": persistent,
+    }
+    return [name for name, on in switched.items() if on]
+
+
+def governance_record(
+    policy: dict[str, Any],
+    scenario_id: str,
+    usage: dict[str, Any],
+    estimated_cost: dict[str, Any] | None,
+    stop_reason: str | None = None,
+    priority: str | None = None,
+    duration_clamped_from: int | None = None,
+    persistent: bool = False,
+) -> dict[str, Any]:
+    """
+    One run's resource_compute_governance (Formal Spec 15.3): the budget it
+    was held to, its priority, the auto-stop conditions in force, the queue
+    policy, and what it used.
+    """
+    level = priority or policy["run_priority"]
     return {
-        "compute_budget": dict(policy["compute_budget"]),
-        "max_scenario_duration": policy["max_scenario_duration"],
-        "max_runtime_seconds": policy["max_runtime_seconds"],
-        "auto_stop": dict(policy["auto_stop"]),
+        "scenario_id": scenario_id,
+        "compute_budget": {
+            "max_runtime": policy["max_runtime_seconds"],
+            "max_parallel_runs": policy["max_parallel_runs"],
+            "max_batch_count": policy["max_batch_count"],
+            "estimated_cost": estimated_cost,
+            "max_decisions": policy["compute_budget"]["max_decisions"],
+            "max_events": policy["compute_budget"]["max_events"],
+            "max_scenario_duration": policy["max_scenario_duration"],
+        },
+        "priority": {
+            "level": level,
+            "reason": (
+                f"policy {policy['policy_id']} default"
+                if priority is None or priority == policy["run_priority"]
+                else "asked for by the submitting system"
+            ),
+        },
+        "auto_stop_conditions": auto_stop_conditions(policy, persistent),
+        "queue_policy": {
+            "allow_defer": True,
+            "allow_partial_result": bool(policy["partial_result_export"]),
+            "order": policy["queue_policy"],
+        },
+        "policy_id": policy["policy_id"],
+        "usage": usage,
+        "stopped": stop_reason is not None,
+        "stop_reason": stop_reason,
+        "partial": stop_reason is not None,
+        "duration_clamped_from": duration_clamped_from,
     }
 
 
@@ -251,16 +306,16 @@ class Governor:
             return "infinite_loop_detected"
         return None
 
-    def record(self, usage: dict[str, Any], stop_reason: str | None) -> dict[str, Any]:
-        """This run's governance record."""
-        return {
-            "policy_id": self.policy["policy_id"],
-            "run_priority": self.policy["run_priority"],
-            "limits": limits(self.policy),
-            "usage": usage,
-            "estimated_cost": self.estimated_cost,
-            "stopped": stop_reason is not None,
-            "stop_reason": stop_reason,
-            "partial": stop_reason is not None,
-            "duration_clamped_from": self.duration_clamped_from,
-        }
+    def record(
+        self, usage: dict[str, Any], stop_reason: str | None, scenario_id: str
+    ) -> dict[str, Any]:
+        """This run's governance record (Formal Spec 15.3)."""
+        return governance_record(
+            self.policy,
+            scenario_id,
+            usage,
+            self.estimated_cost,
+            stop_reason,
+            duration_clamped_from=self.duration_clamped_from,
+            persistent=self.cap is not None,
+        )

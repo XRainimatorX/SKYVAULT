@@ -763,9 +763,12 @@ class SkyVaultEngine:
             "events": len(self.world.event_memory),
             "runtime_seconds": round(max(runtime_seconds, 0.0), 6),
         }
+        scenario_id = self.scenario["scenario_id"]
         if self.governor is None:
-            return ungoverned_record(usage)
-        record: dict[str, Any] = self.governor.record(usage, self.stop_reason)
+            return ungoverned_record(usage, scenario_id)
+        record: dict[str, Any] = self.governor.record(
+            usage, self.stop_reason, scenario_id
+        )
         return record
 
     def evaluate(self, termination_reason: str, event_count: int) -> dict[str, Any]:

@@ -14,7 +14,8 @@ from pydantic import Field
 
 from .base import Authority, ContractModel, NonEmptyStr, check
 
-Priority = Literal["low", "normal", "high", "critical"]
+# Formal Spec 15.3 priority levels
+Priority = Literal["low", "medium", "high", "urgent"]
 StopReason = Literal[
     "budget_exceeded",
     "infinite_loop_detected",
@@ -23,6 +24,7 @@ StopReason = Literal[
     "max_runtime_exceeded",
     "resource_cap_reached",
     "cancelled",
+    "terminated",
 ]
 STOP_REASONS = StopReason.__args__  # type: ignore[attr-defined]
 PRIORITIES = Priority.__args__  # type: ignore[attr-defined]
@@ -58,7 +60,7 @@ class ResourceComputeGovernance(ContractModel):
 
     policy_id: NonEmptyStr
     description: str = ""
-    run_priority: Priority = "normal"
+    run_priority: Priority = "medium"
     compute_budget: ComputeBudget = Field(default_factory=ComputeBudget)
     max_scenario_duration: int | None = Field(default=None, ge=1)
     max_runtime_seconds: float | None = Field(default=None, gt=0.0)
@@ -89,36 +91,75 @@ class Usage(ContractModel):
     runtime_seconds: float = Field(ge=0.0)
 
 
+class RecordBudget(ContractModel):
+    """Formal Spec 15.3 compute_budget, as one run was held to it."""
+
+    max_runtime: float | None
+    max_parallel_runs: int | None
+    max_batch_count: int | None
+    estimated_cost: dict[str, Any] | None
+    max_decisions: int | None = None
+    max_events: int | None = None
+    max_scenario_duration: int | None = None
+
+
+class RecordPriority(ContractModel):
+    """Formal Spec 15.3 priority: the level and why."""
+
+    level: Priority
+    reason: str
+
+
+class RecordQueuePolicy(ContractModel):
+    """Formal Spec 15.3 queue_policy."""
+
+    allow_defer: bool
+    allow_partial_result: bool
+    order: Literal["priority_then_fifo", "fifo"] | None = None
+
+
 class GovernanceRecord(ContractModel):
     """
-    What one run used, under which policy, and whether it was stopped.
+    resource_compute_governance = Formal Spec section 15.3, as one run used it.
 
     Important:
-    A run nobody governed records policy_id "ungoverned" and no limits. A
-    stopped run is partial: it ended early and its result covers what had
-    happened by then. duration_clamped_from is the max_ticks a job asked for
-    when the policy cut it to max_scenario_duration.
+    scenario_id, compute_budget, priority, auto_stop_conditions and
+    queue_policy are the section's own. policy_id, usage, stopped,
+    stop_reason, partial and duration_clamped_from record what happened: a
+    run nobody governed records policy_id "ungoverned" and nothing to hold
+    it; a stopped run is partial (its result covers what had happened by
+    then); duration_clamped_from is the max_ticks a job asked for when the
+    policy cut it to max_scenario_duration.
     """
 
+    scenario_id: NonEmptyStr
+    compute_budget: RecordBudget
+    priority: RecordPriority
+    auto_stop_conditions: list[StopReason]
+    queue_policy: RecordQueuePolicy
     policy_id: NonEmptyStr
-    run_priority: Priority = "normal"
-    limits: dict[str, Any] | None
     usage: Usage
-    estimated_cost: dict[str, Any] | None = None
     stopped: bool
     stop_reason: StopReason | None
     partial: bool
     duration_clamped_from: int | None = None
 
 
-def ungoverned_record(usage: dict[str, Any]) -> dict[str, Any]:
+def ungoverned_record(usage: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     """The governance record of a run no policy governed (a script run)."""
     return {
+        "scenario_id": scenario_id,
+        "compute_budget": {
+            "max_runtime": None,
+            "max_parallel_runs": None,
+            "max_batch_count": None,
+            "estimated_cost": None,
+        },
+        "priority": {"level": "medium", "reason": "no policy governed this run"},
+        "auto_stop_conditions": [],
+        "queue_policy": {"allow_defer": False, "allow_partial_result": False},
         "policy_id": "ungoverned",
-        "run_priority": "normal",
-        "limits": None,
         "usage": usage,
-        "estimated_cost": None,
         "stopped": False,
         "stop_reason": None,
         "partial": False,

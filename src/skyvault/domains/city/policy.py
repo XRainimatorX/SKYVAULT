@@ -11,6 +11,7 @@ entity id, so the policy itself draws nothing at random.
 from typing import Any
 
 from ...action import Action, ActionTarget
+from .information import information_rules, pressure_of
 from .model import consumption
 
 
@@ -145,7 +146,27 @@ class CityAdministrationPolicy:
         )
 
     def office(self, world: Any, actor: Any) -> Action | None:
-        """Strengthen the district whose administration is weakest."""
+        """
+        Answer the most inflamed district with counter-messaging when the
+        city has an information model and its pressure has reached
+        inform_at; otherwise strengthen the weakest administration.
+        """
+        info = information_rules(world.rules.require("city"))
+        if info is not None:
+            loudest = max(
+                _of(world, "district"),
+                key=lambda d: (pressure_of(d.state, info, d.entity_id), d.entity_id),
+            )
+            if pressure_of(loudest.state, info, loudest.entity_id) >= float(
+                info["inform_at"]
+            ):
+                return self.act(
+                    world,
+                    actor,
+                    "inform",
+                    "counter_messaging",
+                    entity_id=loudest.entity_id,
+                )
         weakest = min(
             _of(world, "district"),
             key=lambda d: (float(d.state["administration"]), d.entity_id),

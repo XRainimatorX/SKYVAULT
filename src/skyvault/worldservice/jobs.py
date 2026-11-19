@@ -27,6 +27,7 @@ from ..contracts import (
 )
 from ..engine import SkyVaultEngine, require_decider
 from ..failure import build_failure_map, explore_failures
+from ..failure.variables import apply_stress
 from ..interface.handoff import AUTHORITIES, authority_handoff, handoff_triggers
 from ..library import find
 from ..replay import build_replay_state_at_tick
@@ -41,7 +42,7 @@ from .governance import (
     admit,
     clamp_duration,
     estimate_run,
-    limits,
+    governance_record,
     scale,
 )
 from .store import JobStore, now
@@ -79,8 +80,9 @@ def scenario_for(
     request: dict[str, Any], scenarios_dir: Path = SCENARIOS_DIR
 ) -> dict[str, Any]:
     """
-    The scenario a request names, with its runtime overrides, unit changes
-    and data provenance, checked.
+    The scenario a request names, with its runtime overrides, unit and
+    rule changes, failure variables at their stress levels and data
+    provenance, checked.
     """
     scenario = load_scenario(_named(scenarios_dir, request["scenario"]))
     extra = set(request.get("runtime", {})) - RUNTIME_OVERRIDES
@@ -88,6 +90,11 @@ def scenario_for(
         raise ValueError(f"runtime fields a request may not set: {sorted(extra)}")
     scenario["runtime"].update(copy.deepcopy(request.get("runtime", {})))
     scenario = changed_entities(scenario, request.get("entity_changes"))
+    scenario = changed_rules(scenario, request.get("rule_changes"))
+    if request.get("stress"):
+        scenario = apply_stress(
+            scenario, dict(request["stress"]), scenario_perspective(scenario) or ""
+        )
     if request.get("data_provenance"):
         provenance = copy.deepcopy(request["data_provenance"])
         provenance["scenario_id"] = (
@@ -122,6 +129,39 @@ def changed_entities(
                 unit[field] = copy.deepcopy(change[field])
         for field in ("capabilities", "state"):
             unit[field] = {**unit.get(field, {}), **change.get(field, {})}
+    return changed
+
+
+def changed_rules(
+    scenario: dict[str, Any], changes: dict[str, Any] | None
+) -> dict[str, Any]:
+    """
+    A copy of scenario with its world's rule set changed: each group named
+    in changes is merged into the group of that name, nested mappings key
+    by key, anything else replaced.
+
+    Important:
+    A group the world does not have is refused with NotFound: a request
+    tunes the rules a world has, it does not bring a domain's rules to a
+    world of another domain.
+    """
+    if not changes:
+        return scenario
+    changed = copy.deepcopy(scenario)
+    rules = changed["world_contract"]["rule_set"]
+    unknown = sorted(set(changes) - set(rules))
+    if unknown:
+        raise NotFound(f"{scenario['scenario_id']} has no rule groups {unknown}")
+
+    def merge(into: dict[str, Any], change: dict[str, Any]) -> None:
+        for key, value in change.items():
+            if isinstance(value, dict) and isinstance(into.get(key), dict):
+                merge(into[key], value)
+            else:
+                into[key] = copy.deepcopy(value)
+
+    for group, change in changes.items():
+        merge(rules[group], change)
     return changed
 
 
@@ -163,9 +203,10 @@ def compare_variants(
 ) -> list[Variant]:
     """
     A branch_compare's variants: one per named branch and the baseline with
-    none. A branch schedules its actions and changes its units
-    (entity_changes). Each branch's scenario passes the scenario contract,
-    so a branch that orders one unit twice at one tick is refused at the door.
+    none. A branch schedules its actions, changes its units
+    (entity_changes) and tunes its world's rules (rule_changes). Each
+    branch's scenario passes the scenario contract, so a branch that orders
+    one unit twice at one tick is refused at the door.
     """
     base = scenario_for(request, scenarios_dir)
     variants = []
@@ -180,6 +221,7 @@ def compare_variants(
         ]
         variant = branch_variant(base, branch["branch_id"], proposals)
         changed = changed_entities(variant.scenario, branch.get("entity_changes"))
+        changed = changed_rules(changed, branch.get("rule_changes"))
         validate_compiled_scenario(changed)
         variants.append(Variant(variant.variant_id, variant.kind, changed))
     variants.append(branch_variant(base, "none", []))
@@ -225,6 +267,10 @@ def plan(
             estimate_run(variants[0].scenario),
             len(variants) * (request.get("repeat_count") or 1),
         )
+    elif kind == "monitor":
+        # a monitor runs nothing itself; the reruns it submits are planned then
+        scenario_for(request, scenarios_dir)
+        estimate = {"runs": 0, "decisions": 0, "seconds": 0.0}
     elif kind == "batch":
         spec = batch_for(request, batches_dir)
         base = load_scenario(
@@ -390,27 +436,29 @@ def _scenario_run(
 def _many_runs_record(
     policy: dict[str, Any], job: dict[str, Any], runs: int, events: int, seconds: float
 ) -> dict[str, Any]:
-    return {
-        "policy_id": policy["policy_id"],
-        "run_priority": policy["run_priority"],
-        "limits": {
-            **limits(policy),
-            "max_batch_count": policy["max_batch_count"],
-            "max_parallel_runs": policy["max_parallel_runs"],
-        },
-        "usage": {
+    return governance_record(
+        policy,
+        _scenario_of_job(job),
+        {
             "runs": runs,
             "ticks": None,
             "decisions": None,
             "events": events,
             "runtime_seconds": round(seconds, 6),
         },
-        "estimated_cost": job["estimated_cost"],
-        "stopped": False,
-        "stop_reason": None,
-        "partial": False,
-        "duration_clamped_from": None,
-    }
+        job["estimated_cost"],
+        priority=job["priority"],
+    )
+
+
+def _scenario_of_job(job: dict[str, Any]) -> str:
+    """The scenario a job runs, by id (a batch names its base scenario)."""
+    request = job["request"]
+    if request.get("scenario"):
+        return str(request["scenario"]).split("/")[0]
+    if request.get("batch"):
+        return str(request["batch"])
+    return job["job_id"]
 
 
 def _batch(

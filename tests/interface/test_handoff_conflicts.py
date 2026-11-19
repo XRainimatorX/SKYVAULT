@@ -133,28 +133,41 @@ def test_a_conflict_that_requires_a_decision_is_handed_off():
 # ── the handoff package ──────────────────────────────────────────────────────
 
 
-def test_the_package_carries_the_seven_items_and_may_never_execute():
+def test_the_package_is_section_17_2_field_by_field_and_may_never_execute():
     result = run(SQUAD, 43, ("all_entities_destroyed", "perspective_eliminated"))
 
     handoff = authority_handoff(handoff_triggers(result), result=result)
 
-    assert handoff["triggers"] == ["high_risk_outcome", "failure_threshold_crossed"]
+    assert handoff["reason"] == ["high_risk_outcome", "failure_threshold_crossed"]
+    # Formal Spec 17.2
     assert set(handoff) >= {
+        "scenario_id",
+        "handoff_required",
+        "reason",
+        "package_to_nexus",
+        "skyvault_position",
+    }
+    assert set(handoff["package_to_nexus"]) == {
         "result_summary",
         "branch_comparison",
         "failure_map",
         "required_decision",
-        "skyvault_position",
-        "may_recommend",
-        "may_execute_final_decision",
     }
+    assert {"may_recommend", "may_execute_final_decision"} <= set(
+        handoff["skyvault_position"]
+    )
+    assert handoff["scenario_id"] == result["scenario_id"]
+    assert handoff["handoff_required"] is True
     assert (
-        handoff["may_recommend"] is True
-        and handoff["may_execute_final_decision"] is False
+        handoff["skyvault_position"]["may_recommend"] is True
+        and handoff["skyvault_position"]["may_execute_final_decision"] is False
     )
     assert handoff["status"] == "awaiting_decision" and handoff["decision"] is None
     assert handoff["decision_authority"] == ["NEXUS", "SOVEREIGN"]
-    assert handoff["result_summary"]["run"]["result"] == "BLUE_survived"
+    assert (
+        handoff["package_to_nexus"]["result_summary"]["run"]["result"]
+        == "BLUE_survived"
+    )
     assert handoff["skyvault_position"]["statement"].startswith(
         "SKYVAULT simulated and recommends; it does not decide."
     )
@@ -174,10 +187,12 @@ def test_a_failure_map_handoff_lists_where_the_plan_breaks(maps):
     )
 
     assert (
-        handoff["failure_map"]["baseline_survival_rate"]
+        handoff["package_to_nexus"]["failure_map"]["baseline_survival_rate"]
         == maps["strict"]["baseline"]["survival_rate"]
     )
-    assert set(handoff["failure_map"]["breaking_levels"].values()) == {"mild"}
+    assert set(
+        handoff["package_to_nexus"]["failure_map"]["breaking_levels"].values()
+    ) == {"mild"}
     assert (
         "stress sensor_failure below mild"
         in handoff["skyvault_position"]["recommended_next_tests"]
@@ -204,12 +219,25 @@ def test_the_contract_refuses_a_handoff_that_could_execute_or_a_stranger_decided
     handoff = authority_handoff(["strategic_tradeoff"], result=run(REFERENCE, 42))
 
     for broken in (
-        {**handoff, "may_execute_final_decision": True},
-        {**handoff, "may_recommend": False},
+        {
+            **handoff,
+            "skyvault_position": {
+                **handoff["skyvault_position"],
+                "may_execute_final_decision": True,
+            },
+        },
+        {
+            **handoff,
+            "skyvault_position": {
+                **handoff["skyvault_position"],
+                "may_recommend": False,
+            },
+        },
+        {**handoff, "handoff_required": False},
         {**handoff, "status": "decided"},
         {**handoff, "status": "decided", "decided_by": "SKYVAULT"},
-        {**handoff, "triggers": []},
-        {**handoff, "triggers": ["gut_feeling"]},
+        {**handoff, "reason": []},
+        {**handoff, "reason": ["gut_feeling"]},
     ):
         with pytest.raises(ContractError):
             validate_authority_handoff(broken)
@@ -318,7 +346,7 @@ def test_conflicting_actions_hold_the_world_until_an_authority_decides(world):
         record["conflict_package"]["recommendation_to_nexus"]["required_decision"]
         is True
     )
-    assert record["handoff"]["triggers"] == ["conflicting_branches"]
+    assert record["handoff"]["reason"] == ["conflicting_branches"]
     with pytest.raises(WorldAwaiting):
         world_.advance(1)
     with pytest.raises(ValueError, match="has been played"):
@@ -502,11 +530,11 @@ def test_every_job_records_whether_it_hands_off():
         return store.get_job(job["job_id"])["summary"]["handoff"]
 
     assert done({"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1"})[
-        "triggers"
+        "reason"
     ] == ["strategic_tradeoff"]
     assert done(
         {"kind": "batch", "batch": "tactical_reference_001", "repeat_count": 2}
-    )["triggers"] == ["conflicting_branches"]
+    )["reason"] == ["conflicting_branches"]
     assert (
         done(
             {

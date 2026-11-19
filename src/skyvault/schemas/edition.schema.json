@@ -38,7 +38,8 @@
           "failure_exploration",
           "replay",
           "persistent_world",
-          "branch_compare"
+          "branch_compare",
+          "monitor"
         ],
         "type": "string"
       },

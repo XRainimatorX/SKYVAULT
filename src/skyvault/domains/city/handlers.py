@@ -5,12 +5,15 @@ Actors: travel (police, convoys' return and repair crews move along roads
 and arrive later), patrol (police raise public order where they stand),
 dispatch (a convoy loads food at its depot and sets out for a district),
 restore_power (a repair crew works on an offline substation), administer
-(the city office strengthens the weakest administration).
+(the city office strengthens the weakest administration), inform (the
+city office answers rumor with counter-messaging; information model only).
 
 Upkeep, in this order at the start of every tick: power_update (incidents,
 overload trips, who is fed power), arrive (whoever's trip ends now),
-district_update (each district eats, and its public order moves). Every
-change is an effect, so every change is an event with the action's id.
+information_update (emotional pressure spreads; only with
+rules.city.information), district_update (each district eats, and its
+public order moves). Every change is an effect, so every change is an
+event with the action's id.
 """
 
 from typing import Any
@@ -19,6 +22,15 @@ from ...action import Action
 from ...actions import ActionContext, ActionValidation
 from ...consequence import Consequence, DirectEffect
 from ...world_state import WorldState
+from .information import (
+    active_sources,
+    backlash,
+    information_rules,
+    opinion_state,
+    order_pull,
+    pressure_of,
+    pressure_step,
+)
 from .model import consumption, demand, eta, order_delta, order_state, power_flow
 
 ACTION_TYPES = (
@@ -27,8 +39,10 @@ ACTION_TYPES = (
     "dispatch",
     "restore_power",
     "administer",
+    "inform",
     "power_update",
     "arrive",
+    "information_update",
     "district_update",
 )
 MOBILE = ("police", "convoy", "repair_crew")
@@ -164,21 +178,40 @@ class PatrolHandler:
         district = world.get_entity(str(actor.position))
         low, high = rules_of(world)["order"]["patrol"]
         gain = round(context.rng.uniform(float(low), float(high)), 4)
+        rules = rules_of(world)
+        info = information_rules(rules)
+        state: dict[str, Any] = {}
+        data: dict[str, Any] = {}
+        tags = ["patrol", "public_order", "state_change"]
+        if info is not None:
+            pressure = pressure_of(district.state, info, district.entity_id)
+            if backlash(pressure, info):
+                gain = round(gain * (1 - float(info["backlash_dampen"])), 4)
+                raised = round(min(100.0, pressure + float(info["backlash"])), 4)
+                state.update(
+                    {
+                        "emotional_pressure": raised,
+                        "opinion_state": opinion_state(raised),
+                    }
+                )
+                data["backlash"] = {"pressure_before": pressure, "pressure": raised}
+                tags.append("backlash")
         before = float(district.state["public_order"])
         after = min(100.0, round(before + gain, 4))
-        rules = rules_of(world)
+        state.update({"public_order": after, "order_state": order_state(after, rules)})
         return _done(
             action,
             "Patrol resolved",
             [
                 _state(
                     district.entity_id,
-                    {"public_order": after, "order_state": order_state(after, rules)},
-                    ["patrol", "public_order", "state_change"],
+                    state,
+                    tags,
                     {
                         "gain": round(after - before, 4),
                         "from_state": district.state["order_state"],
                         "to_state": order_state(after, rules),
+                        **data,
                     },
                     affected=[actor.entity_id, district.entity_id],
                 )
@@ -357,6 +390,55 @@ class AdministerHandler:
                     {"administration": after},
                     ["administer", "state_change"],
                     {"administration": after},
+                    affected=[action.actor_id, target.entity_id],
+                )
+            ],
+        )
+
+
+class InformHandler:
+    """
+    inform: the city office answers rumor in one district with
+    counter-messaging, lowering its emotional pressure by
+    rules.information.counter. Only with the information model.
+    """
+
+    action_type = "inform"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        actor = world.get_entity(action.actor_id)
+        if actor.entity_type != "city_office":
+            return ActionValidation.reject("Only the city office informs")
+        if information_rules(rules_of(world)) is None:
+            return ActionValidation.reject("This city has no information model")
+        target = world.entities.get(str(action.target.entity_id))
+        if target is None or target.entity_type != "district":
+            return ActionValidation.reject("Inform needs a district")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        info = information_rules(rules_of(world))
+        if info is None:  # pragma: no cover - validate refuses a city without it
+            raise ValueError("this city has no information model")
+        target = world.get_entity(str(action.target.entity_id))
+        before = pressure_of(target.state, info, target.entity_id)
+        after = round(max(0.0, before - float(info["counter"])), 4)
+        return _done(
+            action,
+            "Inform resolved",
+            [
+                _state(
+                    target.entity_id,
+                    {
+                        "emotional_pressure": after,
+                        "opinion_state": opinion_state(after),
+                    },
+                    ["inform", "information", "state_change"],
+                    {"pressure_before": before, "pressure": after},
                     affected=[action.actor_id, target.entity_id],
                 )
             ],
@@ -588,6 +670,81 @@ class ArriveHandler:
         )
 
 
+class InformationUpdateHandler:
+    """
+    information_update: the information environment's tick (information.py).
+    Every district whose emotional pressure moves records it, with its parts
+    and the neighbours it spread from (the spread path). Only with
+    rules.city.information.
+    """
+
+    action_type = "information_update"
+
+    def validate(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> ActionValidation:
+        if information_rules(rules_of(world)) is None:
+            return ActionValidation.reject("This city has no information model")
+        return ActionValidation.ok()
+
+    def resolve(
+        self, world: WorldState, action: Action, context: ActionContext
+    ) -> Consequence:
+        rules = rules_of(world)
+        info = information_rules(rules)
+        if info is None:  # pragma: no cover - validate refuses a city without it
+            raise ValueError("this city has no information model")
+        every = districts(world)
+        by_place = {d.position: d.entity_id for d in every}
+        current = {
+            d.entity_id: {
+                "pressure": pressure_of(d.state, info, d.entity_id),
+                "short": float(d.state["food"])
+                < consumption(d.state["population"], rules),
+                "powered": bool(d.state["power"]),
+                "order_state": d.state["order_state"],
+                "communication": float(d.state["communication"]),
+            }
+            for d in every
+        }
+        neighbours = {
+            d.entity_id: [
+                by_place[place]
+                for place in world.space.neighbors(d.position)
+                if place in by_place
+            ]
+            for d in every
+        }
+        step = pressure_step(
+            current, neighbours, active_sources(info, world.tick), info
+        )
+        effects = []
+        for d in every:
+            moved = step[d.entity_id]
+            if moved["after"] == d.state.get("emotional_pressure"):
+                continue
+            effects.append(
+                _state(
+                    d.entity_id,
+                    {
+                        "emotional_pressure": moved["after"],
+                        "opinion_state": opinion_state(moved["after"]),
+                    },
+                    ["information", "state_change"]
+                    + (["rumor"] if moved["parts"]["rumor"] else []),
+                    {
+                        "pressure_parts": moved["parts"],
+                        "spread_from": moved["spread_from"],
+                        "from_state": opinion_state(moved["before"]),
+                        "to_state": opinion_state(moved["after"]),
+                    },
+                    affected=[d.entity_id]
+                    + [row["from"] for row in moved["spread_from"]],
+                )
+            )
+        return _done(action, "Information update resolved", effects)
+
+
 class DistrictUpdateHandler:
     """
     district_update: one district's tick — it eats, its industry and
@@ -636,6 +793,11 @@ class DistrictUpdateHandler:
             },
             rules,
         )
+        info = information_rules(rules)
+        if info is not None:
+            pressure = pressure_of(state, info, district.entity_id)
+            parts["emotional"] = order_pull(pressure, info)
+            parts["total"] = round(parts["total"] + parts["emotional"], 4)
         noise = float(rules["order"]["noise"])
         parts["noise"] = round(context.rng.uniform(-noise, noise), 4)
         before = float(state["public_order"])
@@ -701,8 +863,10 @@ def city_handlers() -> dict[str, Any]:
         DispatchHandler(),
         RestorePowerHandler(),
         AdministerHandler(),
+        InformHandler(),
         PowerUpdateHandler(),
         ArriveHandler(),
+        InformationUpdateHandler(),
         DistrictUpdateHandler(),
     )
     return {handler.action_type: handler for handler in handlers}

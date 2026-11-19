@@ -55,6 +55,10 @@ class SubmissionWindow:
         if not waiting:
             self.pending.pop(proposal["tick"], None)
 
+    def restore(self, proposal: dict[str, Any]) -> None:
+        """Put back a proposal kept from before a restart, as it was."""
+        self.pending.setdefault(proposal["tick"], []).append(dict(proposal))
+
     def take(self, tick: int) -> list[dict[str, Any]]:
         """Every action submitted for tick, in arrival order; the window empties."""
         return self.pending.pop(tick, [])
