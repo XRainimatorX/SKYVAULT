@@ -4,7 +4,7 @@
   "perspective": "RED",
   "primary_metric": "mission_success",
   "secondary_metrics": [
-    "tactical_value",
+    "tactical_usefulness",
     "strategic_value",
     "resource_cost",
     "time_cost",
@@ -17,7 +17,7 @@
   ],
   "weights": {
     "mission_success": 3.0,
-    "tactical_value": 1.0,
+    "tactical_usefulness": 1.0,
     "strategic_value": 1.0,
     "resource_cost": 1.0,
     "time_cost": 1.0,

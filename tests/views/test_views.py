@@ -72,9 +72,14 @@ def test_the_overview_reads_like_the_run(package):
     overview = overview_view(package)
 
     assert (overview["result"], overview["verdict"]) == ("RED_survived", "risky")
-    assert (overview["score"], overview["profile_id"]) == (0.5045, "balanced")
+    assert (overview["score"], overview["profile_id"]) == (0.4938, "balanced")
     assert (overview["event_count"], overview["ticks"]) == (97, 10)
     assert overview["scores"]["recovery_ability"] == 0.0
+    assert overview["not_judged"] == [
+        "physical_possibility",
+        "engineering_feasibility",
+        "governance_stability",
+    ]
     assert overview["flagged_behaviors"] == [
         "sacrifice_long_term_stability_for_short_term_success"
     ]

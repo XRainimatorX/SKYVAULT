@@ -129,7 +129,10 @@ def compare_runs(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
     """
     repro_a, repro_b = a["reproducibility"], b["reproducibility"]
     verdict_a, verdict_b = a["evaluation_result"], b["evaluation_result"]
-    axes = sorted(set(verdict_a["scores"]) | set(verdict_b["scores"]))
+    # every axis: the section 8.3 scores and the others beside them
+    scores_a = {**verdict_a.get("additional_axes", {}), **verdict_a["scores"]}
+    scores_b = {**verdict_b.get("additional_axes", {}), **verdict_b["scores"]}
+    axes = sorted(set(scores_a) | set(scores_b))
     return {
         "same_input": repro_a["input_hash"] == repro_b["input_hash"],
         "same_output": output_hash(a) == output_hash(b),
@@ -145,9 +148,9 @@ def compare_runs(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
         ),
         "overall_score": _pair(verdict_a["overall_score"], verdict_b["overall_score"]),
         "score_changes": {
-            axis: _pair(verdict_a["scores"].get(axis), verdict_b["scores"].get(axis))
+            axis: _pair(scores_a.get(axis), scores_b.get(axis))
             for axis in axes
-            if verdict_a["scores"].get(axis) != verdict_b["scores"].get(axis)
+            if scores_a.get(axis) != scores_b.get(axis)
         },
     }
 

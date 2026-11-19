@@ -208,7 +208,7 @@
       "description": "Did the perspective faction achieve its aim?",
       "explanation": "0 of 1 opposing entities destroyed; 1 of 1 own entities still active"
     },
-    "tactical_value": {
+    "tactical_usefulness": {
       "score": 0.0,
       "raw": 0,
       "unit": "hp",
@@ -304,7 +304,7 @@
     "profile_id": "balanced",
     "primary_metric": "mission_success",
     "secondary_metrics": [
-      "tactical_value",
+      "tactical_usefulness",
       "strategic_value",
       "resource_cost",
       "time_cost",
@@ -414,11 +414,11 @@
     },
     "tradeoffs": [
       {
-        "gain": "tactical_value",
+        "gain": "tactical_usefulness",
         "gain_score": 0.0,
         "cost": "strategic_value",
         "cost_score": 1.0,
-        "assessment": "strategic_value kept at the expense of tactical_value"
+        "assessment": "strategic_value kept at the expense of tactical_usefulness"
       },
       {
         "gain": "mission_success",
@@ -462,7 +462,7 @@
         "score": 0.0
       },
       {
-        "metric": "tactical_value",
+        "metric": "tactical_usefulness",
         "score": 0.0
       },
       {

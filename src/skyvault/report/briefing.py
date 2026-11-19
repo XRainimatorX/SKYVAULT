@@ -139,6 +139,11 @@ def _losses(overview: dict[str, Any]) -> Section:
 def _evaluation(overview: dict[str, Any]) -> Section:
     paragraphs = list(overview["key_findings"])
     bullets = [f"{axis} {score:.2f}" for axis, score in overview["scores"].items()]
+    bullets += [
+        f"{axis} {score:.2f}" for axis, score in overview.get("other_axes", {}).items()
+    ]
+    if overview.get("not_judged"):
+        bullets.append("Not judged in this world: " + ", ".join(overview["not_judged"]))
     bullets += [f"Failure cause: {cause}" for cause in overview["failure_causes"]]
     bullets += [f"Next test: {test}" for test in overview["recommended_next_tests"]]
     bullets += [f"Flagged: {flag}" for flag in overview["flagged_behaviors"]]

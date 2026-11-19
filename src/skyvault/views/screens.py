@@ -45,7 +45,12 @@ def overview_view(package: dict[str, Any]) -> dict[str, Any]:
         "perspective": evaluation["perspective"],
         "event_count": len(events),
         "ticks": max((event["time"] for event in events), default=0),
-        "scores": dict(evaluation["scores"]),
+        # Formal Spec 8.3 scores the run could judge; the rest are named
+        "scores": {k: v for k, v in evaluation["scores"].items() if v is not None},
+        "not_judged": [k for k, v in evaluation["scores"].items() if v is None],
+        "other_axes": {
+            k: v for k, v in evaluation["additional_axes"].items() if v is not None
+        },
         "key_findings": list(evaluation["key_findings"]),
         "failure_causes": list(evaluation["failure_causes"]),
         "recommended_next_tests": list(evaluation["recommended_next_tests"]),

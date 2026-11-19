@@ -76,10 +76,10 @@ def test_two_profiles_judge_the_same_run_differently(reference):
     balanced = evaluate(reference, profile("balanced"))["evaluation_result"]
     tactical = evaluate(reference, profile("tactical"))["evaluation_result"]
 
-    assert balanced["overall_judgement"] == {"status": "risky", "confidence": 0.9231}
-    assert balanced["overall_score"] == pytest.approx(0.5045, abs=1e-4)
+    assert balanced["overall_judgement"] == {"status": "risky", "confidence": 0.9286}
+    assert balanced["overall_score"] == pytest.approx(0.4938, abs=1e-4)
     assert tactical["overall_judgement"] == {"status": "pass", "confidence": 1.0}
-    assert tactical["overall_score"] == pytest.approx(0.7775, abs=1e-4)
+    assert tactical["overall_score"] == pytest.approx(0.7537, abs=1e-4)
     assert balanced["profile_id"] == "balanced"
     assert tactical["profile_id"] == "tactical"
 
@@ -103,15 +103,35 @@ def test_the_overall_score_is_the_weighted_mean_minus_penalties(reference):
 # ── acceptance 2 and 3: more than a winner; costs, risks and failure points ──
 
 
-def test_the_verdict_reports_eleven_axes_not_just_a_winner(reference):
+def test_the_verdict_reports_the_section_8_3_scores_not_just_a_winner(reference):
     result = evaluate(reference, profile("balanced"))
     verdict = result["evaluation_result"]
 
     assert verdict["winner_or_result"] == "RED_survived"
-    assert len(result["score_breakdown"]) == 11
-    assert set(verdict["scores"]) == set(result["score_breakdown"]) - {
-        "logistics_burden"
-    }
+    assert len(result["score_breakdown"]) == 17
+    # Formal Spec 8.3, in the spec's order; null where this world cannot judge
+    assert list(verdict["scores"]) == [
+        "physical_possibility",
+        "engineering_feasibility",
+        "tactical_usefulness",
+        "strategic_value",
+        "governance_stability",
+        "crisis_resilience",
+        "resource_efficiency",
+        "risk_control",
+        "system_robustness",
+        "failure_resistance",
+        "recovery_ability",
+    ]
+    assert verdict["scores"]["physical_possibility"] is None
+    assert verdict["scores"]["resource_efficiency"] == (
+        result["score_breakdown"]["resource_cost"]["score"]
+    )
+    assert verdict["additional_axes"]["logistics_burden"] is None
+    assert verdict["additional_axes"]["mission_success"] == 1.0
+    breakdown = result["score_breakdown"]
+    assert not breakdown["physical_possibility"]["in_scope"]
+    assert "equipment profile" in breakdown["physical_possibility"]["explanation"]
     for axis in ("resource_cost", "time_cost", "risk_growth", "logistics_burden"):
         assert {"score", "raw", "unit", "explanation"} <= set(
             result["score_breakdown"][axis]
@@ -134,8 +154,10 @@ def test_failure_causes_name_the_losses_and_the_weak_axes(reference):
 def test_an_axis_without_data_lowers_confidence_and_asks_for_a_test(reference):
     verdict = evaluate(reference, profile("balanced"))["evaluation_result"]
 
+    # logistics_burden (weight 1 of the 14 in scope) had no data; the axes
+    # this world does not model at all (equipment, governance) do not count
     assert verdict["overall_judgement"]["confidence"] == pytest.approx(
-        12 / 13, abs=1e-4
+        13 / 14, abs=1e-4
     )
     assert (
         "Exercise logistics_burden: the world holds no resources to spend"
@@ -167,7 +189,8 @@ def test_doing_nothing_scores_high_on_cost_axes_and_is_flagged():
     verdict = result["evaluation_result"]
 
     assert idle["evaluation_result"]["winner_or_result"] == "no_winner_duration_limit"
-    assert verdict["scores"]["resource_cost"] == 1.0
+    assert verdict["scores"]["resource_efficiency"] == 1.0
+    assert verdict["additional_axes"]["resource_cost"] == 1.0
     assert verdict["scores"]["strategic_value"] == 1.0
     assert verdict["anti_gaming"]["flagged_behaviors"] == ["maximize_score_by_inaction"]
     inaction = result["anti_gaming_report"]["checks"][0]
@@ -292,7 +315,7 @@ def test_the_tradeoff_report_names_what_was_paid_for_what(reference):
     assert pairs[("mission_success", "stability_impact")] == (
         "mission_success bought at the expense of stability_impact"
     )
-    assert pairs[("tactical_value", "strategic_value")] == "both strong"
+    assert pairs[("tactical_usefulness", "strategic_value")] == "both strong"
     assert report["strongest"][0] == {"metric": "mission_success", "score": 1.0}
     assert report["weakest"][0] == {"metric": "recovery_ability", "score": 0.0}
 
@@ -303,7 +326,7 @@ def test_the_markdown_report_carries_the_verdict_and_every_tradeoff(reference):
     )
 
     assert text.startswith("# Trade-off report — tactical_reference_001\n")
-    assert "- Verdict: **risky** (overall 0.50, confidence 0.92)" in text
+    assert "- Verdict: **risky** (overall 0.49, confidence 0.93)" in text
     assert text.count("\n| ") == 5  # header plus four trade-offs
     assert (
         "Gaming detected: sacrifice_long_term_stability_for_short_term_success." in text

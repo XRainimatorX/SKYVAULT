@@ -23,12 +23,18 @@ class MetricValue:
     applicable is False when the run holds no data the axis could judge (no
     resources to spend, no losses to recover from). Such an axis scores 0 and
     is left out of the weighted total; it lowers the verdict's confidence.
+
+    in_scope is False when the world does not model what the axis asks
+    about at all (physical possibility in a world with no equipment
+    profile, governance stability in a world without public order). Such an
+    axis is reported as null with its reason and does not lower confidence.
     """
 
     raw: float
     score: float
     applicable: bool
     explanation: str
+    in_scope: bool = True
 
 
 @dataclass(frozen=True)
@@ -60,6 +66,9 @@ class EvaluationContext:
     initial_resources: dict[str, float]
     own: list[str] = field(default_factory=list)
     enemies: list[str] = field(default_factory=list)
+    # what the run says about itself (replayable, assumptions declared...),
+    # for the axes that judge the run rather than the plan
+    facts: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def build(
@@ -145,7 +154,14 @@ def _not_applicable(explanation: str) -> MetricValue:
     return MetricValue(raw=0.0, score=0.0, applicable=False, explanation=explanation)
 
 
-# ── the eleven axes ──────────────────────────────────────────────────────────
+def out_of_scope(explanation: str) -> MetricValue:
+    """An axis the world does not model: null, with the reason."""
+    return MetricValue(
+        raw=0.0, score=0.0, applicable=False, explanation=explanation, in_scope=False
+    )
+
+
+# ── the axes ──────────────────────────────────────────────────────────
 
 
 def mission_success(context: EvaluationContext) -> MetricValue:
@@ -171,7 +187,7 @@ def mission_success(context: EvaluationContext) -> MetricValue:
     )
 
 
-def tactical_value(context: EvaluationContext) -> MetricValue:
+def tactical_usefulness(context: EvaluationContext) -> MetricValue:
     enemy_hp = sum(context.initial_hp(e) for e in context.enemies)
     if enemy_hp <= 0:
         return _not_applicable("opposing entities have no hp to damage")
@@ -306,6 +322,108 @@ def logistics_burden(context: EvaluationContext) -> MetricValue:
     )
 
 
+def crisis_resilience(context: EvaluationContext) -> MetricValue:
+    """
+    How much of the plan's own strength was still standing at its worst
+    moment (Formal Spec 8.2: is the plan steadier when crisis strikes?).
+    Own hp is followed through every event that recorded it; a domain with
+    its own measure of crisis (public order in a city) replaces this.
+    """
+    start = {e: context.initial_hp(e) for e in context.own}
+    total = sum(start.values())
+    if total <= 0:
+        return _not_applicable("own entities have no strength (hp) to follow")
+    current = dict(start)
+    worst, worst_tick = total, 0
+    for event in context.events:
+        target = event["target_entity_id"]
+        if target not in current:
+            continue
+        state = (event.get("after_state") or {}).get("state") or {}
+        if "hp" not in state:
+            continue
+        current[target] = max(float(state["hp"]), 0.0)
+        level = sum(current.values())
+        if level < worst:
+            worst, worst_tick = level, int(event["time"])
+    return MetricValue(
+        raw=worst,
+        score=_clamp(_ratio(worst, total)),
+        applicable=True,
+        explanation=(
+            f"own strength at its lowest {worst:g} of {total:g} hp "
+            f"(tick {worst_tick})"
+        ),
+    )
+
+
+def physical_possibility(context: EvaluationContext) -> MetricValue:
+    return out_of_scope(
+        "no equipment profile entered this scenario (participants.equipment_profiles)"
+    )
+
+
+def engineering_feasibility(context: EvaluationContext) -> MetricValue:
+    return out_of_scope(
+        "no equipment profile entered this scenario (participants.equipment_profiles)"
+    )
+
+
+def governance_stability(context: EvaluationContext) -> MetricValue:
+    return out_of_scope("this world models no public order or governance")
+
+
+def _checklist(context: EvaluationContext, items: dict[str, str]) -> MetricValue:
+    if not context.facts:
+        return out_of_scope("the run did not describe itself to the evaluation")
+    met = [label for key, label in items.items() if context.facts.get(key)]
+    missing = [label for key, label in items.items() if not context.facts.get(key)]
+    explanation = f"{len(met)} of {len(items)}: " + "; ".join(
+        [f"yes {label}" for label in met] + [f"no {label}" for label in missing]
+    )
+    return MetricValue(
+        raw=len(met),
+        score=_ratio(len(met), len(items)),
+        applicable=True,
+        explanation=explanation,
+    )
+
+
+def commercial_demonstrability(context: EvaluationContext) -> MetricValue:
+    """
+    Could the run be shown to an outside client as it is (Formal Spec 8.2)?
+    It can be replayed exactly, something visibly happened, and outside
+    systems have slots to enter the world.
+    """
+    facts = dict(context.facts)
+    facts["visible_activity"] = bool(context.own_turns())
+    return _checklist(
+        EvaluationContext(**{**context.__dict__, "facts": facts}),
+        {
+            "replayable": "it replays exactly",
+            "visible_activity": "own actions to show",
+            "actor_slots": "outside systems can enter the world",
+        },
+    )
+
+
+def imperial_core_value(context: EvaluationContext) -> MetricValue:
+    """
+    Does the run keep the long-term architecture (Formal Spec 8.2): its
+    assumptions, its data provenance and its failure variables declared,
+    and its result replayable?
+    """
+    return _checklist(
+        context,
+        {
+            "assumptions_declared": "assumptions declared",
+            "provenance_declared": "data provenance declared",
+            "failure_variables_declared": "failure variables declared",
+            "replayable": "it replays exactly",
+        },
+    )
+
+
 def stability_impact(context: EvaluationContext) -> MetricValue:
     everyone = list(context.initial)
     if not everyone:
@@ -332,10 +450,10 @@ METRIC_REGISTRY: dict[str, Metric] = {
             mission_success,
         ),
         Metric(
-            "tactical_value",
+            "tactical_usefulness",
             "Damage dealt against the opposing hp pool",
             "hp",
-            tactical_value,
+            tactical_usefulness,
         ),
         Metric(
             "strategic_value",
@@ -381,5 +499,60 @@ METRIC_REGISTRY: dict[str, Metric] = {
             "entities",
             stability_impact,
         ),
+        Metric(
+            "physical_possibility",
+            "Is the equipment physically roughly possible?",
+            "score",
+            physical_possibility,
+        ),
+        Metric(
+            "engineering_feasibility",
+            "Is the equipment worth engineering?",
+            "score",
+            engineering_feasibility,
+        ),
+        Metric(
+            "governance_stability",
+            "Does the plan improve or damage order?",
+            "score",
+            governance_stability,
+        ),
+        Metric(
+            "crisis_resilience",
+            "Own strength left at the worst moment",
+            "hp",
+            crisis_resilience,
+        ),
+        Metric(
+            "commercial_demonstrability",
+            "Could the run be shown to an outside client as it is?",
+            "checks",
+            commercial_demonstrability,
+        ),
+        Metric(
+            "imperial_core_value",
+            "Does the run keep the long-term architecture?",
+            "checks",
+            imperial_core_value,
+        ),
     )
 }
+
+# Formal Spec 8.3 evaluation_result.scores, in the spec's order
+SPEC_SCORES = (
+    "physical_possibility",
+    "engineering_feasibility",
+    "tactical_usefulness",
+    "strategic_value",
+    "governance_stability",
+    "crisis_resilience",
+    "resource_efficiency",
+    "risk_control",
+    "system_robustness",
+    "failure_resistance",
+    "recovery_ability",
+)
+# 8.3 names two axes from the cost side: efficiency is resource cost read the
+# other way, risk control is risk growth read the other way (both already
+# score 1 for the best case)
+SPEC_ALIASES = {"resource_efficiency": "resource_cost", "risk_control": "risk_growth"}

@@ -197,7 +197,7 @@ def test_an_edition_service_runs_the_same_core_to_the_same_hash():
         "/api/jobs",
         json={"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1"},
     ).json()["job_id"]
-    assert wait(client, job_id)["summary"]["output_hash"].startswith("4a22da0ddfa0")
+    assert wait(client, job_id)["summary"]["output_hash"].startswith("b238dee873ee")
 
 
 def test_the_core_imports_no_edition():

@@ -29,7 +29,7 @@ from .service import BASELINE, Service
 
 ROOT = Path(__file__).resolve().parents[3]
 SCENARIOS = ROOT / "data" / "scenarios"
-BASELINE_HASH = "0b11d9ee2061"
+BASELINE_HASH = "1f0a2ea2641a"
 CONFLICTING = [
     {
         "system": "TAC_ANGEL",

@@ -1,5 +1,6 @@
 """Engine = the tick loop that turns a scenario into a result package."""
 
+import importlib
 import platform
 import random
 from collections import Counter
@@ -541,6 +542,8 @@ class SkyVaultEngine:
             self.scenario["evaluation"].get("failure_thresholds", []),
             self.scenario["evaluation"].get("success_outcomes"),
             tuple(getattr(self.domain, "end_reasons", ())),
+            domain_axes=self.evaluation_axes(event_memory, final_world_state),
+            facts=self.run_facts(),
         )
 
         package = {
@@ -563,6 +566,48 @@ class SkyVaultEngine:
         validated = validate_result_package(package)
         validated["reproducibility"]["output_hash"] = output_hash(validated)
         return validated
+
+    def evaluation_axes(
+        self, event_memory: list[dict[str, Any]], final_world_state: dict[str, Any]
+    ) -> dict[str, tuple[float, str]]:
+        """
+        The Formal Spec 8.2 axes measured outside the core: by the domain pack
+        in its own terms, and by screening the scenario's equipment profiles
+        (participants.equipment_profiles) as the virtual test does.
+        """
+        axes: dict[str, tuple[float, str]] = {}
+        measure = getattr(self.domain, "evaluation_axes", None)
+        if measure is not None:
+            package = {
+                "initial_world_state": self._initial,
+                "event_memory": event_memory,
+                "final_world_state": final_world_state,
+            }
+            axes.update(measure(package, self.scenario))
+        equipment = (self.scenario.get("participants") or {}).get("equipment_profiles")
+        if equipment:
+            # the virtual test sits above the core; it is loaded by name, as
+            # domain packs are, only when a scenario brings equipment
+            screen = importlib.import_module("skyvault.virtualtest.axes")
+            axes.update(screen.equipment_axes(list(equipment)))
+        return axes
+
+    def run_facts(self) -> dict[str, Any]:
+        """What the run says about itself, for the axes that judge the run."""
+        world = self.scenario["world_contract"]
+        registry = self.scenario.get("assumption_registry") or {}
+        provenance = self.scenario.get("data_provenance") or {}
+        return {
+            "replayable": self.replayable,
+            "assumptions_declared": bool(
+                registry.get("assumptions") or world.get("assumption_registry")
+            ),
+            "provenance_declared": bool(
+                provenance.get("sources") or world.get("data_provenance")
+            ),
+            "failure_variables_declared": bool(world.get("failure_variables")),
+            "actor_slots": bool(world.get("actor_slots")),
+        }
 
     def execution_protocol(
         self, event_memory: list[dict[str, Any]], verdict: dict[str, Any]

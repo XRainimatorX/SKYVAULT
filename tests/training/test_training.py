@@ -143,7 +143,7 @@ def test_rewards_count_damage_given_taken_and_losses(reference):
         before = record["state"]["state"]["hp"]
         after = max(0, record["next_state"]["state"]["hp"])
         assert record["reward"]["damage_taken"] == before - after
-        assert record["reward"]["episode_score"] == 0.5045
+        assert record["reward"]["episode_score"] == 0.4938
     killers = [t for t in transitions if t["reward"]["target_destroyed"]]
     lost = [t for t in transitions if t["reward"]["own_destroyed"]]
     assert len(killers) == 4
@@ -215,7 +215,7 @@ def rigged(package, triggered=(), flagged=(), winner=None, status=None, mission=
     if status is not None:
         evaluation["overall_judgement"]["status"] = status
     if mission is not None:
-        evaluation["scores"]["mission_success"] = mission
+        evaluation["additional_axes"]["mission_success"] = mission
     return changed
 
 

@@ -23,7 +23,7 @@
     "Summary": [
       "Result: RED_survived",
       "Verdict: risky",
-      "Score: 0.50",
+      "Score: 0.49",
       "Profile: balanced, seen from RED",
       "97 events over 10 ticks"
     ],
@@ -50,7 +50,7 @@
       "Decision required: yes"
     ],
     "Reproducibility": [
-      "4a22da0ddfa0ab0e5a972ec3ebd0f56540618826b32c314c1ca48eb802ad6cb9",
+      "b238dee873ee09c187d248fa77711356403188dfef900ac443bbb923b2a5cc71",
       "seed 42"
     ]
   }

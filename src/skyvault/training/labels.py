@@ -83,5 +83,5 @@ def _mission_achieved(
             outcome = judge(package, scenario)
             if perspective in outcome:
                 return bool(outcome[perspective]["achieved"])
-    score = package["evaluation_result"]["scores"].get("mission_success", 0.0)
-    return float(score) >= MISSION_SUCCESS_FLOOR
+    score = package["evaluation_result"]["additional_axes"].get("mission_success")
+    return float(score or 0.0) >= MISSION_SUCCESS_FLOOR

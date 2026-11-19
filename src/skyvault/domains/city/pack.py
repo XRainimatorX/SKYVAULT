@@ -107,6 +107,33 @@ class CityPack:
         """The governance stability score of a finished run (score.py)."""
         return governance_stability(package, scenario)
 
+    def evaluation_axes(
+        self,
+        package: dict[str, Any],
+        scenario: dict[str, Any],
+    ) -> dict[str, tuple[float, str]]:
+        """
+        Formal Spec 8.2 axes a city measures in its own terms: governance
+        stability is the governance stability score; crisis resilience is the
+        lowest score the city fell to, against where it started.
+        """
+        found = governance_stability(package, scenario)
+        start = float(found["start"])
+        lowest = min(found["series"], key=lambda row: (row["score"], row["tick"]))
+        resilience = min(1.0, lowest["score"] / start) if start > 0 else 0.0
+        return {
+            "governance_stability": (
+                float(found["score"]),
+                f"governance stability score {found['score']:.2f} over ticks "
+                f"{found['window'][0]}-{found['window'][1]} (started at {start:.2f})",
+            ),
+            "crisis_resilience": (
+                round(resilience, 4),
+                f"lowest governance score {lowest['score']:.2f} at tick "
+                f"{lowest['tick']} against {start:.2f} at the start",
+            ),
+        }
+
     def failure_variables(self) -> dict[str, Any]:
         """supply_delay, civilian_pressure and resource_shortage in city terms."""
         return city_failure_variables()

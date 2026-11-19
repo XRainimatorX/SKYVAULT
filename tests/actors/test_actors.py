@@ -274,12 +274,12 @@ def test_world_policies_play_exactly_as_before():
     # output hashes of the Phase 5 system (before the read-only view), as
     # renamed by Phase 21: the engine's system id is part of every event
     expected = {
-        "tactical_reference_001/v0.1": "4a22da0ddfa0ab0e",
-        "military_squad_001/v0.1": "0aad6802df0034e8",
-        "military_urban_001/v0.1": "c514c70063ad33b7",
-        "military_mountain_001/v0.1": "b8b3ce833c380d1e",
-        "military_junction_001/v0.1": "0ba7910e64ef712f",
-        "military_urban_001/v0.1+overwatch": "38df2475d1d49dbb",
+        "tactical_reference_001/v0.1": "b238dee873ee09c1",
+        "military_squad_001/v0.1": "7bc1804e45e8817f",
+        "military_urban_001/v0.1": "89716454475784e1",
+        "military_mountain_001/v0.1": "1b66a77b208f2891",
+        "military_junction_001/v0.1": "1fa1c0ad799bedca",
+        "military_urban_001/v0.1+overwatch": "144dee6ce5de350d",
     }
     for name, prefix in expected.items():
         folder = (

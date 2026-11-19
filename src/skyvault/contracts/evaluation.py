@@ -29,6 +29,25 @@ class AntiGamingSummary(ContractModel):
     penalty_total: NonNegative
 
 
+class Scores(ContractModel):
+    """
+    Formal Spec 8.3 scores, field by field: each in [0, 1], higher better,
+    or null when the run could not judge it (the score breakdown says why).
+    """
+
+    physical_possibility: Probability | None
+    engineering_feasibility: Probability | None
+    tactical_usefulness: Probability | None
+    strategic_value: Probability | None
+    governance_stability: Probability | None
+    crisis_resilience: Probability | None
+    resource_efficiency: Probability | None
+    risk_control: Probability | None
+    system_robustness: Probability | None
+    failure_resistance: Probability | None
+    recovery_ability: Probability | None
+
+
 class EvaluationResult(ContractModel):
     """
     Evaluation Result = Formal Spec section 8.3.
@@ -40,7 +59,11 @@ class EvaluationResult(ContractModel):
     perspective), the overall score, and the anti-gaming summary that shows
     whether a high score was earned by gaming.
 
-    scores holds every axis that had data, each in [0, 1], higher better.
+    scores are the eleven of section 8.3, null where the run could not
+    judge them. additional_axes are the other section 8.2 axes (time cost,
+    resource cost, risk growth, commercial demonstrability, imperial core
+    value) and the development plan's mission success, logistics burden and
+    stability impact, null likewise.
     """
 
     termination_reason: NonEmptyStr
@@ -57,7 +80,8 @@ class EvaluationResult(ContractModel):
     perspective: NonEmptyStr
     overall_judgement: OverallJudgement
     overall_score: Probability
-    scores: dict[str, Probability]
+    scores: Scores
+    additional_axes: dict[str, Probability | None]
     failure_causes: list[str]
     recommended_next_tests: list[str]
     comparison: Comparison

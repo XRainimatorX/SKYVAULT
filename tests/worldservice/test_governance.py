@@ -455,7 +455,7 @@ def test_stepping_a_run_by_hand_is_the_same_run():
 
     # RED wins during tick 10: that step answers False, after 9 that answered True
     assert steps == 9 and engine.over
-    assert package["reproducibility"]["output_hash"].startswith("4a22da0ddfa0")
+    assert package["reproducibility"]["output_hash"].startswith("b238dee873ee")
     assert engine.step() is False
 
 

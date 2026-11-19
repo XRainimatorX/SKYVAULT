@@ -4,7 +4,13 @@ import copy
 from typing import Any
 
 from .anti_gaming import detect_gaming
-from .metrics import METRIC_REGISTRY, EvaluationContext, MetricValue
+from .metrics import (
+    METRIC_REGISTRY,
+    SPEC_ALIASES,
+    SPEC_SCORES,
+    EvaluationContext,
+    MetricValue,
+)
 from .tradeoff import build_tradeoff_report
 
 # Below this, risk_growth alone makes a plan risky
@@ -23,6 +29,8 @@ def evaluate_run(
     failure_thresholds: list[str] | None = None,
     success_outcomes: list[str] | None = None,
     end_reasons: tuple[str, ...] = (),
+    domain_axes: dict[str, tuple[float, str]] | None = None,
+    facts: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Judge one finished run under one profile.
@@ -44,7 +52,17 @@ def evaluate_run(
     pass             overall at or above the pass threshold
     needs_more_test  anything else
 
-    confidence is the weight of the axes that had data over all weight.
+    confidence is the weight of the axes that had data over the weight of
+    every axis the world models (an axis out of scope, such as physical
+    possibility without an equipment profile, does not lower it).
+
+    domain_axes are axes a domain pack or an equipment screening measured in
+    its own terms ({axis: (score, explanation)}); each replaces the core's.
+    facts describe the run itself (replayable, assumptions declared...), for
+    commercial demonstrability and imperial core value.
+
+    evaluation_result.scores are Formal Spec 8.3's eleven, null where the run
+    could not judge them; additional_axes are the rest.
 
     When the scenario names its success_outcomes, mission_success is 1 for a
     run whose winner_or_result is one of them and 0 otherwise: a city has no
@@ -66,7 +84,14 @@ def evaluate_run(
     context = EvaluationContext.build(
         initial_world_state, event_memory, final_world_state, perspective, max_ticks
     )
+    context.facts = dict(facts or {})
     values = {name: metric.compute(context) for name, metric in METRIC_REGISTRY.items()}
+    for name, (score, explanation) in (domain_axes or {}).items():
+        if name not in values:
+            raise ValueError(f"a domain measured an unknown axis {name!r}")
+        values[name] = MetricValue(
+            raw=score, score=score, applicable=True, explanation=explanation
+        )
     if success_outcomes:
         outcome = summary["winner_or_result"]
         achieved = 1.0 if outcome in success_outcomes else 0.0
@@ -83,7 +108,7 @@ def evaluate_run(
     breakdown = _score_breakdown(values, weights)
 
     counted = {n: w for n, w in weights.items() if w > 0 and values[n].applicable}
-    total_weight = sum(w for w in weights.values() if w > 0)
+    total_weight = sum(w for n, w in weights.items() if w > 0 and values[n].in_scope)
     base = (
         sum(values[n].score * w for n, w in counted.items()) / sum(counted.values())
         if counted
@@ -113,10 +138,15 @@ def evaluate_run(
         "overall_judgement": {"status": status, "confidence": judgement["confidence"]},
         "overall_score": judgement["overall_score"],
         "scores": {
-            name: entry["score"]
-            for name, entry in breakdown.items()
-            if entry["applicable"]
+            name: _score_or_null(breakdown[SPEC_ALIASES.get(name, name)])
+            for name in SPEC_SCORES
         },
+        "additional_axes": {
+            name: _score_or_null(entry)
+            for name, entry in breakdown.items()
+            if name not in SPEC_SCORES and name not in SPEC_ALIASES.values()
+        }
+        | {name: _score_or_null(breakdown[name]) for name in SPEC_ALIASES.values()},
         "key_findings": list(summary["key_findings"])
         + _findings(breakdown, judgement, profile),
         "failure_causes": _failure_causes(
@@ -140,6 +170,10 @@ def evaluate_run(
     }
 
 
+def _score_or_null(entry: dict[str, Any]) -> float | None:
+    return entry["score"] if entry["applicable"] else None
+
+
 def _score_breakdown(
     values: dict[str, MetricValue], weights: dict[str, float]
 ) -> dict[str, dict[str, Any]]:
@@ -150,6 +184,7 @@ def _score_breakdown(
             "unit": METRIC_REGISTRY[name].unit,
             "weight": weights[name],
             "applicable": value.applicable,
+            "in_scope": value.in_scope,
             "description": METRIC_REGISTRY[name].description,
             "explanation": value.explanation,
         }
@@ -276,7 +311,7 @@ def _next_tests(
     tests = [
         f"Exercise {name}: {entry['explanation']}"
         for name, entry in breakdown.items()
-        if not entry["applicable"] and entry["weight"] > 0
+        if not entry["applicable"] and entry["in_scope"] and entry["weight"] > 0
     ]
     tests += [
         f"Check whether {check['behavior']} was intended: {check['reason']}"

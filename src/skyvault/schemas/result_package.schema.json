@@ -324,7 +324,7 @@
     },
     "EvaluationResult": {
       "additionalProperties": false,
-      "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe first eight fields are the run-end summary the engine records in\nSCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR\n004 promised, and adds what the verdict was reached under (profile_id,\nperspective), the overall score, and the anti-gaming summary that shows\nwhether a high score was earned by gaming.\n\nscores holds every axis that had data, each in [0, 1], higher better.",
+      "description": "Evaluation Result = Formal Spec section 8.3.\n\nImportant:\nThe first eight fields are the run-end summary the engine records in\nSCENARIO_END. Schema 0.4 makes the section 8.3 verdict required, as ADR\n004 promised, and adds what the verdict was reached under (profile_id,\nperspective), the overall score, and the anti-gaming summary that shows\nwhether a high score was earned by gaming.\n\nscores are the eleven of section 8.3, null where the run could not\njudge them. additional_axes are the other section 8.2 axes (time cost,\nresource cost, risk growth, commercial demonstrability, imperial core\nvalue) and the development plan's mission success, logistics burden and\nstability impact, null likewise.",
       "properties": {
         "active_entities": {
           "minimum": 0,
@@ -337,6 +337,22 @@
           },
           "title": "Active Factions",
           "type": "array"
+        },
+        "additional_axes": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Additional Axes",
+          "type": "object"
         },
         "anti_gaming": {
           "$ref": "#/$defs/AntiGamingSummary"
@@ -407,13 +423,7 @@
           "type": "string"
         },
         "scores": {
-          "additionalProperties": {
-            "maximum": 1.0,
-            "minimum": 0.0,
-            "type": "number"
-          },
-          "title": "Scores",
-          "type": "object"
+          "$ref": "#/$defs/Scores"
         },
         "termination_reason": {
           "minLength": 1,
@@ -441,6 +451,7 @@
         "overall_judgement",
         "overall_score",
         "scores",
+        "additional_axes",
         "failure_causes",
         "recommended_next_tests",
         "comparison",
@@ -968,6 +979,11 @@
           "title": "Explanation",
           "type": "string"
         },
+        "in_scope": {
+          "default": true,
+          "title": "In Scope",
+          "type": "boolean"
+        },
         "raw": {
           "title": "Raw",
           "type": "number"
@@ -998,6 +1014,170 @@
         "explanation"
       ],
       "title": "ScoreEntry",
+      "type": "object"
+    },
+    "Scores": {
+      "additionalProperties": false,
+      "description": "Formal Spec 8.3 scores, field by field: each in [0, 1], higher better,\nor null when the run could not judge it (the score breakdown says why).",
+      "properties": {
+        "crisis_resilience": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Crisis Resilience"
+        },
+        "engineering_feasibility": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Engineering Feasibility"
+        },
+        "failure_resistance": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Failure Resistance"
+        },
+        "governance_stability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Governance Stability"
+        },
+        "physical_possibility": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Physical Possibility"
+        },
+        "recovery_ability": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Recovery Ability"
+        },
+        "resource_efficiency": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Resource Efficiency"
+        },
+        "risk_control": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Risk Control"
+        },
+        "strategic_value": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Strategic Value"
+        },
+        "system_robustness": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "System Robustness"
+        },
+        "tactical_usefulness": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Tactical Usefulness"
+        }
+      },
+      "required": [
+        "physical_possibility",
+        "engineering_feasibility",
+        "tactical_usefulness",
+        "strategic_value",
+        "governance_stability",
+        "crisis_resilience",
+        "resource_efficiency",
+        "risk_control",
+        "system_robustness",
+        "failure_resistance",
+        "recovery_ability"
+      ],
+      "title": "Scores",
       "type": "object"
     },
     "TradeoffAntiGaming": {

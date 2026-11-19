@@ -48,9 +48,34 @@ def scores(package, perspective):
     return {name: metric.compute(context) for name, metric in METRIC_REGISTRY.items()}
 
 
-def test_the_registry_holds_the_eleven_plan_axes():
-    assert tuple(METRIC_REGISTRY) == METRIC_NAMES
-    assert len(METRIC_REGISTRY) == 11
+# Formal Spec 8.2: every axis it names (resource and time cost and risk growth
+# as costs; 8.3 also reads the first and the last the other way round)
+SECTION_8_2 = {
+    "physical_possibility",
+    "engineering_feasibility",
+    "tactical_usefulness",
+    "strategic_value",
+    "governance_stability",
+    "crisis_resilience",
+    "resource_cost",
+    "time_cost",
+    "risk_growth",
+    "system_robustness",
+    "failure_resistance",
+    "recovery_ability",
+    "commercial_demonstrability",
+    "imperial_core_value",
+}
+
+
+def test_the_registry_holds_every_section_8_2_axis_and_the_plan_s_three():
+    assert set(METRIC_REGISTRY) == set(METRIC_NAMES)
+    assert set(METRIC_REGISTRY) >= SECTION_8_2
+    assert set(METRIC_REGISTRY) - SECTION_8_2 == {
+        "mission_success",
+        "logistics_burden",
+        "stability_impact",
+    }
 
 
 # Hand-computed from the reference run: RED dealt 111 damage against 97 BLUE hp,
@@ -58,7 +83,7 @@ def test_the_registry_holds_the_eleven_plan_axes():
 # and was never refused an action. 4 of 6 entities were destroyed.
 RED_EXPECTED = {
     "mission_success": (3, 1.0),
-    "tactical_value": (111, 1.0),
+    "tactical_usefulness": (111, 1.0),
     "strategic_value": (2, 2 / 3),
     "resource_cost": (40, 1 - 40 / 97),
     "time_cost": (10, 0.0),
@@ -92,7 +117,7 @@ def test_the_losing_side_scores_zero_mission_success(package):
     blue = scores(package, "BLUE")
 
     assert blue["mission_success"].score == 0.0
-    assert blue["tactical_value"].raw == 53
+    assert blue["tactical_usefulness"].raw == 53
     assert blue["resource_cost"].score == 0.0
     assert blue["risk_growth"].score == 0.0
 

@@ -1,10 +1,10 @@
 {
   "profile_id": "balanced",
-  "description": "Every axis counts; mission success counts three times. All five anti-gaming checks.",
+  "description": "Every axis the world models counts; mission success counts three times. Commercial demonstrability and imperial core value are reported, not weighed. All five anti-gaming checks.",
   "perspective": null,
   "primary_metric": "mission_success",
   "secondary_metrics": [
-    "tactical_value",
+    "tactical_usefulness",
     "strategic_value",
     "resource_cost",
     "time_cost",
@@ -13,11 +13,17 @@
     "recovery_ability",
     "system_robustness",
     "logistics_burden",
-    "stability_impact"
+    "stability_impact",
+    "physical_possibility",
+    "engineering_feasibility",
+    "governance_stability",
+    "crisis_resilience",
+    "commercial_demonstrability",
+    "imperial_core_value"
   ],
   "weights": {
     "mission_success": 3.0,
-    "tactical_value": 1.0,
+    "tactical_usefulness": 1.0,
     "strategic_value": 1.0,
     "resource_cost": 1.0,
     "time_cost": 1.0,
@@ -26,7 +32,13 @@
     "recovery_ability": 1.0,
     "system_robustness": 1.0,
     "logistics_burden": 1.0,
-    "stability_impact": 1.0
+    "stability_impact": 1.0,
+    "physical_possibility": 1.0,
+    "engineering_feasibility": 1.0,
+    "governance_stability": 1.0,
+    "crisis_resilience": 1.0,
+    "commercial_demonstrability": 0.0,
+    "imperial_core_value": 0.0
   },
   "thresholds": {
     "pass": 0.6,

@@ -10,7 +10,7 @@ from typing import Any
 
 # Axes that pull against each other: (what is gained, what it tends to cost)
 TRADEOFFS = (
-    ("tactical_value", "strategic_value"),
+    ("tactical_usefulness", "strategic_value"),
     ("mission_success", "resource_cost"),
     ("time_cost", "risk_growth"),
     ("mission_success", "stability_impact"),

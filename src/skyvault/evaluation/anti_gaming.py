@@ -87,10 +87,10 @@ def hidden_risk(context: EvaluationContext, scores: Scores, threshold: float):
 
 
 def long_term_cost(context: EvaluationContext, scores: Scores, threshold: float):
-    """strategic_value below threshold while tactical_value visibly succeeded."""
+    """strategic_value below threshold while tactical_usefulness visibly succeeded."""
     value = scores["strategic_value"]
     triggered = value.applicable and value.score < threshold
-    return value.score, triggered and _good(scores, "tactical_value")
+    return value.score, triggered and _good(scores, "tactical_usefulness")
 
 
 CHECKS: dict[str, Check] = {

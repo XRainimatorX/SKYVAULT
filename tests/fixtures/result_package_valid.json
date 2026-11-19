@@ -224,18 +224,21 @@
     },
     "overall_score": 0.55,
     "scores": {
-      "mission_success": 0.0,
-      "tactical_value": 0.0,
+      "physical_possibility": null,
+      "engineering_feasibility": null,
+      "tactical_usefulness": 0.0,
       "strategic_value": 1.0,
-      "resource_cost": 1.0,
-      "time_cost": 0.5,
-      "risk_growth": 1.0,
+      "governance_stability": null,
+      "crisis_resilience": null,
+      "resource_efficiency": 1.0,
+      "risk_control": 1.0,
+      "system_robustness": null,
       "failure_resistance": 1.0,
-      "stability_impact": 1.0
+      "recovery_ability": null
     },
     "failure_causes": [
       "mission_success 0.00: 0 of 1 opposing entities destroyed; 1 of 1 own entities still active",
-      "tactical_value 0.00: 0 damage dealt against 35 opposing hp"
+      "tactical_usefulness 0.00: 0 damage dealt against 35 opposing hp"
     ],
     "recommended_next_tests": [
       "Exercise recovery_ability: nothing was lost, so recovery was never tested",
@@ -250,6 +253,13 @@
       "gaming_detected": false,
       "flagged_behaviors": [],
       "penalty_total": 0.0
+    },
+    "additional_axes": {
+      "mission_success": 0.0,
+      "time_cost": 0.5,
+      "stability_impact": 1.0,
+      "resource_cost": 1.0,
+      "risk_growth": 1.0
     }
   },
   "score_breakdown": {
@@ -262,7 +272,7 @@
       "description": "Did the perspective faction achieve its aim?",
       "explanation": "0 of 1 opposing entities destroyed; 1 of 1 own entities still active"
     },
-    "tactical_value": {
+    "tactical_usefulness": {
       "score": 0.0,
       "raw": 0,
       "unit": "hp",
@@ -358,7 +368,7 @@
     "profile_id": "balanced",
     "primary_metric": "mission_success",
     "secondary_metrics": [
-      "tactical_value",
+      "tactical_usefulness",
       "strategic_value",
       "resource_cost",
       "time_cost",
@@ -468,11 +478,11 @@
     },
     "tradeoffs": [
       {
-        "gain": "tactical_value",
+        "gain": "tactical_usefulness",
         "gain_score": 0.0,
         "cost": "strategic_value",
         "cost_score": 1.0,
-        "assessment": "strategic_value kept at the expense of tactical_value"
+        "assessment": "strategic_value kept at the expense of tactical_usefulness"
       },
       {
         "gain": "mission_success",
@@ -516,7 +526,7 @@
         "score": 0.0
       },
       {
-        "metric": "tactical_value",
+        "metric": "tactical_usefulness",
         "score": 0.0
       },
       {

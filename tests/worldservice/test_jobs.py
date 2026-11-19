@@ -282,7 +282,7 @@ def test_a_scenario_run_leaves_its_result_and_record(store, policy):
 
     assert job["lifecycle_state"] == "completed" and job["error"] is None
     assert job["summary"]["result"] == "RED_survived"
-    assert job["summary"]["output_hash"].startswith("4a22da0ddfa0")
+    assert job["summary"]["output_hash"].startswith("b238dee873ee")
     assert (
         job["governance"]["policy_id"] == "default" and not job["governance"]["stopped"]
     )
@@ -558,7 +558,7 @@ def test_rq_workers_take_the_higher_priority_first(store, policy, redis_url):
     }
     assert finished[high["job_id"]] < finished[low["job_id"]]
     assert store.get_job(low["job_id"])["summary"]["output_hash"].startswith(
-        "4a22da0ddfa0"
+        "b238dee873ee"
     )
     assert queue.depth() == 0 and queue.running() == []
 

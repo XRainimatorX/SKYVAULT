@@ -399,9 +399,11 @@ def test_breached_is_a_failure_and_defended_a_success():
         if reference_run(s)["evaluation_result"]["winner_or_result"] == "breached"
     )
     verdict = breached["evaluation_result"]
-    assert verdict["scores"]["mission_success"] == 0
+    assert verdict["additional_axes"]["mission_success"] == 0
     assert verdict["overall_judgement"]["status"] == "fail"
-    assert reference_run()["evaluation_result"]["scores"]["mission_success"] == 1
+    assert (
+        reference_run()["evaluation_result"]["additional_axes"]["mission_success"] == 1
+    )
 
 
 def test_only_drones_and_interceptors_with_a_chance_decide():

@@ -37,6 +37,7 @@ class ScoreEntry(ContractModel):
     unit: str
     weight: NonNegative
     applicable: bool
+    in_scope: bool = True
     description: str
     explanation: str
 

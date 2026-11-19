@@ -6,17 +6,26 @@ from pydantic import Field, model_validator
 
 from .base import ContractModel, NonEmptyStr, NonNegative, Probability, check
 
-# The evaluation axes Phase 7 implements; profiles may only weight these
+# The evaluation axes SKYVAULT computes; profiles may only weight these.
+# Formal Spec 8.2 names fourteen axes (8.3 reports eleven of them as scores);
+# mission_success, logistics_burden and stability_impact come from the
+# development plan's Phase 7.
 METRIC_NAMES = (
     "mission_success",
-    "tactical_value",
+    "physical_possibility",
+    "engineering_feasibility",
+    "tactical_usefulness",
     "strategic_value",
+    "governance_stability",
+    "crisis_resilience",
     "resource_cost",
     "time_cost",
     "risk_growth",
+    "system_robustness",
     "failure_resistance",
     "recovery_ability",
-    "system_robustness",
+    "commercial_demonstrability",
+    "imperial_core_value",
     "logistics_burden",
     "stability_impact",
 )
