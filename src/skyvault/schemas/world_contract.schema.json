@@ -333,7 +333,20 @@
           "equipment_overheat",
           "civilian_pressure",
           "resource_shortage",
-          "public_order_collapse"
+          "public_order_collapse",
+          "encirclement",
+          "intelligence_error",
+          "formation_collapse",
+          "tempo_delay",
+          "administration_collapse",
+          "public_sentiment_decline",
+          "endurance_shortfall",
+          "energy_depletion",
+          "misidentification",
+          "reaction_delay",
+          "target_saturation",
+          "collision",
+          "path_blocked"
         ],
         "type": "string"
       },

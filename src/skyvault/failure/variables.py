@@ -161,6 +161,197 @@ def _drop_orders(scenario: Scenario, level: str, perspective: str) -> Scenario:
     return scenario
 
 
+def _needs_state(key: str, side, who: str) -> Applies:
+    def applies(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+        if any(key in e.get("state", {}) for e in side(scenario, perspective)):
+            return True, ""
+        return False, f"no {who} entity has {key}"
+
+    return applies
+
+
+def _scale_state(key: str, side, magnitudes, floor: float = 0.0) -> Apply:
+    def apply(scenario: Scenario, level: str, perspective: str) -> Scenario:
+        factor = magnitudes[STRESS_LEVELS.index(level)]
+        for entity in side(scenario, perspective):
+            state = entity.get("state", {})
+            if key in state:
+                state[key] = round(max(floor, float(state[key]) * factor), 4)
+        return scenario
+
+    return apply
+
+
+def _enemy_hp(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    factor = UNDERESTIMATE[STRESS_LEVELS.index(level)]
+    for entity in _enemies(scenario, perspective):
+        state = entity.get("state", {})
+        if "hp" in state:
+            state["hp"] = int(round(state["hp"] * factor))
+    return scenario
+
+
+def _needs_enemy_hp(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+    if any("hp" in e.get("state", {}) for e in _enemies(scenario, perspective)):
+        return True, ""
+    return False, "no enemy entity has hp"
+
+
+def _grid(scenario: Scenario) -> tuple[int, int] | None:
+    space = scenario["world_contract"]["space_model"]
+    if space.get("type", "grid") != "grid" or not space.get("width"):
+        return None
+    return int(space["width"]), int(space["height"])
+
+
+def _centre(units: list[dict[str, Any]]) -> tuple[float, float]:
+    xs = [u["position"][0] for u in units]
+    ys = [u["position"][1] for u in units]
+    return sum(xs) / len(xs), sum(ys) / len(ys)
+
+
+def _needs_encirclement(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+    if _grid(scenario) is None:
+        return False, "encirclement is measured on a grid"
+    own = [u for u in _own(scenario, perspective) if u.get("position")]
+    enemies = [u for u in _enemies(scenario, perspective) if u.get("position")]
+    if not own or not enemies:
+        return False, "both sides need units on the map"
+    return True, ""
+
+
+def _encircle(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    """
+    A share of the enemy (by level) starts behind the perspective side: on
+    the free, passable cells nearest the point as far behind its centre as
+    the enemy is in front of it. The enemy's nearest units move first.
+    """
+    size = _grid(scenario)
+    if size is None:  # pragma: no cover - applies refuses this
+        raise ValueError("encirclement needs a grid")
+    width, height = size
+    own = [u for u in _own(scenario, perspective) if u.get("position")]
+    enemies = [u for u in _enemies(scenario, perspective) if u.get("position")]
+    ox, oy = _centre(own)
+    ex, ey = _centre(enemies)
+    rear = (
+        min(width - 1.0, max(0.0, 2 * ox - ex)),
+        min(height - 1.0, max(0.0, 2 * oy - ey)),
+    )
+    share = ENCIRCLED[STRESS_LEVELS.index(level)]
+    moving = sorted(
+        enemies,
+        key=lambda u: (
+            abs(u["position"][0] - ox) + abs(u["position"][1] - oy),
+            u["entity_id"],
+        ),
+    )[: max(1, round(len(enemies) * share))]
+    taken = {
+        tuple(e["position"])
+        for e in scenario["entities"]
+        if e.get("position") and e not in moving
+    } | _impassable(scenario)
+    free = sorted(
+        ((x, y) for x in range(width) for y in range(height) if (x, y) not in taken),
+        key=lambda c: (abs(c[0] - rear[0]) + abs(c[1] - rear[1]), c),
+    )
+    for unit, cell in zip(moving, free, strict=False):
+        unit["position"] = list(cell)
+    return scenario
+
+
+def _impassable(scenario: Scenario) -> set[tuple[int, int]]:
+    """
+    Cells no unit may stand on: map cells whose terrain has no move cost
+    (environment_state.terrain with the domain's terrain table).
+    """
+    world = scenario["world_contract"]
+    terrain = world.get("environment_state", {}).get("terrain")
+    if not terrain:
+        return set()
+    table: dict[str, Any] = {}
+    for group in world.get("rule_set", {}).values():
+        if isinstance(group, dict) and isinstance(group.get("terrain"), dict):
+            table = group["terrain"]
+    return {
+        (x, y)
+        for y, row in enumerate(terrain["rows"])
+        for x, mark in enumerate(row)
+        if table.get(terrain["legend"][mark], {}).get("move_cost", 1) is None
+    }
+
+
+def _orders_wait(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+    if not _own(scenario, perspective):
+        return False, "the perspective faction has no entities"
+    domain = scenario.get("domain")
+    if domain:
+        from ..domains import load_domain
+
+        if "wait" not in load_domain(domain).action_types:
+            return False, f"the {domain} domain has no wait order to hold units with"
+    return True, ""
+
+
+def _tempo(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    """The plan starts late: own units hold for the first ticks (by level)."""
+    ticks = int(TEMPO_TICKS[STRESS_LEVELS.index(level)])
+    runtime = scenario["runtime"]
+    orders = list(runtime.get("scheduled_actions", []))
+    busy = {(o["tick"], o["actor_id"]) for o in orders}
+    for unit in sorted(_own(scenario, perspective), key=lambda u: u["entity_id"]):
+        for tick in range(1, ticks + 1):
+            if (tick, unit["entity_id"]) not in busy:
+                orders.append(
+                    {
+                        "tick": tick,
+                        "actor_id": unit["entity_id"],
+                        "action_type": "wait",
+                        "target": {},
+                        "system_id": "failure_exploration",
+                        "intent": "tempo_delay",
+                    }
+                )
+    runtime["scheduled_actions"] = orders
+    return scenario
+
+
+def _needs_districts(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+    rules = scenario["world_contract"].get("rule_set", {})
+    if "city" in rules and any(
+        e.get("entity_type") == "district" for e in scenario["entities"]
+    ):
+        return True, ""
+    return False, "public sentiment is modelled in a city's districts"
+
+
+def _sentiment(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    """Every district starts under emotional pressure (the information model)."""
+    pressure = SENTIMENT[STRESS_LEVELS.index(level)]
+    city = scenario["world_contract"]["rule_set"]["city"]
+    info = dict(city.get("information") or {})
+    initial = dict(info.get("initial") or {})
+    for entity in scenario["entities"]:
+        if entity.get("entity_type") == "district":
+            initial[entity["entity_id"]] = max(
+                float(initial.get(entity["entity_id"], 0.0)), pressure
+            )
+    info["initial"] = initial
+    city["information"] = info
+    return scenario
+
+
+def _only_in(what: str) -> Applies:
+    def applies(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+        return False, f"{what}"
+
+    return applies
+
+
+def _unchanged(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    return scenario  # pragma: no cover - its applies always refuses
+
+
 ACCURACY_FACTORS = (0.9, 0.75, 0.6, 0.4)
 DAMAGE_FACTORS = (0.9, 0.75, 0.5, 0.25)
 HP_FACTORS = (0.9, 0.75, 0.6, 0.4)
@@ -169,6 +360,14 @@ ENEMY_BONUS = (0.05, 0.1, 0.2, 0.35)
 DELAY_FACTORS = (0.9, 0.75, 0.5, 0.25)
 SHORTAGE_FACTORS = (0.75, 0.5, 0.25, 0.0)
 ORDER_FACTORS = (0.85, 0.65, 0.45, 0.25)
+UNDERESTIMATE = (1.15, 1.3, 1.6, 2.0)
+ENCIRCLED = (0.25, 0.5, 0.75, 1.0)
+MORALE_FACTORS = (0.8, 0.6, 0.4, 0.2)
+TEMPO_TICKS = (1.0, 2.0, 4.0, 8.0)
+ADMIN_FACTORS = (0.75, 0.5, 0.25, 0.0)
+SENTIMENT = (20.0, 35.0, 55.0, 80.0)
+ENDURANCE_FACTORS = (0.75, 0.5, 0.25, 0.1)
+ENERGY_FACTORS = (0.75, 0.5, 0.25, 0.1)
 
 
 FAILURE_VARIABLES: dict[str, FailureVariable] = {
@@ -245,6 +444,88 @@ FAILURE_VARIABLES: dict[str, FailureVariable] = {
             ORDER_FACTORS,
             _needs_public_order,
             _public_order,
+        ),
+        # Formal Spec 14.2, row by row (FAILURE_TAXONOMY)
+        FailureVariable(
+            "encirclement",
+            "Encircled: part of the enemy starts behind the side",
+            "force_disposition",
+            ENCIRCLED,
+            _needs_encirclement,
+            _encircle,
+        ),
+        FailureVariable(
+            "intelligence_error",
+            "Intelligence was wrong: the enemy is stronger than reported",
+            "intelligence_estimate",
+            UNDERESTIMATE,
+            _needs_enemy_hp,
+            _enemy_hp,
+        ),
+        FailureVariable(
+            "formation_collapse",
+            "Cohesion breaks: own units start with lower morale",
+            "unit_cohesion",
+            MORALE_FACTORS,
+            _needs_state("morale", _own, "own"),
+            _scale_state("morale", _own, MORALE_FACTORS),
+        ),
+        FailureVariable(
+            "tempo_delay",
+            "The plan starts late: own units hold for its first ticks",
+            "plan_timing",
+            TEMPO_TICKS,
+            _orders_wait,
+            _tempo,
+        ),
+        FailureVariable(
+            "administration_collapse",
+            "Administration breaks down: every administration falls, to none",
+            "administration",
+            ADMIN_FACTORS,
+            _needs_state("administration", _everyone, "any"),
+            _scale_state("administration", _everyone, ADMIN_FACTORS),
+        ),
+        FailureVariable(
+            "public_sentiment_decline",
+            "Public sentiment turns: every district starts under emotional pressure",
+            "public_sentiment",
+            SENTIMENT,
+            _needs_districts,
+            _sentiment,
+        ),
+        FailureVariable(
+            "endurance_shortfall",
+            "Endurance falls short: own equipment runs out sooner",
+            "equipment_endurance",
+            ENDURANCE_FACTORS,
+            _needs("endurance_ticks", _own, "own"),
+            _scale_capability("endurance_ticks", _own, ENDURANCE_FACTORS, as_int=True),
+        ),
+        FailureVariable(
+            "energy_depletion",
+            "Energy runs low: own units start with less energy",
+            "energy_supply",
+            ENERGY_FACTORS,
+            _needs_state("energy", _own, "own"),
+            _scale_state("energy", _own, ENERGY_FACTORS),
+        ),
+        *(
+            FailureVariable(
+                name,
+                description,
+                "airspace_model",
+                (1.0, 1.0, 1.0, 1.0),
+                _only_in(f"{name} is modelled in an airspace scenario"),
+                _unchanged,
+            )
+            for name, description in (
+                ("misidentification", "Tracks are misidentified more often"),
+                ("reaction_delay", "The defence reacts later to every track"),
+                ("target_saturation", "More threats than the defence was sized for"),
+                ("collision", "Threats fly at the drones' altitude"),
+                ("path_blocked", "Drone waypoints are closed to flight"),
+            )
         ),
     )
 }

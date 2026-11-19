@@ -474,7 +474,7 @@ jobs:
           for folder in ("observations", "observations_urban"):
               out = Path("output") / folder
               docs = {p.stem: json.loads(p.read_text()) for p in out.glob("*.json")}
-              assert set(docs) == {"TAC_ANGEL", "STARTX", "NEXUS", "HADES", "AEROGRID"}, set(docs)
+              assert set(docs) == {"STARTX", "TAC_ANGEL", "NEXUS", "EIDEN_01", "AEROGRID", "SKYFOX", "HADES", "CYBERHOUND", "STAR_GUARD"}, set(docs)
               for name, doc in docs.items():
                   for observation in doc["observations"]:
                       assert validate_observation(observation) == observation
@@ -620,7 +620,7 @@ jobs:
                   break
               time.sleep(0.2)
           assert returned["result_package"]["reproducibility"]["output_hash"].startswith("b238dee873ee"), returned["system_status"]
-          assert returned["briefing"].startswith("# SKYVAULT briefing"), returned["briefing"][:80]
+          assert returned["scenario_report"].startswith("# SKYVAULT briefing"), returned["scenario_report"][:80]
           print("external systems verified: state-action-outcome, conflict", conflict, "decided by NEXUS, NEXUS package")
           EOF
 

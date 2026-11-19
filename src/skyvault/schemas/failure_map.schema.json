@@ -142,7 +142,20 @@
               "equipment_overheat",
               "civilian_pressure",
               "resource_shortage",
-              "public_order_collapse"
+              "public_order_collapse",
+              "encirclement",
+              "intelligence_error",
+              "formation_collapse",
+              "tempo_delay",
+              "administration_collapse",
+              "public_sentiment_decline",
+              "endurance_shortfall",
+              "energy_depletion",
+              "misidentification",
+              "reaction_delay",
+              "target_saturation",
+              "collision",
+              "path_blocked"
             ],
             "type": "string"
           },
@@ -157,6 +170,191 @@
         "mean_score"
       ],
       "title": "BranchResult",
+      "type": "object"
+    },
+    "CrushingVariable": {
+      "additionalProperties": false,
+      "properties": {
+        "breaking_level": {
+          "anyOf": [
+            {
+              "enum": [
+                "mild",
+                "moderate",
+                "severe",
+                "collapse"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Breaking Level"
+        },
+        "variable": {
+          "enum": [
+            "supply_delay",
+            "sensor_failure",
+            "communication_failure",
+            "weather_degradation",
+            "enemy_reaction_speed",
+            "equipment_overheat",
+            "civilian_pressure",
+            "resource_shortage",
+            "public_order_collapse",
+            "encirclement",
+            "intelligence_error",
+            "formation_collapse",
+            "tempo_delay",
+            "administration_collapse",
+            "public_sentiment_decline",
+            "endurance_shortfall",
+            "energy_depletion",
+            "misidentification",
+            "reaction_delay",
+            "target_saturation",
+            "collision",
+            "path_blocked"
+          ],
+          "title": "Variable",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable",
+        "breaking_level"
+      ],
+      "title": "CrushingVariable",
+      "type": "object"
+    },
+    "FailureAnswers": {
+      "additionalProperties": false,
+      "description": "Formal Spec 14.4, one field per question: 在哪裡死、為什麼死、多快死、\n哪個假設害死、哪個變量壓垮、哪個替代方案活得更久、現實行動前必須改什麼.",
+      "properties": {
+        "how_fast_it_failed": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "How Fast It Failed",
+          "type": "object"
+        },
+        "what_must_change": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "What Must Change",
+          "type": "array"
+        },
+        "where_it_failed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Where It Failed",
+          "type": "array"
+        },
+        "which_alternative_survived_longer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Which Alternative Survived Longer"
+        },
+        "which_assumption_caused_it": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Which Assumption Caused It"
+        },
+        "which_variable_pushed_it_over": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CrushingVariable"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "why_it_failed": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Why It Failed",
+          "type": "array"
+        }
+      },
+      "required": [
+        "where_it_failed",
+        "why_it_failed",
+        "how_fast_it_failed",
+        "which_assumption_caused_it",
+        "which_variable_pushed_it_over",
+        "which_alternative_survived_longer",
+        "what_must_change"
+      ],
+      "title": "FailureAnswers",
+      "type": "object"
+    },
+    "FailureOutput": {
+      "additionalProperties": false,
+      "description": "Formal Spec 14.3 failure_exploration.output, filled.",
+      "properties": {
+        "collapse_sequence": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Collapse Sequence",
+          "type": "array"
+        },
+        "failure_points": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Failure Points",
+          "type": "array"
+        },
+        "recommended_modifications": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Recommended Modifications",
+          "type": "array"
+        },
+        "survival_conditions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Survival Conditions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "failure_points",
+        "collapse_sequence",
+        "survival_conditions",
+        "recommended_modifications"
+      ],
+      "title": "FailureOutput",
       "type": "object"
     },
     "LevelResult": {
@@ -270,7 +468,20 @@
             "equipment_overheat",
             "civilian_pressure",
             "resource_shortage",
-            "public_order_collapse"
+            "public_order_collapse",
+            "encirclement",
+            "intelligence_error",
+            "formation_collapse",
+            "tempo_delay",
+            "administration_collapse",
+            "public_sentiment_decline",
+            "endurance_shortfall",
+            "energy_depletion",
+            "misidentification",
+            "reaction_delay",
+            "target_saturation",
+            "collision",
+            "path_blocked"
           ],
           "title": "Variable",
           "type": "string"
@@ -292,7 +503,7 @@
   "$id": "skyvault/1.0/failure_map.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "The failure map a failure exploration produces (development plan Phase 9).\n\nImportant:\nIt answers the section 14 questions in fixed places: where the plan fails\n(failure_points), why (failure_causes), how fast (how_fast), which\nvariable crushes it and which assumption that attacks (crushing_variable,\ncrushing_assumption), and which alternative lasts longer (alternatives).",
+  "description": "The failure map a failure exploration produces (development plan Phase 9).\n\nImportant:\nIt answers the section 14 questions in fixed places: where the plan fails\n(failure_points), why (failure_causes), how fast (how_fast), which\nvariable crushes it and which assumption that attacks (crushing_variable,\ncrushing_assumption), and which alternative lasts longer (alternatives).\noutput is the section 14.3 output block and answers the seven questions\nof 14.4, what must change before acting included.",
   "properties": {
     "alternatives": {
       "items": {
@@ -300,6 +511,9 @@
       },
       "title": "Alternatives",
       "type": "array"
+    },
+    "answers": {
+      "$ref": "#/$defs/FailureAnswers"
     },
     "baseline": {
       "$ref": "#/$defs/Baseline"
@@ -345,7 +559,20 @@
             "equipment_overheat",
             "civilian_pressure",
             "resource_shortage",
-            "public_order_collapse"
+            "public_order_collapse",
+            "encirclement",
+            "intelligence_error",
+            "formation_collapse",
+            "tempo_delay",
+            "administration_collapse",
+            "public_sentiment_decline",
+            "endurance_shortfall",
+            "energy_depletion",
+            "misidentification",
+            "reaction_delay",
+            "target_saturation",
+            "collision",
+            "path_blocked"
           ],
           "type": "string"
         },
@@ -387,6 +614,9 @@
       "minLength": 1,
       "title": "Objective",
       "type": "string"
+    },
+    "output": {
+      "$ref": "#/$defs/FailureOutput"
     },
     "perspective": {
       "minLength": 1,
@@ -452,7 +682,9 @@
     "how_fast",
     "branches",
     "alternatives",
-    "best_alternative"
+    "best_alternative",
+    "output",
+    "answers"
   ],
   "title": "FailureMap",
   "type": "object"

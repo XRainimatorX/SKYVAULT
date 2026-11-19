@@ -16,6 +16,19 @@ FAILURE_VARIABLE_NAMES = (
     "civilian_pressure",
     "resource_shortage",
     "public_order_collapse",
+    "encirclement",
+    "intelligence_error",
+    "formation_collapse",
+    "tempo_delay",
+    "administration_collapse",
+    "public_sentiment_decline",
+    "endurance_shortfall",
+    "energy_depletion",
+    "misidentification",
+    "reaction_delay",
+    "target_saturation",
+    "collision",
+    "path_blocked",
 )
 StressLevel = Literal["mild", "moderate", "severe", "collapse"]
 FailureVariableName = Literal[
@@ -28,6 +41,19 @@ FailureVariableName = Literal[
     "civilian_pressure",
     "resource_shortage",
     "public_order_collapse",
+    "encirclement",
+    "intelligence_error",
+    "formation_collapse",
+    "tempo_delay",
+    "administration_collapse",
+    "public_sentiment_decline",
+    "endurance_shortfall",
+    "energy_depletion",
+    "misidentification",
+    "reaction_delay",
+    "target_saturation",
+    "collision",
+    "path_blocked",
 ]
 
 
@@ -113,6 +139,35 @@ class AlternativeResult(ContractModel):
     verdict: Literal["holds_longer", "breaks_sooner", "mixed", "same"]
 
 
+class FailureOutput(ContractModel):
+    """Formal Spec 14.3 failure_exploration.output, filled."""
+
+    failure_points: list[str]
+    collapse_sequence: list[dict[str, Any]]
+    survival_conditions: list[str]
+    recommended_modifications: list[str] = Field(min_length=1)
+
+
+class CrushingVariable(ContractModel):
+    variable: FailureVariableName
+    breaking_level: StressLevel | None
+
+
+class FailureAnswers(ContractModel):
+    """
+    Formal Spec 14.4, one field per question: 在哪裡死、為什麼死、多快死、
+    哪個假設害死、哪個變量壓垮、哪個替代方案活得更久、現實行動前必須改什麼.
+    """
+
+    where_it_failed: list[str]
+    why_it_failed: list[str]
+    how_fast_it_failed: dict[str, float | None]
+    which_assumption_caused_it: str | None
+    which_variable_pushed_it_over: CrushingVariable | None
+    which_alternative_survived_longer: str | None
+    what_must_change: list[str] = Field(min_length=1)
+
+
 class FailureMap(ContractModel):
     """
     The failure map a failure exploration produces (development plan Phase 9).
@@ -122,6 +177,8 @@ class FailureMap(ContractModel):
     (failure_points), why (failure_causes), how fast (how_fast), which
     variable crushes it and which assumption that attacks (crushing_variable,
     crushing_assumption), and which alternative lasts longer (alternatives).
+    output is the section 14.3 output block and answers the seven questions
+    of 14.4, what must change before acting included.
     """
 
     scenario_id: NonEmptyStr
@@ -142,6 +199,8 @@ class FailureMap(ContractModel):
     branches: list[BranchResult]
     alternatives: list[AlternativeResult]
     best_alternative: str | None
+    output: FailureOutput
+    answers: FailureAnswers
 
 
 def validate_failure_exploration(data: dict[str, Any]) -> dict[str, Any]:

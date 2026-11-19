@@ -14,9 +14,11 @@ from .analysis import (
     render_recommended_modifications,
 )
 from .explore import explore_failures
+from .taxonomy import FAILURE_TAXONOMY, variables_for
 from .variables import FAILURE_VARIABLES, STRESS_LEVELS, FailureVariable, apply_stress
 
 __all__ = [
+    "FAILURE_TAXONOMY",
     "FAILURE_VARIABLES",
     "STRESS_LEVELS",
     "FailureVariable",
@@ -26,4 +28,5 @@ __all__ = [
     "build_survival_conditions",
     "explore_failures",
     "render_recommended_modifications",
+    "variables_for",
 ]

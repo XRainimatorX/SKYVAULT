@@ -35,6 +35,31 @@ RECOMMENDATIONS = {
     "resource_shortage": "Secure resource reserves before committing to the plan.",
     "public_order_collapse": "Plan to restore order early and keep unrest from "
     "spreading: police, food and administration before the next phase.",
+    "encirclement": "Secure the flanks and rear, or keep a reserve that can face "
+    "an enemy behind the line.",
+    "intelligence_error": "Plan against a stronger enemy than reported, or confirm "
+    "the estimate before committing.",
+    "formation_collapse": "Keep units mutually supporting and rally early; do not "
+    "rely on cohesion holding under fire.",
+    "tempo_delay": "Build slack into the timetable: the plan must still work when "
+    "it starts late.",
+    "administration_collapse": "Restore administration first: offices, records and "
+    "officials before the services that depend on them.",
+    "public_sentiment_decline": "Answer rumor early (counter-messaging) and avoid "
+    "coercion where pressure is high: it backfires.",
+    "endurance_shortfall": "Plan shorter tasks or relief: the equipment runs out "
+    "before the mission ends.",
+    "energy_depletion": "Recharge or refuel before the route, or shorten it.",
+    "misidentification": "Add identification checks (IFF, a second sensor) before "
+    "engaging, and deconflict friendly flights.",
+    "reaction_delay": "Cut the time from track to engagement, or engage further "
+    "out to buy the delay back.",
+    "target_saturation": "Size the defence for more threats than expected, or "
+    "layer it so leakers meet a second line.",
+    "collision": "Deconflict drone altitudes and routes from expected threat "
+    "corridors.",
+    "path_blocked": "Plan alternate waypoints, or let the drone re-route around "
+    "closed cells.",
 }
 
 AXIS_LINE = re.compile(r"^(\w+) \d+\.\d\d: ")
@@ -232,7 +257,43 @@ def _causes(failed: Runs) -> list[str]:
 
 
 def build_failure_map(exploration: dict[str, Any]) -> dict[str, Any]:
-    """The failure map: where, why, how fast, what crushes it, what lasts longer."""
+    """
+    The failure map: where, why, how fast, what crushes it, what lasts longer
+    — and, in the shapes of Formal Spec 14.3 and 14.4, its output (failure
+    points, collapse sequence, survival conditions, recommended
+    modifications) and the seven answers.
+    """
+    found = _core_map(exploration)
+    collapse = _collapse(exploration, found)
+    conditions = build_survival_conditions(found)
+    changes = recommended_modifications(found)
+    found["output"] = {
+        "failure_points": list(found["failure_points"]),
+        "collapse_sequence": list(collapse.get("sequence") or []),
+        "survival_conditions": list(conditions["conditions"]),
+        "recommended_modifications": changes,
+    }
+    crushing = found["crushing_variable"]
+    breaking = next(
+        (r["breaking_level"] for r in found["variables"] if r["variable"] == crushing),
+        None,
+    )
+    found["answers"] = {
+        "where_it_failed": list(found["failure_points"]),
+        "why_it_failed": list(found["failure_causes"]),
+        "how_fast_it_failed": dict(found["how_fast"]),
+        "which_assumption_caused_it": found["crushing_assumption"],
+        "which_variable_pushed_it_over": (
+            {"variable": crushing, "breaking_level": breaking} if crushing else None
+        ),
+        "which_alternative_survived_longer": found["best_alternative"],
+        "what_must_change": changes,
+    }
+    return found
+
+
+def _core_map(exploration: dict[str, Any]) -> dict[str, Any]:
+    """The failure map's own measurements, before its 14.3 / 14.4 shapes."""
     order = exploration["stress_levels"]
     threshold = exploration["survival_threshold"]
     baseline = exploration["baseline"]
@@ -313,7 +374,12 @@ def build_collapse_sequence(exploration: dict[str, Any]) -> dict[str, Any]:
     breaking level (its worst level when it never breaks); without a crushing
     variable, the first failed baseline run.
     """
-    failure_map = build_failure_map(exploration)
+    return _collapse(exploration, _core_map(exploration))
+
+
+def _collapse(
+    exploration: dict[str, Any], failure_map: dict[str, Any]
+) -> dict[str, Any]:
     name = failure_map["crushing_variable"]
     source: Runs = exploration["baseline"]
     label = "baseline"
@@ -381,6 +447,47 @@ def build_survival_conditions(failure_map: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def recommended_modifications(
+    failure_map: dict[str, Any], bold: bool = False
+) -> list[str]:
+    """
+    What must change before acting on the plan (Formal Spec 14.4: 現實行動前
+    必須改什麼), most pressing first: rework a plan that fails unstressed,
+    answer each variable that breaks it (the crushing one first), consider
+    an alternative that holds longer.
+    """
+    mark = "**" if bold else ""
+    crushing = failure_map["crushing_variable"]
+    must = []
+    if failure_map["baseline"]["fails_without_stress"]:
+        must.append(
+            "The plan already fails in most runs without any stress: rework it before "
+            "stressing it further."
+        )
+    breaking = sorted(
+        (r for r in failure_map["variables"] if r["breaking_level"]),
+        key=lambda r: (r["variable"] != crushing, -r["sensitivity"]),
+    )
+    for result in breaking:
+        must.append(
+            f"{mark}{result['variable']}{mark} breaks the plan at "
+            f"{result['breaking_level']}: {RECOMMENDATIONS[result['variable']]}"
+        )
+    if failure_map["best_alternative"]:
+        best = next(
+            a
+            for a in failure_map["alternatives"]
+            if a["scenario_version"] == failure_map["best_alternative"]
+        )
+        must.append(
+            f"Consider the alternative {mark}{best['scenario_version']}{mark}: "
+            f"it holds longer on {', '.join(best['holds_longer_on'])}."
+        )
+    if not must:
+        must.append("Nothing tested breaks the plan at the levels explored.")
+    return must
+
+
 def render_recommended_modifications(
     failure_map: dict[str, Any], survival_conditions: dict[str, Any]
 ) -> str:
@@ -406,33 +513,7 @@ def render_recommended_modifications(
         "",
     ]
 
-    must = []
-    if baseline["fails_without_stress"]:
-        must.append(
-            "The plan already fails in most runs without any stress: rework it before "
-            "stressing it further."
-        )
-    breaking = sorted(
-        (r for r in failure_map["variables"] if r["breaking_level"]),
-        key=lambda r: (r["variable"] != crushing, -r["sensitivity"]),
-    )
-    for result in breaking:
-        must.append(
-            f"**{result['variable']}** breaks the plan at {result['breaking_level']}: "
-            f"{RECOMMENDATIONS[result['variable']]}"
-        )
-    if failure_map["best_alternative"]:
-        best = next(
-            a
-            for a in failure_map["alternatives"]
-            if a["scenario_version"] == failure_map["best_alternative"]
-        )
-        must.append(
-            f"Consider the alternative **{best['scenario_version']}**: "
-            f"it holds longer on {', '.join(best['holds_longer_on'])}."
-        )
-    if not must:
-        must.append("Nothing tested breaks the plan at the levels explored.")
+    must = recommended_modifications(failure_map, bold=True)
     lines += [f"{number}. {item}" for number, item in enumerate(must, start=1)]
 
     lines += ["", "## Where and why it fails", ""]

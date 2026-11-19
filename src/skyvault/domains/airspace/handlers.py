@@ -431,7 +431,11 @@ class EngageHandler:
 
 
 class MoveHandler:
-    """move: a drone flies to target.location, within its speed (Chebyshev)."""
+    """
+    move: a drone flies to target.location, within its speed (Chebyshev),
+    unless the cell is closed to flight (rules.airspace.no_fly: [[x, y]...],
+    Phase 22's path_blocked).
+    """
 
     action_type = "move"
 
@@ -446,6 +450,9 @@ class MoveHandler:
             return ActionValidation.reject("Move target outside the airspace")
         if distance(actor.position, goal) > int(actor.capabilities["speed"]):
             return ActionValidation.reject("Move target out of reach")
+        closed = world.rules.require("airspace").get("no_fly") or []
+        if list(cell(goal)) in [list(c) for c in closed]:
+            return ActionValidation.reject("Move target is closed to flight")
         return ActionValidation.ok()
 
     def resolve(
