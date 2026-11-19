@@ -11,7 +11,7 @@ without the profile file, and compare_scenarios sees every difference.
 import copy
 from typing import Any
 
-from ...contracts import SCHEMA_VERSION, validate_scenario
+from ...contracts import SCHEMA_VERSION, validate_compiled_scenario
 from ...reproducibility import child_version
 
 DOMAIN = "military"
@@ -75,7 +75,6 @@ def build_scenario(spec: dict[str, Any], profiles: dict[str, Any]) -> dict[str, 
                 "combat_resolution": "accuracy_cover_suppression",
                 "sensing": "range_times_concealment",
                 "command": "delay_and_order_loss",
-                "actor_policy": f"military_baseline[{doctrines}]",
                 "distance_model": "chebyshev",
             },
             "evaluation_targets": [
@@ -100,8 +99,16 @@ def build_scenario(spec: dict[str, Any], profiles: dict[str, Any]) -> dict[str, 
                     "factions": factions,
                 },
             },
-            "failure_variables": [],
+            "failure_variables": list(spec.get("failure_variables", [])),
+            "actor_slots": ["TAC_ANGEL", "STARTX", "NEXUS"],
+            "event_memory": {"format": "event_sourcing", "snapshot_every": 5},
+            "data_provenance": {
+                "source_type": "military_domain_pack",
+                "source_quality": "medium",
+                "version": f"{profiles['pack_id']}@{profiles['version']}",
+            },
         },
+        "assumption_registry": _actor_assumptions(spec["scenario_id"], doctrines),
         "entities": entities,
         "runtime": {
             "max_ticks": spec["max_ticks"],
@@ -119,7 +126,7 @@ def build_scenario(spec: dict[str, Any], profiles: dict[str, Any]) -> dict[str, 
             "perspective": next(iter(spec["factions"])),
         },
     }
-    return validate_scenario(scenario)
+    return validate_compiled_scenario(scenario)
 
 
 def doctrine_variant(
@@ -138,15 +145,40 @@ def doctrine_variant(
         raise ValueError(f"no faction {faction!r} in {scenario['scenario_id']}")
     factions[faction]["doctrine"] = doctrine
     doctrines = "/".join(f"{f}:{side['doctrine']}" for f, side in factions.items())
-    variant["world_contract"]["assumption_registry"][
-        "actor_policy"
-    ] = f"military_baseline[{doctrines}]"
+    variant["assumption_registry"] = _actor_assumptions(
+        variant["scenario_id"], doctrines
+    )
     return child_version(
         scenario,
         variant,
         doctrine,
         f"Doctrine comparison: {faction} fights {doctrine}",
     )
+
+
+def _actor_assumptions(scenario_id: str, doctrines: str) -> dict[str, Any]:
+    """
+    The scenario's assumption about how each side decides (section 11.2):
+    the baseline policy under each faction's doctrine.
+    """
+    return {
+        "scenario_id": scenario_id,
+        "assumptions": [
+            {
+                "assumption_id": "actor_policy",
+                "description": "Every unit decides by the military baseline policy "
+                "under its faction's doctrine",
+                "category": "enemy_behavior",
+                "value": f"military_baseline[{doctrines}]",
+                "confidence": 0.5,
+                "criticality": "high",
+            }
+        ],
+        "critical_assumptions": ["actor_policy"],
+        "assumption_risks": [
+            "the enemy fights by another doctrine than the one assumed"
+        ],
+    }
 
 
 def _size(rows: list[str]) -> tuple[int, int]:

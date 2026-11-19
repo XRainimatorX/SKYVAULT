@@ -15,6 +15,7 @@ FAILURE_VARIABLE_NAMES = (
     "equipment_overheat",
     "civilian_pressure",
     "resource_shortage",
+    "public_order_collapse",
 )
 StressLevel = Literal["mild", "moderate", "severe", "collapse"]
 FailureVariableName = Literal[
@@ -26,6 +27,7 @@ FailureVariableName = Literal[
     "equipment_overheat",
     "civilian_pressure",
     "resource_shortage",
+    "public_order_collapse",
 ]
 
 
@@ -57,6 +59,9 @@ class FailureExplorationSpec(ContractModel):
     alternatives: list[NonEmptyStr] = Field(default_factory=list)
     survival_threshold: Probability = 0.5
     output: dict[str, Any] | None = None
+    magnitudes: dict[StressLevel, dict[FailureVariableName, float]] = Field(
+        default_factory=dict
+    )
 
     @model_validator(mode="after")
     def _no_repeats(self) -> "FailureExplorationSpec":

@@ -21,9 +21,8 @@ from skyvault.contracts import (
     validate_assumption_registry,
     validate_data_provenance,
     validate_scenario,
-    validate_world_contract,
 )
-from skyvault.scenario_loader import load_scenario
+from skyvault.scenario_loader import load_scenario, read_scenario
 
 REFERENCE_SCENARIO = (
     REPO_ROOT
@@ -45,6 +44,118 @@ def error_fields(caught: pytest.ExceptionInfo) -> set[str]:
     return {error.split(":")[0] for error in caught.value.errors}
 
 
+# Formal Spec section 3.3: the groups every scenario is written in
+SECTION_3_3 = {
+    "identity": [
+        "scenario_id",
+        "scenario_type",
+        "domain",
+        "purpose",
+        "scenario_version",
+    ],
+    "world_binding": ["world_contract_id", "environment_profile", "rule_profile"],
+    "initial_conditions": [
+        "entities",
+        "resources",
+        "risks",
+        "constraints",
+        "uncertainty",
+    ],
+    "assumption_registry": [
+        "assumptions",
+        "critical_assumptions",
+        "assumption_confidence",
+    ],
+    "data_provenance": [
+        "sources",
+        "timestamps",
+        "confidence",
+        "modified_by",
+        "input_version",
+    ],
+    "participants": [
+        "human_decision_slots",
+        "ai_agent_slots",
+        "system_slots",
+        "equipment_profiles",
+    ],
+    "allowed_actions": ["action_types", "actor_permissions"],
+    "execution_settings": [
+        "time_mode",
+        "duration_limit",
+        "repeat_count",
+        "random_seed_policy",
+        "deterministic_mode",
+    ],
+    "failure_exploration": [
+        "enabled",
+        "failure_variables",
+        "stress_levels",
+        "branch_comparison",
+    ],
+    "evaluation": [
+        "primary_metrics",
+        "secondary_metrics",
+        "anti_gaming_metrics",
+        "failure_thresholds",
+        "comparison_targets",
+    ],
+    "output": [
+        "required_logs",
+        "required_reports",
+        "replay_required",
+        "failure_map_required",
+    ],
+}
+
+
+def model_fields(model, path):
+    for part in path:
+        model = model.model_fields[part].annotation
+        for candidate in get_args(model) or (model,):
+            if hasattr(candidate, "model_fields"):
+                model = candidate
+                break
+    return set(model.model_fields)
+
+
+# ── section 3.3, field by field ──────────────────────────────────────────────
+
+
+@pytest.mark.parametrize("group", list(SECTION_3_3))
+def test_every_section_3_3_field_is_in_the_scenario_contract(group):
+    assert group in Scenario.model_fields
+    assert set(SECTION_3_3[group]) <= model_fields(Scenario, [group])
+
+
+@pytest.mark.parametrize("group", list(SECTION_3_3))
+def test_a_scenario_without_any_section_3_3_group_is_rejected(group):
+    scenario = fixture("scenario_valid")
+    del scenario[group]
+
+    with pytest.raises(ContractError) as caught:
+        validate_scenario(scenario)
+
+    assert group in error_fields(caught)
+
+
+def test_the_old_flat_layout_is_rejected():
+    flat = {
+        "schema_version": "0.6",
+        "scenario_id": "old",
+        "scenario_version": "v0.1",
+        "world_contract": {},
+        "entities": [],
+        "runtime": {"max_ticks": 1, "random_seed": 1},
+        "evaluation": {"primary_metrics": []},
+    }
+
+    with pytest.raises(ContractError) as caught:
+        validate_scenario(flat)
+
+    assert {"identity", "world_binding", "runtime"} <= error_fields(caught)
+
+
 # ── acceptance criterion 1: a scenario without scenario_id is rejected ──────
 
 
@@ -53,7 +164,7 @@ def test_loading_a_scenario_without_scenario_id_is_rejected():
         load_scenario(FIXTURES / "scenario_missing_scenario_id.json")
 
     assert caught.value.contract == "scenario"
-    assert "scenario_id" in error_fields(caught)
+    assert "identity.scenario_id" in error_fields(caught)
 
 
 def test_contract_error_is_still_a_value_error():
@@ -61,11 +172,15 @@ def test_contract_error_is_still_a_value_error():
         load_scenario(FIXTURES / "scenario_missing_scenario_id.json")
 
 
-def test_reference_scenario_loads_unchanged():
-    with REFERENCE_SCENARIO.open(encoding="utf-8") as file:
-        raw = json.load(file)
+def test_the_reference_scenario_reads_unchanged_and_compiles():
+    raw = json.loads(REFERENCE_SCENARIO.read_text(encoding="utf-8"))
 
-    assert load_scenario(REFERENCE_SCENARIO) == raw
+    assert read_scenario(REFERENCE_SCENARIO) == raw
+    compiled = load_scenario(REFERENCE_SCENARIO)
+    assert compiled["scenario_id"] == raw["identity"]["scenario_id"]
+    assert compiled["world_contract"]["world_id"] == (
+        raw["world_binding"]["world_contract_id"]
+    )
 
 
 def test_valid_fixture_passes_and_keeps_its_shape():
@@ -110,24 +225,27 @@ def test_missing_file_is_reported(tmp_path):
 
 def test_scenario_without_schema_version_is_rejected():
     scenario = fixture("scenario_valid")
-    del scenario["schema_version"]
+    del scenario["identity"]["schema_version"]
 
     with pytest.raises(ContractError) as caught:
         validate_scenario(scenario)
 
-    assert "schema_version" in error_fields(caught)
+    assert "identity.schema_version" in error_fields(caught)
 
 
-def test_scenario_for_another_schema_version_is_rejected():
+@pytest.mark.parametrize("version", ["0.6", "9.9"])
+def test_scenario_for_another_schema_version_is_rejected(version):
     scenario = fixture("scenario_valid")
-    scenario["schema_version"] = "9.9"
+    scenario["identity"]["schema_version"] = version
 
     with pytest.raises(ContractError):
         validate_scenario(scenario)
 
 
 def test_scenario_contract_follows_the_package_schema_version():
-    annotation = Scenario.model_fields["schema_version"].annotation
+    from skyvault.contracts.scenario import Identity
+
+    annotation = Identity.model_fields["schema_version"].annotation
 
     assert get_args(annotation) == (SCHEMA_VERSION,)
 
@@ -137,7 +255,8 @@ def test_scenario_contract_follows_the_package_schema_version():
 
 def test_duplicate_entity_ids_are_rejected():
     scenario = fixture("scenario_valid")
-    scenario["entities"][1]["entity_id"] = scenario["entities"][0]["entity_id"]
+    entities = scenario["initial_conditions"]["entities"]
+    entities[1]["entity_id"] = entities[0]["entity_id"]
 
     with pytest.raises(ContractError, match="duplicate entity_id"):
         validate_scenario(scenario)
@@ -145,7 +264,7 @@ def test_duplicate_entity_ids_are_rejected():
 
 def test_scenario_needs_at_least_one_entity():
     scenario = fixture("scenario_valid")
-    scenario["entities"] = []
+    scenario["initial_conditions"]["entities"] = []
 
     with pytest.raises(ContractError):
         validate_scenario(scenario)
@@ -153,20 +272,98 @@ def test_scenario_needs_at_least_one_entity():
 
 def test_misspelt_key_is_rejected_instead_of_ignored():
     scenario = fixture("scenario_valid")
-    scenario["runtime"]["random_sead"] = scenario["runtime"].pop("random_seed")
+    settings = scenario["execution_settings"]
+    settings["random_sead"] = settings.pop("random_seed")
 
     with pytest.raises(ContractError) as caught:
         validate_scenario(scenario)
 
-    assert error_fields(caught) == {"runtime.random_seed", "runtime.random_sead"}
+    assert "execution_settings.random_sead" in error_fields(caught)
 
 
-def test_scenario_with_optional_spec_blocks_passes():
+def test_a_seeded_run_must_name_its_seed():
+    scenario = fixture("scenario_valid")
+    scenario["execution_settings"]["random_seed"] = None
+
+    with pytest.raises(ContractError, match="needs random_seed"):
+        validate_scenario(scenario)
+
+
+@pytest.mark.parametrize(
+    "slots, expected",
+    [
+        ({"ai_agent_slots": [{"slot_id": "a"}]}, "neither a policy nor orders"),
+        (
+            {"human_decision_slots": [{"slot_id": "h", "policy": {"name": "p"}}]},
+            "decides by orders",
+        ),
+        (
+            {
+                "ai_agent_slots": [
+                    {"slot_id": "a", "policy": {"name": "p"}},
+                    {"slot_id": "b", "policy": {"name": "q"}},
+                ]
+            },
+            "only one slot may decide by default",
+        ),
+        (
+            {
+                "ai_agent_slots": [{"slot_id": "a", "policy": {"name": "p"}}],
+                "system_slots": [
+                    {
+                        "slot_id": "a",
+                        "policy": {"name": "q"},
+                        "controls": {"factions": ["RED"]},
+                    }
+                ],
+            },
+            "slot_id must be unique",
+        ),
+    ],
+)
+def test_participant_slots_must_make_sense(slots, expected):
+    scenario = fixture("scenario_valid")
+    scenario["participants"].update(slots)
+
+    with pytest.raises(ContractError, match=expected):
+        validate_scenario(scenario)
+
+
+def test_an_enabled_failure_exploration_names_variables_and_levels():
+    scenario = fixture("scenario_valid")
+    scenario["failure_exploration"] = {
+        "enabled": True,
+        "failure_variables": ["supply_delay"],
+    }
+
+    with pytest.raises(ContractError, match="names stress_levels"):
+        validate_scenario(scenario)
+
+
+def test_version_control_must_belong_to_this_scenario():
+    scenario = fixture("scenario_valid")
+    scenario["scenario_version_control"] = {
+        "scenario_id": "another",
+        "version": scenario["identity"]["scenario_version"],
+        "parent_version": None,
+        "changed_from_previous": {},
+        "change_reason": "",
+    }
+
+    with pytest.raises(ContractError, match="another scenario"):
+        validate_scenario(scenario)
+
+
+def test_scenario_with_filled_spec_blocks_passes():
     scenario = fixture("scenario_valid")
     scenario["data_provenance"] = {
         "sources": [
             {"source_id": "s1", "source_type": "manual_input", "confidence": 0.9}
-        ]
+        ],
+        "timestamps": {"s1": "2026-11-19"},
+        "confidence": {"s1": 0.9},
+        "modified_by": "operator",
+        "input_version": "v1",
     }
     scenario["assumption_registry"] = {
         "assumptions": [
@@ -180,53 +377,10 @@ def test_scenario_with_optional_spec_blocks_passes():
             }
         ],
         "critical_assumptions": ["a1"],
+        "assumption_confidence": {"a1": 0.6},
     }
 
     assert validate_scenario(scenario) == scenario
-
-
-# ── world contract ───────────────────────────────────────────────────────────
-
-
-def test_reference_world_contract_passes():
-    world_contract = load_scenario(REFERENCE_SCENARIO)["world_contract"]
-
-    assert validate_world_contract(world_contract) == world_contract
-
-
-def test_grid_without_bounds_is_rejected():
-    world_contract = fixture("scenario_valid")["world_contract"]
-    del world_contract["space_model"]["width"]
-
-    with pytest.raises(ContractError, match="width and height"):
-        validate_world_contract(world_contract)
-
-
-def test_unknown_distance_model_is_rejected():
-    world_contract = fixture("scenario_valid")["world_contract"]
-    world_contract["space_model"]["distance_model"] = "taxicab"
-
-    with pytest.raises(ContractError):
-        validate_world_contract(world_contract)
-
-
-def test_world_contract_requires_its_core_elements():
-    with pytest.raises(ContractError) as caught:
-        validate_world_contract({"world_id": "w"})
-
-    assert error_fields(caught) == {
-        "world_scope",
-        "purpose",
-        "space_model",
-        "time_model",
-        "assumption_registry",
-        "evaluation_targets",
-        "entity_model",
-        "environment_state",
-        "resource_state",
-        "rule_set",
-        "failure_variables",
-    }
 
 
 # ── assumption registry and data provenance ──────────────────────────────────

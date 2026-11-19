@@ -106,7 +106,7 @@ skyvault serve                                    # world service + worker + 介
 skyvault run military_urban_001/v0.2              # 跑一場，等它結束，印出結果
 # job_000001  completed
 #   events: 528
-#   output_hash: 78aa3fe5bbdf…
+#   output_hash: 0b11d9ee2061…
 #   result: no_winner_duration_limit
 skyvault explore military_urban_001/v0.2          # 在哪裡失敗、被什麼壓垮、哪個替代方案撐更久
 skyvault batch military_doctrine                  # 三種 doctrine 各跑 100 次並排比較

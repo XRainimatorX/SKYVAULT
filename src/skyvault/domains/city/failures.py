@@ -7,6 +7,9 @@ own model underneath:
 supply_delay        convoys travel slower: supply.delay_factor × 1.25 / 1.5 / 2 / 3
 civilian_pressure   public order starts lower: × 0.9 / 0.75 / 0.6 / 0.4
 resource_shortage   the depots hold less food: × 0.75 / 0.5 / 0.25 / 0
+public_order_collapse  order stops holding (Formal Spec 2.3): recovery
+                    × 0.75 / 0.5 / 0.25 / 0 and riots spread to neighbours
+                    × 1.5 / 2 / 3 / 4
 
 The other variables keep their core meaning (communication_failure drops
 orders anywhere; the combat ones do not apply to a city without weapons).
@@ -20,6 +23,8 @@ from .model import order_state
 DELAY = (1.25, 1.5, 2.0, 3.0)
 ORDER = (0.9, 0.75, 0.6, 0.4)
 STOCK = (0.75, 0.5, 0.25, 0.0)
+RECOVERY = (0.75, 0.5, 0.25, 0.0)
+CONTAGION = (1.5, 2.0, 3.0, 4.0)
 
 
 def _of(scenario: dict[str, Any], entity_type: str) -> list[dict[str, Any]]:
@@ -49,6 +54,16 @@ def _pressure(scenario: dict[str, Any], level: str, perspective: str) -> dict:
         order = round(float(district["state"]["public_order"]) * factor, 4)
         district["state"]["public_order"] = order
         district["state"]["order_state"] = order_state(order, rules)
+    return scenario
+
+
+def _collapse(scenario: dict[str, Any], level: str, perspective: str) -> dict:
+    order = scenario["world_contract"]["rule_set"]["city"]["order"]
+    index = STRESS_LEVELS.index(level)
+    order["recovery"] = round(float(order["recovery"]) * RECOVERY[index], 4)
+    order["riot_neighbour"] = round(
+        float(order["riot_neighbour"]) * CONTAGION[index], 4
+    )
     return scenario
 
 
@@ -85,5 +100,13 @@ def city_failure_variables() -> dict[str, FailureVariable]:
             STOCK,
             _needs("depot", "depots"),
             _shortage,
+        ),
+        "public_order_collapse": FailureVariable(
+            "public_order_collapse",
+            "Public order collapses: districts recover slower and riots spread faster",
+            "public_order",
+            RECOVERY,
+            _needs("district", "districts"),
+            _collapse,
         ),
     }

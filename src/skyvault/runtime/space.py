@@ -169,7 +169,7 @@ def build_space(space_model: dict[str, Any]) -> Space:
     if kind == "graph":
         return GraphSpace(space_model["nodes"], space_model["edges"])
 
-    if kind == "network":
+    if kind in ("network", "district_network"):
         return NetworkSpace(space_model["nodes"], space_model["edges"])
 
     raise ValueError(f"unknown space_model type {kind!r}")

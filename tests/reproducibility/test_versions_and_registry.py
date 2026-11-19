@@ -59,7 +59,12 @@ def test_v0_2_names_exactly_the_change_from_v0_1():
         "data_changed": ["entities[blue_002].capabilities.accuracy: 0.55 -> 0.75"],
         "rules_changed": [],
         "metrics_changed": [],
-        "failure_variables_changed": [],
+        # v0.2 no longer asks for the failure exploration v0.1 declares
+        "failure_variables_changed": [
+            "failure_exploration.failure_variables: ['sensor_failure', "
+            "'communication_failure', 'weather_degradation', 'enemy_reaction_speed', "
+            "'equipment_overheat', 'civilian_pressure'] -> absent"
+        ],
     }
     assert new["version_control"]["changed_from_previous"] == changes
     assert new["version_control"]["parent_version"] == "v0.1"

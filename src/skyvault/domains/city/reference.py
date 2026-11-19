@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ...compiler import publish
 from .scenario import build_city_scenario
 
 DATA = Path(__file__).resolve().parents[4] / "data"
@@ -28,3 +29,16 @@ def reference_scenarios() -> dict[str, dict[str, Any]]:
 
 def scenario_path(name: str, version: str = "v0.1") -> Path:
     return DATA / "scenarios" / name / f"{version}.json"
+
+
+def reference_files() -> dict[str, Any]:
+    """
+    {"worlds/<id>.json" | "scenarios/<id>/<version>.json": document}, as the
+    reference scenarios are kept in data/.
+    """
+    return publish(
+        {
+            f"{s['scenario_id']}/{s['scenario_version']}.json": s
+            for s in reference_scenarios().values()
+        }
+    )

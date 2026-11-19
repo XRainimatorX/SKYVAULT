@@ -33,6 +33,8 @@ RECOMMENDATIONS = {
     "civilian_pressure": "Hold forces in reserve for civilian demands, or plan with "
     "fewer effective units.",
     "resource_shortage": "Secure resource reserves before committing to the plan.",
+    "public_order_collapse": "Plan to restore order early and keep unrest from "
+    "spreading: police, food and administration before the next phase.",
 }
 
 AXIS_LINE = re.compile(r"^(\w+) \d+\.\d\d: ")

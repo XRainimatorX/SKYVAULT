@@ -7,7 +7,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, ValidationErr
 
 from .errors import ContractError
 
-SCHEMA_VERSION = "0.6"
+SCHEMA_VERSION = "1.0"
 
 NonEmptyStr = Annotated[str, Field(min_length=1)]
 Position = Annotated[list[int], Field(min_length=2, max_length=2)]

@@ -5,9 +5,10 @@ from typing import Any, Literal
 from pydantic import Field, model_validator
 
 from .assumption import AssumptionRegistry
-from .base import ContractModel, NonEmptyStr, check
+from .base import ContractModel, NonEmptyStr, NonNegative, Probability, check
 from .entity import EntityRecord
-from .failure import FailureExplorationSpec
+from .failure import FailureExplorationSpec, FailureVariableName
+from .failure import RunPolicy as RunPolicyRequest
 from .order import Order
 from .provenance import DataProvenance
 from .world import WorldContract
@@ -136,22 +137,19 @@ class VersionControl(ContractModel):
     change_reason: str
 
 
-class Scenario(ContractModel):
+class CompiledScenario(ContractModel):
     """
-    Scenario = Formal Spec section 3.
+    A scenario compiled for the engine (Formal Spec section 4, step 2).
 
     Important:
-    Version 0.6 keeps the flat layout every scenario already uses. Section 3.3
-    groups the same information under identity / world_binding /
-    initial_conditions; adopting that grouping is a schema version change, not
-    a Phase 1 task. See ADR 004.
-
-    schema_version names the contract the file was written against, so a
-    reader can refuse a file it does not understand instead of misreading it.
-    scenario_version is the content's own version and is unrelated.
+    This is not a file format. SKYVAULT reads scenarios only in the section
+    3.3 grammar (Scenario below); compile_scenario joins one with its world
+    contract and writes this flat form, which is what the engine, the batch
+    runner and failure exploration work on. schema_version is the grammar
+    version the scenario was compiled from.
     """
 
-    schema_version: Literal["0.6"]
+    schema_version: Literal["1.0"]
     scenario_id: NonEmptyStr
     scenario_version: NonEmptyStr
     world_contract: WorldContract
@@ -165,13 +163,15 @@ class Scenario(ContractModel):
     assumption_registry: AssumptionRegistry | None = None
     data_provenance: DataProvenance | None = None
     participants: dict[str, Any] | None = None
-    allowed_actions: dict[str, Any] | None = None
+    allowed_actions: "AllowedActions | None" = None
     failure_exploration: FailureExplorationSpec | None = None
-    output: dict[str, Any] | None = None
+    output: "OutputSettings | None" = None
     version_control: VersionControl | None = None
+    world_binding: "WorldBinding | None" = None
+    initial_conditions: dict[str, Any] | None = None
 
     @model_validator(mode="after")
-    def _entity_ids_are_unique(self) -> "Scenario":
+    def _entity_ids_are_unique(self) -> "CompiledScenario":
         seen: set[str] = set()
         for entity in self.entities:
             if entity.entity_id in seen:
@@ -180,7 +180,7 @@ class Scenario(ContractModel):
         return self
 
     @model_validator(mode="after")
-    def _scheduled_actions_fit_the_run(self) -> "Scenario":
+    def _scheduled_actions_fit_the_run(self) -> "CompiledScenario":
         ids = {entity.entity_id for entity in self.entities}
         seen: set[tuple[int, str]] = set()
         for scheduled in self.runtime.scheduled_actions:
@@ -202,7 +202,7 @@ class Scenario(ContractModel):
         return self
 
     @model_validator(mode="after")
-    def _explores_only_declared_failures(self) -> "Scenario":
+    def _explores_only_declared_failures(self) -> "CompiledScenario":
         exploration = self.failure_exploration
         if exploration is None:
             return self
@@ -216,7 +216,7 @@ class Scenario(ContractModel):
         return self
 
     @model_validator(mode="after")
-    def _version_control_names_this_version(self) -> "Scenario":
+    def _version_control_names_this_version(self) -> "CompiledScenario":
         control = self.version_control
         if control is not None and control.version != self.scenario_version:
             raise ValueError(
@@ -226,7 +226,7 @@ class Scenario(ContractModel):
         return self
 
     @model_validator(mode="after")
-    def _entities_stand_in_the_space(self) -> "Scenario":
+    def _entities_stand_in_the_space(self) -> "CompiledScenario":
         """
         A grid entity needs an [x, y] cell inside the grid; a graph or network
         entity needs the id of one of its nodes.
@@ -256,6 +256,300 @@ class Scenario(ContractModel):
         return self
 
 
+def validate_compiled_scenario(data: dict[str, Any]) -> dict[str, Any]:
+    """Validate a compiled scenario. Raises ContractError when it breaks."""
+    return check(CompiledScenario, "scenario", data)
+
+
+# ── the section 3.3 grammar ──────────────────────────────────────────────────
+
+
+class Identity(ContractModel):
+    """Section 3.3 identity. schema_version names the grammar the file is written in."""
+
+    scenario_id: NonEmptyStr
+    scenario_type: str
+    domain: str
+    purpose: str
+    scenario_version: NonEmptyStr
+    schema_version: Literal["1.0"]
+
+
+class WorldBinding(ContractModel):
+    """
+    Section 3.3 world_binding: which world the scenario runs in.
+
+    Important:
+    world_contract_id names a world contract document; environment_profile
+    and rule_profile name one of its profiles, "baseline" meaning the world
+    as written.
+    """
+
+    world_contract_id: NonEmptyStr
+    environment_profile: NonEmptyStr = "baseline"
+    rule_profile: NonEmptyStr = "baseline"
+
+
+class InitialConditions(ContractModel):
+    """
+    Section 3.3 initial_conditions.
+
+    Important:
+    resources set the starting amount of named world resources (replacing the
+    world's own). risks, constraints and uncertainty are recorded with the
+    run and handed to evaluation and to the participants' decision context.
+    """
+
+    entities: list[EntityRecord] = Field(min_length=1)
+    resources: dict[NonEmptyStr, NonNegative] = Field(default_factory=dict)
+    risks: dict[str, Any] = Field(default_factory=dict)
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    uncertainty: dict[str, Any] = Field(default_factory=dict)
+
+
+class SlotOrder(Order):
+    """An order a slot gives one actor at one tick (system_id defaults to the slot)."""
+
+    tick: int = Field(ge=1)
+    actor_id: NonEmptyStr
+    system_id: NonEmptyStr | None = None
+
+
+class Slot(ContractModel):
+    """
+    One actor slot of section 3.3 participants.
+
+    Important:
+    A slot decides through a registered policy, through orders for given
+    ticks, or both. A policy slot with controls decides for those factions
+    or units; a policy slot without controls decides for every unit no other
+    slot controls (at most one may). Orders are carried out at their tick
+    instead of asking any policy.
+    """
+
+    slot_id: NonEmptyStr
+    description: str = ""
+    policy: PolicyChoice | None = None
+    controls: Controls | None = None
+    orders: list[SlotOrder] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _slot_decides(self) -> "Slot":
+        if self.policy is None and not self.orders:
+            raise ValueError(f"slot {self.slot_id!r} has neither a policy nor orders")
+        if self.controls is not None and self.policy is None:
+            raise ValueError(f"slot {self.slot_id!r} controls units but has no policy")
+        return self
+
+
+class Participants(ContractModel):
+    """Section 3.3 participants: who may enter the world and act in it."""
+
+    human_decision_slots: list[Slot] = Field(default_factory=list)
+    ai_agent_slots: list[Slot] = Field(default_factory=list)
+    system_slots: list[Slot] = Field(default_factory=list)
+    equipment_profiles: list[NonEmptyStr] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _slots_are_sound(self) -> "Participants":
+        slots = [*self.human_decision_slots, *self.ai_agent_slots, *self.system_slots]
+        ids = [slot.slot_id for slot in slots]
+        if len(set(ids)) != len(ids):
+            raise ValueError("slot_id must be unique across all slots")
+        for slot in self.human_decision_slots:
+            if slot.policy is not None:
+                raise ValueError(
+                    f"human slot {slot.slot_id!r} decides by orders, not a policy"
+                )
+        for slot in self.ai_agent_slots:
+            if slot.policy is None:
+                raise ValueError(f"ai agent slot {slot.slot_id!r} needs a policy")
+        defaults = [s.slot_id for s in slots if s.policy and s.controls is None]
+        if len(defaults) > 1:
+            raise ValueError(f"only one slot may decide by default, got {defaults}")
+        return self
+
+
+class AllowedActions(ContractModel):
+    """
+    Section 3.3 allowed_actions.
+
+    Important:
+    action_types lists what may be attempted in this scenario (empty: every
+    registered type). actor_permissions narrows it for an entity id or a
+    faction: {"red_01": ["move", "observe"]}. An action outside either is
+    rejected at validation with a reason, never carried out.
+    """
+
+    action_types: list[NonEmptyStr] = Field(default_factory=list)
+    actor_permissions: dict[NonEmptyStr, list[NonEmptyStr]] = Field(
+        default_factory=dict
+    )
+
+
+class ExecutionSettings(ContractModel):
+    """
+    Section 3.3 execution_settings.
+
+    Important:
+    time_mode must be the world's time_model type. duration_limit is how
+    many steps the run may take, as an integer or "40_ticks". random_seed is
+    the seed a fixed or controlled_random run starts from.
+    """
+
+    time_mode: NonEmptyStr
+    duration_limit: int | str
+    repeat_count: int = Field(default=1, ge=1)
+    random_seed_policy: Literal["fixed", "controlled_random", "stochastic"]
+    deterministic_mode: bool = False
+    random_seed: int | None = None
+
+    @model_validator(mode="after")
+    def _seeded(self) -> "ExecutionSettings":
+        if self.random_seed_policy != "stochastic" and self.random_seed is None:
+            raise ValueError(f"a {self.random_seed_policy} run needs random_seed")
+        return self
+
+
+class StressLevels(ContractModel):
+    """
+    Section 3.3 stress_levels: the levels to run, each with magnitudes that
+    replace the failure engine's own for named variables ({} keeps them).
+    A level left out (null) is not run.
+    """
+
+    mild: dict[FailureVariableName, NonNegative] | None = None
+    moderate: dict[FailureVariableName, NonNegative] | None = None
+    severe: dict[FailureVariableName, NonNegative] | None = None
+    collapse: dict[FailureVariableName, NonNegative] | None = None
+
+
+class ScenarioFailureExploration(ContractModel):
+    """
+    Section 3.3 failure_exploration.
+
+    Important:
+    enabled, failure_variables, stress_levels and branch_comparison are the
+    section's own fields. objective, run_policy, alternatives and
+    survival_threshold carry section 14.3's request so the scenario can be
+    explored without a separate request.
+    """
+
+    enabled: bool = False
+    failure_variables: list[FailureVariableName] = Field(default_factory=list)
+    stress_levels: StressLevels = Field(default_factory=StressLevels)
+    branch_comparison: bool = True
+    objective: NonEmptyStr = "find_weakness"
+    run_policy: RunPolicyRequest | None = None
+    alternatives: list[NonEmptyStr] = Field(default_factory=list)
+    survival_threshold: Probability = 0.5
+
+    @model_validator(mode="after")
+    def _enabled_names_something(self) -> "ScenarioFailureExploration":
+        if self.enabled:
+            if not self.failure_variables:
+                raise ValueError("an enabled failure_exploration names variables")
+            if all(
+                getattr(self.stress_levels, level) is None
+                for level in ("mild", "moderate", "severe", "collapse")
+            ):
+                raise ValueError("an enabled failure_exploration names stress_levels")
+        return self
+
+
+# what a run can be asked to hand back (section 3.3 output)
+RequiredLog = Literal[
+    "event_memory", "timeline", "causal_chain", "entity_history", "replay_state_at_tick"
+]
+RequiredReport = Literal[
+    "evaluation_result",
+    "score_breakdown",
+    "tradeoff_report",
+    "anti_gaming_report",
+    "failure_map",
+    "comparative_report",
+    "briefing",
+]
+
+
+class OutputSettings(ContractModel):
+    """
+    Section 3.3 output: what the run must hand back.
+
+    Important:
+    required_logs and required_reports name result package parts
+    (event_memory, timeline, causal_chain... / evaluation_result,
+    tradeoff_report, failure_map...). replay_required makes the run fail
+    when its result cannot be replayed; failure_map_required makes the
+    service explore the scenario's failures along with the run.
+    """
+
+    required_logs: list[RequiredLog] = Field(default_factory=list)
+    required_reports: list[RequiredReport] = Field(default_factory=list)
+    replay_required: bool = True
+    failure_map_required: bool = True
+
+
+class Scenario(ContractModel):
+    """
+    Scenario = Formal Spec section 3.3, field by field.
+
+    Important:
+    The only scenario format SKYVAULT reads, from a file or over the API.
+    A scenario is world scope (world_binding) + initial conditions +
+    participants + limits + permissions + evaluation targets + end
+    conditions + assumptions + failure variables (section 3.1).
+    scenario_version_control is section 11.4. Nothing here builds a world:
+    compile_scenario does, with the world contract it binds to.
+    """
+
+    identity: Identity
+    world_binding: WorldBinding
+    initial_conditions: InitialConditions
+    assumption_registry: AssumptionRegistry
+    data_provenance: DataProvenance
+    participants: Participants
+    allowed_actions: AllowedActions
+    execution_settings: ExecutionSettings
+    failure_exploration: ScenarioFailureExploration
+    evaluation: ScenarioEvaluation
+    output: OutputSettings
+    scenario_version_control: "ScenarioVersionControl | None" = None
+
+    @model_validator(mode="after")
+    def _entity_ids_are_unique(self) -> "Scenario":
+        seen: set[str] = set()
+        for entity in self.initial_conditions.entities:
+            if entity.entity_id in seen:
+                raise ValueError(f"duplicate entity_id {entity.entity_id!r}")
+            seen.add(entity.entity_id)
+        return self
+
+    @model_validator(mode="after")
+    def _version_control_names_this_version(self) -> "Scenario":
+        control = self.scenario_version_control
+        if control is None:
+            return self
+        if control.version != self.identity.scenario_version:
+            raise ValueError(
+                f"scenario_version_control.version {control.version!r} is not "
+                f"scenario_version {self.identity.scenario_version!r}"
+            )
+        if control.scenario_id != self.identity.scenario_id:
+            raise ValueError("scenario_version_control.scenario_id is another scenario")
+        return self
+
+
+class ScenarioVersionControl(VersionControl):
+    """Section 11.4 scenario_version_control, with the scenario it belongs to."""
+
+    scenario_id: NonEmptyStr
+
+
+CompiledScenario.model_rebuild()
+Scenario.model_rebuild()
+
+
 def validate_scenario(data: dict[str, Any]) -> dict[str, Any]:
-    """Validate a scenario. Raises ContractError when it breaks the contract."""
+    """Validate a section 3.3 scenario. Raises ContractError when it breaks."""
     return check(Scenario, "scenario", data)

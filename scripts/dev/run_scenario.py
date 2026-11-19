@@ -23,7 +23,7 @@ if str(SRC_PATH) not in sys.path:
 
 
 from skyvault.causal_chain import build_causal_chain
-from skyvault.contracts import validate_scenario
+from skyvault.contracts import validate_compiled_scenario
 from skyvault.engine import SkyVaultEngine
 from skyvault.entity_history import build_entity_history
 from skyvault.evaluation import render_tradeoff_report
@@ -97,7 +97,7 @@ def main(argv: list[str] | None = None) -> None:
         chosen = json.loads(args.participants.read_text(encoding="utf-8"))
         scenario["runtime"]["participants"] = chosen["participants"]
         # The participants pass the scenario contract like the rest of it
-        scenario = validate_scenario(scenario)
+        scenario = validate_compiled_scenario(scenario)
     profile = load_evaluation_profile(args.profile) if args.profile else None
 
     engine = SkyVaultEngine(scenario, evaluation_profile=profile)

@@ -15,7 +15,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.contracts import validate_scenario
+from skyvault.compiler import compile_scenario
 from skyvault.engine import SkyVaultEngine
 from skyvault.reproducibility import (
     canonical_json,
@@ -62,7 +62,7 @@ def test_two_runs_of_the_same_input_are_identical():
 
 def test_ids_count_per_run_not_per_process():
     with (FIXTURES / "scenario_graph.json").open(encoding="utf-8") as file:
-        scenario = validate_scenario(json.load(file))
+        scenario = compile_scenario(json.load(file))
     a, b = create_world(scenario), create_world(scenario)
 
     a.update_entity_state("convoy_1", {"status": "x"})

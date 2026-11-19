@@ -1,0 +1,93 @@
+{
+  "world_id": "airspace_defence_001_world",
+  "world_scope": "low_altitude_airspace",
+  "purpose": [
+    "Defend a power station and a command post against two waves of low-flying drones, with a SKYFOX patrol in the same airspace."
+  ],
+  "space_model": {
+    "type": "grid",
+    "width": 20,
+    "height": 20,
+    "distance_model": "chebyshev"
+  },
+  "time_model": {
+    "type": "tick",
+    "max_ticks": 30
+  },
+  "entity_model": {
+    "entity_types": [
+      "asset",
+      "command",
+      "drone",
+      "interceptor",
+      "sensor",
+      "threat"
+    ]
+  },
+  "environment_state": {},
+  "resource_state": {},
+  "rule_set": {
+    "airspace": {
+      "pack_id": "airspace",
+      "version": "0.1",
+      "detection": {
+        "falloff": 0.5
+      },
+      "asset": {
+        "hits_to_destroy": 2
+      },
+      "drone": {
+        "altitude": "medium"
+      },
+      "hades": {
+        "engage_at": 1.0,
+        "priority": "nearest_to_asset",
+        "salvo": 1,
+        "hold_fire_below": 0.0
+      },
+      "command": {
+        "reaction_delay": 1,
+        "track_timeout": 2,
+        "identify": 0.98
+      },
+      "size": [
+        20,
+        20
+      ]
+    }
+  },
+  "actor_slots": [
+    "HADES",
+    "AEROGRID",
+    "SKYFOX",
+    "NEXUS"
+  ],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "world_state_changed",
+    "event_memory_created",
+    "result_package_created"
+  ],
+  "assumption_registry": {
+    "movement_model": "straight_line_flight",
+    "sensing": "probabilistic_detection_with_false_alarms",
+    "command": "tracks_with_reaction_delay",
+    "combat_resolution": "kill_probability_per_shot",
+    "actor_policy": "hades_rules_of_engagement",
+    "distance_model": "chebyshev"
+  },
+  "data_provenance": {
+    "source_type": "airspace_domain_pack",
+    "source_quality": "medium",
+    "version": "v0.1"
+  },
+  "failure_variables": [
+    "sensor_failure",
+    "enemy_reaction_speed",
+    "equipment_overheat",
+    "communication_failure"
+  ]
+}

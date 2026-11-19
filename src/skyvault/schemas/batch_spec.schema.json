@@ -226,7 +226,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/batch_spec.schema.json",
+  "$id": "skyvault/1.0/batch_spec.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A batch request (development plan Phase 10).\n\nImportant:\nEvery variant is a version of scenario_id: listed versions, sweep points\nof base_version, and, when conflicts are given, one branch per compatible\nset of proposals plus a baseline with none. profile names a file in\ndata/evaluation_profiles; perspective null means the profile's or the\nscenario's. workers above 1 runs in parallel with the same results.",

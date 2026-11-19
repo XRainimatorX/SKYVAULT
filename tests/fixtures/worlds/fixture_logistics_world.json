@@ -1,0 +1,70 @@
+{
+  "world_id": "fixture_logistics_world",
+  "world_scope": "forward_supply_line",
+  "purpose": [
+    "action_framework_fixture"
+  ],
+  "space_model": {
+    "type": "graph",
+    "nodes": [
+      "depot",
+      "junction",
+      "front",
+      "outpost"
+    ],
+    "edges": [
+      [
+        "depot",
+        "junction"
+      ],
+      [
+        "junction",
+        "front"
+      ],
+      [
+        "front",
+        "outpost"
+      ]
+    ]
+  },
+  "time_model": {
+    "type": "tick",
+    "max_ticks": 10
+  },
+  "entity_model": {
+    "kinds": [
+      "logistics_unit",
+      "infantry"
+    ]
+  },
+  "environment_state": {},
+  "resource_state": {
+    "fuel": 50.0,
+    "spare_parts": 4.0
+  },
+  "rule_set": {
+    "action_costs": {
+      "repair": {
+        "spare_parts": 1.0
+      }
+    }
+  },
+  "actor_slots": [],
+  "event_memory": {
+    "format": "event_sourcing",
+    "snapshot_every": 5
+  },
+  "evaluation_targets": [
+    "actions_resolved"
+  ],
+  "assumption_registry": {},
+  "data_provenance": {
+    "source_type": "manual_input",
+    "source_quality": "medium"
+  },
+  "failure_variables": [
+    "supply_delay",
+    "resource_shortage",
+    "communication_failure"
+  ]
+}

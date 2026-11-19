@@ -1,9 +1,10 @@
 """Library = where SKYVAULT finds a scenario or a batch request by its name.
 
 Important:
-SKYVAULT's own data folders (data/scenarios, data/batches) come first; a
-deployment adds its own folders with SKYVAULT_SCENARIO_PATH and
-SKYVAULT_BATCH_PATH (folders separated by os.pathsep, searched in order).
+SKYVAULT's own data folders (data/scenarios, data/worlds, data/batches) come
+first; a deployment adds its own folders with SKYVAULT_SCENARIO_PATH,
+SKYVAULT_WORLD_PATH and SKYVAULT_BATCH_PATH (folders separated by
+os.pathsep, searched in order).
 A name is looked up only where its kind lives and must resolve inside the
 folder it is found in, so "../" never reaches anything else.
 
@@ -15,8 +16,16 @@ import os
 from pathlib import Path
 
 DATA = Path(__file__).resolve().parents[2] / "data"
-OWN = {"scenarios": DATA / "scenarios", "batches": DATA / "batches"}
-ENVIRONMENT = {"scenarios": "SKYVAULT_SCENARIO_PATH", "batches": "SKYVAULT_BATCH_PATH"}
+OWN = {
+    "scenarios": DATA / "scenarios",
+    "worlds": DATA / "worlds",
+    "batches": DATA / "batches",
+}
+ENVIRONMENT = {
+    "scenarios": "SKYVAULT_SCENARIO_PATH",
+    "worlds": "SKYVAULT_WORLD_PATH",
+    "batches": "SKYVAULT_BATCH_PATH",
+}
 
 
 def folders(kind: str) -> list[Path]:

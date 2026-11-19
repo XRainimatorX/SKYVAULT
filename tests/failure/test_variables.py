@@ -26,11 +26,12 @@ for path in (SRC_PATH, REPO_ROOT / "tests"):
 
 from reference_trace import trace  # noqa: E402
 
+from skyvault.compiler import compile_scenario
 from skyvault.contracts import (
     FAILURE_VARIABLE_NAMES,
     ContractError,
+    validate_compiled_scenario,
     validate_failure_exploration,
-    validate_scenario,
 )
 from skyvault.engine import SkyVaultEngine
 from skyvault.failure.variables import FAILURE_VARIABLES, STRESS_LEVELS, apply_stress
@@ -43,7 +44,7 @@ def plan() -> dict:
 
 def logistics() -> dict:
     with (FIXTURES / "scenario_logistics.json").open(encoding="utf-8") as file:
-        return validate_scenario(json.load(file))
+        return compile_scenario(json.load(file))
 
 
 def entity(scenario, entity_id):
@@ -174,7 +175,7 @@ def test_a_stressed_scenario_is_a_valid_child_version_and_the_input_is_untouched
     assert "entities[red_002].capabilities.attack_damage: 16 -> 14" in (
         control["changed_from_previous"]["data_changed"]
     )
-    validate_scenario(result)
+    validate_compiled_scenario(result)
 
 
 def test_an_injected_fault_is_recorded_as_a_rules_change():
@@ -270,6 +271,6 @@ def test_a_broken_failure_declaration_is_rejected(change, message):
     change(scenario)
 
     with pytest.raises(ContractError) as caught:
-        validate_scenario(scenario)
+        validate_compiled_scenario(scenario)
 
     assert message in " | ".join(caught.value.errors)

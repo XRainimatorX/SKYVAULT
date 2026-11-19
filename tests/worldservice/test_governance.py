@@ -8,10 +8,10 @@ import pytest
 
 from skyvault.contracts import (
     ContractError,
+    validate_compiled_scenario,
     validate_governance,
     validate_governance_record,
     validate_result_package,
-    validate_scenario,
 )
 from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
@@ -55,7 +55,7 @@ def policy(**changes):
 def scenario(path=REFERENCE, **runtime):
     loaded = load_scenario(path)
     loaded["runtime"].update(runtime)
-    return validate_scenario(loaded)
+    return validate_compiled_scenario(loaded)
 
 
 def governed(loaded, pol=None, perspective="RED", **kwargs):
@@ -455,7 +455,7 @@ def test_stepping_a_run_by_hand_is_the_same_run():
 
     # RED wins during tick 10: that step answers False, after 9 that answered True
     assert steps == 9 and engine.over
-    assert package["reproducibility"]["output_hash"].startswith("7debca2af332")
+    assert package["reproducibility"]["output_hash"].startswith("4a22da0ddfa0")
     assert engine.step() is False
 
 

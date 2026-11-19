@@ -73,7 +73,8 @@ def test_a_folder_named_by_its_caller_is_searched_alone(tmp_path, monkeypatch):
 def test_the_world_service_finds_a_deployment_s_own_scenario(tmp_path, monkeypatch):
     source = library.OWN["scenarios"] / "military_squad_001" / "v0.1.json"
     scenario = json.loads(source.read_text(encoding="utf-8"))
-    scenario["scenario_id"] = "site_001"
+    scenario["identity"]["scenario_id"] = "site_001"
+    scenario["scenario_version_control"]["scenario_id"] = "site_001"
     write(tmp_path, "site_001/v0.1.json", scenario)
     monkeypatch.setenv("SKYVAULT_SCENARIO_PATH", str(tmp_path))
 

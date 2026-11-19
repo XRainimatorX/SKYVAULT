@@ -137,6 +137,21 @@ def _own_hp(scenario: Scenario, level: str, perspective: str) -> Scenario:
     return scenario
 
 
+def _needs_public_order(scenario: Scenario, perspective: str) -> tuple[bool, str]:
+    if any("public_order" in e.get("state", {}) for e in scenario["entities"]):
+        return True, ""
+    return False, "no entity has public order"
+
+
+def _public_order(scenario: Scenario, level: str, perspective: str) -> Scenario:
+    factor = ORDER_FACTORS[STRESS_LEVELS.index(level)]
+    for entity in scenario["entities"]:
+        state = entity.get("state", {})
+        if "public_order" in state:
+            state["public_order"] = round(float(state["public_order"]) * factor, 4)
+    return scenario
+
+
 def _drop_orders(scenario: Scenario, level: str, perspective: str) -> Scenario:
     rate = DROP_RATES[STRESS_LEVELS.index(level)]
     rules = scenario["world_contract"].setdefault("rule_set", {})
@@ -153,6 +168,7 @@ DROP_RATES = (0.1, 0.25, 0.5, 0.8)
 ENEMY_BONUS = (0.05, 0.1, 0.2, 0.35)
 DELAY_FACTORS = (0.9, 0.75, 0.5, 0.25)
 SHORTAGE_FACTORS = (0.75, 0.5, 0.25, 0.0)
+ORDER_FACTORS = (0.85, 0.65, 0.45, 0.25)
 
 
 FAILURE_VARIABLES: dict[str, FailureVariable] = {
@@ -221,6 +237,14 @@ FAILURE_VARIABLES: dict[str, FailureVariable] = {
             SHORTAGE_FACTORS,
             _needs_resources,
             _scale_resources(SHORTAGE_FACTORS),
+        ),
+        FailureVariable(
+            "public_order_collapse",
+            "Public order collapses: every entity's public order falls",
+            "public_order",
+            ORDER_FACTORS,
+            _needs_public_order,
+            _public_order,
         ),
     )
 }

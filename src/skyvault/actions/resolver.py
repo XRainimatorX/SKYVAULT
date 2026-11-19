@@ -75,6 +75,10 @@ class ActionResolver:
         if not actor.is_active():
             return Consequence.rejected(action.action_id, "Actor is not active")
 
+        refusal = _not_permitted(world, actor.entity_id, actor.faction, action)
+        if refusal:
+            return Consequence.rejected(action.action_id, refusal)
+
         if self._order_lost(world, actor.faction):
             return Consequence.rejected(
                 action.action_id, "Communication failure: order not received"
@@ -128,6 +132,31 @@ class ActionResolver:
         rng = self.context.fault_rng or random.Random("faults")
         self.context.fault_rng = rng
         return rng.random() < float(drop.get("rate", 0.0))
+
+
+def _not_permitted(
+    world: WorldState, actor_id: str, faction: str | None, action: Action
+) -> str:
+    """
+    Why the scenario does not allow this action (Formal Spec 3.3
+    allowed_actions), or "" when it does.
+
+    Important:
+    action_types lists what may be attempted at all (empty: anything
+    registered); actor_permissions narrows it for one entity or, failing
+    that, for the actor's faction.
+    """
+    allowed = world.allowed_actions
+    types = allowed.get("action_types") or []
+    if types and action.action_type not in types:
+        return f"Not allowed in this scenario: {action.action_type}"
+    permissions = allowed.get("actor_permissions") or {}
+    own = permissions.get(actor_id)
+    if own is None and faction is not None:
+        own = permissions.get(faction)
+    if own is not None and action.action_type not in own:
+        return f"{actor_id} may not {action.action_type} in this scenario"
+    return ""
 
 
 def apply_consequence(

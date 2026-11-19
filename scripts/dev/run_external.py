@@ -27,6 +27,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 SRC_PATH = REPO_ROOT / "src"
 REFERENCE_SLICE = REPO_ROOT / "tests" / "fixtures" / "reference"
 os.environ.setdefault("SKYVAULT_SCENARIO_PATH", str(REFERENCE_SLICE / "scenarios"))
+os.environ.setdefault("SKYVAULT_WORLD_PATH", str(REFERENCE_SLICE / "worlds"))
 os.environ.setdefault("SKYVAULT_POLICY_MODULES", str(REFERENCE_SLICE / "policy.py"))
 
 if str(SRC_PATH) not in sys.path:

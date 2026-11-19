@@ -2,14 +2,33 @@
   "$defs": {
     "DataProvenance": {
       "additionalProperties": false,
-      "description": "Data Provenance = Formal Spec section 11.3.\n\nImportant:\nSection 2.3 sketches world_contract.data_provenance as a flat block. No\nscenario carries provenance yet, so there is no existing shape to keep;\nboth places use this dedicated section 11.3 contract. See ADR 004.",
+      "description": "Data Provenance = Formal Spec sections 11.3 and 3.3.\n\nImportant:\nSection 11.3 gives sources (each with type, time, confidence, version and\nwho modified it), reliability_notes and missing_data; section 3.3 writes\nthe same block inside a scenario with timestamps, confidence,\nmodified_by and input_version beside the sources. Both sets of fields are\nhere, so either section's document validates. A world contract's\nprovenance is the flatter section 2.3 block (contracts.world).",
       "properties": {
+        "confidence": {
+          "additionalProperties": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "type": "number"
+          },
+          "title": "Confidence",
+          "type": "object"
+        },
+        "input_version": {
+          "default": "",
+          "title": "Input Version",
+          "type": "string"
+        },
         "missing_data": {
           "items": {
             "type": "string"
           },
           "title": "Missing Data",
           "type": "array"
+        },
+        "modified_by": {
+          "default": "",
+          "title": "Modified By",
+          "type": "string"
         },
         "reliability_notes": {
           "items": {
@@ -36,6 +55,13 @@
           },
           "title": "Sources",
           "type": "array"
+        },
+        "timestamps": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Timestamps",
+          "type": "object"
         }
       },
       "title": "DataProvenance",
@@ -509,7 +535,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/job.schema.json",
+  "$id": "skyvault/1.0/job.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A job as the service keeps it.",

@@ -12,7 +12,14 @@ WorldState, and world_state imports the primitives below, so exporting it from
 this package would make the two import each other.
 """
 
-from .clock import Clock, EventDrivenClock, PhaseClock, TickClock, build_clock
+from .clock import (
+    Clock,
+    EventDrivenClock,
+    PhaseClock,
+    PhaseEventClock,
+    TickClock,
+    build_clock,
+)
 from .registry import EntityRegistry
 from .resources import ResourceState
 from .rules import RuleSet
@@ -28,6 +35,7 @@ __all__ = [
     "GridSpace",
     "NetworkSpace",
     "PhaseClock",
+    "PhaseEventClock",
     "ResourceState",
     "RuleSet",
     "SnapshotStore",

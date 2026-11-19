@@ -11,7 +11,7 @@ the rules file and compare_scenarios sees every difference.
 import copy
 from typing import Any
 
-from ...contracts import SCHEMA_VERSION, validate_scenario
+from ...contracts import SCHEMA_VERSION, validate_compiled_scenario
 from .model import order_state
 
 DOMAIN = "city"
@@ -22,6 +22,7 @@ FAILURE_VARIABLES = (
     "civilian_pressure",
     "resource_shortage",
     "communication_failure",
+    "public_order_collapse",
 )
 
 
@@ -118,6 +119,13 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             "resource_state": {},
             "rule_set": {"city": city_rules},
             "failure_variables": list(FAILURE_VARIABLES),
+            "actor_slots": ["NEXUS", "STARTX", "TAC_ANGEL", "EIDEN_01", "CYBERHOUND"],
+            "event_memory": {"format": "event_sourcing", "snapshot_every": 5},
+            "data_provenance": {
+                "source_type": "city_domain_pack",
+                "source_quality": "medium",
+                "version": spec["scenario_version"],
+            },
         },
         "failure_exploration": {
             "objective": "find_weakness",
@@ -143,7 +151,7 @@ def build_city_scenario(spec: dict[str, Any], rules: dict[str, Any]) -> dict[str
             "perspective": FACTION,
         },
     }
-    return validate_scenario(scenario)
+    return validate_compiled_scenario(scenario)
 
 
 def _entity(

@@ -15,7 +15,8 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.contracts import validate_event, validate_scenario
+from skyvault.compiler import compile_scenario
+from skyvault.contracts import validate_event
 from skyvault.entity import Entity
 from skyvault.runtime import (
     EntityRegistry,
@@ -44,7 +45,7 @@ REFERENCE_SCENARIO = (
 
 def fixture(name: str) -> dict:
     with (FIXTURES / f"{name}.json").open(encoding="utf-8") as file:
-        return validate_scenario(json.load(file))
+        return compile_scenario(json.load(file))
 
 
 def make_entity(entity_id: str, hp: int = 10) -> Entity:

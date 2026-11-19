@@ -26,7 +26,7 @@ for path in (SRC_PATH, REPO_ROOT / "tests"):
 from reference_trace import trace  # noqa: E402
 
 from skyvault.batch.variants import branch_variant, build_variants, set_parameter
-from skyvault.contracts import ContractError, validate_scenario
+from skyvault.contracts import ContractError, validate_compiled_scenario
 from skyvault.engine import SkyVaultEngine
 from skyvault.scenario_loader import load_scenario
 
@@ -102,7 +102,7 @@ def test_the_reference_batch_builds_three_versions_and_three_sweep_points():
         ("sweep:entities[blue_002].capabilities.accuracy=0.75", "sweep"),
     ]
     for variant in variants:
-        validate_scenario(variant.scenario)
+        validate_compiled_scenario(variant.scenario)
 
 
 def test_a_sweep_point_is_a_child_version_of_the_base():
@@ -135,13 +135,13 @@ def test_a_branch_schedules_its_orders_and_keeps_their_ids():
     assert (
         variant.scenario["version_control"]["change_reason"] == "Batch branch: P2, P3"
     )
-    validate_scenario(variant.scenario)
+    validate_compiled_scenario(variant.scenario)
 
 
 def test_the_baseline_branch_schedules_nothing():
     variant = branch_variant(plan(), "none", [])
 
-    assert "scheduled_actions" not in variant.scenario["runtime"]
+    assert variant.scenario["runtime"]["scheduled_actions"] == []
     assert (
         variant.scenario["version_control"]["changed_from_previous"]["rules_changed"]
         == []
@@ -197,11 +197,11 @@ def test_a_scheduled_order_must_fit_the_run(change, message):
     change(scenario["runtime"]["scheduled_actions"][0])
 
     with pytest.raises(ContractError, match=message):
-        validate_scenario(scenario)
+        validate_compiled_scenario(scenario)
 
 
 def test_one_actor_cannot_have_two_orders_in_one_tick():
     scenario = branch_variant(plan(), "P1+P2", proposals("P1", "P2")).scenario
 
     with pytest.raises(ContractError, match="two scheduled actions at tick 1"):
-        validate_scenario(scenario)
+        validate_compiled_scenario(scenario)

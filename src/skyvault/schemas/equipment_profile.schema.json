@@ -339,7 +339,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/equipment_profile.schema.json",
+  "$id": "skyvault/1.0/equipment_profile.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "One piece of equipment, before it is built (section 18).\n\ncapabilities and state are the Phase 12 path: they are copied onto the\nreplaced unit as they are, after the profile's own mapping.",

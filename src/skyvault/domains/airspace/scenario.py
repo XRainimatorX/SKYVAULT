@@ -11,7 +11,7 @@ until their wave's tick. The rules — HADES's rules of engagement included
 import copy
 from typing import Any
 
-from ...contracts import SCHEMA_VERSION, validate_scenario
+from ...contracts import SCHEMA_VERSION, validate_compiled_scenario
 
 DOMAIN = "airspace"
 DEFENCE = "DEFENCE"
@@ -206,6 +206,13 @@ def build_airspace_scenario(
             "resource_state": {},
             "rule_set": {"airspace": airspace_rules},
             "failure_variables": list(FAILURE_VARIABLES),
+            "actor_slots": ["HADES", "AEROGRID", "SKYFOX", "NEXUS"],
+            "event_memory": {"format": "event_sourcing", "snapshot_every": 5},
+            "data_provenance": {
+                "source_type": "airspace_domain_pack",
+                "source_quality": "medium",
+                "version": spec["scenario_version"],
+            },
         },
         "entities": entities,
         "runtime": {
@@ -231,7 +238,7 @@ def build_airspace_scenario(
             "survival_threshold": 0.5,
         },
     }
-    return validate_scenario(scenario)
+    return validate_compiled_scenario(scenario)
 
 
 def _entity(

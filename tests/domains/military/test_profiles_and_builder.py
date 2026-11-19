@@ -6,7 +6,7 @@ import json
 import pytest
 from conftest import REPO_ROOT, load_spec, spec
 
-from skyvault.contracts import validate_scenario
+from skyvault.contracts import validate_compiled_scenario
 from skyvault.domains.military import build_scenario, validate_profiles
 from skyvault.domains.military.profiles import ProfileError
 
@@ -89,7 +89,7 @@ def test_broken_profiles_are_refused(change, message):
 def test_every_reference_spec_builds_a_valid_scenario(profiles, name, units):
     scenario = build_scenario(load_spec(name), profiles)
 
-    assert validate_scenario(scenario) == scenario
+    assert validate_compiled_scenario(scenario) == scenario
     assert scenario["domain"] == "military"
     assert len(scenario["entities"]) == units
 

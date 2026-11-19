@@ -15,20 +15,31 @@ PROFILE_DIR = Path(__file__).resolve().parents[2] / "data" / "evaluation_profile
 DEFAULT_PROFILE = PROFILE_DIR / "balanced.json"
 
 
-def load_scenario(path: str | Path) -> dict[str, Any]:
+def read_scenario(path: str | Path) -> dict[str, Any]:
     """
-    Load a scenario file and validate it.
-
-    Important:
-    The file may be JSON or YAML; the suffix decides which. Either way the
-    result must satisfy the scenario contract, so a scenario missing
-    scenario_id, carrying an unknown key or written for another schema_version
-    raises ContractError here, before any world is built from it.
-
-    This module only reads and validates. It does not build a WorldState —
-    that is engine.build_world().
+    A scenario file (JSON or YAML; the suffix decides) validated against the
+    Formal Spec section 3.3 grammar, as written.
     """
     return validate_scenario(_read(path, "Scenario"))
+
+
+def load_scenario(path: str | Path, worlds_dir: Path | None = None) -> dict[str, Any]:
+    """
+    Load a scenario file and compile it for the engine.
+
+    Important:
+    The file must be a section 3.3 scenario; a scenario missing scenario_id,
+    carrying an unknown key, written in another grammar or bound to a world
+    contract that does not exist raises ContractError here, before any world
+    is built. The world contract is looked up in the world library unless
+    worlds_dir names another folder.
+
+    This module only reads and compiles. It does not build a WorldState —
+    that is engine.build_world().
+    """
+    from .compiler import WORLDS, compile_scenario
+
+    return compile_scenario(read_scenario(path), worlds_dir=worlds_dir or WORLDS)
 
 
 def load_evaluation_profile(path: str | Path) -> dict[str, Any]:

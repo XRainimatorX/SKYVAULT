@@ -1,5 +1,5 @@
 {
-  "$id": "skyvault/0.6/observer_profile.schema.json",
+  "$id": "skyvault/1.0/observer_profile.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "How one system observes (data/observers/).\n\nImportant:\ndelay_ticks: the observation at tick t shows tick t - delay_ticks.\nstale_after_ticks: how long a contact lost from sight is remembered.\ndefault_sensor_range: for units without a sensor_range capability.\nlocal_radius: the area around the deciding unit in the local view.\nenemy_detail: how much of an enemy's health is shown.",

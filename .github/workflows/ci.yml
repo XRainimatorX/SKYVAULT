@@ -38,8 +38,9 @@ jobs:
       SKYVAULT_TEST_POSTGRES: postgresql://skyvault:skyvault@localhost:5432/skyvault
       # Phase 21: the development checks below reach the Phase 0 reference
       # slice the way a deployment adds its own; SKYVAULT itself has none of
-      # it (the "SKYVAULT on its own" step unsets all three)
+      # it (the "SKYVAULT on its own" step unsets all four)
       SKYVAULT_SCENARIO_PATH: ${{ github.workspace }}/tests/fixtures/reference/scenarios
+      SKYVAULT_WORLD_PATH: ${{ github.workspace }}/tests/fixtures/reference/worlds
       SKYVAULT_BATCH_PATH: ${{ github.workspace }}/tests/fixtures/reference/batches
       SKYVAULT_POLICY_MODULES: ${{ github.workspace }}/tests/fixtures/reference/policy.py
 
@@ -411,12 +412,12 @@ jobs:
       - name: SKYVAULT on its own
         run: |
           mkdir -p /tmp/standalone && cd /tmp/standalone
-          unset SKYVAULT_SCENARIO_PATH SKYVAULT_BATCH_PATH SKYVAULT_POLICY_MODULES
+          unset SKYVAULT_SCENARIO_PATH SKYVAULT_WORLD_PATH SKYVAULT_BATCH_PATH SKYVAULT_POLICY_MODULES
           skyvault serve --port 8200 --ui "" > /tmp/standalone.log 2>&1 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:8200/api/health && break; sleep 1; done
           export SKYVAULT_URL=http://127.0.0.1:8200
           skyvault run military_urban_001/v0.2 | tee run.txt
-          grep -q "output_hash: 78aa3fe5bbdf" run.txt
+          grep -q "output_hash: 0b11d9ee2061" run.txt
           skyvault explore military_urban_001/v0.2 --repeat 1
           skyvault batch military_doctrine --repeat 2
           skyvault runs | grep -q "military_urban_001 v0.2"
@@ -542,7 +543,7 @@ jobs:
                   break
               time.sleep(0.2)
           status, result = call(8100, f"/api/jobs/{job['job_id']}/result")
-          assert result["reproducibility"]["output_hash"].startswith("7debca2af332"), result["reproducibility"]
+          assert result["reproducibility"]["output_hash"].startswith("4a22da0ddfa0"), result["reproducibility"]
           status, queued = call(8101, "/api/jobs", {"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1", "priority": "high"})
           assert status == 202, queued
           open("/tmp/rq_job.txt", "w").write(queued["job_id"])
@@ -555,7 +556,7 @@ jobs:
           with urllib.request.urlopen(f"http://127.0.0.1:8101/api/jobs/{job_id}") as response:
               job = json.loads(response.read())
           assert job["lifecycle_state"] == "completed", job
-          assert job["summary"]["output_hash"].startswith("7debca2af332"), job["summary"]
+          assert job["summary"]["output_hash"].startswith("4a22da0ddfa0"), job["summary"]
           print("rq worker verified:", job["summary"]["result"])
           EOF
 
@@ -617,7 +618,7 @@ jobs:
               if status == 200:
                   break
               time.sleep(0.2)
-          assert returned["result_package"]["reproducibility"]["output_hash"].startswith("7debca2af332"), returned["system_status"]
+          assert returned["result_package"]["reproducibility"]["output_hash"].startswith("4a22da0ddfa0"), returned["system_status"]
           assert returned["briefing"].startswith("# SKYVAULT briefing"), returned["briefing"][:80]
           print("external systems verified: state-action-outcome, conflict", conflict, "decided by NEXUS, NEXUS package")
           EOF

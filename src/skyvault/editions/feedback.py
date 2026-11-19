@@ -6,9 +6,11 @@ improves the core; what flows back is data. A customer's scenario — a
 variant made in the commercial edition — becomes a contribution: the
 scenario as the customer had it, its data_provenance naming the edition it
 came from, the result of the run that produced it and its training
-transitions (Phase 18). import_contribution turns it back into a scenario
-the internal core runs as its own: aliases restored to internal names,
-the scenario contract checked, the provenance kept.
+transitions (Phase 18). The scenario travels as SKYVAULT's own documents
+do: a Formal Spec section 3.3 scenario with the section 2 world contract it
+binds to. import_contribution turns it back into a scenario the internal
+core runs as its own: aliases restored to internal names, both documents
+checked and compiled, the provenance kept.
 """
 
 import copy
@@ -17,7 +19,7 @@ import json
 import re
 from typing import Any
 
-from ..contracts import validate_scenario
+from ..compiler import author_scenario, author_world, compile_scenario
 from ..engine import SkyVaultEngine
 from ..training.transitions import build_transitions
 from .redact import redact
@@ -63,7 +65,8 @@ def contribute(
     contribution = {
         "source_edition": edition["edition_id"],
         "product": product,
-        "scenario": scenario,
+        "world_contract": author_world(scenario["world_contract"]),
+        "scenario": author_scenario(scenario),
         "result": {
             "winner_or_result": package["evaluation_result"]["winner_or_result"],
             "overall_score": package["evaluation_result"]["overall_score"],
@@ -81,6 +84,9 @@ def contribute(
 def import_contribution(
     contribution: dict[str, Any], edition: dict[str, Any]
 ) -> dict[str, Any]:
-    """The contributed scenario as the internal core runs it (validated)."""
-    restored = _restore(contribution["scenario"], edition)
-    return validate_scenario(restored)
+    """The contributed scenario as the internal core runs it (compiled)."""
+    restored = _restore(
+        {"scenario": contribution["scenario"], "world": contribution["world_contract"]},
+        edition,
+    )
+    return compile_scenario(restored["scenario"], restored["world"])

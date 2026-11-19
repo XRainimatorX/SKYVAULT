@@ -76,7 +76,12 @@ from .order import Order, validate_order
 from .provenance import DataProvenance, validate_data_provenance
 from .reproducibility import ReproducibilityMetadata, validate_reproducibility
 from .result_package import ResultPackage, validate_result_package
-from .scenario import Scenario, validate_scenario
+from .scenario import (
+    CompiledScenario,
+    Scenario,
+    validate_compiled_scenario,
+    validate_scenario,
+)
 from .world import WorldContract, validate_world_contract
 
 __all__ = [
@@ -119,6 +124,7 @@ __all__ = [
     "ReproducibilityMetadata",
     "ResourceComputeGovernance",
     "ResultPackage",
+    "CompiledScenario",
     "Scenario",
     "WorldContract",
     "build_json_schemas",
@@ -150,6 +156,7 @@ __all__ = [
     "validate_order",
     "validate_reproducibility",
     "validate_result_package",
+    "validate_compiled_scenario",
     "validate_scenario",
     "validate_world_contract",
 ]

@@ -24,8 +24,10 @@ from skyvault.domains.airspace.model import (
 from skyvault.domains.airspace.pack import AIRSPACE
 from skyvault.domains.airspace.policy import AirDefencePolicy
 from skyvault.domains.airspace.reference import (
+    DATA,
     SPECS,
     load_rules,
+    reference_files,
     reference_scenarios,
     scenario_path,
 )
@@ -147,9 +149,15 @@ def test_an_interception_window_needs_a_track_range_and_time_before_the_hit():
 
 
 def test_the_committed_airspace_scenario_is_what_the_spec_builds():
-    for name, scenario in reference_scenarios().items():
-        committed = json.loads(scenario_path(name).read_text(encoding="utf-8"))
-        assert committed == scenario, name
+    for name, document in reference_files().items():
+        committed = json.loads((DATA / name).read_text(encoding="utf-8"))
+        assert committed == document, name
+    for name, built in reference_scenarios().items():
+        compiled = load_scenario(scenario_path(name))
+        assert compiled["entities"] == built["entities"], name
+        assert compiled["world_contract"]["rule_set"] == (
+            built["world_contract"]["rule_set"]
+        ), name
 
 
 def test_a_built_airspace_holds_the_defence_and_the_threats_in_reserve():

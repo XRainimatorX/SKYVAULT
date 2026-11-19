@@ -21,9 +21,9 @@ from ..batch.runner import run_jobs
 from ..batch.variants import Variant, branch_variant
 from ..contracts import (
     JobRequest,
+    validate_compiled_scenario,
     validate_failure_map,
     validate_job_request,
-    validate_scenario,
 )
 from ..engine import SkyVaultEngine, require_decider
 from ..failure import build_failure_map, explore_failures
@@ -33,6 +33,7 @@ from ..replay import build_replay_state_at_tick
 from ..scenario_loader import (
     default_evaluation_profile,
     load_evaluation_profile,
+    load_scenario,
     scenario_perspective,
 )
 from .governance import (
@@ -81,9 +82,7 @@ def scenario_for(
     The scenario a request names, with its runtime overrides, unit changes
     and data provenance, checked.
     """
-    scenario = json.loads(
-        _named(scenarios_dir, request["scenario"]).read_text(encoding="utf-8")
-    )
+    scenario = load_scenario(_named(scenarios_dir, request["scenario"]))
     extra = set(request.get("runtime", {})) - RUNTIME_OVERRIDES
     if extra:
         raise ValueError(f"runtime fields a request may not set: {sorted(extra)}")
@@ -95,7 +94,7 @@ def scenario_for(
             provenance.get("scenario_id") or scenario["scenario_id"]
         )
         scenario["data_provenance"] = provenance
-    return validate_scenario(scenario)
+    return validate_compiled_scenario(scenario)
 
 
 def changed_entities(
@@ -181,7 +180,7 @@ def compare_variants(
         ]
         variant = branch_variant(base, branch["branch_id"], proposals)
         changed = changed_entities(variant.scenario, branch.get("entity_changes"))
-        validate_scenario(changed)
+        validate_compiled_scenario(changed)
         variants.append(Variant(variant.variant_id, variant.kind, changed))
     variants.append(branch_variant(base, "none", []))
     return variants
@@ -228,10 +227,8 @@ def plan(
         )
     elif kind == "batch":
         spec = batch_for(request, batches_dir)
-        base = json.loads(
-            _named(
-                scenarios_dir, f"{spec['scenario_id']}/{spec['base_version']}"
-            ).read_text()
+        base = load_scenario(
+            _named(scenarios_dir, f"{spec['scenario_id']}/{spec['base_version']}")
         )
         require_decider(base)
         variants = planned_variants(spec, base, scenarios_dir)
@@ -337,6 +334,10 @@ def run_scenario(
         scenario,
         evaluation_profile=profile_for(job["request"], scenario),
         governor=_governor(job, store, policy, scenario, clamped),
+    )
+    engine.task_source = (
+        f"{job['request'].get('source_system', 'user')} job {job['job_id']} "
+        f"({job['request']['kind']})"
     )
     return engine.run()
 

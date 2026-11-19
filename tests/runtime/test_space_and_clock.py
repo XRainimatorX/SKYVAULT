@@ -18,6 +18,7 @@ from skyvault.runtime import (
     GridSpace,
     NetworkSpace,
     PhaseClock,
+    PhaseEventClock,
     TickClock,
     build_clock,
     build_space,
@@ -198,6 +199,26 @@ def test_build_clock_reads_each_time_type():
     assert isinstance(build_clock({"type": "tick"}), TickClock)
     assert isinstance(build_clock({"type": "phase", "phase_length": 6}), PhaseClock)
     assert isinstance(build_clock({"type": "event_driven"}), EventDrivenClock)
+    hybrid = build_clock({"type": "phase_event_hybrid", "phase_length": "6_hours"})
+    assert isinstance(hybrid, PhaseEventClock)
+    assert build_clock(
+        {"type": "long_duration", "phase_length": "1_days", "max_duration": "14_days"}
+    ).describe() == {"type": "long_duration", "phase_length": 1, "time_unit": "days"}
 
     with pytest.raises(ValueError):
-        build_clock({"type": "phase_event_hybrid"})
+        build_clock({"type": "continuous"})
+
+
+def test_a_hybrid_clock_stops_at_events_inside_a_phase_and_at_each_phase_end():
+    clock = build_clock({"type": "phase_event_hybrid", "phase_length": "6_hours"})
+    clock.schedule(2, "fire")
+    clock.schedule(6, "shift change")
+    clock.schedule(15, "convoy")
+
+    steps = [(clock.advance(), clock.due()) for _ in range(4)]
+
+    # Formal Spec 2.3: phases of six hours, with time jumping to each event
+    assert steps == [(2, ["fire"]), (6, ["shift change"]), (12, []), (15, ["convoy"])]
+    assert clock.phase == 2
+    with pytest.raises(ValueError):
+        clock.schedule(14, "too late")

@@ -751,6 +751,59 @@
       "title": "OverallJudgement",
       "type": "object"
     },
+    "ProtocolStep": {
+      "additionalProperties": false,
+      "description": "One step of Formal Spec section 4.2, as one run carried it out.",
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        },
+        "name": {
+          "enum": [
+            "receive_task",
+            "compile_scenario",
+            "instantiate_world",
+            "register_participants",
+            "generate_observations",
+            "receive_actions",
+            "validate_actions",
+            "resolve_consequences",
+            "mutate_world_state",
+            "record_events",
+            "evaluate_current_state",
+            "explore_failure_branches",
+            "continue_branch_terminate",
+            "generate_result_package"
+          ],
+          "title": "Name",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "done",
+            "separate_job",
+            "not_requested"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "step": {
+          "maximum": 14,
+          "minimum": 1,
+          "title": "Step",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "step",
+        "name",
+        "status",
+        "detail"
+      ],
+      "title": "ProtocolStep",
+      "type": "object"
+    },
     "RankedAxis": {
       "additionalProperties": false,
       "properties": {
@@ -1229,7 +1282,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/result_package.schema.json",
+  "$id": "skyvault/1.0/result_package.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Result Package = one finished run.\n\nImportant:\nevaluation_result is mandatory; a run without a verdict is not a result.\nThe field was called evaluation before Phase 1 and was renamed to match the\ndevelopment plan's acceptance criterion and Formal Spec section 8.3. See\nADR 004.\n\nThe four derived outputs (timeline, replay, entity history, causal chain)\nare built from this package alone, so initial_world_state is required too.\n\nreproducibility is required from schema 0.5 (Phase 8): a result that\ncannot say where it came from cannot be audited.\n\nSchema 0.4 adds the Phase 7 outputs: score_breakdown, anti_gaming_report\nand tradeoff_report. The development plan requires the trade-off report\nin every result package, so all three are mandatory.",
@@ -1245,6 +1298,15 @@
         "$ref": "#/$defs/EventRecord"
       },
       "title": "Event Memory",
+      "type": "array"
+    },
+    "execution_protocol": {
+      "items": {
+        "$ref": "#/$defs/ProtocolStep"
+      },
+      "maxItems": 14,
+      "minItems": 14,
+      "title": "Execution Protocol",
       "type": "array"
     },
     "final_world_state": {
@@ -1287,7 +1349,8 @@
     "score_breakdown",
     "anti_gaming_report",
     "tradeoff_report",
-    "reproducibility"
+    "reproducibility",
+    "execution_protocol"
   ],
   "title": "ResultPackage",
   "type": "object"

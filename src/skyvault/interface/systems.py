@@ -15,7 +15,6 @@ Adapters only read results; none of them chooses for the system.
 """
 
 import copy
-import json
 from pathlib import Path
 from statistics import mean
 from typing import Any
@@ -26,6 +25,7 @@ from ..library import find
 from ..observation.history import history_from_package, observations_for_run
 from ..observation.profiles import load_observer_profile
 from ..report import build_briefing, render_markdown
+from ..scenario_loader import load_scenario
 from ..training.transitions import build_transitions
 from ..virtualtest.profile import GROUPS, has_equipment_parameters, load_rules
 from ..virtualtest.run import virtual_test
@@ -51,12 +51,11 @@ Results = list[dict[str, Any]]
 
 
 def load_scenario_named(name: str, scenarios_dir: Path = SCENARIOS_DIR) -> dict:
-    """The scenario a submission names ("<scenario_id>/<version>"), as stored."""
+    """The scenario a submission names ("<scenario_id>/<version>"), compiled."""
     path = find(scenarios_dir, f"{name}.json")
     if path is None or not path.is_file():
         raise ValueError(f"nothing named {name!r} in the scenarios library")
-    scenario: dict[str, Any] = json.loads(path.read_text(encoding="utf-8"))
-    return scenario
+    return load_scenario(path)
 
 
 def request(

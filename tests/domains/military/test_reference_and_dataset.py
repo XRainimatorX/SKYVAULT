@@ -14,12 +14,17 @@ from conftest import REPO_ROOT
 from skyvault.batch.run import run_batch
 from skyvault.domains.military import mission_outcome
 from skyvault.domains.military.dataset import build_dataset, validate_record
-from skyvault.domains.military.reference import reference_scenarios, scenario_path
+from skyvault.domains.military.reference import (
+    reference_files,
+    reference_scenarios,
+    scenario_path,
+)
 from skyvault.engine import SkyVaultEngine
 from skyvault.policies import build_policy, import_policy_module
 from skyvault.scenario_loader import load_scenario
 
 SCENARIOS = REPO_ROOT / "data" / "scenarios"
+WORLDS = REPO_ROOT / "data" / "worlds"
 NAMES = ("squad", "urban", "mountain", "junction")
 
 
@@ -36,16 +41,37 @@ def runs():
 
 
 def test_committed_scenarios_are_exactly_what_the_specs_build():
-    built = reference_scenarios()
+    files = reference_files()
 
-    for name, expected in built.items():
-        with scenario_path(name).open(encoding="utf-8") as file:
-            assert json.load(file) == expected, f"{name} is stale: rebuild it"
+    for name, expected in files.items():
+        committed = json.loads((REPO_ROOT / "data" / name).read_text(encoding="utf-8"))
+        assert committed == expected, f"{name} is stale: rebuild it"
     committed = {
-        f"{path.parent.name}/{path.name}"
+        f"scenarios/{path.parent.name}/{path.name}"
         for path in SCENARIOS.glob("military_*/*.json")
-    }
-    assert committed == set(built)
+    } | {f"worlds/{path.name}" for path in WORLDS.glob("military_*.json")}
+    assert committed == set(files)
+
+
+def test_every_committed_scenario_compiles_to_what_its_builder_assembled():
+    for name, built in reference_scenarios().items():
+        compiled = load_scenario(scenario_path(name))
+        assert compiled["entities"] == built["entities"], name
+        declared = {
+            k: v for k, v in compiled["evaluation"].items() if v not in ([], None)
+        }
+        assert declared == built["evaluation"], name
+        registry = {
+            k: v for k, v in compiled["assumption_registry"].items() if v is not None
+        }
+        assert registry == built["assumption_registry"], name
+        world, expected = compiled["world_contract"], built["world_contract"]
+        assert world["rule_set"] == expected["rule_set"], name
+        assert world["failure_variables"] == expected["failure_variables"], name
+        explored = compiled["failure_exploration"]
+        if explored is not None:
+            explored = {k: v for k, v in explored.items() if k != "magnitudes"}
+        assert explored == built.get("failure_exploration"), name
 
 
 def test_a_revision_is_a_child_version_with_its_own_doctrine_variants():
@@ -55,7 +81,7 @@ def test_a_revision_is_a_child_version_with_its_own_doctrine_variants():
     assert revised["version_control"]["parent_version"] == "v0.1"
     changed = revised["version_control"]["changed_from_previous"]
     assert changed["failure_variables_changed"] and not changed["rules_changed"]
-    assert revised["world_contract"]["failure_variables"] == (
+    assert set(revised["world_contract"]["failure_variables"]) == set(
         revised["failure_exploration"]["failure_variables"]
     )
     assert revised["failure_exploration"]["alternatives"] == [
@@ -66,7 +92,7 @@ def test_a_revision_is_a_child_version_with_its_own_doctrine_variants():
     assert overwatch["world_contract"]["failure_variables"] == (
         revised["world_contract"]["failure_variables"]
     )
-    assert "failure_exploration" not in overwatch
+    assert overwatch["failure_exploration"] is None
     assert revised["entities"] == scenario("urban", "v0.1")["entities"]
 
 

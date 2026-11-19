@@ -50,6 +50,8 @@ class WorldState:
     clock: Clock = field(default_factory=TickClock)
     ids: RunIds = field(default_factory=RunIds)
     environment: dict[str, Any] = field(default_factory=dict)
+    # Formal Spec 3.3 allowed_actions: {action_types, actor_permissions}
+    allowed_actions: dict[str, Any] = field(default_factory=dict)
 
     def get_entity(self, entity_id: str) -> Entity:
         """

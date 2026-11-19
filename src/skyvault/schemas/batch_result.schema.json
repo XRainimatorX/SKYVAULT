@@ -208,7 +208,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/batch_result.schema.json",
+  "$id": "skyvault/1.0/batch_result.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "properties": {

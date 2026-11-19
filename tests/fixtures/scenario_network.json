@@ -1,80 +1,80 @@
 {
-  "schema_version": "0.6",
-  "scenario_id": "fixture_network_001",
-  "scenario_version": "v0.1",
-  "world_contract": {
-    "world_id": "fixture_network_world",
-    "world_scope": "supply_network",
-    "purpose": [
-      "runtime_fixture"
-    ],
-    "space_model": {
-      "type": "network",
-      "nodes": [
-        "depot",
-        "north",
-        "city"
-      ],
-      "edges": [
-        [
-          "depot",
-          "north",
-          4
-        ],
-        [
-          "north",
-          "city",
-          3
-        ],
-        [
-          "depot",
-          "city",
-          10
-        ]
-      ]
-    },
-    "time_model": {
-      "type": "phase",
-      "phase_length": 6,
-      "time_unit": "hours",
-      "max_ticks": 4
-    },
-    "assumption_registry": {},
-    "evaluation_targets": [
-      "runtime_built"
-    ],
-    "entity_model": {},
-    "environment_state": {},
-    "resource_state": {
-      "supply": 50.0
-    },
-    "rule_set": {},
-    "failure_variables": []
+  "identity": {
+    "scenario_id": "fixture_network_001",
+    "scenario_type": "",
+    "domain": "",
+    "purpose": "",
+    "scenario_version": "v0.1",
+    "schema_version": "1.0"
   },
-  "entities": [
-    {
-      "entity_id": "truck_1",
-      "name": "Truck",
-      "entity_type": "logistics_unit",
-      "faction": "BLUE",
-      "position": "depot",
-      "state": {
-        "status": "active"
-      },
-      "capabilities": {},
-      "tags": []
-    }
-  ],
-  "runtime": {
-    "max_ticks": 4,
-    "random_seed": 1,
+  "world_binding": {
+    "world_contract_id": "fixture_network_world",
+    "environment_profile": "baseline",
+    "rule_profile": "baseline"
+  },
+  "initial_conditions": {
+    "entities": [
+      {
+        "entity_id": "truck_1",
+        "name": "Truck",
+        "entity_type": "logistics_unit",
+        "faction": "BLUE",
+        "position": "depot",
+        "state": {
+          "status": "active"
+        },
+        "capabilities": {},
+        "tags": []
+      }
+    ],
+    "resources": {},
+    "risks": {},
+    "constraints": {},
+    "uncertainty": {}
+  },
+  "assumption_registry": {},
+  "data_provenance": {},
+  "participants": {
+    "human_decision_slots": [],
+    "ai_agent_slots": [
+      {
+        "slot_id": "default",
+        "policy": {
+          "name": "tactical_reference"
+        }
+      }
+    ],
+    "system_slots": [],
+    "equipment_profiles": []
+  },
+  "allowed_actions": {
+    "action_types": [],
+    "actor_permissions": {}
+  },
+  "execution_settings": {
+    "time_mode": "phase",
+    "duration_limit": 4,
+    "repeat_count": 1,
+    "random_seed_policy": "fixed",
     "deterministic_mode": true,
-    "policy": {"name": "tactical_reference"}
+    "random_seed": 1
+  },
+  "failure_exploration": {
+    "enabled": false
   },
   "evaluation": {
     "primary_metrics": [
       "event_count"
     ],
-    "failure_thresholds": []
+    "failure_thresholds": [],
+    "secondary_metrics": [],
+    "anti_gaming_metrics": [],
+    "comparison_targets": []
+  },
+  "output": {
+    "required_logs": [],
+    "required_reports": [],
+    "replay_required": true,
+    "failure_map_required": false
   }
 }

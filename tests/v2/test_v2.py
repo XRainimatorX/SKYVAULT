@@ -178,7 +178,7 @@ def test_every_criterion_must_have_and_boundary_check_passes_with_evidence():
 def test_the_evidence_is_what_a_reader_can_look_up():
     rows = {r["id"]: r["evidence"] for r in accepted()["acceptance"]}
     # the system baseline (Phase 21): military_urban_001 v0.2
-    assert rows["normal_simulation"]["output_hash"] == "78aa3fe5bbdf"
+    assert rows["normal_simulation"]["output_hash"] == "0b11d9ee2061"
     assert rows["normal_simulation"]["events"] == 528
     assert rows["normal_simulation"]["result"] == "no_winner_duration_limit"
     assert rows["high_risk_handoff"]["triggers"] == ["high_risk_outcome"]
@@ -352,7 +352,7 @@ def test_a_simulation_that_drifts_from_the_baseline_hash_is_not_accepted():
         "events": 528,
     }
     assert normal_simulation(Answers(drifted), {})["passed"] is False
-    pinned = {**drifted, "output_hash": "78aa3fe5bbdfffff"}
+    pinned = {**drifted, "output_hash": "0b11d9ee2061ffff"}
     assert normal_simulation(Answers(pinned), {})["passed"] is True
 
 

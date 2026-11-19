@@ -24,14 +24,14 @@ if str(SRC_PATH) not in sys.path:
 
 from skyvault.action import Action, ActionTarget
 from skyvault.actions import CORE_HANDLERS, ActionContext, ActionResolver
-from skyvault.contracts import validate_scenario
+from skyvault.compiler import compile_scenario
 from skyvault.runtime import rebuild_world
 from skyvault.runtime.world import create_world
 
 
 def world():
     with (FIXTURES / "scenario_logistics.json").open(encoding="utf-8") as file:
-        return create_world(validate_scenario(json.load(file)))
+        return create_world(compile_scenario(json.load(file)))
 
 
 def resolver() -> ActionResolver:

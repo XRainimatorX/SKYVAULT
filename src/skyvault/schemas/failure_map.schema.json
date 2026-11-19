@@ -141,7 +141,8 @@
               "enemy_reaction_speed",
               "equipment_overheat",
               "civilian_pressure",
-              "resource_shortage"
+              "resource_shortage",
+              "public_order_collapse"
             ],
             "type": "string"
           },
@@ -268,7 +269,8 @@
             "enemy_reaction_speed",
             "equipment_overheat",
             "civilian_pressure",
-            "resource_shortage"
+            "resource_shortage",
+            "public_order_collapse"
           ],
           "title": "Variable",
           "type": "string"
@@ -287,7 +289,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/failure_map.schema.json",
+  "$id": "skyvault/1.0/failure_map.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "The failure map a failure exploration produces (development plan Phase 9).\n\nImportant:\nIt answers the section 14 questions in fixed places: where the plan fails\n(failure_points), why (failure_causes), how fast (how_fast), which\nvariable crushes it and which assumption that attacks (crushing_variable,\ncrushing_assumption), and which alternative lasts longer (alternatives).",
@@ -342,7 +344,8 @@
             "enemy_reaction_speed",
             "equipment_overheat",
             "civilian_pressure",
-            "resource_shortage"
+            "resource_shortage",
+            "public_order_collapse"
           ],
           "type": "string"
         },

@@ -2,7 +2,8 @@
 
     python3 scripts/dev/build_military_scenarios.py
 
-Writes data/scenarios/military_*/<version>.json from the profiles and specs
+Writes the world contracts (data/worlds/military_*) and the scenarios
+(data/scenarios/military_*/<version>.json) from the profiles and specs
 in data/domains/military/. Run it after changing a profile or a spec; a
 test fails while the committed scenarios differ from what this builds.
 """
@@ -18,17 +19,19 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.domains.military.reference import reference_scenarios, scenario_path
+from skyvault.domains.military.reference import reference_files
+
+DATA = REPO_ROOT / "data"
 
 
 def main() -> None:
-    for name, scenario in reference_scenarios().items():
-        path = scenario_path(name)
+    for name, document in reference_files().items():
+        path = DATA / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
-            json.dumps(scenario, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            json.dumps(document, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-        print(f"{name}: {len(scenario['entities'])} units")
+        print(name)
 
 
 if __name__ == "__main__":

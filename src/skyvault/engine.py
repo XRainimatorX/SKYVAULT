@@ -2,6 +2,7 @@
 
 import platform
 import random
+from collections import Counter
 from datetime import datetime, timezone
 from typing import Any, cast
 
@@ -80,6 +81,9 @@ class SkyVaultEngine:
         # tick; without one the run is never stopped early (Phase 11)
         self.governor = governor
         self.decisions = 0
+        # who asked for this run (Formal Spec 4.2 step 1); the world service
+        # sets it from the job's source_system
+        self.task_source = "direct"
         self.stop_reason: str | None = None
         self._began = False
         self._over = False
@@ -547,6 +551,9 @@ class SkyVaultEngine:
             "event_memory": event_memory,
             **evaluated,
         }
+        package["execution_protocol"] = self.execution_protocol(
+            event_memory, evaluated["evaluation_result"]
+        )
         package["reproducibility"] = self.reproducibility(self._started_at, utc_now())
 
         # The package is checked against its contract before it leaves the
@@ -556,6 +563,106 @@ class SkyVaultEngine:
         validated = validate_result_package(package)
         validated["reproducibility"]["output_hash"] = output_hash(validated)
         return validated
+
+    def execution_protocol(
+        self, event_memory: list[dict[str, Any]], verdict: dict[str, Any]
+    ) -> list[dict[str, Any]]:
+        """
+        Formal Spec section 4.2, step by step: what each of the fourteen steps
+        did in this run.
+
+        Important:
+        Each step is "done" with what it did, or says where else it happens:
+        receiving the task is the world service's (a run started directly
+        records "direct"); exploring failure branches is a failure exploration
+        job that reruns the scenario under stress, never a part of one run.
+        """
+        scenario = self.scenario
+        binding = scenario.get("world_binding") or {}
+        types = Counter(event["event_type"] for event in event_memory)
+        rejected = types.get("ACTION_REJECTED", 0)
+        resolved = sum(
+            1
+            for event in event_memory
+            if event["source"]["action_id"] and event["event_type"] != "ACTION_REJECTED"
+        )
+        changed = sum(
+            1 for event in event_memory if event["before_state"] != event["after_state"]
+        )
+        deciders = [type(self.policy).__name__] + [
+            slot.participant_id for slot in self.participants.slots()
+        ]
+        systems = sorted({item["system_id"] for item in self.scheduled.values()})
+        explored = scenario.get("failure_exploration")
+        output = scenario.get("output") or {}
+
+        def step(number: int, name: str, detail: str, status: str = "done") -> dict:
+            return {"step": number, "name": name, "status": status, "detail": detail}
+
+        space = self.world.space.describe()["type"]
+        clock = scenario["world_contract"]["time_model"]["type"]
+        return [
+            step(1, "receive_task", self.task_source, "done"),
+            step(
+                2,
+                "compile_scenario",
+                f"{scenario['scenario_id']}/{scenario['scenario_version']} bound to "
+                f"{scenario['world_contract']['world_id']} (environment "
+                f"{binding.get('environment_profile', 'baseline')}, rules "
+                f"{binding.get('rule_profile', 'baseline')})",
+            ),
+            step(
+                3,
+                "instantiate_world",
+                f"{len(self._initial['entities'])} entities in a {space} space "
+                f"on a {clock} clock",
+            ),
+            step(
+                4,
+                "register_participants",
+                "deciders: "
+                + ", ".join(deciders)
+                + (f"; ordering systems: {', '.join(systems)}" if systems else ""),
+            ),
+            step(
+                5,
+                "generate_observations",
+                (
+                    f"{sum(len(v) for v in self.observers.values())} observer views"
+                    if self.observers
+                    else "deciders read the world through a read-only view"
+                ),
+            ),
+            step(6, "receive_actions", f"{self.decisions} decisions taken"),
+            step(7, "validate_actions", f"{rejected} actions rejected with a reason"),
+            step(8, "resolve_consequences", f"{resolved} events caused by actions"),
+            step(9, "mutate_world_state", f"{changed} events changed the world"),
+            step(10, "record_events", f"{len(event_memory)} events recorded"),
+            step(
+                11,
+                "evaluate_current_state",
+                f"{verdict['overall_judgement']['status']}: "
+                f"{verdict['winner_or_result']}",
+            ),
+            step(
+                12,
+                "explore_failure_branches",
+                (
+                    f"declared: {len(explored['failure_variables'])} variables at "
+                    f"{len(explored['stress_levels'])} levels, run as a failure "
+                    "exploration job"
+                    if explored
+                    else "not requested by this scenario"
+                ),
+                (
+                    "separate_job"
+                    if explored or output.get("failure_map_required")
+                    else "not_requested"
+                ),
+            ),
+            step(13, "continue_branch_terminate", self._termination),
+            step(14, "generate_result_package", "this result package"),
+        ]
 
     def reproducibility(
         self, started_at: datetime, ended_at: datetime

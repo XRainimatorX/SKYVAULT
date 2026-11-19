@@ -506,7 +506,7 @@ def test_branches_carry_their_unit_changes():
     assert {u["entity_id"]: u for u in none.scenario["entities"]}["blue_002"][
         "capabilities"
     ]["accuracy"] == 0.55
-    assert "scheduled_actions" not in sharp.scenario["runtime"]
+    assert sharp.scenario["runtime"]["scheduled_actions"] == []
 
 
 def test_a_submission_names_only_scenarios_skyvault_has():

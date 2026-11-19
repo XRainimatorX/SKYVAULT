@@ -24,7 +24,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/authority_handoff.schema.json",
+  "$id": "skyvault/1.0/authority_handoff.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "A result put in front of the authority that decides (Formal Spec section 17).",

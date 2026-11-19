@@ -40,10 +40,18 @@ def output_hash(result_package: dict[str, Any]) -> str:
 
     Important:
     The reproducibility block is left out: it records when the run happened,
-    which no rerun can repeat. Everything else must match bit for bit for two
-    runs to count as the same result.
+    which no rerun can repeat. So is who asked for the run (execution
+    protocol step 1, receive_task): the same scenario gives the same result
+    whoever submits it. Everything else must match bit for bit for two runs
+    to count as the same result.
     """
     produced = {
         key: value for key, value in result_package.items() if key != "reproducibility"
     }
+    protocol = produced.get("execution_protocol")
+    if protocol:
+        produced["execution_protocol"] = [
+            {**step, "detail": ""} if step["name"] == "receive_task" else step
+            for step in protocol
+        ]
     return content_hash(produced)

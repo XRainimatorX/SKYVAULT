@@ -16,8 +16,8 @@ if str(SRC_PATH) not in sys.path:
 import skyvault
 from skyvault.contracts import (
     ContractError,
+    validate_compiled_scenario,
     validate_reproducibility,
-    validate_scenario,
 )
 from skyvault.engine import SkyVaultEngine
 from skyvault.reproducibility import (
@@ -173,7 +173,7 @@ def test_version_control_must_name_the_scenarios_own_version():
     }
 
     with pytest.raises(ContractError, match="is not scenario_version"):
-        validate_scenario(tagged)
+        validate_compiled_scenario(tagged)
 
 
 def test_a_scenario_written_for_schema_0_4_is_rejected():
@@ -181,4 +181,4 @@ def test_a_scenario_written_for_schema_0_4_is_rejected():
     old["schema_version"] = "0.4"
 
     with pytest.raises(ContractError):
-        validate_scenario(old)
+        validate_compiled_scenario(old)

@@ -271,7 +271,9 @@ def test_committed_schema_files_match_the_contracts():
 def test_schemas_encode_the_acceptance_criteria():
     schemas = build_json_schemas()
 
-    assert "scenario_id" in schemas["scenario"]["required"]
+    identity = schemas["scenario"]["$defs"]["Identity"]
+    assert "identity" in schemas["scenario"]["required"]
+    assert "scenario_id" in identity["required"]
     assert "actor_id" in schemas["action"]["required"]
     assert {"before_state", "after_state"} <= set(schemas["event"]["required"])
     assert "evaluation_result" in schemas["result_package"]["required"]

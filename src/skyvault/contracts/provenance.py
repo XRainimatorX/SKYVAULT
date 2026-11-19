@@ -28,16 +28,23 @@ class ProvenanceSource(ContractModel):
 
 class DataProvenance(ContractModel):
     """
-    Data Provenance = Formal Spec section 11.3.
+    Data Provenance = Formal Spec sections 11.3 and 3.3.
 
     Important:
-    Section 2.3 sketches world_contract.data_provenance as a flat block. No
-    scenario carries provenance yet, so there is no existing shape to keep;
-    both places use this dedicated section 11.3 contract. See ADR 004.
+    Section 11.3 gives sources (each with type, time, confidence, version and
+    who modified it), reliability_notes and missing_data; section 3.3 writes
+    the same block inside a scenario with timestamps, confidence,
+    modified_by and input_version beside the sources. Both sets of fields are
+    here, so either section's document validates. A world contract's
+    provenance is the flatter section 2.3 block (contracts.world).
     """
 
     scenario_id: str | None = None
     sources: list[ProvenanceSource] = Field(default_factory=list)
+    timestamps: dict[str, str] = Field(default_factory=dict)
+    confidence: dict[str, Probability] = Field(default_factory=dict)
+    modified_by: str = ""
+    input_version: str = ""
     reliability_notes: list[str] = Field(default_factory=list)
     missing_data: list[str] = Field(default_factory=list)
 

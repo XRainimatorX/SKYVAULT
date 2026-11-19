@@ -226,12 +226,12 @@ def test_a_scenario_that_names_no_policy_and_no_domain_is_refused_at_the_door(
     """Phase 21: nothing to fall back on, so it never reaches the queue."""
     import json
 
-    from skyvault.scenario_loader import load_scenario
+    from skyvault.scenario_loader import read_scenario
 
     data = Path(__file__).resolve().parents[2] / "data" / "scenarios"
-    nobody = load_scenario(data / "military_urban_001" / "v0.2.json")
-    nobody.pop("domain")
-    folder = tmp_path / "scenarios" / nobody["scenario_id"]
+    nobody = read_scenario(data / "military_urban_001" / "v0.2.json")
+    nobody["identity"]["domain"] = ""
+    folder = tmp_path / "scenarios" / nobody["identity"]["scenario_id"]
     folder.mkdir(parents=True)
     (folder / "v0.2.json").write_text(json.dumps(nobody), encoding="utf-8")
     for kind in ("scenario_run", "persistent_world", "failure_exploration"):
@@ -282,7 +282,7 @@ def test_a_scenario_run_leaves_its_result_and_record(store, policy):
 
     assert job["lifecycle_state"] == "completed" and job["error"] is None
     assert job["summary"]["result"] == "RED_survived"
-    assert job["summary"]["output_hash"].startswith("7debca2af332")
+    assert job["summary"]["output_hash"].startswith("4a22da0ddfa0")
     assert (
         job["governance"]["policy_id"] == "default" and not job["governance"]["stopped"]
     )
@@ -558,7 +558,7 @@ def test_rq_workers_take_the_higher_priority_first(store, policy, redis_url):
     }
     assert finished[high["job_id"]] < finished[low["job_id"]]
     assert store.get_job(low["job_id"])["summary"]["output_hash"].startswith(
-        "7debca2af332"
+        "4a22da0ddfa0"
     )
     assert queue.depth() == 0 and queue.running() == []
 

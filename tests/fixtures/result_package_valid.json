@@ -547,5 +547,91 @@
       "compute_profile": "fixture",
       "operator_system": "fixture"
     }
-  }
+  },
+  "execution_protocol": [
+    {
+      "step": 1,
+      "name": "receive_task",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 2,
+      "name": "compile_scenario",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 3,
+      "name": "instantiate_world",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 4,
+      "name": "register_participants",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 5,
+      "name": "generate_observations",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 6,
+      "name": "receive_actions",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 7,
+      "name": "validate_actions",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 8,
+      "name": "resolve_consequences",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 9,
+      "name": "mutate_world_state",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 10,
+      "name": "record_events",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 11,
+      "name": "evaluate_current_state",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 12,
+      "name": "explore_failure_branches",
+      "status": "not_requested",
+      "detail": "fixture"
+    },
+    {
+      "step": 13,
+      "name": "continue_branch_terminate",
+      "status": "done",
+      "detail": "fixture"
+    },
+    {
+      "step": 14,
+      "name": "generate_result_package",
+      "status": "done",
+      "detail": "fixture"
+    }
+  ]
 }

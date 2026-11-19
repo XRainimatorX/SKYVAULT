@@ -112,6 +112,30 @@ class TradeoffReport(ContractModel):
     anti_gaming: TradeoffAntiGaming
 
 
+class ProtocolStep(ContractModel):
+    """One step of Formal Spec section 4.2, as one run carried it out."""
+
+    step: int = Field(ge=1, le=14)
+    name: Literal[
+        "receive_task",
+        "compile_scenario",
+        "instantiate_world",
+        "register_participants",
+        "generate_observations",
+        "receive_actions",
+        "validate_actions",
+        "resolve_consequences",
+        "mutate_world_state",
+        "record_events",
+        "evaluate_current_state",
+        "explore_failure_branches",
+        "continue_branch_terminate",
+        "generate_result_package",
+    ]
+    status: Literal["done", "separate_job", "not_requested"]
+    detail: str
+
+
 class ResultPackage(ContractModel):
     """
     Result Package = one finished run.
@@ -143,6 +167,14 @@ class ResultPackage(ContractModel):
     anti_gaming_report: AntiGamingReport
     tradeoff_report: TradeoffReport
     reproducibility: ReproducibilityMetadata
+    execution_protocol: list[ProtocolStep] = Field(min_length=14, max_length=14)
+
+    @model_validator(mode="after")
+    def _protocol_in_order(self) -> "ResultPackage":
+        numbers = [step.step for step in self.execution_protocol]
+        if numbers != list(range(1, 15)):
+            raise ValueError("execution_protocol lists the fourteen steps in order")
+        return self
 
     @model_validator(mode="after")
     def _event_count_matches_event_memory(self) -> "ResultPackage":

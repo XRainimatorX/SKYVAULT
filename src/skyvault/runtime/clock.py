@@ -51,6 +51,7 @@ class PhaseClock:
             raise ValueError("phase_length must be positive")
         self.phase_length = phase_length
         self.time_unit = time_unit
+        self.kind = "phase"
         self.now = 0
 
     @property
@@ -63,7 +64,7 @@ class PhaseClock:
 
     def describe(self) -> dict[str, Any]:
         description: dict[str, Any] = {
-            "type": "phase",
+            "type": self.kind,
             "phase_length": self.phase_length,
         }
         if self.time_unit is not None:
@@ -128,6 +129,79 @@ class EventDrivenClock:
         return {"type": "event_driven"}
 
 
+class PhaseEventClock:
+    """
+    Fixed phases with scheduled happenings inside them (Formal Spec 2.3
+    phase_event_hybrid).
+
+    Important:
+    advance() moves to the next scheduled happening when one falls before the
+    end of the current phase, and otherwise to the start of the next phase. So
+    a six-hour phase with a fire at hour 2 steps 0 -> 2 -> 6 -> 12. Happenings
+    at the same moment come out in the order they were scheduled, and nothing
+    is scheduled into the past.
+    """
+
+    def __init__(self, phase_length: int, time_unit: str | None = None) -> None:
+        if phase_length <= 0:
+            raise ValueError("phase_length must be positive")
+        self.phase_length = phase_length
+        self.time_unit = time_unit
+        self.now = 0
+        self._events = EventDrivenClock()
+        self._due: list[Any] = []
+
+    @property
+    def phase(self) -> int:
+        return self.now // self.phase_length
+
+    @property
+    def pending(self) -> int:
+        return self._events.pending
+
+    def schedule(self, at: int, payload: Any) -> None:
+        if at < self.now:
+            raise ValueError(
+                f"cannot schedule at {at}: the clock is already at {self.now}"
+            )
+        self._events.schedule(at, payload)
+
+    def advance(self) -> int:
+        boundary = (self.phase + 1) * self.phase_length
+        queue = self._events._queue
+        if queue and queue[0][0] < boundary:
+            self.now = self._events.advance()
+            self._due = self._events.due()
+        else:
+            self.now = boundary
+            self._due = []
+            if queue and queue[0][0] == boundary:
+                self._events.advance()
+                self._due = self._events.due()
+        return self.now
+
+    def due(self) -> list[Any]:
+        """What the last advance() reached, in the order it was scheduled."""
+        return list(self._due)
+
+    def describe(self) -> dict[str, Any]:
+        description: dict[str, Any] = {
+            "type": "phase_event_hybrid",
+            "phase_length": self.phase_length,
+        }
+        if self.time_unit is not None:
+            description["time_unit"] = self.time_unit
+        return description
+
+
+def _phase(time_model: dict[str, Any]) -> tuple[int, str | None]:
+    """phase_length as an integer and its unit ("6_hours" or 6 with time_unit)."""
+    from ..contracts.world import parse_duration
+
+    amount, unit = parse_duration(time_model["phase_length"])
+    return amount, unit or time_model.get("time_unit")
+
+
 def build_clock(time_model: dict[str, Any]) -> Clock:
     """The clock a world contract's time_model describes."""
     kind = time_model["type"]
@@ -135,10 +209,17 @@ def build_clock(time_model: dict[str, Any]) -> Clock:
     if kind == "tick":
         return TickClock()
 
-    if kind == "phase":
-        return PhaseClock(int(time_model["phase_length"]), time_model.get("time_unit"))
+    if kind in ("phase", "long_duration"):
+        length, unit = _phase(time_model)
+        clock = PhaseClock(length, unit)
+        if kind == "long_duration":
+            clock.kind = "long_duration"
+        return clock
 
     if kind == "event_driven":
         return EventDrivenClock()
+
+    if kind == "phase_event_hybrid":
+        return PhaseEventClock(*_phase(time_model))
 
     raise ValueError(f"unknown time_model type {kind!r}")

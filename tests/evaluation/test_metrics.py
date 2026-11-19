@@ -21,11 +21,11 @@ from reference_trace import reference_package  # noqa: E402
 
 from skyvault.action import Action, ActionTarget
 from skyvault.actions import CORE_HANDLERS, ActionContext, ActionResolver
+from skyvault.compiler import compile_scenario
 from skyvault.contracts import (
     METRIC_NAMES,
     ContractError,
     validate_evaluation_profile,
-    validate_scenario,
 )
 from skyvault.evaluation import METRIC_REGISTRY, EvaluationContext
 from skyvault.runtime.world import create_world
@@ -133,7 +133,7 @@ def test_no_loss_means_full_failure_resistance_and_untested_recovery():
 
 def test_repairs_and_spending_are_measured_on_a_logistics_run():
     with (FIXTURES / "scenario_logistics.json").open(encoding="utf-8") as file:
-        world = create_world(validate_scenario(json.load(file)))
+        world = create_world(compile_scenario(json.load(file)))
     initial = world.snapshot()
     resolver = ActionResolver(CORE_HANDLERS, ActionContext(random.Random(0)))
     world.get_entity("squad_1").state["hp"] = 8

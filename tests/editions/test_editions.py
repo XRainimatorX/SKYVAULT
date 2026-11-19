@@ -197,7 +197,7 @@ def test_an_edition_service_runs_the_same_core_to_the_same_hash():
         "/api/jobs",
         json={"kind": "scenario_run", "scenario": "tactical_reference_001/v0.1"},
     ).json()["job_id"]
-    assert wait(client, job_id)["summary"]["output_hash"].startswith("7debca2af332")
+    assert wait(client, job_id)["summary"]["output_hash"].startswith("4a22da0ddfa0")
 
 
 def test_the_core_imports_no_edition():
@@ -511,9 +511,8 @@ def test_aliases_written_by_a_customer_are_restored_to_internal_names():
     )
     scenario["runtime"]["policy"] = {"name": "hades_rules", "params": {"salvo": 2}}
     contribution = contribute(scenario, COMMERCIAL, "risk_studio")
-    assert contribution["scenario"]["runtime"]["policy"]["name"] == (
-        "air_defence_operator_rules"
-    )
+    (slot,) = contribution["scenario"]["participants"]["ai_agent_slots"]
+    assert slot["policy"]["name"] == "air_defence_operator_rules"
     restored = import_contribution(contribution, COMMERCIAL)
     assert restored["runtime"]["policy"]["name"] == "hades_rules"
     SkyVaultEngine(copy.deepcopy(restored)).run()

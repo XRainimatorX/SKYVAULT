@@ -19,8 +19,10 @@ from skyvault.domains.city.model import (
 )
 from skyvault.domains.city.pack import CITY
 from skyvault.domains.city.reference import (
+    DATA,
     SPECS,
     load_rules,
+    reference_files,
     reference_scenarios,
     scenario_path,
 )
@@ -191,11 +193,17 @@ def test_a_trip_without_a_road_is_refused():
 
 
 def test_the_committed_city_scenarios_are_what_the_specs_build():
-    for name, scenario in reference_scenarios().items():
-        committed = json.loads(scenario_path(name).read_text(encoding="utf-8"))
+    for name, document in reference_files().items():
+        committed = json.loads((DATA / name).read_text(encoding="utf-8"))
         assert (
-            committed == scenario
+            committed == document
         ), f"rerun scripts/dev/build_city_scenarios.py ({name})"
+    for name, built in reference_scenarios().items():
+        compiled = load_scenario(scenario_path(name))
+        assert compiled["entities"] == built["entities"], name
+        assert compiled["world_contract"]["rule_set"] == (
+            built["world_contract"]["rule_set"]
+        ), name
 
 
 def test_a_built_city_is_a_road_network_of_one_faction():

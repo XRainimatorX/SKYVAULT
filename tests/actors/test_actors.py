@@ -45,7 +45,7 @@ from skyvault.actors.view import (
     deep_frozen,
     frozen,
 )
-from skyvault.contracts import ContractError, validate_order, validate_scenario
+from skyvault.contracts import ContractError, validate_compiled_scenario, validate_order
 from skyvault.engine import SkyVaultEngine
 from skyvault.observation import load_observer_profile, observe
 from skyvault.policies import KNOWN_POLICIES, build_policy, register_policy
@@ -112,7 +112,7 @@ def run(path, participants=None, policy=None):
         scenario["runtime"]["participants"] = participants
     if policy is not None:
         scenario["runtime"]["policy"] = policy
-    return SkyVaultEngine(validate_scenario(scenario)).run()
+    return SkyVaultEngine(validate_compiled_scenario(scenario)).run()
 
 
 def selected(package):
@@ -274,12 +274,12 @@ def test_world_policies_play_exactly_as_before():
     # output hashes of the Phase 5 system (before the read-only view), as
     # renamed by Phase 21: the engine's system id is part of every event
     expected = {
-        "tactical_reference_001/v0.1": "7debca2af33238c2",
-        "military_squad_001/v0.1": "f49c7eb730cef464",
-        "military_urban_001/v0.1": "203bd68cf56c1e80",
-        "military_mountain_001/v0.1": "33b6e3aad8fdcbcc",
-        "military_junction_001/v0.1": "d79218652b949905",
-        "military_urban_001/v0.1+overwatch": "721eea5f8477bdd6",
+        "tactical_reference_001/v0.1": "4a22da0ddfa0ab0e",
+        "military_squad_001/v0.1": "0aad6802df0034e8",
+        "military_urban_001/v0.1": "c514c70063ad33b7",
+        "military_mountain_001/v0.1": "b8b3ce833c380d1e",
+        "military_junction_001/v0.1": "0ba7910e64ef712f",
+        "military_urban_001/v0.1+overwatch": "38df2475d1d49dbb",
     }
     for name, prefix in expected.items():
         folder = (
@@ -1033,10 +1033,10 @@ def test_the_scenario_contract_checks_participants():
         slot("a", factions=["BLUE"]),
     ]
     with pytest.raises(ContractError, match="participant_id must be unique"):
-        validate_scenario(scenario)
+        validate_compiled_scenario(scenario)
     scenario["runtime"]["participants"] = [slot("a")]
     with pytest.raises(ContractError, match="at least one faction or unit"):
-        validate_scenario(scenario)
+        validate_compiled_scenario(scenario)
 
 
 def test_the_squad_fixture_mixes_three_deciders_each_on_its_own_units():

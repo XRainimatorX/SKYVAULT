@@ -334,7 +334,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/observation.schema.json",
+  "$id": "skyvault/1.0/observation.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "What one observer gets at one tick (Formal Spec section 5).",

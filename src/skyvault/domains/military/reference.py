@@ -16,6 +16,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ...compiler import publish
 from ...reproducibility.versioning import compare_scenarios
 from .profiles import REPO_ROOT, load_profiles
 from .scenario import build_scenario, doctrine_variant
@@ -36,6 +37,14 @@ def reference_scenarios(profiles: dict[str, Any] | None = None) -> dict[str, Any
     for path in sorted(SPEC_DIR.glob("*.json")):
         with path.open(encoding="utf-8") as file:
             spec = json.load(file)
+        # the world can suffer every failure any version of the plan explores
+        spec["failure_variables"] = sorted(
+            {
+                v
+                for r in spec.get("revisions", [])
+                for v in r.get("failure_variables", [])
+            }
+        )
         base = build_scenario(spec, profiles)
         versions = [base]
         for revision in spec.get("revisions", []):
@@ -51,15 +60,12 @@ def reference_scenarios(profiles: dict[str, Any] | None = None) -> dict[str, Any
 
 def revised(parent: dict[str, Any], revision: dict[str, Any]) -> dict[str, Any]:
     """
-    The next version of parent: its failure variables and failure
-    exploration replaced by the revision's, recorded as a child of parent.
+    The next version of parent: its failure exploration replaced by the
+    revision's, recorded as a child of parent. (The world already declares
+    every failure variable a revision explores.)
     """
     child = copy.deepcopy(parent)
     child["scenario_version"] = revision["scenario_version"]
-    if "failure_variables" in revision:
-        child["world_contract"]["failure_variables"] = list(
-            revision["failure_variables"]
-        )
     if "failure_exploration" in revision:
         child["failure_exploration"] = copy.deepcopy(revision["failure_exploration"])
     child["version_control"] = {
@@ -77,3 +83,11 @@ def _name(scenario: dict[str, Any]) -> str:
 
 def scenario_path(name: str) -> Path:
     return SCENARIO_DIR / name
+
+
+def reference_files(profiles: dict[str, Any] | None = None) -> dict[str, Any]:
+    """
+    {"worlds/<id>.json" | "scenarios/<id>/<version>.json": document}, as the
+    reference scenarios are kept in data/.
+    """
+    return publish(reference_scenarios(profiles))

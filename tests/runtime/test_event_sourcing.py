@@ -16,7 +16,7 @@ if str(SRC_PATH) not in sys.path:
     sys.path.insert(0, str(SRC_PATH))
 
 
-from skyvault.contracts import validate_scenario
+from skyvault.compiler import compile_scenario
 from skyvault.engine import SNAPSHOT_INTERVAL, SkyVaultEngine
 from skyvault.replay import build_replay_state_at_tick
 from skyvault.runtime import SnapshotStore, rebuild_world
@@ -179,7 +179,7 @@ def test_snapshot_interval_must_be_positive():
 
 def test_resource_changes_rebuild_on_a_graph_world():
     with (FIXTURES / "scenario_graph.json").open(encoding="utf-8") as file:
-        world = create_world(validate_scenario(json.load(file)))
+        world = create_world(compile_scenario(json.load(file)))
     initial = world.snapshot()
 
     world.clock.schedule(3, "load")  # type: ignore[attr-defined]
@@ -249,7 +249,7 @@ def test_runtime_never_imports_the_engine_a_policy_or_an_exporter(path):
 
 def test_events_at_the_starting_tick_are_replayed():
     with (FIXTURES / "scenario_graph.json").open(encoding="utf-8") as file:
-        world = create_world(validate_scenario(json.load(file)))
+        world = create_world(compile_scenario(json.load(file)))
     initial = world.snapshot()
 
     world.update_entity_state("convoy_1", {"status": "loading"})

@@ -46,7 +46,7 @@ def create_world(scenario: dict[str, Any]) -> WorldState:
     the same function builds a grid, graph or network world on any kind of
     clock. Nothing here knows about tactics.
 
-    The scenario is expected to have passed validate_scenario. An entity
+    The scenario is expected to be compiled (compile_scenario). An entity
     placed outside the space is still refused here, because only the built
     space can answer whether a position exists in it.
     """
@@ -72,4 +72,5 @@ def create_world(scenario: dict[str, Any]) -> WorldState:
         rules=RuleSet(world_contract.get("rule_set", {})),
         clock=build_clock(world_contract["time_model"]),
         environment=dict(world_contract.get("environment_state", {})),
+        allowed_actions=dict(scenario.get("allowed_actions") or {}),
     )

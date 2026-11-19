@@ -153,7 +153,7 @@
       "type": "object"
     }
   },
-  "$id": "skyvault/0.6/conflict_package.schema.json",
+  "$id": "skyvault/1.0/conflict_package.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "description": "Formal Spec section 13 conflict package.\n\nImportant:\nSKYVAULT never picks a side. Every compatible set of proposals ran as its\nown branch; the package shows what each branch led to, relative to a\nbaseline with no proposals, and leaves the decision to NEXUS or the user.",

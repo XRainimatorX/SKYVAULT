@@ -1,5 +1,5 @@
 {
-  "$id": "skyvault/0.6/edition.schema.json",
+  "$id": "skyvault/1.0/edition.schema.json",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
   "properties": {

@@ -32,8 +32,9 @@ from skyvault.actions import (
     check_resources,
     handlers_for,
 )
+from skyvault.compiler import compile_scenario
 from skyvault.consequence import Consequence, DirectEffect
-from skyvault.contracts import validate_action, validate_consequence, validate_scenario
+from skyvault.contracts import validate_action, validate_consequence
 from skyvault.engine import SkyVaultEngine
 from skyvault.runtime import rebuild_world
 from skyvault.runtime.world import create_world
@@ -385,7 +386,7 @@ def test_event_sourcing_still_rebuilds_the_final_world():
 
 
 def logistics_world():
-    return create_world(validate_scenario(fixture("scenario_logistics")))
+    return create_world(compile_scenario(fixture("scenario_logistics")))
 
 
 def test_the_rule_set_cost_wins_over_the_declared_resources():
